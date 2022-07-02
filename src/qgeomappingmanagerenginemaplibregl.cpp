@@ -41,9 +41,9 @@ QGeoMappingManagerEngineMapLibreGL::QGeoMappingManagerEngineMapLibreGL(const QVa
     if (parameters.contains(QStringLiteral("maplibregl.settings_template"))) {
         auto settings_template = parameters.value(QStringLiteral("maplibregl.settings_template")).toString();
         if (settings_template == "maptiler"){
-            m_settings.resetToTemplate(QMapboxGLSettings::MapTilerSettings);
+            m_settings.resetToTemplate(QMapLibreGL::Settings::MapTilerSettings);
         }else if (settings_template == "mapbox"){
-            m_settings.resetToTemplate(QMapboxGLSettings::MapboxSettings);
+            m_settings.resetToTemplate(QMapLibreGL::Settings::MapboxSettings);
         }
     }
 

@@ -1,19 +1,19 @@
 cmake_minimum_required(VERSION 3.16)
 
-file(READ "../qt/VERSION" MBGL_QML_VERSION)
+file(READ "VERSION.txt" MBGL_QML_VERSION)
 string(REGEX REPLACE "\n" "" MBGL_QML_VERSION "${MBGL_QML_VERSION}") # get
 
-project(MapLibreQmlPlugin
+project(MapLibreGLQmlPlugin
     VERSION "${MBGL_QML_VERSION}"
-    DESCRIPTION "MapLibre Qt Location QML Plugin"
-    LANGUAGES CXX C
+    DESCRIPTION "MapLibre GL Qt Location QML Plugin"
+    LANGUAGES CXX
 )
 
 # Make sure we use the fixed BASE argument of qt_add_resource.
 set(QT_USE_FIXED_QT_ADD_RESOURCE_BASE TRUE)
 
 find_package(Qt6 ${PROJECT_VERSION} CONFIG REQUIRED COMPONENTS BuildInternals Core) # special case
-
+# WebAssembly not supported
 if(WASM)
     message(NOTICE "Skipping the build as the condition \"NOT WASM\" is not met.")
     return()
@@ -21,24 +21,17 @@ endif()
 
 qt_prepare_standalone_project()
 
-find_package(Qt6 ${PROJECT_VERSION} CONFIG REQUIRED COMPONENTS Location Positioning Network) # special case
+find_package(Qt6 ${PROJECT_VERSION} CONFIG REQUIRED COMPONENTS Location Positioning Network OpenGL) # special case
 
-macro(assertTargets)
-    foreach(qtTarget IN ITEMS ${ARGN})
-        if(NOT TARGET Qt::${qtTarget})
-           message(NOTICE "Skipping the build as the condition \"TARGET Qt::${qtTarget}\" is not met.")
-           return()
-        endif()
-    endforeach()
-endmacro()
+# Core QMapLibreGL definitions
+set(MBGL_WITH_QT ON CACHE BOOL "Build MapLibre GL Qt version" FORCE)
+set(MBGL_QT_LIBRARY_ONLY ON CACHE BOOL "Build only the library part of QMapLibreGL" FORCE)
+set(MBGL_QT_INSIDE_PLUGIN ON CACHE BOOL "Build QMapLibreGL as OBJECT library, so it can be bundled into separate single plugin lib." FORCE)
+set(MBGL_ENGINE_PATH "dependencies/maplibre-gl-native" CACHE STRING "QMapLibreGL source path" FORCE)
 
-set(MBGL_WITH_QT ON CACHE BOOL "Build MapLibre Qt version" FORCE)
-set(MBGL_QT_LIBRARY_ONLY ON CACHE BOOL "Build only the library part of MapLibre" FORCE)
-set(MBGL_QT_INSIDE_PLUGIN ON CACHE BOOL "Build all libs as OBJECT libraries." FORCE)
-set(MBGL_ENGINE_PATH "../../" CACHE STRING "Maplibe Engine path" FORCE)
 add_subdirectory(
     ${MBGL_ENGINE_PATH} # Source directory
-    QMapboxGL           # Binary directory
+    QMapLibreGL           # Binary directory
     EXCLUDE_FROM_ALL
 )
 
@@ -55,12 +48,12 @@ qt_internal_add_plugin(QGeoServiceProviderFactoryMapLibreGLPlugin
     INCLUDE_DIRECTORIES
         ${MBGL_ENGINE_PATH}/platform/qt/include
     DEFINES
-        QT_MAPBOXGL_STATIC
+        QT_MAPLIBREGL_STATIC
     LIBRARIES
         Qt::OpenGL
         Qt::Network
         Qt::LocationPrivate
-        "$<BUILD_INTERFACE:qmapboxgl>"
+        "$<BUILD_INTERFACE:qmaplibregl>"
         "$<BUILD_INTERFACE:mbgl-core>"
         "$<BUILD_INTERFACE:mbgl-vendor-parsedate>"
         "$<BUILD_INTERFACE:mbgl-vendor-nunicode>"

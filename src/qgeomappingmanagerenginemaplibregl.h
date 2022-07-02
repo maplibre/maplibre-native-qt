@@ -10,7 +10,7 @@
 #include <QtLocation/QGeoServiceProvider>
 #include <QtLocation/private/qgeomappingmanagerengine_p.h>
 
-#include <QMapboxGL>
+#include <QMapLibreGL/Settings>
 
 QT_BEGIN_NAMESPACE
 
@@ -20,13 +20,13 @@ class QGeoMappingManagerEngineMapLibreGL : public QGeoMappingManagerEngine
 
 public:
     QGeoMappingManagerEngineMapLibreGL(const QVariantMap &parameters,
-                                        QGeoServiceProvider::Error *error, QString *errorString);
+                                       QGeoServiceProvider::Error *error, QString *errorString);
     ~QGeoMappingManagerEngineMapLibreGL();
 
     QGeoMap *createMap() override;
 
 private:
-    QMapboxGLSettings m_settings;
+    QMapLibreGL::Settings m_settings;
     bool m_useFBO = true;
     QString m_mapItemsBefore;
 };

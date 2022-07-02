@@ -16,7 +16,10 @@
 #include <QtLocation/private/qgeomap_p_p.h>
 #include <QtLocation/private/qgeomapparameter_p.h>
 
-class QMapboxGL;
+namespace QMapLibreGL {
+    class Map;
+}
+
 class QMapLibreGLStyleChange;
 
 class QGeoMapMapLibreGLPrivate : public QGeoMapPrivate
@@ -47,7 +50,7 @@ public:
     };
     Q_DECLARE_FLAGS(SyncStates, SyncState);
 
-    QMapboxGLSettings m_settings;
+    QMapLibreGL::Settings m_settings;
     bool m_useFBO = true;
     QString m_mapItemsBefore;
 
@@ -72,8 +75,8 @@ protected:
 private:
     Q_DISABLE_COPY(QGeoMapMapLibreGLPrivate);
 
-    void syncStyleChanges(QMapboxGL *map);
-    void threadedRenderingHack(QQuickWindow *window, QMapboxGL *map);
+    void syncStyleChanges(QMapLibreGL::Map *map);
+    void threadedRenderingHack(QQuickWindow *window, QMapLibreGL::Map *map);
 
     QRectF m_visibleArea;
 };

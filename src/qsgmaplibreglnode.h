@@ -17,16 +17,16 @@
 #include <QtGui/QOpenGLFramebufferObject>
 #endif
 
-#include <QMapboxGL>
+#include <QMapLibreGL/Map>
 
 class QGeoMapMapLibreGL;
 
 class QSGMapLibreGLTextureNode : public QSGSimpleTextureNode
 {
 public:
-    QSGMapLibreGLTextureNode(const QMapboxGLSettings &, const QSize &, qreal pixelRatio, QGeoMapMapLibreGL *geoMap);
+    QSGMapLibreGLTextureNode(const QMapLibreGL::Settings &, const QSize &, qreal pixelRatio, QGeoMapMapLibreGL *geoMap);
 
-    QMapboxGL* map() const;
+    QMapLibreGL::Map* map() const;
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     void resize(const QSize &size, qreal pixelRatio, QQuickWindow *window);
@@ -36,23 +36,23 @@ public:
     void render(QQuickWindow *);
 
 private:
-    std::unique_ptr<QMapboxGL> m_map{};
+    std::unique_ptr<QMapLibreGL::Map> m_map{};
     std::unique_ptr<QOpenGLFramebufferObject> m_fbo{};
 };
 
 class QSGMapLibreGLRenderNode : public QSGRenderNode
 {
 public:
-    QSGMapLibreGLRenderNode(const QMapboxGLSettings &, const QSize &, qreal pixelRatio, QGeoMapMapLibreGL *geoMap);
+    QSGMapLibreGLRenderNode(const QMapLibreGL::Settings &, const QSize &, qreal pixelRatio, QGeoMapMapLibreGL *geoMap);
 
-    QMapboxGL* map() const;
+    QMapLibreGL::Map* map() const;
 
     // QSGRenderNode
     void render(const RenderState *state) override;
     StateFlags changedStates() const override;
 
 private:
-    std::unique_ptr<QMapboxGL> m_map{};
+    std::unique_ptr<QMapLibreGL::Map> m_map{};
 };
 
 #endif // QSGMAPLIBREGLNODE_H

@@ -19,7 +19,11 @@
 #include <QtLocation/private/qdeclarativerectanglemapitem_p.h>
 #include <QtLocation/private/qgeomapparameter_p.h>
 
-#include <QMapboxGL>
+#include <QMapLibreGL/Types>
+
+namespace QMapLibreGL {
+    class Map;
+}
 
 class QMapLibreGLStyleChange
 {
@@ -31,7 +35,7 @@ public:
     static QList<QSharedPointer<QMapLibreGLStyleChange>> removeMapParameter(QGeoMapParameter *);
     static QList<QSharedPointer<QMapLibreGLStyleChange>> removeMapItem(QDeclarativeGeoMapItemBase *);
 
-    virtual void apply(QMapboxGL *map) = 0;
+    virtual void apply(QMapLibreGL::Map *map) = 0;
 };
 
 class QMapLibreGLStyleSetLayoutProperty : public QMapLibreGLStyleChange
@@ -40,7 +44,7 @@ public:
     static QList<QSharedPointer<QMapLibreGLStyleChange>> fromMapParameter(QGeoMapParameter *);
     static QList<QSharedPointer<QMapLibreGLStyleChange>> fromMapItem(QDeclarativeGeoMapItemBase *);
 
-    void apply(QMapboxGL *map) override;
+    void apply(QMapLibreGL::Map *map) override;
 
 private:
     static QList<QSharedPointer<QMapLibreGLStyleChange>> fromMapItem(QDeclarativePolylineMapItem *);
@@ -59,7 +63,7 @@ public:
     static QList<QSharedPointer<QMapLibreGLStyleChange>> fromMapParameter(QGeoMapParameter *);
     static QList<QSharedPointer<QMapLibreGLStyleChange>> fromMapItem(QDeclarativeGeoMapItemBase *);
 
-    void apply(QMapboxGL *map) override;
+    void apply(QMapLibreGL::Map *map) override;
 
 private:
     static QList<QSharedPointer<QMapLibreGLStyleChange>> fromMapItem(QDeclarativeRectangleMapItem *);
@@ -79,9 +83,9 @@ class QMapLibreGLStyleAddLayer : public QMapLibreGLStyleChange
 {
 public:
     static QSharedPointer<QMapLibreGLStyleChange> fromMapParameter(QGeoMapParameter *);
-    static QSharedPointer<QMapLibreGLStyleChange> fromFeature(const QMapbox::Feature &feature, const QString &before);
+    static QSharedPointer<QMapLibreGLStyleChange> fromFeature(const QMapLibreGL::Feature &feature, const QString &before);
 
-    void apply(QMapboxGL *map) override;
+    void apply(QMapLibreGL::Map *map) override;
 
 private:
     QMapLibreGLStyleAddLayer() = default;
@@ -95,7 +99,7 @@ class QMapLibreGLStyleRemoveLayer : public QMapLibreGLStyleChange
 public:
     explicit QMapLibreGLStyleRemoveLayer(const QString &id);
 
-    void apply(QMapboxGL *map) override;
+    void apply(QMapLibreGL::Map *map) override;
 
 private:
     QMapLibreGLStyleRemoveLayer() = default;
@@ -107,10 +111,10 @@ class QMapLibreGLStyleAddSource : public QMapLibreGLStyleChange
 {
 public:
     static QSharedPointer<QMapLibreGLStyleChange> fromMapParameter(QGeoMapParameter *);
-    static QSharedPointer<QMapLibreGLStyleChange> fromFeature(const QMapbox::Feature &feature);
+    static QSharedPointer<QMapLibreGLStyleChange> fromFeature(const QMapLibreGL::Feature &feature);
     static QSharedPointer<QMapLibreGLStyleChange> fromMapItem(QDeclarativeGeoMapItemBase *);
 
-    void apply(QMapboxGL *map) override;
+    void apply(QMapLibreGL::Map *map) override;
 
 private:
     QMapLibreGLStyleAddSource() = default;
@@ -124,7 +128,7 @@ class QMapLibreGLStyleRemoveSource : public QMapLibreGLStyleChange
 public:
     explicit QMapLibreGLStyleRemoveSource(const QString &id);
 
-    void apply(QMapboxGL *map) override;
+    void apply(QMapLibreGL::Map *map) override;
 
 private:
     QMapLibreGLStyleRemoveSource() = default;
@@ -137,7 +141,7 @@ class QMapLibreGLStyleSetFilter : public QMapLibreGLStyleChange
 public:
     static QSharedPointer<QMapLibreGLStyleChange> fromMapParameter(QGeoMapParameter *);
 
-    void apply(QMapboxGL *map) override;
+    void apply(QMapLibreGL::Map *map) override;
 
 private:
     QMapLibreGLStyleSetFilter() = default;
@@ -151,7 +155,7 @@ class QMapLibreGLStyleAddImage : public QMapLibreGLStyleChange
 public:
     static QSharedPointer<QMapLibreGLStyleChange> fromMapParameter(QGeoMapParameter *);
 
-    void apply(QMapboxGL *map) override;
+    void apply(QMapLibreGL::Map *map) override;
 
 private:
     QMapLibreGLStyleAddImage() = default;

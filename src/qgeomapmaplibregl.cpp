@@ -29,7 +29,7 @@
 #include <QtQuick/private/qsgtexture_p.h>
 #include <QtQuick/private/qsgcontext_p.h> // for debugging the context name
 
-#include <QMapboxGL>
+#include <QMapLibreGL/Types>
 
 #include <cmath>
 
@@ -65,7 +65,7 @@ QSGNode *QGeoMapMapLibreGLPrivate::updateSceneGraph(QSGNode *node, QQuickWindow 
         return 0;
     }
 
-    QMapboxGL *map = 0;
+    QMapLibreGL::Map *map = 0;
     if (!node) {
         QOpenGLContext *currentCtx = QOpenGLContext::currentContext();
         if (!currentCtx) {
@@ -79,12 +79,12 @@ QSGNode *QGeoMapMapLibreGLPrivate::updateSceneGraph(QSGNode *node, QQuickWindow 
         }
         if (m_useFBO) {
             auto *mbglNode = new QSGMapLibreGLTextureNode(m_settings, m_viewportSize, window->devicePixelRatio(), q);
-            QObject::connect(mbglNode->map(), &QMapboxGL::mapChanged, q, &QGeoMapMapLibreGL::onMapChanged);
+            QObject::connect(mbglNode->map(), &QMapLibreGL::Map::mapChanged, q, &QGeoMapMapLibreGL::onMapChanged);
             m_syncState = MapTypeSync | CameraDataSync | ViewportSync | VisibleAreaSync;
             node = mbglNode;
         } else {
             auto *mbglNode = new QSGMapLibreGLRenderNode(m_settings, m_viewportSize, window->devicePixelRatio(), q);
-            QObject::connect(mbglNode->map(), &QMapboxGL::mapChanged, q, &QGeoMapMapLibreGL::onMapChanged);
+            QObject::connect(mbglNode->map(), &QMapLibreGL::Map::mapChanged, q, &QGeoMapMapLibreGL::onMapChanged);
             m_syncState = MapTypeSync | CameraDataSync | ViewportSync | VisibleAreaSync;
             node = mbglNode;
         }
@@ -114,7 +114,7 @@ QSGNode *QGeoMapMapLibreGLPrivate::updateSceneGraph(QSGNode *node, QQuickWindow 
         map->setPitch(m_cameraData.tilt());
 
         QGeoCoordinate coordinate = m_cameraData.center();
-        map->setCoordinate(QMapbox::Coordinate(coordinate.latitude(), coordinate.longitude()));
+        map->setCoordinate(QMapLibreGL::Coordinate(coordinate.latitude(), coordinate.longitude()));
     }
 
     if (m_syncState & ViewportSync) {
@@ -302,7 +302,7 @@ QRectF QGeoMapMapLibreGLPrivate::visibleArea() const
     return m_visibleArea;
 }
 
-void QGeoMapMapLibreGLPrivate::syncStyleChanges(QMapboxGL *map)
+void QGeoMapMapLibreGLPrivate::syncStyleChanges(QMapLibreGL::Map *map)
 {
     for (const auto& change : m_styleChanges) {
         change->apply(map);
@@ -311,7 +311,7 @@ void QGeoMapMapLibreGLPrivate::syncStyleChanges(QMapboxGL *map)
     m_styleChanges.clear();
 }
 
-void QGeoMapMapLibreGLPrivate::threadedRenderingHack(QQuickWindow *window, QMapboxGL *map)
+void QGeoMapMapLibreGLPrivate::threadedRenderingHack(QQuickWindow *window, QMapLibreGL::Map *map)
 {
     // FIXME: Optimal support for threaded rendering needs core changes
     // in MapLibre GL Native. Meanwhile we need to set a timer to update
@@ -362,7 +362,7 @@ QString QGeoMapMapLibreGL::copyrightsStyleSheet() const
     return QStringLiteral("* { vertical-align: middle; font-weight: normal }");
 }
 
-void QGeoMapMapLibreGL::setMapLibreGLSettings(const QMapboxGLSettings& settings)
+void QGeoMapMapLibreGL::setMapLibreGLSettings(const QMapLibreGL::Settings& settings)
 {
     Q_D(QGeoMapMapLibreGL);
 
@@ -395,13 +395,13 @@ QSGNode *QGeoMapMapLibreGL::updateSceneGraph(QSGNode *oldNode, QQuickWindow *win
     return d->updateSceneGraph(oldNode, window);
 }
 
-void QGeoMapMapLibreGL::onMapChanged(QMapboxGL::MapChange change)
+void QGeoMapMapLibreGL::onMapChanged(QMapLibreGL::Map::MapChange change)
 {
     Q_D(QGeoMapMapLibreGL);
 
-    if (change == QMapboxGL::MapChangeDidFinishLoadingStyle || change == QMapboxGL::MapChangeDidFailLoadingMap) {
+    if (change == QMapLibreGL::Map::MapChangeDidFinishLoadingStyle || change == QMapLibreGL::Map::MapChangeDidFailLoadingMap) {
         d->m_styleLoaded = true;
-    } else if (change == QMapboxGL::MapChangeWillStartLoadingMap) {
+    } else if (change == QMapLibreGL::Map::MapChangeWillStartLoadingMap) {
         d->m_styleLoaded = false;
         d->m_styleChanges.clear();
 

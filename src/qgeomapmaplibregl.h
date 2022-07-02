@@ -11,6 +11,8 @@
 #include <QtLocation/private/qgeomap_p.h>
 #include <QtLocation/private/qgeomapparameter_p.h>
 
+#include <QMapLibreGL/Map>
+
 class QGeoMapMapLibreGLPrivate;
 
 class QGeoMapMapLibreGL : public QGeoMap
@@ -23,14 +25,14 @@ public:
     virtual ~QGeoMapMapLibreGL();
 
     QString copyrightsStyleSheet() const override;
-    void setMapLibreGLSettings(const QMapboxGLSettings &);
+    void setMapLibreGLSettings(const QMapLibreGL::Settings &);
     void setUseFBO(bool);
     void setMapItemsBefore(const QString &);
     Capabilities capabilities() const override;
 
 private Q_SLOTS:
     // QMapLibreGL
-    void onMapChanged(QMapboxGL::MapChange);
+    void onMapChanged(QMapLibreGL::Map::MapChange);
 
     // QDeclarativeGeoMapItemBase
     void onMapItemPropertyChanged();

@@ -22,16 +22,16 @@
 
 static const QSize minTextureSize = QSize(64, 64);
 
-QSGMapLibreGLTextureNode::QSGMapLibreGLTextureNode(const QMapboxGLSettings &settings, const QSize &size, qreal pixelRatio, QGeoMapMapLibreGL *geoMap)
+QSGMapLibreGLTextureNode::QSGMapLibreGLTextureNode(const QMapLibreGL::Settings &settings, const QSize &size, qreal pixelRatio, QGeoMapMapLibreGL *geoMap)
         : QSGSimpleTextureNode()
 {
     setTextureCoordinatesTransform(QSGSimpleTextureNode::MirrorVertically);
     setFiltering(QSGTexture::Linear);
 
-    m_map.reset(new QMapboxGL(nullptr, settings, size.expandedTo(minTextureSize), pixelRatio));
+    m_map.reset(new QMapLibreGL::Map(nullptr, settings, size.expandedTo(minTextureSize), pixelRatio));
 
-    QObject::connect(m_map.get(), &QMapboxGL::needsRendering, geoMap, &QGeoMap::sgNodeChanged);
-    QObject::connect(m_map.get(), &QMapboxGL::copyrightsChanged, geoMap,
+    QObject::connect(m_map.get(), &QMapLibreGL::Map::needsRendering, geoMap, &QGeoMap::sgNodeChanged);
+    QObject::connect(m_map.get(), &QMapLibreGL::Map::copyrightsChanged, geoMap,
             static_cast<void (QGeoMap::*)(const QString &)>(&QGeoMapMapLibreGL::copyrightsChanged));
 }
 
@@ -111,30 +111,30 @@ void QSGMapLibreGLTextureNode::render(QQuickWindow *window)
     markDirty(QSGNode::DirtyMaterial);
 }
 
-QMapboxGL* QSGMapLibreGLTextureNode::map() const
+QMapLibreGL::Map* QSGMapLibreGLTextureNode::map() const
 {
     return m_map.get();
 }
 
 // QSGMapLibreGLRenderNode
 
-QSGMapLibreGLRenderNode::QSGMapLibreGLRenderNode(const QMapboxGLSettings &settings, const QSize &size, qreal pixelRatio, QGeoMapMapLibreGL *geoMap)
+QSGMapLibreGLRenderNode::QSGMapLibreGLRenderNode(const QMapLibreGL::Settings &settings, const QSize &size, qreal pixelRatio, QGeoMapMapLibreGL *geoMap)
         : QSGRenderNode()
 {
-    m_map.reset(new QMapboxGL(nullptr, settings, size, pixelRatio));
-    QObject::connect(m_map.get(), &QMapboxGL::needsRendering, geoMap, &QGeoMap::sgNodeChanged);
-    QObject::connect(m_map.get(), &QMapboxGL::copyrightsChanged, geoMap,
+    m_map.reset(new QMapLibreGL::Map(nullptr, settings, size, pixelRatio));
+    QObject::connect(m_map.get(), &QMapLibreGL::Map::needsRendering, geoMap, &QGeoMap::sgNodeChanged);
+    QObject::connect(m_map.get(), &QMapLibreGL::Map::copyrightsChanged, geoMap,
             static_cast<void (QGeoMap::*)(const QString &)>(&QGeoMapMapLibreGL::copyrightsChanged));
 }
 
-QMapboxGL* QSGMapLibreGLRenderNode::map() const
+QMapLibreGL::Map* QSGMapLibreGLRenderNode::map() const
 {
     return m_map.get();
 }
 
 void QSGMapLibreGLRenderNode::render(const RenderState *state)
 {
-    // QMapboxGL assumes we've prepared the viewport prior to render().
+    // QMapLibreGL::Map assumes we've prepared the viewport prior to render().
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
     f->glViewport(state->scissorRect().x(), state->scissorRect().y(), state->scissorRect().width(), state->scissorRect().height());
     f->glScissor(state->scissorRect().x(), state->scissorRect().y(), state->scissorRect().width(), state->scissorRect().height());
