@@ -25,3 +25,16 @@ Add the following arguments to the CMake call:
 
 Add the following arguments to the CMake call:
 `-G"Ninja Multi-Config" -DCMAKE_CONFIGURATION_TYPES="Release;Debug"`
+
+### Qt 5
+
+A static version of QMapLibreGL needs to be built first and installed to a (temporary) location.
+Then the plugin is built separately.
+
+To build the plugin run in a separate build directory:
+
+```shell
+qmake ../qt-geoservices-maplibre-g QMAPLIBREGL_PATH=../install-qmaplibregl
+make
+make install
+```
