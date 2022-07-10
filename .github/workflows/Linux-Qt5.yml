@@ -66,11 +66,6 @@ jobs:
           dir: ${{ github.workspace }}
           target: desktop
 
-      - name: Set up ccache
-        uses: hendrikmuhs/ccache-action@v1
-        with:
-          key: Linux-maplibre-gl-native
-
       - name: Build maplibre-gl-native
         uses: ./source/.github/actions/qt5-build
         with:

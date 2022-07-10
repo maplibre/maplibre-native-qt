@@ -116,13 +116,13 @@ QGeoMappingManagerEngineMapLibreGL::QGeoMappingManagerEngineMapLibreGL(const QVa
         m_mapItemsBefore = parameters.value(QStringLiteral("maplibregl.mapping.items.insert_before")).toString();
     }
 
-    if (parameters.contains(QStringLiteral("maplibregl.client.name"))) {
-        m_settings.setClientName(parameters.value(QStringLiteral("maplibregl.client.name")).toString());
-    }
+    // if (parameters.contains(QStringLiteral("maplibregl.client.name"))) {
+    //     m_settings.setClientName(parameters.value(QStringLiteral("maplibregl.client.name")).toString());
+    // }
 
-    if (parameters.contains(QStringLiteral("maplibregl.client.version"))) {
-        m_settings.setClientVersion(parameters.value(QStringLiteral("maplibregl.client.version")).toString());
-    }
+    // if (parameters.contains(QStringLiteral("maplibregl.client.version"))) {
+    //     m_settings.setClientVersion(parameters.value(QStringLiteral("maplibregl.client.version")).toString());
+    // }
 
     engineInitialized();
 }

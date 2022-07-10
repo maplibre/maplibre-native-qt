@@ -1,4 +1,4 @@
-name: iOS CI
+name: iOS Qt5 CI
 
 on:
   workflow_dispatch:
@@ -72,6 +72,9 @@ jobs:
           version: ${{ env.QT_VERSION }}
           target: ios
 
+      - name: Setup ninja
+        uses: seanmiddleditch/gha-setup-ninja@v3
+
       - name: Build maplibre-gl-native
         run: |
           mkdir build && cd build
@@ -118,7 +121,10 @@ jobs:
         with:
           version: ${{ env.QT_VERSION }}
           target: ios
-      
+
+      - name: Setup ninja
+        uses: seanmiddleditch/gha-setup-ninja@v3
+
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:

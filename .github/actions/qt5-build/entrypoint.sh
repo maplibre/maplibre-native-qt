@@ -5,7 +5,6 @@ source scl_source enable devtoolset-8 rh-git218
 set -e
 set -x
 
-export CCACHE_DIR="$GITHUB_WORKSPACE/.ccache"
 export PATH=$Qt5_Dir/bin:$PATH
 qmake --version
 
@@ -13,13 +12,11 @@ if [[ "$1" = "library" ]]; then
   mkdir build && cd build
   cmake ../source/dependencies/maplibre-gl-native/ \
     -G Ninja \
-    -DMBGL_WITH_QT=ON \
-    -DMBGL_QT_LIBRARY_ONLY=ON \
-    -DMBGL_QT_STATIC=ON \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=../install-qmaplibregl \
-    -DCMAKE_C_COMPILER_LAUNCHER=ccache \
-    -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+    -DMBGL_WITH_QT=ON \
+    -DMBGL_QT_LIBRARY_ONLY=ON \
+    -DMBGL_QT_STATIC=ON
   ninja
   ninja install
 elif [[ "$1" = "plugin" ]]; then
