@@ -1,0 +1,3 @@
+[submodule "dependencies/maplibre-gl-native"]
+	path = dependencies/maplibre-gl-native
+	url = https://github.com/maplibre/maplibre-gl-native.git
