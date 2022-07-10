@@ -86,8 +86,8 @@ jobs:
           cmake ../source/dependencies/maplibre-gl-native/ \
             -G"Ninja Multi-Config" \
             -DCMAKE_CONFIGURATION_TYPES="Release;Debug" \
-            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
-            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_C_COMPILER_LAUNCHER="/usr/local/bin/ccache" \
+            -DCMAKE_CXX_COMPILER_LAUNCHER="/usr/local/bin/ccache" \
             -DCMAKE_FIND_ROOT_PATH="$Qt5_Dir" \
             -DCMAKE_INSTALL_PREFIX=../install-qmaplibregl \
             -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \

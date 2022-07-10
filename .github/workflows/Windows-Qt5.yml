@@ -184,6 +184,7 @@ jobs:
         run: |
           cp -r install-Release install-qmaplibregl
           cp -r install-Debug/lib/* install-qmaplibregl/lib
+        shell: bash
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
