@@ -1,0 +1,277 @@
+name: Windows CI
+
+on:
+  workflow_dispatch:
+  push:
+    tags-ignore:
+      - '**'
+    paths-ignore:
+      - ".gitignore"
+      - "README.md"
+      # ignore CI for other platforms
+      - ".github/FUNDING.yml"
+      - ".github/actions/**"
+      - ".github/workflows/Android-Qt5.yml"
+      - ".github/workflows/Android-Qt6.yml"
+      - ".github/workflows/iOS-Qt5.yml"
+      - ".github/workflows/iOS-Qt6.yml"
+      - ".github/workflows/Linux-Qt5.yml"
+      - ".github/workflows/Linux-Qt6.yml"
+      - ".github/workflows/macOS-Qt5.yml"
+      - ".github/workflows/macOS-Qt6.yml"
+      - ".github/workflows/Windows-Qt6.yml"
+
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - ".gitignore"
+      - "README.md"
+      # ignore CI for other platforms
+      - ".github/FUNDING.yml"
+      - ".github/actions/**"
+      - ".github/workflows/Android-Qt5.yml"
+      - ".github/workflows/Android-Qt6.yml"
+      - ".github/workflows/iOS-Qt5.yml"
+      - ".github/workflows/iOS-Qt6.yml"
+      - ".github/workflows/Linux-Qt5.yml"
+      - ".github/workflows/Linux-Qt6.yml"
+      - ".github/workflows/macOS-Qt5.yml"
+      - ".github/workflows/macOS-Qt6.yml"
+      - ".github/workflows/Windows-Qt6.yml"
+
+concurrency:
+  # cancel jobs on PRs only
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+env:
+  QT_VERSION: 5.15.2
+
+jobs:
+  build-core:
+    name: "Build maplibre-gl-native for ${{ matrix.config.qtarch }} (${{ matrix.config.build }})"
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        config:
+          - arch: win64_msvc2019_64
+            qtarch: msvc2019_64
+            compiler: x64
+            tools: ''
+            build: Release
+          - arch: win64_msvc2019_64
+            qtarch: msvc2019_64
+            compiler: x64
+            tools: ''
+            build: Debug
+          - arch: win32_msvc2019
+            qtarch: msvc2019
+            compiler: x64_x86
+            tools: ''
+            build: Release
+          - arch: win32_msvc2019
+            qtarch: msvc2019
+            compiler: x64_x86
+            tools: ''
+            build: Debug
+          - arch: win64_mingw81
+            qtarch: mingw81_64
+            compiler: mingw810_64
+            tools: tools_mingw,8.1.0-1-202004170606,qt.tools.win64_mingw810
+            build: Release
+          - arch: win64_mingw81
+            qtarch: mingw81_64
+            compiler: mingw810_64
+            tools: tools_mingw,8.1.0-1-202004170606,qt.tools.win64_mingw810
+            build: Debug
+          - arch: win32_mingw81
+            qtarch: mingw81_32
+            compiler: mingw810_32
+            tools: tools_mingw,8.1.0-1-202004170606,qt.tools.win32_mingw810
+            build: Release
+          - arch: win32_mingw81
+            qtarch: mingw81_32
+            compiler: mingw810_32
+            tools: tools_mingw,8.1.0-1-202004170606,qt.tools.win32_mingw810
+            build: Debug
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          path: source
+          fetch-depth: 0
+
+      - name: Setup submodules
+        shell: bash
+        run: |
+          cd source
+          auth_header="$(git config --local --get http.https://github.com/.extraheader)"
+          git submodule sync --recursive
+          git -c "http.extraheader=$auth_header" -c protocol.version=2 submodule update --init --force --recursive --depth=1 || true
+
+      - name: Download Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: ${{ env.QT_VERSION }}
+          arch: ${{ matrix.config.arch }}
+          tools: ${{ matrix.config.tools }}
+
+      - name: Setup ninja
+        uses: seanmiddleditch/gha-setup-ninja@v3
+      
+      - name: Setup MSVC
+        if: matrix.config.arch == 'win64_msvc2019_64' || matrix.config.arch == 'win32_msvc2019'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{ matrix.config.compiler }}
+
+      - name: Build maplibre-gl-native
+        env:
+          BUILD_TYPE: ${{ matrix.config.build }}
+          COMPILER_TYPE: ${{ matrix.config.compiler }}
+        run: |
+          $env:Path = $env:Path -replace "C:\\ProgramData\\Chocolatey\\bin;",""
+          $env:Path = "$env:IQTA_TOOLS\$env:COMPILER_TYPE\bin;$env:Path"
+          echo "$env:Path"
+          mkdir build
+          cd build
+          $BuildType = "$env:BUILD_TYPE"
+          cmake -S ../source/dependencies/maplibre-gl-native `
+            -G Ninja `
+            -DCMAKE_BUILD_TYPE="$BuildType" `
+            -DCMAKE_INSTALL_PREFIX="../install-qmaplibregl" `
+            -DMBGL_WITH_QT=ON `
+            -DMBGL_QT_LIBRARY_ONLY=ON `
+            -DMBGL_QT_STATIC=ON
+          ninja
+          ninja install
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: maplibre-gl-native_Windows_${{ matrix.config.qtarch }}_${{ matrix.config.build }}
+          path: install-qmaplibregl
+
+  prepare-core:
+    name: "Prepare maplibre-gl-native"
+    runs-on: windows-latest
+    needs: build-core
+    strategy:
+      matrix:
+        config:
+          - qtarch: msvc2019_64
+          - qtarch: msvc2019
+          - qtarch: mingw81_64
+          - qtarch: mingw81_32
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: maplibre-gl-native_Windows_${{ matrix.config.qtarch }}_Release
+          path: install-Release
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: maplibre-gl-native_Windows_${{ matrix.config.qtarch }}_Debug
+          path: install-Debug
+
+      - name: Prepare artifacts
+        run: |
+          cp -r install-Release install-qmaplibregl
+          cp -r install-Debug/lib/* install-qmaplibregl/lib
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: maplibre-gl-native_Windows_${{ matrix.config.qtarch }}
+          path: install-qmaplibregl
+
+  build-plugin:
+    name: "Build qt-geoservices-maplibre-gl for ${{ matrix.config.qtarch }}"
+    runs-on: windows-latest
+    needs: prepare-core
+    strategy:
+      matrix:
+        config:
+          - arch: win64_msvc2019_64
+            qtarch: msvc2019_64
+            compiler: x64
+            tools: ''
+          - arch: win32_msvc2019
+            qtarch: msvc2019
+            compiler: x64_x86
+            tools: ''
+          - arch: win64_mingw81
+            qtarch: mingw81_64
+            compiler: 'mingw810_64'
+            tools: tools_mingw,8.1.0-1-202004170606,qt.tools.win64_mingw810
+          - arch: win32_mingw81
+            qtarch: mingw81_32
+            compiler: 'mingw810_32'
+            tools: tools_mingw,8.1.0-1-202004170606,qt.tools.win32_mingw810
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          path: source
+          fetch-depth: 0
+
+      - name: Download Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: ${{ env.QT_VERSION }}
+          arch: ${{ matrix.config.arch }}
+          tools: ${{ matrix.config.tools }}
+
+      - name: Setup ninja
+        uses: seanmiddleditch/gha-setup-ninja@v3
+      
+      - name: Setup MSVC
+        if: matrix.config.arch == 'win64_msvc2019_64' || matrix.config.arch == 'win32_msvc2019'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{ matrix.config.compiler }}
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: maplibre-gl-native_Windows_${{ matrix.config.qtarch }}
+          path: install-qmaplibregl
+
+      - name: Build qt-geoservices-maplibre-gl (MSVC)
+        if: matrix.config.arch == 'win64_msvc2019_64' || matrix.config.arch == 'win32_msvc2019'
+        run: |
+          mkdir build
+          mkdir install
+          cd build
+          qmake ../source QMAPLIBREGL_PATH=../install-qmaplibregl
+          nmake
+          $env:INSTALL_ROOT = "..\install"
+          nmake install
+
+      - name: Build qt-geoservices-maplibre-gl (MinGW)
+        if: matrix.config.arch == 'win64_mingw81' || matrix.config.arch == 'win32_mingw81'
+        env:
+          COMPILER_TYPE: ${{ matrix.config.compiler }}
+        run: |
+          $env:Path = $env:Path -replace "C:\\ProgramData\\Chocolatey\\bin;",""
+          $env:Path = "$env:IQTA_TOOLS\$env:COMPILER_TYPE\bin;$env:Path"
+          echo "$env:Path"
+          mkdir build
+          mkdir install
+          cd build
+          qmake ../source QMAPLIBREGL_PATH=../install-qmaplibregl
+          mingw32-make
+          $env:INSTALL_ROOT = "../install"
+          mingw32-make install
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: qt-geoservices-maplibre-gl_Windows_${{ matrix.config.qtarch }}
+          path: install/a/qt-geoservices-maplibre-gl/Qt/${{ env.QT_VERSION }}/${{ matrix.config.qtarch }}

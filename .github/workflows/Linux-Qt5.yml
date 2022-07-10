@@ -1,0 +1,119 @@
+name: Linux Qt5 CI
+
+on:
+  workflow_dispatch:
+  push:
+    tags-ignore:
+      - '**'
+    paths-ignore:
+      - ".gitignore"
+      - "README.md"
+      # ignore CI for other platforms
+      - ".github/FUNDING.yml"
+      - ".github/workflows/Android-Qt5.yml"
+      - ".github/workflows/Android-Qt6.yml"
+      - ".github/workflows/iOS-Qt5.yml"
+      - ".github/workflows/iOS-Qt6.yml"
+      - ".github/workflows/Linux-Qt6.yml"
+      - ".github/workflows/macOS-Qt5.yml"
+      - ".github/workflows/macOS-Qt6.yml"
+      - ".github/workflows/Windows-Qt5.yml"
+      - ".github/workflows/Windows-Qt6.yml"
+
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - ".gitignore"
+      - "README.md"
+      # ignore CI for other platforms
+      - ".github/FUNDING.yml"
+      - ".github/workflows/Android-Qt5.yml"
+      - ".github/workflows/Android-Qt6.yml"
+      - ".github/workflows/iOS-Qt5.yml"
+      - ".github/workflows/iOS-Qt6.yml"
+      - ".github/workflows/Linux-Qt6.yml"
+      - ".github/workflows/macOS-Qt5.yml"
+      - ".github/workflows/macOS-Qt6.yml"
+      - ".github/workflows/Windows-Qt5.yml"
+      - ".github/workflows/Windows-Qt6.yml"
+
+concurrency:
+  # cancel jobs on PRs only
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+env:
+  QT_VERSION: 5.15.2
+
+jobs:
+  build-core:
+    name: "Build maplibre-gl-native"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          path: source
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Download Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: ${{ env.QT_VERSION }}
+          dir: ${{ github.workspace }}
+          target: desktop
+
+      - name: Set up ccache
+        uses: hendrikmuhs/ccache-action@v1
+        with:
+          key: Linux-maplibre-gl-native
+
+      - name: Build maplibre-gl-native
+        uses: ./source/.github/actions/qt5-build
+        with:
+          build-type: library
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: maplibre-gl-native_Linux
+          path: install-qmaplibregl
+
+  build-plugin:
+    name: "Build qt-geoservices-maplibre-gl"
+    runs-on: ubuntu-latest
+    needs: build-core
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          path: source
+          fetch-depth: 0
+
+      - name: Download Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: ${{ env.QT_VERSION }}
+          dir: ${{ github.workspace }}
+          target: desktop
+      
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: maplibre-gl-native_Linux
+          path: install-qmaplibregl
+
+      - name: Build qt-geoservices-maplibre-gl
+        uses: ./source/.github/actions/qt5-build
+        with:
+          build-type: plugin
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: qt-geoservices-maplibre-gl_Linux
+          path: install/github/workspace/Qt/${{ env.QT_VERSION }}/gcc_64

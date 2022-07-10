@@ -1,0 +1,139 @@
+name: iOS CI
+
+on:
+  workflow_dispatch:
+  push:
+    tags-ignore:
+      - '**'
+    paths-ignore:
+      - ".gitignore"
+      - "README.md"
+      # ignore CI for other platforms
+      - ".github/FUNDING.yml"
+      - ".github/actions/**"
+      - ".github/workflows/Android-Qt5.yml"
+      - ".github/workflows/Android-Qt6.yml"
+      - ".github/workflows/iOS-Qt6.yml"
+      - ".github/workflows/Linux-Qt5.yml"
+      - ".github/workflows/Linux-Qt6.yml"
+      - ".github/workflows/macOS-Qt5.yml"
+      - ".github/workflows/macOS-Qt6.yml"
+      - ".github/workflows/Windows-Qt5.yml"
+      - ".github/workflows/Windows-Qt6.yml"
+
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - ".gitignore"
+      - "README.md"
+      # ignore CI for other platforms
+      - ".github/FUNDING.yml"
+      - ".github/actions/**"
+      - ".github/workflows/Android-Qt5.yml"
+      - ".github/workflows/Android-Qt6.yml"
+      - ".github/workflows/iOS-Qt6.yml"
+      - ".github/workflows/Linux-Qt5.yml"
+      - ".github/workflows/Linux-Qt6.yml"
+      - ".github/workflows/macOS-Qt5.yml"
+      - ".github/workflows/macOS-Qt6.yml"
+      - ".github/workflows/Windows-Qt5.yml"
+      - ".github/workflows/Windows-Qt6.yml"
+
+concurrency:
+  # cancel jobs on PRs only
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+env:
+  QT_VERSION: 5.15.2
+
+jobs:
+  build-core:
+    name: "Build maplibre-gl-native"
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          path: source
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Download Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: ${{ env.QT_VERSION }}
+          target: ios
+
+      - name: Build maplibre-gl-native
+        run: |
+          mkdir build && cd build
+          cmake ../source/dependencies/maplibre-gl-native/ \
+            -G"Ninja Multi-Config" \
+            -DCMAKE_CONFIGURATION_TYPES="Release;Debug" \
+            -DCMAKE_FIND_ROOT_PATH="$Qt5_Dir" \
+            -DCMAKE_INSTALL_PREFIX=../install-qmaplibregl \
+            -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0 \
+            -DCMAKE_PREFIX_PATH="$Qt5_Dir" \
+            -DCMAKE_SYSTEM_NAME=iOS \
+            -DMBGL_WITH_QT=ON \
+            -DMBGL_QT_LIBRARY_ONLY=ON \
+            -DMBGL_QT_STATIC=ON
+          ninja
+          ninja install
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: maplibre-gl-native_iOS
+          path: install-qmaplibregl
+
+  build-plugin:
+    name: "Build qt-geoservices-maplibre-gl"
+    runs-on: macos-latest
+    needs: build-core
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          path: source
+          fetch-depth: 0
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Download Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: ${{ env.QT_VERSION }}
+          target: ios
+      
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: maplibre-gl-native_iOS
+          path: install-qmaplibregl
+
+      - name: Build qt-geoservices-maplibre-gl
+        run: |
+          mkdir build && cd build
+          qmake ../source/ QMAPLIBREGL_PATH=../install-qmaplibregl
+          make -j2
+          INSTALL_ROOT=../install make install
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: qt-geoservices-maplibre-gl_iOS
+          path: install/Users/runner/work/qt-geoservices-maplibre-gl/Qt/${{ env.QT_VERSION }}/ios
