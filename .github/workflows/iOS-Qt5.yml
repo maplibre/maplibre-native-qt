@@ -1,4 +1,4 @@
-name: iOS CI
+name: iOS Qt5 CI
 
 on:
   workflow_dispatch:
@@ -72,12 +72,22 @@ jobs:
           version: ${{ env.QT_VERSION }}
           target: ios
 
+      - name: Setup ninja
+        uses: seanmiddleditch/gha-setup-ninja@v3
+
+      - name: Set up ccache
+        uses: hendrikmuhs/ccache-action@v1
+        with:
+          key: iOS-maplibre-gl-native
+
       - name: Build maplibre-gl-native
         run: |
           mkdir build && cd build
           cmake ../source/dependencies/maplibre-gl-native/ \
             -G"Ninja Multi-Config" \
             -DCMAKE_CONFIGURATION_TYPES="Release;Debug" \
+            -DCMAKE_C_COMPILER_LAUNCHER="/usr/local/bin/ccache" \
+            -DCMAKE_CXX_COMPILER_LAUNCHER="/usr/local/bin/ccache" \
             -DCMAKE_FIND_ROOT_PATH="$Qt5_Dir" \
             -DCMAKE_INSTALL_PREFIX=../install-qmaplibregl \
             -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
@@ -118,7 +128,15 @@ jobs:
         with:
           version: ${{ env.QT_VERSION }}
           target: ios
-      
+
+      - name: Setup ninja
+        uses: seanmiddleditch/gha-setup-ninja@v3
+
+      - name: Set up ccache
+        uses: hendrikmuhs/ccache-action@v1
+        with:
+          key: iOS-qt-geoservices-maplibre-gl
+
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
@@ -127,6 +145,7 @@ jobs:
 
       - name: Build qt-geoservices-maplibre-gl
         run: |
+          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
           mkdir build && cd build
           qmake ../source/ QMAPLIBREGL_PATH=../install-qmaplibregl
           make -j2

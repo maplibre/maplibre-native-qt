@@ -132,7 +132,7 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1
         with:
           key: macOS-qt-geoservices-maplibre-gl
-      
+
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:

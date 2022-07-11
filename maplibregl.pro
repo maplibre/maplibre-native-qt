@@ -43,7 +43,11 @@ load(qt_build_paths)
 message("QMapLibreGL path: $$QMAPLIBREGL_PATH")
 
 INCLUDEPATH += $$QMAPLIBREGL_PATH/include
-LIBS += -L$$QMAPLIBREGL_PATH/lib -lQMapLibreGL$$qtPlatformTargetSuffix()
+LIBS += -L$$QMAPLIBREGL_PATH/lib
+linux:!android {
+    LIBS += -L$$QMAPLIBREGL_PATH/lib64
+}
+LIBS += -lQMapLibreGL$$qtPlatformTargetSuffix()
 
 qtConfig(icu) {
     QMAKE_USE_PRIVATE += icu

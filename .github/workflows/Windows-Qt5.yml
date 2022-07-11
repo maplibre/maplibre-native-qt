@@ -1,4 +1,4 @@
-name: Windows CI
+name: Windows Qt5 CI
 
 on:
   workflow_dispatch:
@@ -65,16 +65,16 @@ jobs:
             compiler: x64
             tools: ''
             build: Debug
-          - arch: win32_msvc2019
-            qtarch: msvc2019
-            compiler: x64_x86
-            tools: ''
-            build: Release
-          - arch: win32_msvc2019
-            qtarch: msvc2019
-            compiler: x64_x86
-            tools: ''
-            build: Debug
+          # - arch: win32_msvc2019
+          #   qtarch: msvc2019
+          #   compiler: x64_x86
+          #   tools: ''
+          #   build: Release
+          # - arch: win32_msvc2019
+          #   qtarch: msvc2019
+          #   compiler: x64_x86
+          #   tools: ''
+          #   build: Debug
           - arch: win64_mingw81
             qtarch: mingw81_64
             compiler: mingw810_64
@@ -85,16 +85,16 @@ jobs:
             compiler: mingw810_64
             tools: tools_mingw,8.1.0-1-202004170606,qt.tools.win64_mingw810
             build: Debug
-          - arch: win32_mingw81
-            qtarch: mingw81_32
-            compiler: mingw810_32
-            tools: tools_mingw,8.1.0-1-202004170606,qt.tools.win32_mingw810
-            build: Release
-          - arch: win32_mingw81
-            qtarch: mingw81_32
-            compiler: mingw810_32
-            tools: tools_mingw,8.1.0-1-202004170606,qt.tools.win32_mingw810
-            build: Debug
+          # - arch: win32_mingw81
+          #   qtarch: mingw81_32
+          #   compiler: mingw810_32
+          #   tools: tools_mingw,8.1.0-1-202004170606,qt.tools.win32_mingw810
+          #   build: Release
+          # - arch: win32_mingw81
+          #   qtarch: mingw81_32
+          #   compiler: mingw810_32
+          #   tools: tools_mingw,8.1.0-1-202004170606,qt.tools.win32_mingw810
+          #   build: Debug
 
     steps:
       - name: Checkout
@@ -120,12 +120,13 @@ jobs:
 
       - name: Setup ninja
         uses: seanmiddleditch/gha-setup-ninja@v3
-      
+
       - name: Setup MSVC
         if: matrix.config.arch == 'win64_msvc2019_64' || matrix.config.arch == 'win32_msvc2019'
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: ${{ matrix.config.compiler }}
+          toolset: 14.29
 
       - name: Build maplibre-gl-native
         env:
@@ -162,9 +163,9 @@ jobs:
       matrix:
         config:
           - qtarch: msvc2019_64
-          - qtarch: msvc2019
+          # - qtarch: msvc2019
           - qtarch: mingw81_64
-          - qtarch: mingw81_32
+          # - qtarch: mingw81_32
 
     steps:
       - name: Download artifacts
@@ -183,6 +184,7 @@ jobs:
         run: |
           cp -r install-Release install-qmaplibregl
           cp -r install-Debug/lib/* install-qmaplibregl/lib
+        shell: bash
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
@@ -201,18 +203,18 @@ jobs:
             qtarch: msvc2019_64
             compiler: x64
             tools: ''
-          - arch: win32_msvc2019
-            qtarch: msvc2019
-            compiler: x64_x86
-            tools: ''
+          # - arch: win32_msvc2019
+          #   qtarch: msvc2019
+          #   compiler: x64_x86
+          #   tools: ''
           - arch: win64_mingw81
             qtarch: mingw81_64
             compiler: 'mingw810_64'
             tools: tools_mingw,8.1.0-1-202004170606,qt.tools.win64_mingw810
-          - arch: win32_mingw81
-            qtarch: mingw81_32
-            compiler: 'mingw810_32'
-            tools: tools_mingw,8.1.0-1-202004170606,qt.tools.win32_mingw810
+          # - arch: win32_mingw81
+          #   qtarch: mingw81_32
+          #   compiler: 'mingw810_32'
+          #   tools: tools_mingw,8.1.0-1-202004170606,qt.tools.win32_mingw810
 
     steps:
       - name: Checkout
@@ -230,12 +232,13 @@ jobs:
 
       - name: Setup ninja
         uses: seanmiddleditch/gha-setup-ninja@v3
-      
+
       - name: Setup MSVC
         if: matrix.config.arch == 'win64_msvc2019_64' || matrix.config.arch == 'win32_msvc2019'
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: ${{ matrix.config.compiler }}
+          toolset: 14.29
 
       - name: Download artifacts
         uses: actions/download-artifact@v2

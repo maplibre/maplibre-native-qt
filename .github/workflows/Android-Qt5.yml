@@ -1,4 +1,4 @@
-name: Android CI
+name: Android Qt5 CI
 
 on:
   workflow_dispatch:
@@ -103,7 +103,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_CXX_FLAGS_RELEASE=-g0 \
             -DCMAKE_FIND_ROOT_PATH="${Qt5_Dir}" \
-            -DCMAKE_INSTALL_PREFIX=../install-qmaplibregl
+            -DCMAKE_INSTALL_PREFIX=../install-qmaplibregl \
             -DCMAKE_PREFIX_PATH="${Qt5_Dir}" \
             -DMBGL_WITH_QT=ON \
             -DMBGL_QT_LIBRARY_ONLY=ON \
@@ -128,13 +128,13 @@ jobs:
         with:
           name: maplibre-gl-native_Android_x86
           path: install-x86
-      
+
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
           name: maplibre-gl-native_Android_x86_64
           path: install-x86_64
-      
+
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
@@ -150,9 +150,9 @@ jobs:
       - name: Prepare artifacts
         run: |
           cp -r install-arm64-v8a install-qmaplibregl
-          cp install-armeabi-v7a/lib/* install-qmaplibregl/lib/
-          cp install-x86/lib/* install-qmaplibregl/lib/
-          cp install-x86_64/lib/* install-qmaplibregl/lib/
+          cp -r install-armeabi-v7a/lib/* install-qmaplibregl/lib/
+          cp -r install-x86/lib/* install-qmaplibregl/lib/
+          cp -r install-x86_64/lib/* install-qmaplibregl/lib/
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
