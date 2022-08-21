@@ -1,3 +1,5 @@
+![MapLibre Logo](https://maplibre.org/img/maplibre-logo-big.svg)
+
 # qt-geoservices-maplibre-gl
 
 Qt Location MapLibre GL Plugin
@@ -38,3 +40,11 @@ qmake ../qt-geoservices-maplibre-g QMAPLIBREGL_PATH=../install-qmaplibregl
 make
 make install
 ```
+
+## Copyright
+
+Copyright (C) 2022 MapLibre contributors
+
+This project may be used under the terms of either GNU General Public License version 2.0,
+GNU General Public License version 3.0 or GNU Lesser General Public License version 3.0.
+Examples are licensed under MIT.
