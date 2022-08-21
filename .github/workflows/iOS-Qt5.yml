@@ -3,6 +3,8 @@ name: iOS Qt5 CI
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
     tags-ignore:
       - '**'
     paths-ignore:
@@ -67,8 +69,9 @@ jobs:
           xcode-version: latest-stable
 
       - name: Download Qt
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v3
         with:
+          aqtversion: ==2.1.*
           version: ${{ env.QT_VERSION }}
           target: ios
 
@@ -80,14 +83,20 @@ jobs:
         with:
           key: iOS-maplibre-gl-native
 
+      - name: Use custom version of ccache
+        run: |
+          sed -i.bak -e 's/ccache\/ccache\.git/ntadej\/ccache.git/' -e 's/master/xarch/' /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/ccache.rb
+          brew unlink ccache
+          brew install ccache --HEAD
+
       - name: Build maplibre-gl-native
         run: |
           mkdir build && cd build
           cmake ../source/dependencies/maplibre-gl-native/ \
             -G"Ninja Multi-Config" \
             -DCMAKE_CONFIGURATION_TYPES="Release;Debug" \
-            -DCMAKE_C_COMPILER_LAUNCHER="/usr/local/bin/ccache" \
-            -DCMAKE_CXX_COMPILER_LAUNCHER="/usr/local/bin/ccache" \
+            -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
+            -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
             -DCMAKE_FIND_ROOT_PATH="$Qt5_Dir" \
             -DCMAKE_INSTALL_PREFIX=../install-qmaplibregl \
             -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
@@ -124,8 +133,9 @@ jobs:
           xcode-version: latest-stable
 
       - name: Download Qt
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v3
         with:
+          aqtversion: ==2.1.*
           version: ${{ env.QT_VERSION }}
           target: ios
 
@@ -136,6 +146,12 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1
         with:
           key: iOS-qt-geoservices-maplibre-gl
+
+      - name: Use custom version of ccache
+        run: |
+          sed -i.bak -e 's/ccache\/ccache\.git/ntadej\/ccache.git/' -e 's/master/xarch/' /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/ccache.rb
+          brew unlink ccache
+          brew install ccache --HEAD
 
       - name: Download artifacts
         uses: actions/download-artifact@v3

@@ -3,6 +3,8 @@ name: macOS Qt5 CI
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
     tags-ignore:
       - '**'
     paths-ignore:
@@ -67,8 +69,9 @@ jobs:
           xcode-version: latest-stable
 
       - name: Download Qt
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v3
         with:
+          aqtversion: ==2.1.*
           version: ${{ env.QT_VERSION }}
           target: desktop
 
@@ -120,8 +123,9 @@ jobs:
           xcode-version: latest-stable
 
       - name: Download Qt
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v3
         with:
+          aqtversion: ==2.1.*
           version: ${{ env.QT_VERSION }}
           target: desktop
 

@@ -3,6 +3,8 @@ name: Windows Qt5 CI
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
     tags-ignore:
       - '**'
     paths-ignore:

@@ -3,6 +3,8 @@ name: Android Qt5 CI
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
     tags-ignore:
       - '**'
     paths-ignore:
@@ -51,7 +53,7 @@ env:
 jobs:
   build-core:
     name: "Build maplibre-gl-native for ${{ matrix.config.abi }}"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         config:
@@ -69,10 +71,12 @@ jobs:
           fetch-depth: 0
 
       - name: Download Qt
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v3
         with:
+          aqtversion: ==2.1.*
           version: ${{ env.QT_VERSION }}
-          target: android
+          target: 'android'
+          arch: 'android'
 
       - name: Set up OpenJDK 11
         uses: actions/setup-java@v3
@@ -92,7 +96,6 @@ jobs:
         env:
           ANDROID_ABI: ${{ matrix.config.abi }}
         run: |
-          export ANDROID_NDK_ROOT="${ANDROID_SDK_ROOT}/ndk-bundle"
           mkdir build && cd build
           cmake ../source/dependencies/maplibre-gl-native \
             -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK_ROOT}/build/cmake/android.toolchain.cmake" \
@@ -101,6 +104,8 @@ jobs:
             -DANDROID_NATIVE_API_LEVEL=21 \
             -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DCMAKE_CXX_FLAGS_RELEASE=-g0 \
             -DCMAKE_FIND_ROOT_PATH="${Qt5_Dir}" \
             -DCMAKE_INSTALL_PREFIX=../install-qmaplibregl \
@@ -173,10 +178,12 @@ jobs:
           fetch-depth: 0
 
       - name: Download Qt
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v3
         with:
+          aqtversion: ==2.1.*
           version: ${{ env.QT_VERSION }}
           target: android
+          arch: 'android'
 
       - name: Set up OpenJDK 11
         uses: actions/setup-java@v3
