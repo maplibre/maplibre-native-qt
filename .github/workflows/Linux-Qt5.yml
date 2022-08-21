@@ -3,6 +3,8 @@ name: Linux Qt5 CI
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
     tags-ignore:
       - '**'
     paths-ignore:
@@ -60,11 +62,17 @@ jobs:
           fetch-depth: 0
 
       - name: Download Qt
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v3
         with:
+          aqtversion: ==2.1.*
           version: ${{ env.QT_VERSION }}
           dir: ${{ github.workspace }}
           target: desktop
+
+      - name: Set up ccache
+        uses: hendrikmuhs/ccache-action@v1
+        with:
+          key: Linux-maplibre-gl-native
 
       - name: Build maplibre-gl-native
         uses: ./source/.github/actions/qt5-build
@@ -90,11 +98,17 @@ jobs:
           fetch-depth: 0
 
       - name: Download Qt
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v3
         with:
+          aqtversion: ==2.1.*
           version: ${{ env.QT_VERSION }}
           dir: ${{ github.workspace }}
           target: desktop
+        
+      - name: Set up ccache
+        uses: hendrikmuhs/ccache-action@v1
+        with:
+          key: Linux-qt-geoservices-maplibre-gl
       
       - name: Download artifacts
         uses: actions/download-artifact@v3
