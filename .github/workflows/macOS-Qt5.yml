@@ -5,7 +5,7 @@ on:
   push:
     branches:
       - main
-    tags-ignore:
+    tags:
       - '**'
     paths-ignore:
       - ".gitignore"
@@ -53,7 +53,7 @@ env:
 jobs:
   build-core:
     name: "Build maplibre-gl-native"
-    runs-on: macos-latest
+    runs-on: macos-12
 
     steps:
       - name: Checkout
@@ -107,7 +107,7 @@ jobs:
 
   build-plugin:
     name: "Build qt-geoservices-maplibre-gl"
-    runs-on: macos-latest
+    runs-on: macos-12
     needs: build-core
 
     steps:
@@ -155,4 +155,33 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: qt-geoservices-maplibre-gl_macOS
-          path: install/Users/runner/work/qt-geoservices-maplibre-gl/Qt/${{ env.QT_VERSION }}/clang_64
+          path: install/Users/runner/work/qt-geoservices-maplibre-gl
+
+  release:
+    name: "Release qt-geoservices-maplibre-gl"
+    if: github.ref_type == 'tag'
+    runs-on: macos-12
+    needs: build-plugin
+    permissions:
+      contents: write
+
+    steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: qt-geoservices-maplibre-gl_macOS
+        path: install
+
+    - name: Make tarball
+      env:
+        TAG_NAME: ${{ github.ref_name }}
+      run: |
+        cd install
+        tar cjvf ../qt-geoservices-maplibre-gl${TAG_NAME}_Qt${QT_VERSION}_macOS.tar.bz2 Qt
+
+    - name: Release
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: qt-geoservices-maplibre-gl${TAG_NAME}_Qt${QT_VERSION}_macOS.tar.bz2
+        allowUpdates: true
+        draft: true
