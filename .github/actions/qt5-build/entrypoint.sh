@@ -14,6 +14,8 @@ if [[ "$1" = "library" ]]; then
   cmake ../source/dependencies/maplibre-gl-native/ \
     -G Ninja \
     -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+    -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
     -DCMAKE_INSTALL_PREFIX=../install-qmaplibregl \
     -DMBGL_WITH_QT=ON \
     -DMBGL_QT_LIBRARY_ONLY=ON \

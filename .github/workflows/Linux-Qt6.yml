@@ -1,4 +1,4 @@
-name: Linux Qt5 CI
+name: Linux Qt6 CI
 
 on:
   workflow_dispatch:
@@ -16,7 +16,7 @@ on:
       - ".github/workflows/Android-Qt6.yml"
       - ".github/workflows/iOS-Qt5.yml"
       - ".github/workflows/iOS-Qt6.yml"
-      - ".github/workflows/Linux-Qt6.yml"
+      - ".github/workflows/Linux-Qt5.yml"
       - ".github/workflows/macOS-Qt5.yml"
       - ".github/workflows/macOS-Qt6.yml"
       - ".github/workflows/Windows-Qt5.yml"
@@ -34,7 +34,7 @@ on:
       - ".github/workflows/Android-Qt6.yml"
       - ".github/workflows/iOS-Qt5.yml"
       - ".github/workflows/iOS-Qt6.yml"
-      - ".github/workflows/Linux-Qt6.yml"
+      - ".github/workflows/Linux-Qt5.yml"
       - ".github/workflows/macOS-Qt5.yml"
       - ".github/workflows/macOS-Qt6.yml"
       - ".github/workflows/Windows-Qt5.yml"
@@ -46,11 +46,12 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 env:
-  QT_VERSION: 5.15.2
+  QT_VERSION: 6.3.1
+  QT_LOCATION_VERSION: 6.3.1.0
 
 jobs:
-  build-core:
-    name: "Build maplibre-gl-native"
+  build-plugin:
+    name: "Build qt-geoservices-maplibre-gl"
     runs-on: ubuntu-22.04
 
     steps:
@@ -68,58 +69,20 @@ jobs:
           version: ${{ env.QT_VERSION }}
           dir: ${{ github.workspace }}
           target: desktop
+          modules: qtpositioning qtshadertools
 
-      - name: Set up ccache
-        uses: hendrikmuhs/ccache-action@v1
-        with:
-          key: Linux-maplibre-gl-native
-
-      - name: Build maplibre-gl-native
-        uses: ./source/.github/actions/qt5-build
-        with:
-          build-type: library
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: maplibre-gl-native_Linux
-          path: install-qmaplibregl
-
-  build-plugin:
-    name: "Build qt-geoservices-maplibre-gl"
-    runs-on: ubuntu-22.04
-    needs: build-core
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          path: source
-          fetch-depth: 0
-
-      - name: Download Qt
-        uses: jurplel/install-qt-action@v3
-        with:
-          aqtversion: ==2.1.*
-          version: ${{ env.QT_VERSION }}
-          dir: ${{ github.workspace }}
-          target: desktop
+      - name: Download QtLocation
+        run: |
+          wget https://github.com/ntadej/qtlocation/releases/download/v${QT_LOCATION_VERSION}/QtLocation_v${QT_LOCATION_VERSION}_Linux.tar.bz2
+          tar xvf QtLocation_v${QT_LOCATION_VERSION}_Linux.tar.bz2
 
       - name: Set up ccache
         uses: hendrikmuhs/ccache-action@v1
         with:
           key: Linux-qt-geoservices-maplibre-gl
 
-      - name: Download artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: maplibre-gl-native_Linux
-          path: install-qmaplibregl
-
       - name: Build qt-geoservices-maplibre-gl
-        uses: ./source/.github/actions/qt5-build
-        with:
-          build-type: plugin
+        uses: ./source/.github/actions/qt6-build
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
@@ -141,6 +104,11 @@ jobs:
       with:
         name: qt-geoservices-maplibre-gl_Linux
         path: install
+
+    - name: Download QtLocation
+      run: |
+        wget https://github.com/ntadej/qtlocation/releases/download/v${QT_LOCATION_VERSION}/QtLocation_v${QT_LOCATION_VERSION}_Linux.tar.bz2
+        tar xvf QtLocation_v${QT_LOCATION_VERSION}_Linux.tar.bz2 -C install
 
     - name: Make tarball
       env:
