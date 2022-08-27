@@ -1,4 +1,4 @@
-name: iOS Qt5 CI
+name: iOS Qt6 CI
 
 on:
   workflow_dispatch:
@@ -15,7 +15,7 @@ on:
       - ".github/actions/**"
       - ".github/workflows/Android-Qt5.yml"
       - ".github/workflows/Android-Qt6.yml"
-      - ".github/workflows/iOS-Qt6.yml"
+      - ".github/workflows/iOS-Qt5.yml"
       - ".github/workflows/Linux-Qt5.yml"
       - ".github/workflows/Linux-Qt6.yml"
       - ".github/workflows/macOS-Qt5.yml"
@@ -34,7 +34,7 @@ on:
       - ".github/actions/**"
       - ".github/workflows/Android-Qt5.yml"
       - ".github/workflows/Android-Qt6.yml"
-      - ".github/workflows/iOS-Qt6.yml"
+      - ".github/workflows/iOS-Qt5.yml"
       - ".github/workflows/Linux-Qt5.yml"
       - ".github/workflows/Linux-Qt6.yml"
       - ".github/workflows/macOS-Qt5.yml"
@@ -48,11 +48,12 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 env:
-  QT_VERSION: 5.15.2
+  QT_VERSION: 6.3.1
+  QT_LOCATION_VERSION: 6.3.1.0
 
 jobs:
-  build-core:
-    name: "Build maplibre-gl-native"
+  build-plugin:
+    name: "Build qt-geoservices-maplibre-gl"
     runs-on: macos-12
 
     steps:
@@ -68,83 +69,26 @@ jobs:
         with:
           xcode-version: latest-stable
 
-      - name: Download Qt
+      - name: Download Qt (desktop)
+        uses: jurplel/install-qt-action@v3
+        with:
+          aqtversion: ==2.1.*
+          version: ${{ env.QT_VERSION }}
+          target: desktop
+          modules: qtpositioning qtshadertools
+
+      - name: Download Qt (iOS)
         uses: jurplel/install-qt-action@v3
         with:
           aqtversion: ==2.1.*
           version: ${{ env.QT_VERSION }}
           target: ios
+          modules: qtpositioning qtshadertools
 
-      - name: Setup ninja
-        uses: seanmiddleditch/gha-setup-ninja@v3
-
-      - name: Set up ccache
-        uses: hendrikmuhs/ccache-action@v1
-        with:
-          key: iOS-maplibre-gl-native
-
-      - name: Use custom version of ccache
+      - name: Download QtLocation
         run: |
-          sed -i.bak -e 's/ccache\/ccache\.git/ntadej\/ccache.git/' -e 's/master/xarch/' /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/ccache.rb
-          brew unlink ccache
-          brew install ccache --HEAD
-
-      - name: Build maplibre-gl-native
-        run: |
-          export CCACHE_LOGFILE=../ccache.log
-          mkdir build && cd build
-          cmake ../source/dependencies/maplibre-gl-native/ \
-            -G"Ninja Multi-Config" \
-            -DCMAKE_CONFIGURATION_TYPES="Release;Debug" \
-            -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
-            -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
-            -DCMAKE_FIND_ROOT_PATH="$Qt5_Dir" \
-            -DCMAKE_INSTALL_PREFIX=../install-qmaplibregl \
-            -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0 \
-            -DCMAKE_PREFIX_PATH="$Qt5_Dir" \
-            -DCMAKE_SYSTEM_NAME=iOS \
-            -DMBGL_WITH_QT=ON \
-            -DMBGL_QT_LIBRARY_ONLY=ON \
-            -DMBGL_QT_STATIC=ON
-          ninja
-          ninja install
-
-      - name: Upload ccache.log
-        uses: actions/upload-artifact@v3
-        with:
-          name: ccache_iOS
-          path: ccache.log
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: maplibre-gl-native_iOS
-          path: install-qmaplibregl
-
-  build-plugin:
-    name: "Build qt-geoservices-maplibre-gl"
-    runs-on: macos-12
-    needs: build-core
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          path: source
-          fetch-depth: 0
-
-      - name: Setup Xcode
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: latest-stable
-
-      - name: Download Qt
-        uses: jurplel/install-qt-action@v3
-        with:
-          aqtversion: ==2.1.*
-          version: ${{ env.QT_VERSION }}
-          target: ios
+          wget https://github.com/ntadej/qtlocation/releases/download/v${QT_LOCATION_VERSION}/QtLocation_v${QT_LOCATION_VERSION}_iOS.tar.bz2
+          tar xvf QtLocation_v${QT_LOCATION_VERSION}_iOS.tar.bz2 -C ..
 
       - name: Setup ninja
         uses: seanmiddleditch/gha-setup-ninja@v3
@@ -160,19 +104,27 @@ jobs:
           brew unlink ccache
           brew install ccache --HEAD
 
-      - name: Download artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: maplibre-gl-native_iOS
-          path: install-qmaplibregl
-
       - name: Build qt-geoservices-maplibre-gl
         run: |
-          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+          export CCACHE_LOGFILE=../ccache.log
           mkdir build && cd build
-          qmake ../source/ QMAPLIBREGL_PATH=../install-qmaplibregl
-          make -j2
-          INSTALL_ROOT=../install make install
+          qt-cmake ../source/ \
+            -G"Ninja Multi-Config" \
+            -DCMAKE_CONFIGURATION_TYPES="Release;Debug" \
+            -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
+            -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
+            -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=13.0 \
+            -DQT_HOST_PATH=$(readlink -f $Qt6_DIR/../macos) \
+            -DQT_USE_CCACHE=ON
+          ninja
+          DESTDIR=../install ninja install
+
+      - name: Upload ccache.log
+        uses: actions/upload-artifact@v3
+        with:
+          name: ccache_iOS
+          path: ccache.log
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
@@ -194,6 +146,11 @@ jobs:
       with:
         name: qt-geoservices-maplibre-gl_iOS
         path: install
+
+    - name: Download QtLocation
+      run: |
+        wget https://github.com/ntadej/qtlocation/releases/download/v${QT_LOCATION_VERSION}/QtLocation_v${QT_LOCATION_VERSION}_iOS.tar.bz2
+        tar xvf QtLocation_v${QT_LOCATION_VERSION}_iOS.tar.bz2 -C install
 
     - name: Make tarball
       env:
