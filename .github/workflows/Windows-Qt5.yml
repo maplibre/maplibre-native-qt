@@ -302,6 +302,6 @@ jobs:
     - name: Release
       uses: ncipollo/release-action@v1
       with:
-        artifacts: t-geoservices-maplibre-gl_${TAG_NAME}_Qt${QT_VERSION}_Windows_${TAG_ARCH}.tar.bz2
+        artifacts: qt-geoservices-maplibre-gl_${{ github.ref_name }}_Qt${{ env.QT_VERSION }}_Windows_${{ matrix.config.qtarch }}.tar.bz2
         allowUpdates: true
         draft: true
