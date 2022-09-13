@@ -177,11 +177,11 @@ jobs:
         TAG_NAME: ${{ github.ref_name }}
       run: |
         cd install
-        tar cjvf ../qt-geoservices-maplibre-gl${TAG_NAME}_Qt${QT_VERSION}_macOS.tar.bz2 Qt
+        tar cjvf ../qt-geoservices-maplibre-gl_${TAG_NAME}_Qt${QT_VERSION}_macOS.tar.bz2 Qt
 
     - name: Release
       uses: ncipollo/release-action@v1
       with:
-        artifacts: qt-geoservices-maplibre-gl${TAG_NAME}_Qt${QT_VERSION}_macOS.tar.bz2
+        artifacts: qt-geoservices-maplibre-gl_${{ github.ref_name }}_Qt${{ env.QT_VERSION }}_macOS.tar.bz2
         allowUpdates: true
         draft: true
