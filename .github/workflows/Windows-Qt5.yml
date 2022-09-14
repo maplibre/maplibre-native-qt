@@ -279,7 +279,7 @@ jobs:
       matrix:
         config:
           - qtarch: msvc2019_64
-          - qtarch: mingw_64
+          - qtarch: mingw81_64
     permissions:
       contents: write
 
