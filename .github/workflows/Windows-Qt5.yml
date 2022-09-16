@@ -264,11 +264,20 @@ jobs:
           mingw32-make.exe
           INSTALL_ROOT=../install mingw32-make.exe install
 
+      - name: Create artifacts
+        shell: bash
+        env:
+          TAG_ARCH: ${{ matrix.config.qtarch }}
+        run: |
+          pushd install/a/qt-geoservices-maplibre-gl
+          tar cjvf ../../../qt-geoservices-maplibre-gl_Windows_${TAG_ARCH}.tar.bz2 Qt
+          popd
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
           name: qt-geoservices-maplibre-gl_Windows_${{ matrix.config.qtarch }}
-          path: install/a/qt-geoservices-maplibre-gl
+          path: qt-geoservices-maplibre-gl_Windows_${{ matrix.config.qtarch }}.tar.bz2
 
   release:
     name: "Release qt-geoservices-maplibre-gl"
@@ -279,7 +288,9 @@ jobs:
       matrix:
         config:
           - qtarch: msvc2019_64
+            outarch: msvc2019
           - qtarch: mingw81_64
+            outarch: mingw
     permissions:
       contents: write
 
@@ -288,20 +299,19 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: qt-geoservices-maplibre-gl_Windows_${{ matrix.config.qtarch }}
-        path: install
 
     - name: Make tarball
       shell: bash
       env:
         TAG_NAME: ${{ github.ref_name }}
-        TAG_ARCH: ${{ matrix.config.qtarch }}
+        QT_ARCH: ${{ matrix.config.qtarch }}
+        TAG_ARCH: ${{ matrix.config.outarch }}
       run: |
-        cd install
-        tar cjvf ../qt-geoservices-maplibre-gl_${TAG_NAME}_Qt${QT_VERSION}_Windows_${TAG_ARCH}.tar.bz2 Qt
+        mv qt-geoservices-maplibre-gl_Windows_${QT_ARCH}.tar.bz2 qt-geoservices-maplibre-gl_${TAG_NAME}_Qt${QT_VERSION}_win64_${TAG_ARCH}.tar.bz2
 
     - name: Release
       uses: ncipollo/release-action@v1
       with:
-        artifacts: qt-geoservices-maplibre-gl_${{ github.ref_name }}_Qt${{ env.QT_VERSION }}_Windows_${{ matrix.config.qtarch }}.tar.bz2
+        artifacts: qt-geoservices-maplibre-gl_${{ github.ref_name }}_Qt${{ env.QT_VERSION }}_win64_${{ matrix.config.outarch }}.tar.bz2
         allowUpdates: true
         draft: true

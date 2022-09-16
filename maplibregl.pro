@@ -40,12 +40,16 @@ qtConfig(system-zlib) {
 
 load(qt_build_paths)
 
-message("QMapLibreGL path: $$QMAPLIBREGL_PATH")
+!isEmpty(QMAPLIBREGL_PATH) {
+    message("QMapLibreGL path: $$QMAPLIBREGL_PATH")
 
-INCLUDEPATH += $$QMAPLIBREGL_PATH/include
-LIBS += -L$$QMAPLIBREGL_PATH/lib
-linux:!android {
-    LIBS += -L$$QMAPLIBREGL_PATH/lib64
+    INCLUDEPATH += $$QMAPLIBREGL_PATH/include
+    LIBS += -L$$QMAPLIBREGL_PATH/lib
+    linux:!android {
+        LIBS += -L$$QMAPLIBREGL_PATH/lib64
+    }
+} else {
+    message("QMapLibreGL installed with Qt")
 }
 LIBS += -lQMapLibreGL$$qtPlatformTargetSuffix()
 

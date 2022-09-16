@@ -99,7 +99,7 @@ jobs:
             -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
             -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
             -DCMAKE_FIND_ROOT_PATH="$Qt5_Dir" \
-            -DCMAKE_INSTALL_PREFIX=../install-qmaplibregl \
+            -DCMAKE_INSTALL_PREFIX="${Qt5_Dir//\/bin/}" \
             -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
             -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0 \
             -DCMAKE_PREFIX_PATH="$Qt5_Dir" \
@@ -108,7 +108,7 @@ jobs:
             -DMBGL_QT_LIBRARY_ONLY=ON \
             -DMBGL_QT_STATIC=ON
           ninja
-          ninja install
+          DESTDIR=../install ninja install
 
       - name: Upload ccache.log
         uses: actions/upload-artifact@v3
@@ -116,11 +116,17 @@ jobs:
           name: ccache_iOS
           path: ccache.log
 
+      - name: Create artifacts
+        run: |
+          pushd install/Users/runner/work/qt-geoservices-maplibre-gl
+          tar cjvf ../../../../../QMapLibreGL_iOS.tar.bz2 Qt
+          popd
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
           name: maplibre-gl-native_iOS
-          path: install-qmaplibregl
+          path: QMapLibreGL_iOS.tar.bz2
 
   build-plugin:
     name: "Build qt-geoservices-maplibre-gl"
@@ -164,21 +170,28 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: maplibre-gl-native_iOS
-          path: install-qmaplibregl
 
       - name: Build qt-geoservices-maplibre-gl
         run: |
+          tar xvf QMapLibreGL_iOS.tar.bz2 -C ..
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
           mkdir build && cd build
-          qmake ../source/ QMAPLIBREGL_PATH=../install-qmaplibregl
+          qmake ../source/
           make -j2
           INSTALL_ROOT=../install make install
+
+      - name: Create artifacts
+        run: |
+          pushd install/Users/runner/work/qt-geoservices-maplibre-gl
+          tar xvf ../../../../../QMapLibreGL_iOS.tar.bz2
+          tar cjvf ../../../../../qt-geoservices-maplibre-gl_iOS.tar.bz2 Qt
+          popd
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
           name: qt-geoservices-maplibre-gl_iOS
-          path: install/Users/runner/work/qt-geoservices-maplibre-gl
+          path: qt-geoservices-maplibre-gl_iOS.tar.bz2
 
   release:
     name: "Release qt-geoservices-maplibre-gl"
@@ -193,14 +206,12 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: qt-geoservices-maplibre-gl_iOS
-        path: install
 
     - name: Make tarball
       env:
         TAG_NAME: ${{ github.ref_name }}
       run: |
-        cd install
-        tar cjvf ../qt-geoservices-maplibre-gl_${TAG_NAME}_Qt${QT_VERSION}_iOS.tar.bz2 Qt
+        mv qt-geoservices-maplibre-gl_iOS.tar.bz2 qt-geoservices-maplibre-gl_${TAG_NAME}_Qt${QT_VERSION}_iOS.tar.bz2
 
     - name: Release
       uses: ncipollo/release-action@v1
