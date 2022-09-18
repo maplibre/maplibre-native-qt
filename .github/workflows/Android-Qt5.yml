@@ -213,11 +213,17 @@ jobs:
           make -j2
           INSTALL_ROOT=../install make install
 
+      - name: Create artifacts
+        run: |
+          pushd install/home/runner/work/qt-geoservices-maplibre-gl
+          tar cjvf ../../../../../qt-geoservices-maplibre-gl_Android.tar.bz2 Qt
+          popd
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
           name: qt-geoservices-maplibre-gl_Android
-          path: install/home/runner/work/qt-geoservices-maplibre-gl
+          path: qt-geoservices-maplibre-gl_Android.tar.bz2
 
   release:
     name: "Release qt-geoservices-maplibre-gl"
@@ -232,14 +238,12 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: qt-geoservices-maplibre-gl_Android
-        path: install
 
-    - name: Make tarball
+    - name: Name tarball
       env:
         TAG_NAME: ${{ github.ref_name }}
       run: |
-        cd install
-        tar cjvf ../qt-geoservices-maplibre-gl_${TAG_NAME}_Qt${QT_VERSION}_Android.tar.bz2 Qt
+        mv qt-geoservices-maplibre-gl_Android.tar.bz2 qt-geoservices-maplibre-gl_${TAG_NAME}_Qt${QT_VERSION}_Android.tar.bz2
 
     - name: Release
       uses: ncipollo/release-action@v1

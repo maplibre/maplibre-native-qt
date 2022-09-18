@@ -49,7 +49,7 @@ concurrency:
 
 env:
   QT_VERSION: 6.3.2
-  QT_LOCATION_VERSION: 6.3.2.0
+  QT_LOCATION_VERSION: 6.3.2.1
 
 jobs:
   build-plugin:
@@ -104,11 +104,17 @@ jobs:
           ninja
           DESTDIR=../install ninja install
 
+      - name: Create artifacts
+        run: |
+          pushd install/Users/runner/work/qt-geoservices-maplibre-gl
+          tar cjvf ../../../../../qt-geoservices-maplibre-gl_macOS.tar.bz2 Qt
+          popd
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
           name: qt-geoservices-maplibre-gl_macOS
-          path: install/Users/runner/work/qt-geoservices-maplibre-gl
+          path: qt-geoservices-maplibre-gl_macOS.tar.bz2
 
   release:
     name: "Release qt-geoservices-maplibre-gl"
@@ -123,19 +129,15 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: qt-geoservices-maplibre-gl_macOS
-        path: install
-
-    - name: Download QtLocation
-      run: |
-        wget https://github.com/ntadej/qtlocation/releases/download/v${QT_LOCATION_VERSION}/QtLocation_v${QT_LOCATION_VERSION}_macOS.tar.bz2
-        tar xvf QtLocation_v${QT_LOCATION_VERSION}_macOS.tar.bz2 -C install
 
     - name: Make tarball
       env:
         TAG_NAME: ${{ github.ref_name }}
       run: |
-        cd install
-        tar cjvf ../qt-geoservices-maplibre-gl_${TAG_NAME}_Qt${QT_VERSION}_macOS.tar.bz2 Qt
+        wget https://github.com/ntadej/qtlocation/releases/download/v${QT_LOCATION_VERSION}/QtLocation_v${QT_LOCATION_VERSION}_macOS.tar.bz2
+        tar xvf QtLocation_v${QT_LOCATION_VERSION}_macOS.tar.bz2
+        tar xvf qt-geoservices-maplibre-gl_macOS.tar.bz2
+        tar cjvf qt-geoservices-maplibre-gl_${TAG_NAME}_Qt${QT_VERSION}_macOS.tar.bz2 Qt
 
     - name: Release
       uses: ncipollo/release-action@v1
