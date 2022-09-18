@@ -53,7 +53,7 @@ env:
 jobs:
   build-core:
     name: "Build maplibre-gl-native"
-    runs-on: macos-12
+    runs-on: [self-hosted, macOS, ARM64]
 
     steps:
       - name: Checkout
@@ -130,7 +130,7 @@ jobs:
 
   build-plugin:
     name: "Build qt-geoservices-maplibre-gl"
-    runs-on: macos-12
+    runs-on: [self-hosted, macOS, ARM64]
     needs: build-core
 
     steps:
