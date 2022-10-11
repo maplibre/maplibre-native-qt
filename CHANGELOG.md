@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.0.2
+
+### 🐞 Bug fixes
+
+- Fixed issues with iOS binaries.
+
 ## v2.0.1
 
 ### 🐞 Bug fixes
