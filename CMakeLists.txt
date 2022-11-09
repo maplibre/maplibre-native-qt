@@ -60,6 +60,8 @@ qt_internal_add_plugin(QGeoServiceProviderFactoryMapLibreGLPlugin
         "$<BUILD_INTERFACE:mbgl-vendor-csscolorparser>"
 )
 
+set_property(TARGET QGeoServiceProviderFactoryMapLibreGLPlugin PROPERTY INTERFACE_QT_MAJOR_VERSION 6)
+
 qt_add_resources(plugin_resource_files resources/maplibregl.qrc)
 
 qt_internal_extend_target(QGeoServiceProviderFactoryMapLibreGLPlugin
