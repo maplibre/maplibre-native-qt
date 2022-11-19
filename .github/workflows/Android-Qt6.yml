@@ -48,8 +48,8 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 env:
-  QT_VERSION: 6.3.2
-  QT_LOCATION_VERSION: 6.3.2.1
+  QT_VERSION: 6.4.2
+  QT_LOCATION_VERSION: 6.4.2.0
 
 jobs:
   build-plugin:
@@ -79,19 +79,26 @@ jobs:
         id: qt-desktop
         uses: jurplel/install-qt-action@v3
         with:
-          aqtversion: ==2.1.*
+          aqtversion: ==3.0.*
           version: ${{ env.QT_VERSION }}
           modules: qtpositioning qtshadertools
+          set-env: false
 
       - name: Download Qt (Android)
         id: qt-android
         uses: jurplel/install-qt-action@v3
         with:
-          aqtversion: ==2.1.*
+          aqtversion: ==3.0.*
           version: ${{ env.QT_VERSION }}
           target: android
           arch: ${{ matrix.config.arch }}
           modules: qtpositioning qtshadertools
+
+      - name: Fix Qt release
+        if: ${{ matrix.config.abi }} == 'armeabi-v7a'
+        run: |    
+          chmod +x "$Qt6_DIR/bin/qt-cmake"
+          sed -i "s/C:\/Qt\/Qt-${QT_VERSION}/\/usr\/local\/Qt-${QT_VERSION}/g" "$Qt6_DIR/lib/cmake/Qt6BuildInternals/QtBuildInternalsExtra.cmake"
 
       - name: Download QtLocation
         run: |

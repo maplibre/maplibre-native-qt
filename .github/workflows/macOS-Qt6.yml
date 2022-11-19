@@ -48,8 +48,8 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 env:
-  QT_VERSION: 6.3.2
-  QT_LOCATION_VERSION: 6.3.2.1
+  QT_VERSION: 6.4.2
+  QT_LOCATION_VERSION: 6.4.2.0
 
 jobs:
   build-plugin:
@@ -72,7 +72,7 @@ jobs:
       - name: Download Qt
         uses: jurplel/install-qt-action@v3
         with:
-          aqtversion: ==2.1.*
+          aqtversion: ==3.0.*
           version: ${{ env.QT_VERSION }}
           target: desktop
           modules: qtpositioning qtshadertools

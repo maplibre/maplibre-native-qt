@@ -48,8 +48,8 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 env:
-  QT_VERSION: 6.3.2
-  QT_LOCATION_VERSION: 6.3.2.1
+  QT_VERSION: 6.4.2
+  QT_LOCATION_VERSION: 6.4.2.0
   CCACHE_CONFIGPATH: C:/Users/runneradmin/AppData/Roaming/ccache/ccache.conf
 
 jobs:
