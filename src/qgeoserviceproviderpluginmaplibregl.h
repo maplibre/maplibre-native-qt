@@ -24,16 +24,16 @@ public:
 
     QGeoCodingManagerEngine *createGeocodingManagerEngine(const QVariantMap &parameters,
                                                           QGeoServiceProvider::Error *error,
-                                                          QString *errorString) const;
+                                                          QString *errorString) const override;
     QGeoMappingManagerEngine *createMappingManagerEngine(const QVariantMap &parameters,
                                                          QGeoServiceProvider::Error *error,
-                                                         QString *errorString) const;
+                                                         QString *errorString) const override;
     QGeoRoutingManagerEngine *createRoutingManagerEngine(const QVariantMap &parameters,
                                                          QGeoServiceProvider::Error *error,
-                                                         QString *errorString) const;
+                                                         QString *errorString) const override;
     QPlaceManagerEngine *createPlaceManagerEngine(const QVariantMap &parameters,
                                                   QGeoServiceProvider::Error *error,
-                                                  QString *errorString) const;
+                                                  QString *errorString) const override;
 };
 
 QT_END_NAMESPACE

@@ -44,7 +44,7 @@ private Q_SLOTS:
     void onParameterPropertyUpdated(QGeoMapParameter *param, const char *propertyName);
 
 public Q_SLOTS:
-    void copyrightsChanged(const QString &copyrightsHtml);
+    void copyrightsChangedHandler(const QString &copyrightsHtml);
 
 private:
     QSGNode *updateSceneGraph(QSGNode *oldNode, QQuickWindow *window) override;

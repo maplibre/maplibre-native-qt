@@ -31,8 +31,7 @@ QSGMapLibreGLTextureNode::QSGMapLibreGLTextureNode(const QMapLibreGL::Settings &
     m_map.reset(new QMapLibreGL::Map(nullptr, settings, size.expandedTo(minTextureSize), pixelRatio));
 
     QObject::connect(m_map.get(), &QMapLibreGL::Map::needsRendering, geoMap, &QGeoMap::sgNodeChanged);
-    QObject::connect(m_map.get(), &QMapLibreGL::Map::copyrightsChanged, geoMap,
-            static_cast<void (QGeoMap::*)(const QString &)>(&QGeoMapMapLibreGL::copyrightsChanged));
+    QObject::connect(m_map.get(), &QMapLibreGL::Map::copyrightsChanged, geoMap, &QGeoMapMapLibreGL::copyrightsChangedHandler);
 }
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
@@ -50,8 +49,6 @@ void QSGMapLibreGLTextureNode::resize(const QSize &size, qreal pixelRatio)
     m_map->setFramebufferObject(m_fbo->handle(), fbSize);
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    // There is no elegant way to set new frame buffer object to already created texture.
-    // So, a quick hack-solution is to re-create the texture as well, every time the size changes.
     setTexture(QNativeInterface::QSGOpenGLTexture::fromNative(m_fbo->texture(), window, fbSize, QQuickWindow::TextureHasAlphaChannel));
     setOwnsTexture(true);
 #else
@@ -123,8 +120,7 @@ QSGMapLibreGLRenderNode::QSGMapLibreGLRenderNode(const QMapLibreGL::Settings &se
 {
     m_map.reset(new QMapLibreGL::Map(nullptr, settings, size, pixelRatio));
     QObject::connect(m_map.get(), &QMapLibreGL::Map::needsRendering, geoMap, &QGeoMap::sgNodeChanged);
-    QObject::connect(m_map.get(), &QMapLibreGL::Map::copyrightsChanged, geoMap,
-            static_cast<void (QGeoMap::*)(const QString &)>(&QGeoMapMapLibreGL::copyrightsChanged));
+    QObject::connect(m_map.get(), &QMapLibreGL::Map::copyrightsChanged, geoMap, &QGeoMapMapLibreGL::copyrightsChangedHandler);
 }
 
 QMapLibreGL::Map* QSGMapLibreGLRenderNode::map() const
