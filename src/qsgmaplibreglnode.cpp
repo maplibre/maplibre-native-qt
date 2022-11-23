@@ -87,6 +87,10 @@ void QSGMapLibreGLTextureNode::render(QQuickWindow *window)
     GLint alignment;
     f->glGetIntegerv(GL_UNPACK_ALIGNMENT, &alignment);
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    QQuickOpenGLUtils::resetOpenGLState();
+#endif
+
     m_fbo->bind();
 
     f->glClearColor(0.f, 0.f, 0.f, 0.f);
