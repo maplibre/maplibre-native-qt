@@ -65,7 +65,7 @@ QMapLibreGL::Feature featureFromMapCircle(QDeclarativeCircleMapItem *mapItem)
     const QGeoProjectionWebMercator &p = static_cast<const QGeoProjectionWebMercator&>(mapItem->map()->geoProjection());
     QList<QGeoCoordinate> path;
     QGeoCoordinate leftBound;
-    QDeclarativeCircleMapItemPrivateCPU::calculatePeripheralPoints(path, mapItem->center(), mapItem->radius(), circleSamples, leftBound);
+    QDeclarativeCircleMapItemPrivate::calculatePeripheralPoints(path, mapItem->center(), mapItem->radius(), circleSamples, leftBound);
     QList<QDoubleVector2D> pathProjected;
     for (const QGeoCoordinate &c : qAsConst(path))
         pathProjected << p.geoToMapProjection(c);

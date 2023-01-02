@@ -26,7 +26,6 @@
 #include <QtLocation/private/qgeoprojection_p.h>
 #include <QtQuick/QQuickWindow>
 #include <QtQuick/QSGImageNode>
-#include <QtQuick/private/qsgtexture_p.h>
 #include <QtQuick/private/qsgcontext_p.h> // for debugging the context name
 
 #include <QMapLibreGL/Types>
@@ -62,10 +61,10 @@ QSGNode *QGeoMapMapLibreGLPrivate::updateSceneGraph(QSGNode *node, QQuickWindow 
 
     if (m_viewportSize.isEmpty()) {
         delete node;
-        return 0;
+        return nullptr;
     }
 
-    QMapLibreGL::Map *map = 0;
+    QMapLibreGL::Map *map{};
     if (!node) {
         QOpenGLContext *currentCtx = QOpenGLContext::currentContext();
         if (!currentCtx) {
@@ -459,7 +458,7 @@ void QGeoMapMapLibreGL::onParameterPropertyUpdated(QGeoMapParameter *param, cons
     emit sgNodeChanged();
 }
 
-void QGeoMapMapLibreGL::copyrightsChanged(const QString &copyrightsHtml)
+void QGeoMapMapLibreGL::copyrightsChangedHandler(const QString &copyrightsHtml)
 {
     Q_D(QGeoMapMapLibreGL);
 
@@ -470,5 +469,5 @@ void QGeoMapMapLibreGL::copyrightsChanged(const QString &copyrightsHtml)
             + copyrightsHtmlFinal + "</th></tr></table>";
     }
 
-    QGeoMap::copyrightsChanged(copyrightsHtmlFinal);
+    emit QGeoMap::copyrightsChanged(copyrightsHtmlFinal);
 }
