@@ -1,5 +1,15 @@
 # Changelog
 
+## Upcoming
+
+### ✨ New features
+
+- Based on Qt 6.4.2
+
+### 🐞 Bug fixes
+
+- Reset GL state before rendering MapLibre (#19)
+
 ## v2.0.2
 
 ### 🐞 Bug fixes

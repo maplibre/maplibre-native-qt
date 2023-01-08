@@ -71,7 +71,7 @@ jobs:
       - name: Download Qt
         uses: jurplel/install-qt-action@v3
         with:
-          aqtversion: ==2.1.*
+          aqtversion: ==3.0.*
           version: ${{ env.QT_VERSION }}
           target: ios
 
@@ -148,7 +148,7 @@ jobs:
       - name: Download Qt
         uses: jurplel/install-qt-action@v3
         with:
-          aqtversion: ==2.1.*
+          aqtversion: ==3.0.*
           version: ${{ env.QT_VERSION }}
           target: ios
 
