@@ -48,8 +48,8 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 env:
-  QT_VERSION: 6.4.2
-  QT_LOCATION_VERSION: 6.4.2.0
+  QT_VERSION: 6.4.3
+  QT_LOCATION_VERSION: 6.4.3.0
 
 jobs:
   build-plugin:

@@ -4,7 +4,7 @@
 
 ### ✨ New features
 
-- Based on Qt 6.4.2
+- Based on Qt 6.4.3
 
 ### 🐞 Bug fixes
 
