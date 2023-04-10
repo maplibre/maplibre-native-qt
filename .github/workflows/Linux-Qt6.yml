@@ -79,7 +79,8 @@ jobs:
       - name: Set up ccache
         uses: hendrikmuhs/ccache-action@v1
         with:
-          key: Linux-qt-geoservices-maplibre-gl
+          key: Linux_qt-geoservices-maplibre-gl
+          append-timestamp: false
 
       - name: Build qt-geoservices-maplibre-gl
         uses: ./source/.github/actions/qt6-build

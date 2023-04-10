@@ -72,7 +72,8 @@ jobs:
       - name: Set up ccache
         uses: hendrikmuhs/ccache-action@v1
         with:
-          key: Linux-maplibre-gl-native
+          key: Linux_maplibre-gl-native_legacy
+          append-timestamp: false
 
       - name: Build maplibre-gl-native
         uses: ./source/.github/actions/qt5-build
@@ -108,7 +109,8 @@ jobs:
       - name: Set up ccache
         uses: hendrikmuhs/ccache-action@v1
         with:
-          key: Linux-qt-geoservices-maplibre-gl
+          key: Linux_qt-geoservices-maplibre-gl_legacy
+          append-timestamp: false
 
       - name: Download artifacts
         uses: actions/download-artifact@v3
