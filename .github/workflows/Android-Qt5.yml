@@ -90,7 +90,8 @@ jobs:
       - name: Set up ccache
         uses: hendrikmuhs/ccache-action@v1
         with:
-          key: Android-maplibre-gl-native-${{ matrix.config.abi }}
+          key: Android_maplibre-gl-native_${{ matrix.config.abi }}_legacy
+          append-timestamp: false
 
       - name: Build maplibre-gl-native
         env:
@@ -197,7 +198,8 @@ jobs:
       - name: Set up ccache
         uses: hendrikmuhs/ccache-action@v1
         with:
-          key: Android-qt-geoservices-maplibre-gl
+          key: Android_qt-geoservices-maplibre-gl_legacy
+          append-timestamp: false
 
       - name: Download artifacts
         uses: actions/download-artifact@v3

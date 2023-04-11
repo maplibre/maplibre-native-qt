@@ -122,7 +122,8 @@ jobs:
       - name: Set up ccache
         uses: hendrikmuhs/ccache-action@v1
         with:
-          key: Windows_${{ matrix.config.qtarch }}
+          key: Windows_qt-geoservices-maplibre-gl_${{ matrix.config.qtarch }}
+          append-timestamp: false
 
       - name: Build qt-geoservices-maplibre-gl
         shell: bash
