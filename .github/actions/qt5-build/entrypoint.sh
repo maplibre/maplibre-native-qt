@@ -18,8 +18,7 @@ if [[ "$1" = "library" ]]; then
     -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
     -DCMAKE_INSTALL_PREFIX=../install-maplibre \
     -DMLN_WITH_QT=ON \
-    -DMLN_QT_LIBRARY_ONLY=ON \
-    -DMLN_QT_STATIC=ON
+    -DMLN_QT_LIBRARY_ONLY=ON
   ninja
   ninja install
 elif [[ "$1" = "plugin" ]]; then

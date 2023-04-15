@@ -112,8 +112,7 @@ jobs:
             -DCMAKE_INSTALL_PREFIX=../install-maplibre \
             -DCMAKE_PREFIX_PATH="${Qt5_Dir}" \
             -DMLN_WITH_QT=ON \
-            -DMLN_QT_LIBRARY_ONLY=ON \
-            -DMLN_QT_STATIC=ON
+            -DMLN_QT_LIBRARY_ONLY=ON
           ninja
           ninja install
 

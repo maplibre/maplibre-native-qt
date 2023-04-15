@@ -106,8 +106,7 @@ jobs:
             -DCMAKE_PREFIX_PATH="$Qt5_Dir" \
             -DCMAKE_SYSTEM_NAME=iOS \
             -DMLN_WITH_QT=ON \
-            -DMLN_QT_LIBRARY_ONLY=ON \
-            -DMLN_QT_STATIC=ON
+            -DMLN_QT_LIBRARY_ONLY=ON
           ninja
           DESTDIR=../install ninja install
 
