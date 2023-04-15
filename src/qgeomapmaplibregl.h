@@ -1,4 +1,4 @@
-// Copyright (C) 2022 MapLibre contributors
+// Copyright (C) 2023 MapLibre contributors
 // Copyright (C) 2017 The Qt Company Ltd.
 // Copyright (C) 2017 Mapbox, Inc.
 
@@ -9,7 +9,6 @@
 
 #include "qgeomappingmanagerenginemaplibregl.h"
 #include <QtLocation/private/qgeomap_p.h>
-#include <QtLocation/private/qgeomapparameter_p.h>
 
 #include <QMapLibreGL/Map>
 
@@ -39,9 +38,6 @@ private Q_SLOTS:
     void onMapItemSubPropertyChanged();
     void onMapItemUnsupportedPropertyChanged();
     void onMapItemGeometryChanged();
-
-    // QGeoMapParameter
-    void onParameterPropertyUpdated(QGeoMapParameter *param, const char *propertyName);
 
 public Q_SLOTS:
     void copyrightsChangedHandler(const QString &copyrightsHtml);

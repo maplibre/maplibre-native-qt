@@ -1,4 +1,4 @@
-// Copyright (C) 2022 MapLibre contributors
+// Copyright (C) 2023 MapLibre contributors
 // Copyright (C) 2017 Mapbox, Inc.
 
 // SPDX-License-Identifier: LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
@@ -17,18 +17,6 @@
 #include <QMapLibreGL/Map>
 
 namespace {
-
-QByteArray formatPropertyName(const QByteArray &name)
-{
-    QString nameAsString = QString::fromLatin1(name);
-    static const QRegularExpression camelCaseRegex(QStringLiteral("([a-z0-9])([A-Z])"));
-    return nameAsString.replace(camelCaseRegex, QStringLiteral("\\1-\\2")).toLower().toLatin1();
-}
-
-bool isImmutableProperty(const QByteArray &name)
-{
-    return name == QStringLiteral("type") || name == QStringLiteral("layer");
-}
 
 QString getId(QDeclarativeGeoMapItemBase *mapItem)
 {
@@ -63,10 +51,21 @@ QMapLibreGL::Feature featureFromMapCircle(QDeclarativeCircleMapItem *mapItem)
 {
     static const int circleSamples = 128;
     const QGeoProjectionWebMercator &p = static_cast<const QGeoProjectionWebMercator&>(mapItem->map()->geoProjection());
+#if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
     QList<QGeoCoordinate> path;
     QGeoCoordinate leftBound;
     QDeclarativeCircleMapItemPrivate::calculatePeripheralPoints(path, mapItem->center(), mapItem->radius(), circleSamples, leftBound);
+#endif
     QList<QDoubleVector2D> pathProjected;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+    QDeclarativeCircleMapItemPrivate::calculatePeripheralPoints(pathProjected, mapItem->center(), mapItem->radius(), p, circleSamples);
+    // TODO: Removed for now. Update when the 6.6 API for this is fixed
+    // if (QDeclarativeCircleMapItemPrivateCPU::crossEarthPole(mapItem->center(), mapItem->radius()))
+    //     QDeclarativeCircleMapItemPrivateCPU::preserveCircleGeometry(pathProjected, mapItem->center(), mapItem->radius(), p);
+    QList<QGeoCoordinate> path;
+    for (const QDoubleVector2D &c : std::as_const(pathProjected))
+        path << p.mapProjectionToGeo(c);
+#else
     for (const QGeoCoordinate &c : qAsConst(path))
         pathProjected << p.geoToMapProjection(c);
     if (QDeclarativeCircleMapItemPrivateCPU::crossEarthPole(mapItem->center(), mapItem->radius()))
@@ -74,6 +73,7 @@ QMapLibreGL::Feature featureFromMapCircle(QDeclarativeCircleMapItem *mapItem)
     path.clear();
     for (const QDoubleVector2D &c : qAsConst(pathProjected))
         path << p.mapProjectionToGeo(c);
+#endif
 
 
     QMapLibreGL::Coordinates coordinates;
@@ -155,56 +155,10 @@ QMapLibreGL::Feature featureFromMapItem(QDeclarativeGeoMapItemBase *item)
     }
 }
 
-QList<QByteArray> getAllPropertyNamesList(QObject *object)
-{
-    const QMetaObject *metaObject = object->metaObject();
-    QList<QByteArray> propertyNames(object->dynamicPropertyNames());
-    for (int i = metaObject->propertyOffset(); i < metaObject->propertyCount(); ++i) {
-        propertyNames.append(metaObject->property(i).name());
-    }
-    return propertyNames;
-}
-
 } // namespace
 
 
 // QMapLibreGLStyleChange
-
-QList<QSharedPointer<QMapLibreGLStyleChange>> QMapLibreGLStyleChange::addMapParameter(QGeoMapParameter *param)
-{
-    static const QStringList acceptedParameterTypes = QStringList()
-        << QStringLiteral("paint") << QStringLiteral("layout") << QStringLiteral("filter")
-        << QStringLiteral("layer") << QStringLiteral("source") << QStringLiteral("image");
-
-    QList<QSharedPointer<QMapLibreGLStyleChange>> changes;
-
-    switch (acceptedParameterTypes.indexOf(param->type())) {
-    case -1:
-        qWarning() << "Invalid value for property 'type': " + param->type();
-        break;
-    case 0: // paint
-        changes << QMapLibreGLStyleSetPaintProperty::fromMapParameter(param);
-        break;
-    case 1: // layout
-        changes << QMapLibreGLStyleSetLayoutProperty::fromMapParameter(param);
-        break;
-    case 2: // filter
-        changes << QMapLibreGLStyleSetFilter::fromMapParameter(param);
-        break;
-    case 3: // layer
-        changes << QMapLibreGLStyleAddLayer::fromMapParameter(param);
-        break;
-    case 4: // source
-        changes << QMapLibreGLStyleAddSource::fromMapParameter(param);
-        break;
-    case 5: // image
-        changes << QMapLibreGLStyleAddImage::fromMapParameter(param);
-        break;
-    }
-
-    return changes;
-}
-
 QList<QSharedPointer<QMapLibreGLStyleChange>> QMapLibreGLStyleChange::addMapItem(QDeclarativeGeoMapItemBase *item, const QString &before)
 {
     QList<QSharedPointer<QMapLibreGLStyleChange>> changes;
@@ -230,35 +184,6 @@ QList<QSharedPointer<QMapLibreGLStyleChange>> QMapLibreGLStyleChange::addMapItem
     return changes;
 }
 
-QList<QSharedPointer<QMapLibreGLStyleChange>> QMapLibreGLStyleChange::removeMapParameter(QGeoMapParameter *param)
-{
-    static const QStringList acceptedParameterTypes = QStringList()
-        << QStringLiteral("paint") << QStringLiteral("layout") << QStringLiteral("filter")
-        << QStringLiteral("layer") << QStringLiteral("source") << QStringLiteral("image");
-
-    QList<QSharedPointer<QMapLibreGLStyleChange>> changes;
-
-    switch (acceptedParameterTypes.indexOf(param->type())) {
-    case -1:
-        qWarning() << "Invalid value for property 'type': " + param->type();
-        break;
-    case 0: // paint
-    case 1: // layout
-    case 2: // filter
-        break;
-    case 3: // layer
-        changes << QSharedPointer<QMapLibreGLStyleChange>(new QMapLibreGLStyleRemoveLayer(param->property("name").toString()));
-        break;
-    case 4: // source
-        changes << QSharedPointer<QMapLibreGLStyleChange>(new QMapLibreGLStyleRemoveSource(param->property("name").toString()));
-        break;
-    case 5: // image
-        break;
-    }
-
-    return changes;
-}
-
 QList<QSharedPointer<QMapLibreGLStyleChange>> QMapLibreGLStyleChange::removeMapItem(QDeclarativeGeoMapItemBase *item)
 {
     QList<QSharedPointer<QMapLibreGLStyleChange>> changes;
@@ -276,33 +201,6 @@ QList<QSharedPointer<QMapLibreGLStyleChange>> QMapLibreGLStyleChange::removeMapI
 void QMapLibreGLStyleSetLayoutProperty::apply(QMapLibreGL::Map *map)
 {
     map->setLayoutProperty(m_layer, m_property, m_value);
-}
-
-QList<QSharedPointer<QMapLibreGLStyleChange>> QMapLibreGLStyleSetLayoutProperty::fromMapParameter(QGeoMapParameter *param)
-{
-    Q_ASSERT(param->type() == "layout");
-
-    QList<QSharedPointer<QMapLibreGLStyleChange>> changes;
-
-    QList<QByteArray> propertyNames = getAllPropertyNamesList(param);
-    for (const QByteArray &propertyName : propertyNames) {
-        if (isImmutableProperty(propertyName))
-            continue;
-
-        auto layout = new QMapLibreGLStyleSetLayoutProperty();
-
-        layout->m_value = param->property(propertyName);
-        if (layout->m_value.canConvert<QJSValue>()) {
-            layout->m_value = layout->m_value.value<QJSValue>().toVariant();
-        }
-
-        layout->m_layer = param->property("layer").toString();
-        layout->m_property = formatPropertyName(propertyName);
-
-        changes << QSharedPointer<QMapLibreGLStyleChange>(layout);
-    }
-
-    return changes;
 }
 
 QList<QSharedPointer<QMapLibreGLStyleChange>> QMapLibreGLStyleSetLayoutProperty::fromMapItem(QDeclarativeGeoMapItemBase *item)
@@ -353,33 +251,6 @@ QMapLibreGLStyleSetPaintProperty::QMapLibreGLStyleSetPaintProperty(const QString
 void QMapLibreGLStyleSetPaintProperty::apply(QMapLibreGL::Map *map)
 {
     map->setPaintProperty(m_layer, m_property, m_value);
-}
-
-QList<QSharedPointer<QMapLibreGLStyleChange>> QMapLibreGLStyleSetPaintProperty::fromMapParameter(QGeoMapParameter *param)
-{
-    Q_ASSERT(param->type() == "paint");
-
-    QList<QSharedPointer<QMapLibreGLStyleChange>> changes;
-
-    QList<QByteArray> propertyNames = getAllPropertyNamesList(param);
-    for (const QByteArray &propertyName : propertyNames) {
-        if (isImmutableProperty(propertyName))
-            continue;
-
-        auto paint = new QMapLibreGLStyleSetPaintProperty();
-
-        paint->m_value = param->property(propertyName);
-        if (paint->m_value.canConvert<QJSValue>()) {
-            paint->m_value = paint->m_value.value<QJSValue>().toVariant();
-        }
-
-        paint->m_layer = param->property("layer").toString();
-        paint->m_property = formatPropertyName(propertyName);
-
-        changes << QSharedPointer<QMapLibreGLStyleChange>(paint);
-    }
-
-    return changes;
 }
 
 QList<QSharedPointer<QMapLibreGLStyleChange>> QMapLibreGLStyleSetPaintProperty::fromMapItem(QDeclarativeGeoMapItemBase *item)
@@ -474,41 +345,6 @@ void QMapLibreGLStyleAddLayer::apply(QMapLibreGL::Map *map)
     map->addLayer(m_params, m_before);
 }
 
-QSharedPointer<QMapLibreGLStyleChange> QMapLibreGLStyleAddLayer::fromMapParameter(QGeoMapParameter *param)
-{
-    Q_ASSERT(param->type() == "layer");
-
-    auto layer = new QMapLibreGLStyleAddLayer();
-
-    static const QStringList layerProperties = QStringList()
-        << QStringLiteral("name") << QStringLiteral("layerType") << QStringLiteral("before");
-
-    QList<QByteArray> propertyNames = getAllPropertyNamesList(param);
-    for (const QByteArray &propertyName : propertyNames) {
-        if (isImmutableProperty(propertyName))
-            continue;
-
-        const QVariant value = param->property(propertyName);
-
-        switch (layerProperties.indexOf(propertyName)) {
-        case -1:
-            layer->m_params[formatPropertyName(propertyName)] = value;
-            break;
-        case 0: // name
-            layer->m_params[QStringLiteral("id")] = value;
-            break;
-        case 1: // layerType
-            layer->m_params[QStringLiteral("type")] = value;
-            break;
-        case 2: // before
-            layer->m_before = value.toString();
-            break;
-        }
-    }
-
-    return QSharedPointer<QMapLibreGLStyleChange>(layer);
-}
-
 QSharedPointer<QMapLibreGLStyleChange> QMapLibreGLStyleAddLayer::fromFeature(const QMapLibreGL::Feature &feature, const QString &before)
 {
     auto layer = new QMapLibreGLStyleAddLayer();
@@ -552,55 +388,6 @@ void QMapLibreGLStyleAddSource::apply(QMapLibreGL::Map *map)
     map->updateSource(m_id, m_params);
 }
 
-QSharedPointer<QMapLibreGLStyleChange> QMapLibreGLStyleAddSource::fromMapParameter(QGeoMapParameter *param)
-{
-    Q_ASSERT(param->type() == "source");
-
-    static const QStringList acceptedSourceTypes = QStringList()
-        << QStringLiteral("vector") << QStringLiteral("raster") << QStringLiteral("raster-dem") << QStringLiteral("geojson") << QStringLiteral("image");
-
-    QString sourceType = param->property("sourceType").toString();
-
-    auto source = new QMapLibreGLStyleAddSource();
-    source->m_id = param->property("name").toString();
-    source->m_params[QStringLiteral("type")] = sourceType;
-
-    switch (acceptedSourceTypes.indexOf(sourceType)) {
-    case -1:
-        qWarning() << "Invalid value for property 'sourceType': " + sourceType;
-        break;
-    case 0: // vector
-    case 1: // raster
-    case 2: // raster-dem
-        if (param->hasProperty("url")) {
-            source->m_params[QStringLiteral("url")] = param->property("url");
-        }
-        if (param->hasProperty("tiles")) {
-            source->m_params[QStringLiteral("tiles")] = param->property("tiles");
-        }
-        if (param->hasProperty("tileSize")) {
-            source->m_params[QStringLiteral("tileSize")] = param->property("tileSize");
-        }
-        break;
-    case 3: { // geojson
-        auto data = param->property("data").toString();
-        if (data.startsWith(':')) {
-            QFile geojson(data);
-            geojson.open(QIODevice::ReadOnly);
-            source->m_params[QStringLiteral("data")] = geojson.readAll();
-        } else {
-            source->m_params[QStringLiteral("data")] = data.toUtf8();
-        }
-    } break;
-    case 4: { // image
-        source->m_params[QStringLiteral("url")] = param->property("url");
-        source->m_params[QStringLiteral("coordinates")] = param->property("coordinates");
-    } break;
-    }
-
-    return QSharedPointer<QMapLibreGLStyleChange>(source);
-}
-
 QSharedPointer<QMapLibreGLStyleChange> QMapLibreGLStyleAddSource::fromFeature(const QMapLibreGL::Feature &feature)
 {
     auto source = new QMapLibreGLStyleAddSource();
@@ -637,32 +424,10 @@ void QMapLibreGLStyleSetFilter::apply(QMapLibreGL::Map *map)
     map->setFilter(m_layer, m_filter);
 }
 
-QSharedPointer<QMapLibreGLStyleChange> QMapLibreGLStyleSetFilter::fromMapParameter(QGeoMapParameter *param)
-{
-    Q_ASSERT(param->type() == "filter");
-
-    auto filter = new QMapLibreGLStyleSetFilter();
-    filter->m_layer = param->property("layer").toString();
-    filter->m_filter = param->property("filter");
-
-    return QSharedPointer<QMapLibreGLStyleChange>(filter);
-}
-
 
 // QMapLibreGLStyleAddImage
 
 void QMapLibreGLStyleAddImage::apply(QMapLibreGL::Map *map)
 {
     map->addImage(m_name, m_sprite);
-}
-
-QSharedPointer<QMapLibreGLStyleChange> QMapLibreGLStyleAddImage::fromMapParameter(QGeoMapParameter *param)
-{
-    Q_ASSERT(param->type() == "image");
-
-    auto image = new QMapLibreGLStyleAddImage();
-    image->m_name = param->property("name").toString();
-    image->m_sprite = QImage(param->property("sprite").toString());
-
-    return QSharedPointer<QMapLibreGLStyleChange>(image);
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2022 MapLibre contributors
+// Copyright (C) 2023 MapLibre contributors
 // Copyright (C) 2017 The Qt Company Ltd.
 // Copyright (C) 2017 Mapbox, Inc.
 
@@ -14,7 +14,6 @@
 #include <QtCore/QVariant>
 #include <QtCore/QRectF>
 #include <QtLocation/private/qgeomap_p_p.h>
-#include <QtLocation/private/qgeomapparameter_p.h>
 
 namespace QMapLibreGL {
     class Map;
@@ -32,9 +31,6 @@ public:
     ~QGeoMapMapLibreGLPrivate();
 
     QSGNode *updateSceneGraph(QSGNode *oldNode, QQuickWindow *window);
-
-    void addParameter(QGeoMapParameter *param) override;
-    void removeParameter(QGeoMapParameter *param) override;
 
     QGeoMap::ItemTypes supportedMapItemTypes() const override;
     void addMapItem(QDeclarativeGeoMapItemBase *item) override;
@@ -67,7 +63,11 @@ public:
 protected:
     void changeViewportSize(const QSize &size) override;
     void changeCameraData(const QGeoCameraData &oldCameraData) override;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+    void changeActiveMapType(const QGeoMapType &mapType) override;
+#else
     void changeActiveMapType(const QGeoMapType mapType) override;
+#endif
 
     void setVisibleArea(const QRectF &visibleArea) override;
     QRectF visibleArea() const override;

@@ -1,4 +1,4 @@
-// Copyright (C) 2022 MapLibre contributors
+// Copyright (C) 2023 MapLibre contributors
 // Copyright (C) 2017 The Qt Company Ltd.
 // Copyright (C) 2017 Mapbox, Inc.
 
@@ -10,7 +10,6 @@
 #include <QtQuick/QQuickWindow>
 #include <QtQuick/QSGRenderNode>
 #include <QtQuick/QSGSimpleTextureNode>
-#include <QtQuick/private/qsgtexture_p.h>
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 #include <QtOpenGL/QOpenGLFramebufferObject>
 #else

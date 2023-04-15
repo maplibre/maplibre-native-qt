@@ -217,7 +217,7 @@ jobs:
 
       - name: Create artifacts
         run: |
-          pushd install/home/runner/work/qt-geoservices-maplibre-gl
+          pushd install/home/runner/work/maplibre-native-qt
           tar cjvf ../../../../../qt-geoservices-maplibre-gl_Android.tar.bz2 Qt
           popd
 

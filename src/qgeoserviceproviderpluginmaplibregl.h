@@ -1,4 +1,4 @@
-// Copyright (C) 2022 MapLibre contributors
+// Copyright (C) 2023 MapLibre contributors
 // Copyright (C) 2017 The Qt Company Ltd.
 // Copyright (C) 2017 Mapbox, Inc.
 
@@ -16,8 +16,13 @@ class QGeoServiceProviderFactoryMapLibreGL: public QObject, public QGeoServicePr
 {
     Q_OBJECT
     Q_INTERFACES(QGeoServiceProviderFactory)
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+    Q_PLUGIN_METADATA(IID "org.qt-project.qt.geoservice.serviceproviderfactory/6.0"
+                      FILE "maplibregl_plugin.json")
+#else
     Q_PLUGIN_METADATA(IID "org.qt-project.qt.geoservice.serviceproviderfactory/5.0"
                       FILE "maplibregl_plugin.json")
+#endif
 
 public:
     QGeoServiceProviderFactoryMapLibreGL();
