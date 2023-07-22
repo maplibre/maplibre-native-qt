@@ -4,31 +4,26 @@
 
 // SPDX-License-Identifier: LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
 
-#ifndef QGEOMAPMAPLIBREGL_P_H
-#define QGEOMAPMAPLIBREGL_P_H
+#pragma once
 
 #include <QtCore/QHash>
 #include <QtCore/QList>
+#include <QtCore/QRectF>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QTimer>
 #include <QtCore/QVariant>
-#include <QtCore/QRectF>
 #include <QtLocation/private/qgeomap_p_p.h>
 
-namespace QMapLibreGL {
-    class Map;
-}
+namespace QMapLibre {
+class Map;
+class StyleChange;
 
-class QMapLibreGLStyleChange;
-
-class QGeoMapMapLibreGLPrivate : public QGeoMapPrivate
-{
-    Q_DECLARE_PUBLIC(QGeoMapMapLibreGL)
+class QGeoMapMapLibrePrivate : public QGeoMapPrivate {
+    Q_DECLARE_PUBLIC(QGeoMapMapLibre)
 
 public:
-    QGeoMapMapLibreGLPrivate(QGeoMappingManagerEngineMapLibreGL *engine);
-
-    ~QGeoMapMapLibreGLPrivate();
+    QGeoMapMapLibrePrivate(QGeoMappingManagerEngine *engine);
+    ~QGeoMapMapLibrePrivate();
 
     QSGNode *updateSceneGraph(QSGNode *oldNode, QQuickWindow *window);
 
@@ -39,15 +34,14 @@ public:
     /* Data members */
     enum SyncState : int {
         NoSync = 0,
-        ViewportSync    = 1 << 0,
-        CameraDataSync  = 1 << 1,
-        MapTypeSync     = 1 << 2,
+        ViewportSync = 1 << 0,
+        CameraDataSync = 1 << 1,
+        MapTypeSync = 1 << 2,
         VisibleAreaSync = 1 << 3
     };
     Q_DECLARE_FLAGS(SyncStates, SyncState);
 
-    QMapLibreGL::Settings m_settings;
-    bool m_useFBO = true;
+    Settings m_settings;
     QString m_mapItemsBefore;
 
     QTimer m_refresh;
@@ -58,7 +52,7 @@ public:
 
     SyncStates m_syncState = NoSync;
 
-    QList<QSharedPointer<QMapLibreGLStyleChange>> m_styleChanges;
+    QList<QSharedPointer<StyleChange>> m_styleChanges;
 
 protected:
     void changeViewportSize(const QSize &size) override;
@@ -73,14 +67,14 @@ protected:
     QRectF visibleArea() const override;
 
 private:
-    Q_DISABLE_COPY(QGeoMapMapLibreGLPrivate);
+    Q_DISABLE_COPY(QGeoMapMapLibrePrivate);
 
-    void syncStyleChanges(QMapLibreGL::Map *map);
-    void threadedRenderingHack(QQuickWindow *window, QMapLibreGL::Map *map);
+    void syncStyleChanges(Map *map);
+    void threadedRenderingHack(QQuickWindow *window, Map *map);
 
     QRectF m_visibleArea;
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QGeoMapMapLibreGLPrivate::SyncStates)
+Q_DECLARE_OPERATORS_FOR_FLAGS(QGeoMapMapLibrePrivate::SyncStates)
 
-#endif // QGEOMAPMAPLIBREGL_P_H
+} // namespace QMapLibre

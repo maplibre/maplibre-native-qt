@@ -10,27 +10,6 @@ add_subdirectory(
     EXCLUDE_FROM_ALL
 )
 
-# Debugging & ccache on Windows
-if (MSVC)
-    foreach(config DEBUG RELWITHDEBINFO)
-        foreach(lang C CXX)
-            set(flags_var "CMAKE_${lang}_FLAGS_${config}")
-            string(REPLACE "/Zi" "/Z7" ${flags_var} "${${flags_var}}")
-            set(${flags_var} "${${flags_var}}" PARENT_SCOPE)
-        endforeach()
-    endforeach()
-endif()
-
-# Platform-specifics
-if(ANDROID)
-    message(STATUS "Building for ABI: ${ANDROID_ABI}")
-    set(CMAKE_STATIC_LIBRARY_SUFFIX "_${ANDROID_ABI}.a")
-elseif(CMAKE_SYSTEM_NAME STREQUAL iOS)
-    set(CMAKE_DEBUG_POSTFIX "_debug")
-elseif(MSVC OR CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    set(CMAKE_DEBUG_POSTFIX "d")
-endif()
-
 # Public headers
 string(TOLOWER ${MLN_QT_CORE_LIB} MLN_QT_CORE_LIB_LOWERCASE)
 set(Core_Headers

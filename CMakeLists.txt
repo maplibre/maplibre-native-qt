@@ -24,14 +24,39 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
 # Common QMapLibre definitions
 set(MLN_QT_CORE_LIB QMapLibre)
+set(MLN_QT_LOCATION_LIB QMapLibreLocation)
+set(MLN_QT_GEOSERVICES_PLUGIN qtgeoservices_maplibre)
+set(MLN_QT_QML_PLUGIN declarative_locationplugin_maplibre)
 
 # Find Qt
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Gui Network REQUIRED)  # main dependencies
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Location REQUIRED)     # location
 if (Qt6_FOUND)
     find_package(Qt${QT_VERSION_MAJOR} COMPONENTS OpenGL OpenGLWidgets REQUIRED)
 endif()
 message(STATUS "Using Qt${QT_VERSION_MAJOR}")
+
+# Debugging & ccache on Windows
+if (MSVC)
+    foreach(config DEBUG RELWITHDEBINFO)
+        foreach(lang C CXX)
+            set(flags_var "CMAKE_${lang}_FLAGS_${config}")
+            string(REPLACE "/Zi" "/Z7" ${flags_var} "${${flags_var}}")
+            set(${flags_var} "${${flags_var}}" PARENT_SCOPE)
+        endforeach()
+    endforeach()
+endif()
+
+# Platform-specifics
+if(ANDROID)
+    message(STATUS "Building for ABI: ${ANDROID_ABI}")
+    set(CMAKE_STATIC_LIBRARY_SUFFIX "_${ANDROID_ABI}.a")
+elseif(CMAKE_SYSTEM_NAME STREQUAL iOS)
+    set(CMAKE_DEBUG_POSTFIX "_debug")
+elseif(MSVC OR CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    set(CMAKE_DEBUG_POSTFIX "d")
+endif()
 
 # Enable testing
 enable_testing()

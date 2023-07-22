@@ -1,70 +1,117 @@
-cmake_minimum_required(VERSION 3.16)
-
-file(READ "VERSION.txt" MLN_QML_VERSION)
-string(REGEX REPLACE "\n" "" MLN_QML_VERSION "${MLN_QML_VERSION}") # get
-
-project(MapLibreGLQmlPlugin
-    VERSION "${MLN_QML_VERSION}"
-    DESCRIPTION "MapLibre GL Qt Location QML Plugin"
-    LANGUAGES CXX
-)
-
-# Make sure we use the fixed BASE argument of qt_add_resource.
-set(QT_USE_FIXED_QT_ADD_RESOURCE_BASE TRUE)
-
-find_package(Qt6 ${PROJECT_VERSION} CONFIG REQUIRED COMPONENTS BuildInternals Core) # special case
-# WebAssembly not supported
-if(WASM)
-    message(NOTICE "Skipping the build as the condition \"NOT WASM\" is not met.")
-    return()
+# Make a Qt library
+if(COMMAND qt_add_library)
+    qt_add_library(${MLN_QT_LOCATION_LIB})
+else()
+    add_library(${MLN_QT_LOCATION_LIB} SHARED)
 endif()
 
-qt_prepare_standalone_project()
-
-find_package(Qt6 ${PROJECT_VERSION} CONFIG REQUIRED COMPONENTS Location Positioning Network OpenGL) # special case
-
-# Core QMapLibreGL definitions
-set(MLN_WITH_QT ON CACHE BOOL "Build MapLibre GL Qt version" FORCE)
-set(MLN_QT_LIBRARY_ONLY ON CACHE BOOL "Build only the library part of QMapLibreGL" FORCE)
-set(MLN_QT_INSIDE_PLUGIN ON CACHE BOOL "Build QMapLibreGL as OBJECT library, so it can be bundled into separate single plugin lib." FORCE)
-set(MLN_ENGINE_PATH "vendor/maplibre-native" CACHE STRING "QMapLibreGL source path" FORCE)
-
-add_subdirectory(
-    ${MLN_ENGINE_PATH} # Source directory
-    QMapLibreGL           # Binary directory
-    EXCLUDE_FROM_ALL
+target_sources(
+    ${MLN_QT_LOCATION_LIB}
+    PRIVATE
+    qgeomap.cpp qgeomap.hpp qgeomap_p.hpp
+    qt_mapping_engine.cpp qt_mapping_engine.hpp
+    stylechange.cpp stylechange_p.h
+    texture_node.cpp texture_node.hpp
 )
 
-qt_internal_add_plugin(QGeoServiceProviderFactoryMapLibreGLPlugin
-    OUTPUT_NAME qtgeoservices_maplibregl
-    CLASS_NAME QGeoServiceProviderFactoryMapLibreGL
-    PLUGIN_TYPE geoservices
-    SOURCES
-        src/qgeoserviceproviderpluginmaplibregl.cpp src/qgeoserviceproviderpluginmaplibregl.h
-        src/qgeomappingmanagerenginemaplibregl.cpp src/qgeomappingmanagerenginemaplibregl.h
-        src/qgeomapmaplibregl.cpp src/qgeomapmaplibregl.h src/qgeomapmaplibregl_p.h
-        src/qmaplibreglstylechange.cpp src/qmaplibreglstylechange_p.h
-        src/qsgmaplibreglnode.cpp src/qsgmaplibreglnode.h
-    INCLUDE_DIRECTORIES
-        ${MLN_ENGINE_PATH}/platform/qt/include
-    DEFINES
-        QT_MAPLIBREGL_STATIC
-    LIBRARIES
-        Qt::OpenGL
-        Qt::Network
-        Qt::LocationPrivate
-        "$<BUILD_INTERFACE:qmaplibregl>"
-        "$<BUILD_INTERFACE:mbgl-core>"
-        "$<BUILD_INTERFACE:mbgl-vendor-parsedate>"
-        "$<BUILD_INTERFACE:mbgl-vendor-nunicode>"
-        "$<BUILD_INTERFACE:mbgl-vendor-csscolorparser>"
+# Linux/Mac: Set framework, version and headers
+set_target_properties(
+    ${MLN_QT_LOCATION_LIB} PROPERTIES
+    AUTOMOC ON
+    EXPORT_NAME ${MLN_QT_LOCATION_LIB}
+    OUTPUT_NAME ${MLN_QT_LOCATION_LIB}
+    VERSION ${MLN_QT_VERSION}
+    SOVERSION ${MLN_QT_VERSION_COMPATIBILITY}
 )
 
-set_property(TARGET QGeoServiceProviderFactoryMapLibreGLPlugin PROPERTY INTERFACE_QT_MAJOR_VERSION 6)
+# Qt MOC
+if (Qt6_FOUND AND COMMAND qt_enable_autogen_tool)
+    qt_enable_autogen_tool(${MLN_QT_LOCATION_LIB} "moc" ON)
+endif()
 
-qt_add_resources(plugin_resource_files resources/maplibregl.qrc)
-
-qt_internal_extend_target(QGeoServiceProviderFactoryMapLibreGLPlugin
-    SOURCES
-        ${plugin_resource_files}
+# Common compile definitions
+target_compile_definitions(
+    ${MLN_QT_LOCATION_LIB}
+    PRIVATE
+    QT_BUILD_MAPLIBRE_LIB
 )
+
+# Common include directories
+target_include_directories(
+    ${MLN_QT_LOCATION_LIB}
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_BINARY_DIR}/include
+        ${CMAKE_SOURCE_DIR}/src/core
+        ${CMAKE_BINARY_DIR}/src/core/include
+)
+
+# Common link libraries
+target_link_libraries(
+    ${MLN_QT_LOCATION_LIB}
+    PUBLIC
+    ${MLN_QT_CORE_LIB}
+    PRIVATE
+    $<$<BOOL:${Qt6_FOUND}>:Qt::OpenGL>
+    Qt::Network
+    Qt::LocationPrivate
+)
+
+# Apple specifics
+if (APPLE)
+    set_target_properties(
+        ${MLN_QT_LOCATION_LIB} PROPERTIES
+        FRAMEWORK ON
+        FRAMEWORK_VERSION A
+        MACOSX_FRAMEWORK_IDENTIFIER org.maplibre.${MLN_QT_LOCATION_LIB}
+        MACOSX_FRAMEWORK_BUNDLE_VERSION ${MLN_QT_VERSION}
+        MACOSX_FRAMEWORK_SHORT_VERSION_STRING ${MLN_QT_VERSION}
+    )
+    target_include_directories(
+        ${MLN_QT_LOCATION_LIB}
+        INTERFACE
+            $<INSTALL_INTERFACE:lib/${MLN_QT_LOCATION_LIB}.framework>
+    )
+endif()
+
+# Configuration and installation
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+set(CMAKECONFIG_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/${MLN_QT_LOCATION_LIB}/)
+
+configure_package_config_file(
+    "config.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/${MLN_QT_LOCATION_LIB}Config.cmake"
+    INSTALL_DESTINATION ${CMAKECONFIG_INSTALL_DIR}
+    PATH_VARS CMAKE_INSTALL_PREFIX CMAKE_INSTALL_INCLUDEDIR
+    CMAKE_INSTALL_LIBDIR NO_CHECK_REQUIRED_COMPONENTS_MACRO)
+
+write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/${MLN_QT_LOCATION_LIB}ConfigVersion.cmake
+    VERSION ${MLN_QT_VERSION}
+    COMPATIBILITY AnyNewerVersion)
+
+install(EXPORT ${MLN_QT_LOCATION_LIB}Targets
+    DESTINATION ${CMAKECONFIG_INSTALL_DIR}
+    COMPONENT development)
+
+export(EXPORT ${MLN_QT_LOCATION_LIB}Targets)
+
+install(FILES
+        "${CMAKE_CURRENT_BINARY_DIR}/${MLN_QT_LOCATION_LIB}Config.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/${MLN_QT_LOCATION_LIB}ConfigVersion.cmake"
+    DESTINATION ${CMAKECONFIG_INSTALL_DIR}
+    COMPONENT development)
+
+install(TARGETS ${MLN_QT_LOCATION_LIB}
+        EXPORT ${MLN_QT_LOCATION_LIB}Targets
+        # Explicit set of DESTINATION is needed for older CMake versions.
+        RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+        FRAMEWORK DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+        LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+        ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+        INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+        PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${MLN_QT_LOCATION_LIB}"
+)
+
+# plugins
+add_subdirectory(plugins)

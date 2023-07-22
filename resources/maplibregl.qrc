@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/maplibregl">
-        <file>mapbox_logo.png</file>
-    </qresource>
-</RCC>
