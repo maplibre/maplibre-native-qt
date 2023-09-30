@@ -11,20 +11,20 @@ qmake --version
 
 if [[ "$1" = "library" ]]; then
   mkdir build && cd build
-  cmake ../source/dependencies/maplibre-gl-native/ \
+  cmake ../source/vendor/maplibre-native/ \
     -G Ninja \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_C_COMPILER_LAUNCHER=ccache \
     -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-    -DCMAKE_INSTALL_PREFIX=../install-qmaplibregl \
-    -DMBGL_WITH_QT=ON \
-    -DMBGL_QT_LIBRARY_ONLY=ON \
-    -DMBGL_QT_STATIC=ON
+    -DCMAKE_INSTALL_PREFIX=../install-maplibre \
+    -DMLN_WITH_QT=ON \
+    -DMLN_QT_LIBRARY_ONLY=ON \
+    -DMLN_QT_STATIC=ON
   ninja
   ninja install
 elif [[ "$1" = "plugin" ]]; then
   mkdir build && cd build
-  qmake ../source/ QMAPLIBREGL_PATH=../install-qmaplibregl
+  qmake ../source/ MAPLIBRE_PATH=../install-maplibre
   make -j2
   INSTALL_ROOT=../install make install
 else

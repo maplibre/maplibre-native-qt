@@ -52,7 +52,7 @@ env:
 
 jobs:
   build-core:
-    name: "Build maplibre-gl-native"
+    name: "Build maplibre-native"
     runs-on: macos-12
 
     steps:
@@ -81,7 +81,7 @@ jobs:
       - name: Set up ccache
         uses: hendrikmuhs/ccache-action@v1
         with:
-          key: iOS_maplibre-gl-native_legacy
+          key: iOS_maplibre-native_legacy
           append-timestamp: false
 
       - name: Use custom version of ccache
@@ -90,11 +90,11 @@ jobs:
           brew unlink ccache
           brew install ccache --HEAD
 
-      - name: Build maplibre-gl-native
+      - name: Build maplibre-native
         run: |
           export CCACHE_LOGFILE=../ccache.log
           mkdir build && cd build
-          cmake ../source/dependencies/maplibre-gl-native/ \
+          cmake ../source/vendor/maplibre-native/ \
             -G"Ninja Multi-Config" \
             -DCMAKE_CONFIGURATION_TYPES="Release;Debug" \
             -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
@@ -105,9 +105,9 @@ jobs:
             -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0 \
             -DCMAKE_PREFIX_PATH="$Qt5_Dir" \
             -DCMAKE_SYSTEM_NAME=iOS \
-            -DMBGL_WITH_QT=ON \
-            -DMBGL_QT_LIBRARY_ONLY=ON \
-            -DMBGL_QT_STATIC=ON
+            -DMLN_WITH_QT=ON \
+            -DMLN_QT_LIBRARY_ONLY=ON \
+            -DMLN_QT_STATIC=ON
           ninja
           DESTDIR=../install ninja install
 
@@ -126,7 +126,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: maplibre-gl-native_iOS
+          name: maplibre-native_iOS
           path: QMapLibreGL_iOS.tar.bz2
 
   build-plugin:
@@ -171,7 +171,7 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
-          name: maplibre-gl-native_iOS
+          name: maplibre-native_iOS
 
       - name: Build qt-geoservices-maplibre-gl
         run: |
@@ -204,20 +204,20 @@ jobs:
       contents: write
 
     steps:
-    - name: Download artifacts
-      uses: actions/download-artifact@v3
-      with:
-        name: qt-geoservices-maplibre-gl_iOS
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: qt-geoservices-maplibre-gl_iOS
 
-    - name: Make tarball
-      env:
-        TAG_NAME: ${{ github.ref_name }}
-      run: |
-        mv qt-geoservices-maplibre-gl_iOS.tar.bz2 qt-geoservices-maplibre-gl_${TAG_NAME}_Qt${QT_VERSION}_iOS.tar.bz2
+      - name: Make tarball
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          mv qt-geoservices-maplibre-gl_iOS.tar.bz2 qt-geoservices-maplibre-gl_${TAG_NAME}_Qt${QT_VERSION}_iOS.tar.bz2
 
-    - name: Release
-      uses: ncipollo/release-action@v1
-      with:
-        artifacts: qt-geoservices-maplibre-gl_${{ github.ref_name }}_Qt${{ env.QT_VERSION }}_iOS.tar.bz2
-        allowUpdates: true
-        draft: true
+      - name: Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: qt-geoservices-maplibre-gl_${{ github.ref_name }}_Qt${{ env.QT_VERSION }}_iOS.tar.bz2
+          allowUpdates: true
+          draft: true

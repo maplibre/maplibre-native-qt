@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
 
-file(READ "VERSION.txt" MBGL_QML_VERSION)
-string(REGEX REPLACE "\n" "" MBGL_QML_VERSION "${MBGL_QML_VERSION}") # get
+file(READ "VERSION.txt" MLN_QML_VERSION)
+string(REGEX REPLACE "\n" "" MLN_QML_VERSION "${MLN_QML_VERSION}") # get
 
 project(MapLibreGLQmlPlugin
-    VERSION "${MBGL_QML_VERSION}"
+    VERSION "${MLN_QML_VERSION}"
     DESCRIPTION "MapLibre GL Qt Location QML Plugin"
     LANGUAGES CXX
 )
@@ -24,13 +24,13 @@ qt_prepare_standalone_project()
 find_package(Qt6 ${PROJECT_VERSION} CONFIG REQUIRED COMPONENTS Location Positioning Network OpenGL) # special case
 
 # Core QMapLibreGL definitions
-set(MBGL_WITH_QT ON CACHE BOOL "Build MapLibre GL Qt version" FORCE)
-set(MBGL_QT_LIBRARY_ONLY ON CACHE BOOL "Build only the library part of QMapLibreGL" FORCE)
-set(MBGL_QT_INSIDE_PLUGIN ON CACHE BOOL "Build QMapLibreGL as OBJECT library, so it can be bundled into separate single plugin lib." FORCE)
-set(MBGL_ENGINE_PATH "dependencies/maplibre-gl-native" CACHE STRING "QMapLibreGL source path" FORCE)
+set(MLN_WITH_QT ON CACHE BOOL "Build MapLibre GL Qt version" FORCE)
+set(MLN_QT_LIBRARY_ONLY ON CACHE BOOL "Build only the library part of QMapLibreGL" FORCE)
+set(MLN_QT_INSIDE_PLUGIN ON CACHE BOOL "Build QMapLibreGL as OBJECT library, so it can be bundled into separate single plugin lib." FORCE)
+set(MLN_ENGINE_PATH "vendor/maplibre-native" CACHE STRING "QMapLibreGL source path" FORCE)
 
 add_subdirectory(
-    ${MBGL_ENGINE_PATH} # Source directory
+    ${MLN_ENGINE_PATH} # Source directory
     QMapLibreGL           # Binary directory
     EXCLUDE_FROM_ALL
 )
@@ -46,7 +46,7 @@ qt_internal_add_plugin(QGeoServiceProviderFactoryMapLibreGLPlugin
         src/qmaplibreglstylechange.cpp src/qmaplibreglstylechange_p.h
         src/qsgmaplibreglnode.cpp src/qsgmaplibreglnode.h
     INCLUDE_DIRECTORIES
-        ${MBGL_ENGINE_PATH}/platform/qt/include
+        ${MLN_ENGINE_PATH}/platform/qt/include
     DEFINES
         QT_MAPLIBREGL_STATIC
     LIBRARIES

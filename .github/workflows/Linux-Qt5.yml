@@ -6,7 +6,7 @@ on:
     branches:
       - main
     tags:
-      - '**'
+      - "**"
     paths-ignore:
       - ".gitignore"
       - "README.md"
@@ -50,7 +50,7 @@ env:
 
 jobs:
   build-core:
-    name: "Build maplibre-gl-native"
+    name: "Build maplibre-native"
     runs-on: ubuntu-22.04
 
     steps:
@@ -72,10 +72,10 @@ jobs:
       - name: Set up ccache
         uses: hendrikmuhs/ccache-action@v1
         with:
-          key: Linux_maplibre-gl-native_legacy
+          key: Linux_maplibre-native_legacy
           append-timestamp: false
 
-      - name: Build maplibre-gl-native
+      - name: Build maplibre-native
         uses: ./source/.github/actions/qt5-build
         with:
           build-type: library
@@ -83,8 +83,8 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: maplibre-gl-native_Linux
-          path: install-qmaplibregl
+          name: maplibre-native_Linux
+          path: install-maplibre
 
   build-plugin:
     name: "Build qt-geoservices-maplibre-gl"
@@ -115,8 +115,8 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
-          name: maplibre-gl-native_Linux
-          path: install-qmaplibregl
+          name: maplibre-native_Linux
+          path: install-maplibre
 
       - name: Build qt-geoservices-maplibre-gl
         uses: ./source/.github/actions/qt5-build
@@ -144,20 +144,20 @@ jobs:
       contents: write
 
     steps:
-    - name: Download artifacts
-      uses: actions/download-artifact@v3
-      with:
-        name: qt-geoservices-maplibre-gl_Linux
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: qt-geoservices-maplibre-gl_Linux
 
-    - name: Name tarball
-      env:
-        TAG_NAME: ${{ github.ref_name }}
-      run: |
-        mv qt-geoservices-maplibre-gl_Linux.tar.bz2 qt-geoservices-maplibre-gl_${TAG_NAME}_Qt${QT_VERSION}_Linux.tar.bz2
+      - name: Name tarball
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          mv qt-geoservices-maplibre-gl_Linux.tar.bz2 qt-geoservices-maplibre-gl_${TAG_NAME}_Qt${QT_VERSION}_Linux.tar.bz2
 
-    - name: Release
-      uses: ncipollo/release-action@v1
-      with:
-        artifacts: qt-geoservices-maplibre-gl_${{ github.ref_name }}_Qt${{ env.QT_VERSION }}_Linux.tar.bz2
-        allowUpdates: true
-        draft: true
+      - name: Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: qt-geoservices-maplibre-gl_${{ github.ref_name }}_Qt${{ env.QT_VERSION }}_Linux.tar.bz2
+          allowUpdates: true
+          draft: true
