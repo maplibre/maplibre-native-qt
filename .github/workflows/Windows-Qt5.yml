@@ -2,45 +2,45 @@ name: Windows Qt5 CI
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    tags:
-      - '**'
-    paths-ignore:
-      - ".gitignore"
-      - "README.md"
-      # ignore CI for other platforms
-      - ".github/FUNDING.yml"
-      - ".github/actions/**"
-      - ".github/workflows/Android-Qt5.yml"
-      - ".github/workflows/Android-Qt6.yml"
-      - ".github/workflows/iOS-Qt5.yml"
-      - ".github/workflows/iOS-Qt6.yml"
-      - ".github/workflows/Linux-Qt5.yml"
-      - ".github/workflows/Linux-Qt6.yml"
-      - ".github/workflows/macOS-Qt5.yml"
-      - ".github/workflows/macOS-Qt6.yml"
-      - ".github/workflows/Windows-Qt6.yml"
+  # push:
+  #   branches:
+  #     - main
+  #   tags:
+  #     - '**'
+  #   paths-ignore:
+  #     - ".gitignore"
+  #     - "README.md"
+  #     # ignore CI for other platforms
+  #     - ".github/FUNDING.yml"
+  #     - ".github/actions/**"
+  #     - ".github/workflows/Android-Qt5.yml"
+  #     - ".github/workflows/Android-Qt6.yml"
+  #     - ".github/workflows/iOS-Qt5.yml"
+  #     - ".github/workflows/iOS-Qt6.yml"
+  #     - ".github/workflows/Linux-Qt5.yml"
+  #     - ".github/workflows/Linux-Qt6.yml"
+  #     - ".github/workflows/macOS-Qt5.yml"
+  #     - ".github/workflows/macOS-Qt6.yml"
+  #     - ".github/workflows/Windows-Qt6.yml"
 
-  pull_request:
-    branches:
-      - main
-    paths-ignore:
-      - ".gitignore"
-      - "README.md"
-      # ignore CI for other platforms
-      - ".github/FUNDING.yml"
-      - ".github/actions/**"
-      - ".github/workflows/Android-Qt5.yml"
-      - ".github/workflows/Android-Qt6.yml"
-      - ".github/workflows/iOS-Qt5.yml"
-      - ".github/workflows/iOS-Qt6.yml"
-      - ".github/workflows/Linux-Qt5.yml"
-      - ".github/workflows/Linux-Qt6.yml"
-      - ".github/workflows/macOS-Qt5.yml"
-      - ".github/workflows/macOS-Qt6.yml"
-      - ".github/workflows/Windows-Qt6.yml"
+  # pull_request:
+  #   branches:
+  #     - main
+  #   paths-ignore:
+  #     - ".gitignore"
+  #     - "README.md"
+  #     # ignore CI for other platforms
+  #     - ".github/FUNDING.yml"
+  #     - ".github/actions/**"
+  #     - ".github/workflows/Android-Qt5.yml"
+  #     - ".github/workflows/Android-Qt6.yml"
+  #     - ".github/workflows/iOS-Qt5.yml"
+  #     - ".github/workflows/iOS-Qt6.yml"
+  #     - ".github/workflows/Linux-Qt5.yml"
+  #     - ".github/workflows/Linux-Qt6.yml"
+  #     - ".github/workflows/macOS-Qt5.yml"
+  #     - ".github/workflows/macOS-Qt6.yml"
+  #     - ".github/workflows/Windows-Qt6.yml"
 
 concurrency:
   # cancel jobs on PRs only
@@ -270,7 +270,7 @@ jobs:
         env:
           TAG_ARCH: ${{ matrix.config.qtarch }}
         run: |
-          pushd install/a/qt-geoservices-maplibre-gl
+          pushd install/a/maplibre-native-qt
           tar cjvf ../../../qt-geoservices-maplibre-gl_Windows_${TAG_ARCH}.tar.bz2 Qt
           popd
 

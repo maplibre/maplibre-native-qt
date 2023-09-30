@@ -1,4 +1,4 @@
-// Copyright (C) 2022 MapLibre contributors
+// Copyright (C) 2023 MapLibre contributors
 // Copyright (C) 2017 The Qt Company Ltd.
 // Copyright (C) 2017 Mapbox, Inc.
 
@@ -22,7 +22,6 @@
 #include <QtLocation/private/qdeclarativepolygonmapitem_p.h>
 #include <QtLocation/private/qdeclarativepolylinemapitem_p.h>
 #include <QtLocation/private/qdeclarativerectanglemapitem_p.h>
-#include <QtLocation/private/qgeomapparameter_p.h>
 #include <QtLocation/private/qgeoprojection_p.h>
 #include <QtQuick/QQuickWindow>
 #include <QtQuick/QSGImageNode>
@@ -143,31 +142,6 @@ QSGNode *QGeoMapMapLibreGLPrivate::updateSceneGraph(QSGNode *node, QQuickWindow 
     return node;
 }
 
-void QGeoMapMapLibreGLPrivate::addParameter(QGeoMapParameter *param)
-{
-    Q_Q(QGeoMapMapLibreGL);
-
-    QObject::connect(param, &QGeoMapParameter::propertyUpdated, q,
-        &QGeoMapMapLibreGL::onParameterPropertyUpdated);
-
-    if (m_styleLoaded) {
-        m_styleChanges << QMapLibreGLStyleChange::addMapParameter(param);
-        emit q->sgNodeChanged();
-    }
-}
-
-void QGeoMapMapLibreGLPrivate::removeParameter(QGeoMapParameter *param)
-{
-    Q_Q(QGeoMapMapLibreGL);
-
-    q->disconnect(param);
-
-    if (m_styleLoaded) {
-        m_styleChanges << QMapLibreGLStyleChange::removeMapParameter(param);
-        emit q->sgNodeChanged();
-    }
-}
-
 QGeoMap::ItemTypes QGeoMapMapLibreGLPrivate::supportedMapItemTypes() const
 {
     return QGeoMap::MapRectangle | QGeoMap::MapCircle | QGeoMap::MapPolygon | QGeoMap::MapPolyline;
@@ -274,7 +248,11 @@ void QGeoMapMapLibreGLPrivate::changeCameraData(const QGeoCameraData &)
     emit q->sgNodeChanged();
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+void QGeoMapMapLibreGLPrivate::changeActiveMapType(const QGeoMapType &)
+#else
 void QGeoMapMapLibreGLPrivate::changeActiveMapType(const QGeoMapType)
+#endif
 {
     Q_Q(QGeoMapMapLibreGL);
 
@@ -406,9 +384,6 @@ void QGeoMapMapLibreGL::onMapChanged(QMapLibreGL::Map::MapChange change)
 
         for (QDeclarativeGeoMapItemBase *item : d->m_mapItems)
             d->m_styleChanges << QMapLibreGLStyleChange::addMapItem(item, d->m_mapItemsBefore);
-
-        for (QGeoMapParameter *param : d->m_mapParameters)
-            d->m_styleChanges << QMapLibreGLStyleChange::addMapParameter(param);
     }
 }
 
@@ -445,15 +420,6 @@ void QGeoMapMapLibreGL::onMapItemGeometryChanged()
 
     QDeclarativeGeoMapItemBase *item = static_cast<QDeclarativeGeoMapItemBase *>(sender());
     d->m_styleChanges << QMapLibreGLStyleAddSource::fromMapItem(item);
-
-    emit sgNodeChanged();
-}
-
-void QGeoMapMapLibreGL::onParameterPropertyUpdated(QGeoMapParameter *param, const char *)
-{
-    Q_D(QGeoMapMapLibreGL);
-
-    d->m_styleChanges.append(QMapLibreGLStyleChange::addMapParameter(param));
 
     emit sgNodeChanged();
 }

@@ -1,8 +1,12 @@
 ![MapLibre Logo](https://maplibre.org/img/maplibre-logo-big.svg)
 
-# qt-geoservices-maplibre-gl
+# maplibre-native-qt
 
-Qt Location MapLibre GL Plugin
+MapLibre Native Qt bindings and Qt Location MapLibre Plugin
+
+**Important notice:** Repository is being reorganised for Qt 6.5 support.
+Some features will go away temporarily and API will change also for older
+releases in the upcoming version 3.0 of the Qt bindings and Qt Location plugin.
 
 ## How to build?
 
@@ -11,7 +15,7 @@ Qt Location MapLibre GL Plugin
 Both plugin and MapLibre build in one step. Ninja is recommended.
 
 ```shell
-qt-cmake ../qt-geoservices-maplibre-gl -GNinja
+qt-cmake ../maplibre-native-qt -GNinja
 ninja
 ninja install
 ```
@@ -36,14 +40,14 @@ Then the plugin is built separately.
 To build the plugin run in a separate build directory:
 
 ```shell
-qmake ../qt-geoservices-maplibre-g QMAPLIBREGL_PATH=../install-qmaplibregl
+qmake ../maplibre-native-qt QMAPLIBREGL_PATH=../install-qmaplibregl
 make
 make install
 ```
 
 ## Copyright
 
-Copyright (C) 2022 MapLibre contributors
+Copyright (C) 2023 MapLibre contributors
 
 This project may be used under the terms of either GNU General Public License version 2.0,
 GNU General Public License version 3.0 or GNU Lesser General Public License version 3.0.

@@ -1,4 +1,4 @@
-// Copyright (C) 2022 MapLibre contributors
+// Copyright (C) 2023 MapLibre contributors
 // Copyright (C) 2017 Mapbox, Inc.
 
 // SPDX-License-Identifier: LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
@@ -17,7 +17,6 @@
 #include <QtLocation/private/qdeclarativepolygonmapitem_p.h>
 #include <QtLocation/private/qdeclarativepolylinemapitem_p.h>
 #include <QtLocation/private/qdeclarativerectanglemapitem_p.h>
-#include <QtLocation/private/qgeomapparameter_p.h>
 
 #include <QMapLibreGL/Types>
 
@@ -30,9 +29,7 @@ class QMapLibreGLStyleChange
 public:
     virtual ~QMapLibreGLStyleChange() = default;
 
-    static QList<QSharedPointer<QMapLibreGLStyleChange>> addMapParameter(QGeoMapParameter *);
     static QList<QSharedPointer<QMapLibreGLStyleChange>> addMapItem(QDeclarativeGeoMapItemBase *, const QString &before);
-    static QList<QSharedPointer<QMapLibreGLStyleChange>> removeMapParameter(QGeoMapParameter *);
     static QList<QSharedPointer<QMapLibreGLStyleChange>> removeMapItem(QDeclarativeGeoMapItemBase *);
 
     virtual void apply(QMapLibreGL::Map *map) = 0;
@@ -41,7 +38,6 @@ public:
 class QMapLibreGLStyleSetLayoutProperty : public QMapLibreGLStyleChange
 {
 public:
-    static QList<QSharedPointer<QMapLibreGLStyleChange>> fromMapParameter(QGeoMapParameter *);
     static QList<QSharedPointer<QMapLibreGLStyleChange>> fromMapItem(QDeclarativeGeoMapItemBase *);
 
     void apply(QMapLibreGL::Map *map) override;
@@ -60,7 +56,6 @@ private:
 class QMapLibreGLStyleSetPaintProperty : public QMapLibreGLStyleChange
 {
 public:
-    static QList<QSharedPointer<QMapLibreGLStyleChange>> fromMapParameter(QGeoMapParameter *);
     static QList<QSharedPointer<QMapLibreGLStyleChange>> fromMapItem(QDeclarativeGeoMapItemBase *);
 
     void apply(QMapLibreGL::Map *map) override;
@@ -82,7 +77,6 @@ private:
 class QMapLibreGLStyleAddLayer : public QMapLibreGLStyleChange
 {
 public:
-    static QSharedPointer<QMapLibreGLStyleChange> fromMapParameter(QGeoMapParameter *);
     static QSharedPointer<QMapLibreGLStyleChange> fromFeature(const QMapLibreGL::Feature &feature, const QString &before);
 
     void apply(QMapLibreGL::Map *map) override;
@@ -110,7 +104,6 @@ private:
 class QMapLibreGLStyleAddSource : public QMapLibreGLStyleChange
 {
 public:
-    static QSharedPointer<QMapLibreGLStyleChange> fromMapParameter(QGeoMapParameter *);
     static QSharedPointer<QMapLibreGLStyleChange> fromFeature(const QMapLibreGL::Feature &feature);
     static QSharedPointer<QMapLibreGLStyleChange> fromMapItem(QDeclarativeGeoMapItemBase *);
 
@@ -139,8 +132,6 @@ private:
 class QMapLibreGLStyleSetFilter : public QMapLibreGLStyleChange
 {
 public:
-    static QSharedPointer<QMapLibreGLStyleChange> fromMapParameter(QGeoMapParameter *);
-
     void apply(QMapLibreGL::Map *map) override;
 
 private:
@@ -153,8 +144,6 @@ private:
 class QMapLibreGLStyleAddImage : public QMapLibreGLStyleChange
 {
 public:
-    static QSharedPointer<QMapLibreGLStyleChange> fromMapParameter(QGeoMapParameter *);
-
     void apply(QMapLibreGL::Map *map) override;
 
 private:

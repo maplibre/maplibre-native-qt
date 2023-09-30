@@ -1,4 +1,4 @@
-// Copyright (C) 2022 MapLibre contributors
+// Copyright (C) 2023 MapLibre contributors
 // Copyright (C) 2017 The Qt Company Ltd.
 // Copyright (C) 2017 Mapbox, Inc.
 
@@ -7,7 +7,7 @@
 #include "qsgmaplibreglnode.h"
 #include "qgeomapmaplibregl.h"
 
-#if QT_HAS_INCLUDE(<QtQuick/private/qsgplaintexture_p.h>)
+#if __has_include(<QtQuick/private/qsgplaintexture_p.h>)
 #include <QtQuick/private/qsgplaintexture_p.h>
 #endif
 

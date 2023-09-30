@@ -2,45 +2,45 @@ name: Windows Qt6 CI
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    tags:
-      - '**'
-    paths-ignore:
-      - ".gitignore"
-      - "README.md"
-      # ignore CI for other platforms
-      - ".github/FUNDING.yml"
-      - ".github/actions/**"
-      - ".github/workflows/Android-Qt5.yml"
-      - ".github/workflows/Android-Qt6.yml"
-      - ".github/workflows/iOS-Qt5.yml"
-      - ".github/workflows/iOS-Qt6.yml"
-      - ".github/workflows/Linux-Qt5.yml"
-      - ".github/workflows/Linux-Qt6.yml"
-      - ".github/workflows/macOS-Qt5.yml"
-      - ".github/workflows/macOS-Qt6.yml"
-      - ".github/workflows/Windows-Qt5.yml"
+  # push:
+  #   branches:
+  #     - main
+  #   tags:
+  #     - '**'
+  #   paths-ignore:
+  #     - ".gitignore"
+  #     - "README.md"
+  #     # ignore CI for other platforms
+  #     - ".github/FUNDING.yml"
+  #     - ".github/actions/**"
+  #     - ".github/workflows/Android-Qt5.yml"
+  #     - ".github/workflows/Android-Qt6.yml"
+  #     - ".github/workflows/iOS-Qt5.yml"
+  #     - ".github/workflows/iOS-Qt6.yml"
+  #     - ".github/workflows/Linux-Qt5.yml"
+  #     - ".github/workflows/Linux-Qt6.yml"
+  #     - ".github/workflows/macOS-Qt5.yml"
+  #     - ".github/workflows/macOS-Qt6.yml"
+  #     - ".github/workflows/Windows-Qt5.yml"
 
-  pull_request:
-    branches:
-      - main
-    paths-ignore:
-      - ".gitignore"
-      - "README.md"
-      # ignore CI for other platforms
-      - ".github/FUNDING.yml"
-      - ".github/actions/**"
-      - ".github/workflows/Android-Qt5.yml"
-      - ".github/workflows/Android-Qt6.yml"
-      - ".github/workflows/iOS-Qt5.yml"
-      - ".github/workflows/iOS-Qt6.yml"
-      - ".github/workflows/Linux-Qt5.yml"
-      - ".github/workflows/Linux-Qt6.yml"
-      - ".github/workflows/macOS-Qt5.yml"
-      - ".github/workflows/macOS-Qt6.yml"
-      - ".github/workflows/Windows-Qt5.yml"
+  # pull_request:
+  #   branches:
+  #     - main
+  #   paths-ignore:
+  #     - ".gitignore"
+  #     - "README.md"
+  #     # ignore CI for other platforms
+  #     - ".github/FUNDING.yml"
+  #     - ".github/actions/**"
+  #     - ".github/workflows/Android-Qt5.yml"
+  #     - ".github/workflows/Android-Qt6.yml"
+  #     - ".github/workflows/iOS-Qt5.yml"
+  #     - ".github/workflows/iOS-Qt6.yml"
+  #     - ".github/workflows/Linux-Qt5.yml"
+  #     - ".github/workflows/Linux-Qt6.yml"
+  #     - ".github/workflows/macOS-Qt5.yml"
+  #     - ".github/workflows/macOS-Qt6.yml"
+  #     - ".github/workflows/Windows-Qt5.yml"
 
 concurrency:
   # cancel jobs on PRs only
@@ -48,8 +48,7 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 env:
-  QT_VERSION: 6.4.3
-  QT_LOCATION_VERSION: 6.4.3.0
+  QT_VERSION: 6.5.0
   CCACHE_CONFIGPATH: C:/Users/runneradmin/AppData/Roaming/ccache/ccache.conf
 
 jobs:
@@ -92,17 +91,8 @@ jobs:
           version: ${{ env.QT_VERSION }}
           target: desktop
           arch: ${{ matrix.config.arch }}
-          modules: qtpositioning qtshadertools
+          modules: qtlocation qtpositioning qtshadertools
           tools: ${{ matrix.config.tools }}
-
-      - name: Download QtLocation
-        shell: bash
-        env:
-          QT_PLATFORM: ${{ matrix.config.qtarch }}
-        run: |
-          choco upgrade wget
-          wget.exe https://github.com/ntadej/qtlocation/releases/download/v${QT_LOCATION_VERSION}/QtLocation_v${QT_LOCATION_VERSION}_Windows_${QT_PLATFORM}.tar.bz2
-          tar xvf QtLocation_v${QT_LOCATION_VERSION}_Windows_${QT_PLATFORM}.tar.bz2 -C ..
 
       - name: Setup ninja
         uses: seanmiddleditch/gha-setup-ninja@v3
@@ -147,7 +137,7 @@ jobs:
         env:
           TAG_ARCH: ${{ matrix.config.qtarch }}
         run: |
-          pushd install/a/qt-geoservices-maplibre-gl
+          pushd install/a/maplibre-native-qt
           tar cjvf ../../../qt-geoservices-maplibre-gl_Windows_${TAG_ARCH}.tar.bz2 Qt
           popd
 
@@ -185,9 +175,6 @@ jobs:
         QT_ARCH: ${{ matrix.config.qtarch }}
         TAG_ARCH: ${{ matrix.config.outarch }}
       run: |
-        choco upgrade wget
-        wget.exe https://github.com/ntadej/qtlocation/releases/download/v${QT_LOCATION_VERSION}/QtLocation_v${QT_LOCATION_VERSION}_Windows_${QT_ARCH}.tar.bz2
-        tar xvf QtLocation_v${QT_LOCATION_VERSION}_Windows_${QT_ARCH}.tar.bz2
         tar xvf qt-geoservices-maplibre-gl_Windows_${QT_ARCH}.tar.bz2
         tar cjvf qt-geoservices-maplibre-gl_${TAG_NAME}_Qt${QT_VERSION}_win64_${TAG_ARCH}.tar.bz2 Qt
 
