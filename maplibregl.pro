@@ -40,16 +40,16 @@ qtConfig(system-zlib) {
 
 load(qt_build_paths)
 
-!isEmpty(QMAPLIBREGL_PATH) {
-    message("QMapLibreGL path: $$QMAPLIBREGL_PATH")
+!isEmpty(MAPLIBRE_PATH) {
+    message("MapLibre path: $$MAPLIBRE_PATH")
 
-    INCLUDEPATH += $$QMAPLIBREGL_PATH/include
-    LIBS += -L$$QMAPLIBREGL_PATH/lib
+    INCLUDEPATH += $$MAPLIBRE_PATH/include
+    LIBS += -L$$MAPLIBRE_PATH/lib
     linux:!android {
-        LIBS += -L$$QMAPLIBREGL_PATH/lib64
+        LIBS += -L$$MAPLIBRE_PATH/lib64
     }
 } else {
-    message("QMapLibreGL installed with Qt")
+    message("MapLibre installed with Qt")
 }
 LIBS += -lQMapLibreGL$$qtPlatformTargetSuffix()
 

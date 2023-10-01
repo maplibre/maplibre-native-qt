@@ -53,7 +53,7 @@ env:
 
 jobs:
   build-core:
-    name: "Build maplibre-gl-native for ${{ matrix.config.qtarch }} (${{ matrix.config.build }})"
+    name: "Build maplibre-native for ${{ matrix.config.qtarch }} (${{ matrix.config.build }})"
     runs-on: windows-2022
     strategy:
       matrix:
@@ -62,13 +62,13 @@ jobs:
             qtarch: msvc2019_64
             compiler: x64
             compiler_version: 14.29
-            tools: ''
+            tools: ""
             build: Release
           - arch: win64_msvc2019_64
             qtarch: msvc2019_64
             compiler: x64
             compiler_version: 14.29
-            tools: ''
+            tools: ""
             build: Debug
           - arch: win64_mingw81
             qtarch: mingw81_64
@@ -101,7 +101,7 @@ jobs:
       - name: Download Qt
         uses: jurplel/install-qt-action@v3
         with:
-          aqtversion: '==2.1.*'
+          aqtversion: "==2.1.*"
           version: ${{ env.QT_VERSION }}
           target: desktop
           arch: ${{ matrix.config.arch }}
@@ -128,7 +128,7 @@ jobs:
           key: Windows_qt-geoservices-maplibre-gl_${{ matrix.config.qtarch }}_${{ matrix.config.build }}_legacy
           append-timestamp: false
 
-      - name: Build maplibre-gl-native
+      - name: Build maplibre-native
         shell: bash
         env:
           BUILD_TYPE: ${{ matrix.config.build }}
@@ -137,26 +137,26 @@ jobs:
           export PATH=$IQTA_TOOLS/$COMPILER_TYPE/bin:$PATH
           echo "$PATH"
           mkdir build && cd build
-          cmake.exe ../source/dependencies/maplibre-gl-native \
+          cmake.exe ../source/vendor/maplibre-native \
             -G Ninja \
             -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
             -DCMAKE_C_COMPILER_LAUNCHER="ccache.exe" \
             -DCMAKE_CXX_COMPILER_LAUNCHER="ccache.exe" \
-            -DCMAKE_INSTALL_PREFIX="../install-qmaplibregl" \
-            -DMBGL_WITH_QT=ON \
-            -DMBGL_QT_LIBRARY_ONLY=ON \
-            -DMBGL_QT_STATIC=ON
+            -DCMAKE_INSTALL_PREFIX="../install-maplibre" \
+            -DMLN_WITH_QT=ON \
+            -DMLN_QT_LIBRARY_ONLY=ON \
+            -DMLN_QT_STATIC=ON
           ninja.exe
           ninja.exe install
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: maplibre-gl-native_Windows_${{ matrix.config.qtarch }}_${{ matrix.config.build }}
-          path: install-qmaplibregl
+          name: maplibre-native_Windows_${{ matrix.config.qtarch }}_${{ matrix.config.build }}
+          path: install-maplibre
 
   prepare-core:
-    name: "Prepare maplibre-gl-native"
+    name: "Prepare maplibre-native"
     runs-on: windows-latest
     needs: build-core
     strategy:
@@ -169,26 +169,26 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
-          name: maplibre-gl-native_Windows_${{ matrix.config.qtarch }}_Release
+          name: maplibre-native_Windows_${{ matrix.config.qtarch }}_Release
           path: install-Release
 
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
-          name: maplibre-gl-native_Windows_${{ matrix.config.qtarch }}_Debug
+          name: maplibre-native_Windows_${{ matrix.config.qtarch }}_Debug
           path: install-Debug
 
       - name: Prepare artifacts
         run: |
-          cp -r install-Release install-qmaplibregl
-          cp -r install-Debug/lib/* install-qmaplibregl/lib
+          cp -r install-Release install-maplibre
+          cp -r install-Debug/lib/* install-maplibre/lib
         shell: bash
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: maplibre-gl-native_Windows_${{ matrix.config.qtarch }}
-          path: install-qmaplibregl
+          name: maplibre-native_Windows_${{ matrix.config.qtarch }}
+          path: install-maplibre
 
   build-plugin:
     name: "Build qt-geoservices-maplibre-gl for ${{ matrix.config.qtarch }}"
@@ -201,7 +201,7 @@ jobs:
             qtarch: msvc2019_64
             compiler: x64
             compiler_version: 14.29
-            tools: ''
+            tools: ""
           - arch: win64_mingw81
             qtarch: mingw81_64
             compiler: mingw810_64
@@ -218,7 +218,7 @@ jobs:
       - name: Download Qt
         uses: jurplel/install-qt-action@v3
         with:
-          aqtversion: '==2.1.*'
+          aqtversion: "==2.1.*"
           version: ${{ env.QT_VERSION }}
           target: desktop
           arch: ${{ matrix.config.arch }}
@@ -237,8 +237,8 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
-          name: maplibre-gl-native_Windows_${{ matrix.config.qtarch }}
-          path: install-qmaplibregl
+          name: maplibre-native_Windows_${{ matrix.config.qtarch }}
+          path: install-maplibre
 
       - name: Build qt-geoservices-maplibre-gl (MSVC)
         if: matrix.config.arch == 'win64_msvc2019_64'
@@ -246,7 +246,7 @@ jobs:
           mkdir build
           mkdir install
           cd build
-          qmake ../source QMAPLIBREGL_PATH=../install-qmaplibregl
+          qmake ../source MAPLIBRE_PATH=../install-maplibre
           nmake
           $env:INSTALL_ROOT = "..\install"
           nmake install
@@ -261,7 +261,7 @@ jobs:
           echo "$PATH"
           mkdir install
           mkdir build && cd build
-          qmake.exe ../source QMAPLIBREGL_PATH=../install-qmaplibregl
+          qmake.exe ../source MAPLIBRE_PATH=../install-maplibre
           mingw32-make.exe
           INSTALL_ROOT=../install mingw32-make.exe install
 
@@ -296,23 +296,23 @@ jobs:
       contents: write
 
     steps:
-    - name: Download artifacts
-      uses: actions/download-artifact@v3
-      with:
-        name: qt-geoservices-maplibre-gl_Windows_${{ matrix.config.qtarch }}
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: qt-geoservices-maplibre-gl_Windows_${{ matrix.config.qtarch }}
 
-    - name: Make tarball
-      shell: bash
-      env:
-        TAG_NAME: ${{ github.ref_name }}
-        QT_ARCH: ${{ matrix.config.qtarch }}
-        TAG_ARCH: ${{ matrix.config.outarch }}
-      run: |
-        mv qt-geoservices-maplibre-gl_Windows_${QT_ARCH}.tar.bz2 qt-geoservices-maplibre-gl_${TAG_NAME}_Qt${QT_VERSION}_win64_${TAG_ARCH}.tar.bz2
+      - name: Make tarball
+        shell: bash
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+          QT_ARCH: ${{ matrix.config.qtarch }}
+          TAG_ARCH: ${{ matrix.config.outarch }}
+        run: |
+          mv qt-geoservices-maplibre-gl_Windows_${QT_ARCH}.tar.bz2 qt-geoservices-maplibre-gl_${TAG_NAME}_Qt${QT_VERSION}_win64_${TAG_ARCH}.tar.bz2
 
-    - name: Release
-      uses: ncipollo/release-action@v1
-      with:
-        artifacts: qt-geoservices-maplibre-gl_${{ github.ref_name }}_Qt${{ env.QT_VERSION }}_win64_${{ matrix.config.outarch }}.tar.bz2
-        allowUpdates: true
-        draft: true
+      - name: Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: qt-geoservices-maplibre-gl_${{ github.ref_name }}_Qt${{ env.QT_VERSION }}_win64_${{ matrix.config.outarch }}.tar.bz2
+          allowUpdates: true
+          draft: true

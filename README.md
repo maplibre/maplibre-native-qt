@@ -40,7 +40,7 @@ Then the plugin is built separately.
 To build the plugin run in a separate build directory:
 
 ```shell
-qmake ../maplibre-native-qt QMAPLIBREGL_PATH=../install-qmaplibregl
+qmake ../maplibre-native-qt MAPLIBRE_PATH=../install-maplibre
 make
 make install
 ```

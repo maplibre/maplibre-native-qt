@@ -6,7 +6,7 @@ on:
     branches:
       - main
     tags:
-      - '**'
+      - "**"
     paths-ignore:
       - ".gitignore"
       - "README.md"
@@ -52,7 +52,7 @@ env:
 
 jobs:
   build-core:
-    name: "Build maplibre-gl-native for ${{ matrix.config.abi }}"
+    name: "Build maplibre-native for ${{ matrix.config.abi }}"
     runs-on: ubuntu-22.04
     strategy:
       matrix:
@@ -75,14 +75,14 @@ jobs:
         with:
           aqtversion: ==3.0.*
           version: ${{ env.QT_VERSION }}
-          target: 'android'
-          arch: 'android'
+          target: "android"
+          arch: "android"
 
       - name: Set up OpenJDK 11
         uses: actions/setup-java@v3
         with:
-          distribution: 'adopt'
-          java-version: '11'
+          distribution: "adopt"
+          java-version: "11"
 
       - name: Setup ninja
         uses: seanmiddleditch/gha-setup-ninja@v3
@@ -90,15 +90,15 @@ jobs:
       - name: Set up ccache
         uses: hendrikmuhs/ccache-action@v1
         with:
-          key: Android_maplibre-gl-native_${{ matrix.config.abi }}_legacy
+          key: Android_maplibre-native_${{ matrix.config.abi }}_legacy
           append-timestamp: false
 
-      - name: Build maplibre-gl-native
+      - name: Build maplibre-native
         env:
           ANDROID_ABI: ${{ matrix.config.abi }}
         run: |
           mkdir build && cd build
-          cmake ../source/dependencies/maplibre-gl-native \
+          cmake ../source/vendor/maplibre-native \
             -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK_ROOT}/build/cmake/android.toolchain.cmake" \
             -DANDROID_ABI="${ANDROID_ABI}" \
             -DANDROID_CCACHE=ccache \
@@ -109,22 +109,22 @@ jobs:
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DCMAKE_CXX_FLAGS_RELEASE=-g0 \
             -DCMAKE_FIND_ROOT_PATH="${Qt5_Dir}" \
-            -DCMAKE_INSTALL_PREFIX=../install-qmaplibregl \
+            -DCMAKE_INSTALL_PREFIX=../install-maplibre \
             -DCMAKE_PREFIX_PATH="${Qt5_Dir}" \
-            -DMBGL_WITH_QT=ON \
-            -DMBGL_QT_LIBRARY_ONLY=ON \
-            -DMBGL_QT_STATIC=ON
+            -DMLN_WITH_QT=ON \
+            -DMLN_QT_LIBRARY_ONLY=ON \
+            -DMLN_QT_STATIC=ON
           ninja
           ninja install
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: maplibre-gl-native_Android_${{ matrix.config.abi }}
-          path: install-qmaplibregl
+          name: maplibre-native_Android_${{ matrix.config.abi }}
+          path: install-maplibre
 
   prepare-core:
-    name: "Prepare maplibre-gl-native"
+    name: "Prepare maplibre-native"
     runs-on: ubuntu-22.04
     needs: build-core
 
@@ -132,39 +132,39 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
-          name: maplibre-gl-native_Android_x86
+          name: maplibre-native_Android_x86
           path: install-x86
 
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
-          name: maplibre-gl-native_Android_x86_64
+          name: maplibre-native_Android_x86_64
           path: install-x86_64
 
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
-          name: maplibre-gl-native_Android_armeabi-v7a
+          name: maplibre-native_Android_armeabi-v7a
           path: install-armeabi-v7a
 
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
-          name: maplibre-gl-native_Android_arm64-v8a
+          name: maplibre-native_Android_arm64-v8a
           path: install-arm64-v8a
 
       - name: Prepare artifacts
         run: |
-          cp -r install-arm64-v8a install-qmaplibregl
-          cp -r install-armeabi-v7a/lib/* install-qmaplibregl/lib/
-          cp -r install-x86/lib/* install-qmaplibregl/lib/
-          cp -r install-x86_64/lib/* install-qmaplibregl/lib/
+          cp -r install-arm64-v8a install-maplibre
+          cp -r install-armeabi-v7a/lib/* install-maplibre/lib/
+          cp -r install-x86/lib/* install-maplibre/lib/
+          cp -r install-x86_64/lib/* install-maplibre/lib/
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: maplibre-gl-native_Android
-          path: install-qmaplibregl
+          name: maplibre-native_Android
+          path: install-maplibre
 
   build-plugin:
     name: "Build qt-geoservices-maplibre-gl"
@@ -184,13 +184,13 @@ jobs:
           aqtversion: ==3.0.*
           version: ${{ env.QT_VERSION }}
           target: android
-          arch: 'android'
+          arch: "android"
 
       - name: Set up OpenJDK 11
         uses: actions/setup-java@v3
         with:
-          distribution: 'adopt'
-          java-version: '11'
+          distribution: "adopt"
+          java-version: "11"
 
       - name: Setup ninja
         uses: seanmiddleditch/gha-setup-ninja@v3
@@ -204,14 +204,14 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
-          name: maplibre-gl-native_Android
-          path: install-qmaplibregl
+          name: maplibre-native_Android
+          path: install-maplibre
 
       - name: Build qt-geoservices-maplibre-gl
         run: |
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
           mkdir build && cd build
-          qmake ../source/ QMAPLIBREGL_PATH=../install-qmaplibregl
+          qmake ../source/ MAPLIBRE_PATH=../install-maplibre
           make -j2
           INSTALL_ROOT=../install make install
 
@@ -236,20 +236,20 @@ jobs:
       contents: write
 
     steps:
-    - name: Download artifacts
-      uses: actions/download-artifact@v3
-      with:
-        name: qt-geoservices-maplibre-gl_Android
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: qt-geoservices-maplibre-gl_Android
 
-    - name: Name tarball
-      env:
-        TAG_NAME: ${{ github.ref_name }}
-      run: |
-        mv qt-geoservices-maplibre-gl_Android.tar.bz2 qt-geoservices-maplibre-gl_${TAG_NAME}_Qt${QT_VERSION}_Android.tar.bz2
+      - name: Name tarball
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          mv qt-geoservices-maplibre-gl_Android.tar.bz2 qt-geoservices-maplibre-gl_${TAG_NAME}_Qt${QT_VERSION}_Android.tar.bz2
 
-    - name: Release
-      uses: ncipollo/release-action@v1
-      with:
-        artifacts: qt-geoservices-maplibre-gl_${{ github.ref_name }}_Qt${{ env.QT_VERSION }}_Android.tar.bz2
-        allowUpdates: true
-        draft: true
+      - name: Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: qt-geoservices-maplibre-gl_${{ github.ref_name }}_Qt${{ env.QT_VERSION }}_Android.tar.bz2
+          allowUpdates: true
+          draft: true
