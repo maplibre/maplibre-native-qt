@@ -25,6 +25,7 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 # Common QMapLibre definitions
 set(MLN_QT_CORE_LIB QMapLibre)
 set(MLN_QT_LOCATION_LIB QMapLibreLocation)
+set(MLN_QT_WIDGETS_LIB QMapLibreWidgets)
 set(MLN_QT_GEOSERVICES_PLUGIN qtgeoservices_maplibre)
 set(MLN_QT_QML_PLUGIN declarative_locationplugin_maplibre)
 
