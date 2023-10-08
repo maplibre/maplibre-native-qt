@@ -1,0 +1,131 @@
+name: Linux CI (Test)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    tags:
+      - "**"
+    paths-ignore:
+      - ".gitignore"
+      - "README.md"
+      # ignore CI for other platforms
+      - ".github/FUNDING.yml"
+      - ".github/workflows/Android.yml"
+      - ".github/workflows/iOS.yml"
+      - ".github/workflows/Linux.yml"
+      - ".github/workflows/macOS.yml"
+      - ".github/workflows/Windows.yml"
+
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - ".gitignore"
+      - "README.md"
+      # ignore CI for other platforms
+      - ".github/FUNDING.yml"
+      - ".github/workflows/Android.yml"
+      - ".github/workflows/iOS.yml"
+      - ".github/workflows/Linux.yml"
+      - ".github/workflows/macOS.yml"
+      - ".github/workflows/Windows.yml"
+
+concurrency:
+  # cancel jobs on PRs only
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  build-and-test:
+    name: Build QMapLibre (Qt ${{ matrix.qt_version}}, ${{ matrix.compiler }})
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        include:
+          - qt_series: 6
+            qt_version: 6.5.3
+            qt_modules: qtlocation qtpositioning
+            compiler: gcc-13
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          path: source
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Install test dependencies
+        run: |
+          sudo apt-get install \
+            libxkbcommon-x11-0 \
+            libxcb-cursor0 \
+            libxcb-icccm4 \
+            libxcb-image0 \
+            libxcb-keysyms1 \
+            libxcb-randr0 \
+            libxcb-render-util0 \
+            libxcb-xinerama0 \
+            libxcb-xfixes0 \
+            libegl1-mesa
+
+      - name: Install compiler
+        id: install_compiler
+        uses: rlalik/setup-cpp-compiler@master
+        with:
+          compiler: ${{ matrix.compiler }}
+
+      - name: Download Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          aqtversion: ==3.1.*
+          version: ${{ matrix.qt_version }}
+          dir: ${{ github.workspace }}
+          target: desktop
+          modules: ${{ matrix.qt_modules }}
+
+      - name: Setup ninja
+        uses: seanmiddleditch/gha-setup-ninja@v3
+
+      - name: Set up ccache
+        uses: hendrikmuhs/ccache-action@v1
+        with:
+          key: Linux_QMapLibre_${{ matrix.qt_version }}
+          append-timestamp: false
+
+      - name: Build QMapLibre (Qt 6)
+        if: matrix.qt_series == 6
+        env:
+          CC: ${{ steps.install_compiler.outputs.cc }}
+          CXX: ${{ steps.install_compiler.outputs.cxx }}
+        run: |
+          mkdir build && cd build
+          qt-cmake ../source/ \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE="RelWithDebInfo" \
+            -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
+            -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
+            -DCMAKE_INSTALL_PREFIX="../install" \
+            -DMLN_QT_WITH_INTERNAL_ICU=ON
+          ninja
+          ninja install
+
+      - name: Run tests
+        uses: coactions/setup-xvfb@v1
+        with:
+          run: ctest --output-on-failure
+          working-directory: build
+
+      - name: Create artifacts
+        run: |
+          pushd install
+          tar cjvf ../QMapLibre_Linux.tar.bz2 *
+          popd
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: QMapLibre_Linux_${{ matrix.qt_version }}
+          path: QMapLibre_Linux.tar.bz2

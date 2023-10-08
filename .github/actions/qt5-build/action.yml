@@ -1,13 +1,8 @@
 # action.yml
-name: 'Qt5 Linux Builder'
-description: 'Helper action to build in a specific Docker container'
-inputs:
-  build-type:
-    description: 'Build type'
-    required: true
-    default: 'plugin' # or 'library'
+name: "Qt5 Linux Builder"
+description: "Helper action to build in a specific Docker container"
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
+  using: "docker"
+  image: "Dockerfile"
   args:
     - ${{ inputs.build-type }}
