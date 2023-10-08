@@ -29,12 +29,22 @@ set(MLN_QT_WIDGETS_LIB QMapLibreWidgets)
 set(MLN_QT_GEOSERVICES_PLUGIN qtgeoservices_maplibre)
 set(MLN_QT_QML_PLUGIN declarative_locationplugin_maplibre)
 
+# Options
+set(MLN_QT_WITH_LOCATION ON CACHE BOOL "Build QMapLibreLocation")
+set(MLN_QT_WITH_WIDGETS ON CACHE BOOL "Build QMapLibreWidgets")
+
 # Find Qt
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Gui Network REQUIRED)  # main dependencies
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Location REQUIRED)     # location
-if (Qt6_FOUND)
-    find_package(Qt${QT_VERSION_MAJOR} COMPONENTS OpenGL OpenGLWidgets REQUIRED)
+if (MLN_QT_WITH_LOCATION)
+    find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Location REQUIRED)     # location
+endif()
+if (MLN_QT_WITH_WIDGETS)
+    if (Qt6_FOUND)
+        find_package(Qt${QT_VERSION_MAJOR} COMPONENTS OpenGLWidgets REQUIRED)
+    else()
+        find_package(Qt${QT_VERSION_MAJOR} COMPONENTS OpenGL REQUIRED)
+    endif()
 endif()
 message(STATUS "Using Qt${QT_VERSION_MAJOR}")
 
