@@ -8,8 +8,9 @@
 #include <mbgl/gfx/backend_scope.hpp>
 #include <mbgl/gl/renderable_resource.hpp>
 
-#include <QtGlobal>
 #include <QOpenGLContext>
+
+#include <QtGlobal>
 
 namespace QMapLibre {
 

@@ -5,6 +5,8 @@
 
 #include "stylechange_p.h"
 
+#include <QtLocation/private/qdeclarativecirclemapitem_p_p.h>
+
 #include <QtCore/QDebug>
 #include <QtCore/QMetaProperty>
 #include <QtCore/QRegularExpression>
@@ -12,7 +14,6 @@
 #include <QtPositioning/QGeoPath>
 #include <QtPositioning/QGeoPolygon>
 #include <QtQml/QJSValue>
-#include <QtLocation/private/qdeclarativecirclemapitem_p_p.h>
 
 #include <QMapLibre/Map>
 

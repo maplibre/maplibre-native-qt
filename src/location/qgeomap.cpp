@@ -23,9 +23,9 @@
 #include <QtLocation/private/qdeclarativepolylinemapitem_p.h>
 #include <QtLocation/private/qdeclarativerectanglemapitem_p.h>
 #include <QtLocation/private/qgeoprojection_p.h>
+#include <QtQuick/private/qsgcontext_p.h> // for debugging the context name
 #include <QtQuick/QQuickWindow>
 #include <QtQuick/QSGImageNode>
-#include <QtQuick/private/qsgcontext_p.h> // for debugging the context name
 
 #include <QMapLibre/Types>
 

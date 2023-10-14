@@ -5,11 +5,11 @@
 #ifndef QMAPLIBREQMLTYPES_H
 #define QMAPLIBREQMLTYPES_H
 
-#include <QtCore/QObject>
-#include <QtQml/qqml.h>
-#include <QtLocation/private/qdeclarativegeomap_p.h>
-
 #include "../qgeomap.hpp"
+
+#include <QtLocation/private/qdeclarativegeomap_p.h>
+#include <QtQml/qqml.h>
+#include <QtCore/QObject>
 
 class MapLibreStyleAttached : public QObject {
     Q_OBJECT

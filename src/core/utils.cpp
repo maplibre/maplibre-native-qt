@@ -7,8 +7,8 @@
 
 #include <mbgl/storage/network_status.hpp>
 #include <mbgl/util/geometry.hpp>
-#include <mbgl/util/traits.hpp>
 #include <mbgl/util/projection.hpp>
+#include <mbgl/util/traits.hpp>
 
 // mbgl::NetworkStatus::Status
 static_assert(mbgl::underlying_type(QMapLibre::Online) == mbgl::underlying_type(mbgl::NetworkStatus::Status::Online),
