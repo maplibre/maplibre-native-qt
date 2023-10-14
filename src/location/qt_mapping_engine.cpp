@@ -7,8 +7,8 @@
 #include "qt_mapping_engine.hpp"
 #include "qgeomap.hpp"
 
+#include <QtCore/qdir.h>
 #include <QtCore/qstandardpaths.h>
-#include <QDir>
 #include <QtLocation/private/qabstractgeotilecache_p.h>
 #include <QtLocation/private/qgeocameracapabilities_p.h>
 #include <QtLocation/private/qgeomaptype_p.h>

@@ -5,17 +5,18 @@
 
 #pragma once
 
+#include <QtLocation/private/qdeclarativecirclemapitem_p.h>
+#include <QtLocation/private/qdeclarativegeomapitembase_p.h>
+#include <QtLocation/private/qdeclarativepolygonmapitem_p.h>
+#include <QtLocation/private/qdeclarativepolylinemapitem_p.h>
+#include <QtLocation/private/qdeclarativerectanglemapitem_p.h>
+
 #include <QtCore/QList>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QString>
 #include <QtCore/QVariant>
 #include <QtCore/QVariantMap>
 #include <QtGui/QImage>
-#include <QtLocation/private/qdeclarativecirclemapitem_p.h>
-#include <QtLocation/private/qdeclarativegeomapitembase_p.h>
-#include <QtLocation/private/qdeclarativepolygonmapitem_p.h>
-#include <QtLocation/private/qdeclarativepolylinemapitem_p.h>
-#include <QtLocation/private/qdeclarativerectanglemapitem_p.h>
 
 #include <QMapLibre/Types>
 

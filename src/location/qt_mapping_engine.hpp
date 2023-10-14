@@ -10,8 +10,8 @@
 
 #include <QMapLibre/Settings>
 
-#include <QtLocation/QGeoServiceProvider>
 #include <QtLocation/private/qgeomappingmanagerengine_p.h>
+#include <QtLocation/QGeoServiceProvider>
 
 namespace QMapLibre {
 

@@ -12,8 +12,9 @@
 #include <mbgl/renderer/renderer_observer.hpp>
 #include <mbgl/util/util.hpp>
 
-#include <QtGlobal>
 #include <QObject>
+
+#include <QtGlobal>
 
 #include <memory>
 #include <mutex>

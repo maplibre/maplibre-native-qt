@@ -6,13 +6,14 @@
 
 #pragma once
 
+#include <QtLocation/private/qgeomap_p_p.h>
+
 #include <QtCore/QHash>
 #include <QtCore/QList>
 #include <QtCore/QRectF>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QTimer>
 #include <QtCore/QVariant>
-#include <QtLocation/private/qgeomap_p_p.h>
 
 namespace QMapLibre {
 class Map;
