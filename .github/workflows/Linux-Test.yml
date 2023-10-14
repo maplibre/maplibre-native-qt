@@ -92,7 +92,7 @@ jobs:
       - name: Set up ccache
         uses: hendrikmuhs/ccache-action@v1
         with:
-          key: Linux_QMapLibre_${{ matrix.qt_version }}
+          key: Linux_QMapLibre_${{ matrix.qt_version }}_${{ matrix.compiler }}
           append-timestamp: false
 
       - name: Build QMapLibre (Qt 6)
@@ -118,14 +118,40 @@ jobs:
           run: ctest --output-on-failure
           working-directory: build
 
+      - name: Build QtQuick Example (Qt 6)
+        if: matrix.qt_series == 6
+        run: |
+          export PREFIX_PATH="$(pwd)/install"
+          mkdir build-example-quick && cd build-example-quick
+          qt-cmake ../source/examples/quick/ \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE="RelWithDebInfo" \
+            -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
+            -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
+            -DCMAKE_PREFIX_PATH="$PREFIX_PATH"
+          ninja
+
+      - name: Build QtWidgets Example (Qt 6)
+        if: matrix.qt_series == 6
+        run: |
+          export PREFIX_PATH="$(pwd)/install"
+          mkdir build-example-widgets && cd build-example-widgets
+          qt-cmake ../source/examples/widgets/ \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE="RelWithDebInfo" \
+            -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
+            -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
+            -DCMAKE_PREFIX_PATH="$PREFIX_PATH"
+          ninja
+
       - name: Create artifacts
         run: |
           pushd install
           tar cjvf ../QMapLibre_Linux.tar.bz2 *
           popd
 
-      - name: Upload artifacts
+      - name: Upload installation
         uses: actions/upload-artifact@v3
         with:
-          name: QMapLibre_Linux_${{ matrix.qt_version }}
+          name: QMapLibre_Linux_${{ matrix.qt_version }}_${{ matrix.compiler }}
           path: QMapLibre_Linux.tar.bz2

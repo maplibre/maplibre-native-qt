@@ -1,4 +1,4 @@
-// Copyright (C) 2022 MapLibre contributors
+// Copyright (C) 2023 MapLibre contributors
 
 // SPDX-License-Identifier: MIT
 
@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
     QGuiApplication app(argc, argv);
 
     QQmlApplicationEngine engine;
-    engine.load(QUrl(QStringLiteral("qrc:/minimal/main.qml")));
+    engine.load(QUrl(QStringLiteral("qrc:/Example/main.qml")));
 
     return app.exec();
 }

@@ -12,8 +12,13 @@ else()
 endif()
 
 # QtLocation plugin extra target properties
-set_property(TARGET ${MLN_QT_GEOSERVICES_PLUGIN} PROPERTY AUTOMOC ON)
-set_property(TARGET ${MLN_QT_GEOSERVICES_PLUGIN} PROPERTY LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/geoservices")
+set_target_properties(
+    ${MLN_QT_GEOSERVICES_PLUGIN}
+    PROPERTIES
+        AUTOMOC ON
+        EXPORT_NAME PluginGeoServices
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/geoservices"
+)
 
 # QtLocation plugin include directories
 target_include_directories(
@@ -23,15 +28,23 @@ target_include_directories(
         ${CMAKE_BINARY_DIR}/src/core/include
 )
 
-# Qt Location plugin linked libraries
-target_link_libraries(${MLN_QT_GEOSERVICES_PLUGIN}
+# QtLocation plugin linked libraries
+target_link_libraries(
+    ${MLN_QT_GEOSERVICES_PLUGIN}
     PRIVATE
-    ${MLN_QT_LOCATION_LIB}
-    Qt::Location
-    Qt::LocationPrivate)
+        Location
+        Qt::Location
+        Qt::LocationPrivate)
 
 # QtLocation plugin installation
-install(TARGETS ${MLN_QT_GEOSERVICES_PLUGIN}
+install(
+    EXPORT ${MLN_QT_NAME}LocationPluginGeoServicesTargets
+    NAMESPACE ${MLN_QT_NAMESPACE}
+    DESTINATION ${CMAKECONFIG_INSTALL_DIR}
+)
+install(
+    TARGETS ${MLN_QT_GEOSERVICES_PLUGIN}
+    EXPORT ${MLN_QT_NAME}LocationPluginGeoServicesTargets
     LIBRARY DESTINATION "plugins/geoservices"
 )
 
@@ -52,10 +65,15 @@ else()
     add_library(${MLN_QT_QML_PLUGIN} SHARED qml_types.hpp legacy/qml_module.cpp legacy/qml_registration.cpp)
     target_compile_definitions(${MLN_QT_QML_PLUGIN} PRIVATE QT_PLUGIN)
     target_include_directories(${MLN_QT_QML_PLUGIN} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-    set_property(TARGET ${MLN_QT_QML_PLUGIN} PROPERTY AUTOMOC ON)
-    set_property(TARGET ${MLN_QT_QML_PLUGIN} PROPERTY LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/QtLocation/MapLibre")
+    set_target_properties(
+        ${MLN_QT_QML_PLUGIN}
+        PROPERTIES
+            AUTOMOC ON
+            LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/QtLocation/MapLibre"
+    )
     configure_file("${CMAKE_CURRENT_SOURCE_DIR}/legacy/qmldir.in" "${CMAKE_CURRENT_BINARY_DIR}/QtLocation/MapLibre/qmldir" @ONLY)
 endif()
+set_property(TARGET ${MLN_QT_QML_PLUGIN} PROPERTY EXPORT_NAME PluginQml)
 
 # QtLocation QML extension plugin include directories
 target_include_directories(
@@ -66,24 +84,34 @@ target_include_directories(
 )
 
 # QtLocation QML extension plugin linked libraries
-target_link_libraries(${MLN_QT_QML_PLUGIN}
+target_link_libraries(
+    ${MLN_QT_QML_PLUGIN}
     PRIVATE
-    ${MLN_QT_LOCATION_LIB}
-    Qt::LocationPrivate
+        Location
+        Qt::LocationPrivate
 )
 
 # QtLocation QML extension plugin installation
-install(TARGETS ${MLN_QT_QML_PLUGIN}
-        LIBRARY DESTINATION "qml/QtLocation/MapLibre"
+install(
+    EXPORT ${MLN_QT_NAME}LocationPluginQmlTargets
+    NAMESPACE ${MLN_QT_NAMESPACE}
+    DESTINATION ${CMAKECONFIG_INSTALL_DIR}
 )
-install(FILES
+install(
+    TARGETS ${MLN_QT_QML_PLUGIN}
+    EXPORT ${MLN_QT_NAME}LocationPluginQmlTargets
+    LIBRARY DESTINATION "qml/QtLocation/MapLibre"
+)
+install(
+    FILES
         "${CMAKE_CURRENT_BINARY_DIR}/QtLocation/MapLibre/qmldir"
     DESTINATION "qml/QtLocation/MapLibre"
-    COMPONENT development)
+)
 
 if (COMMAND qt_add_qml_module)
-    install(FILES
-        "${CMAKE_CURRENT_BINARY_DIR}/QtLocation/MapLibre/${MLN_QT_QML_PLUGIN}.qmltypes"
-    DESTINATION "qml/QtLocation/MapLibre"
-    COMPONENT development)
+    install(
+        FILES
+            "${CMAKE_CURRENT_BINARY_DIR}/QtLocation/MapLibre/${MLN_QT_QML_PLUGIN}.qmltypes"
+        DESTINATION "qml/QtLocation/MapLibre"
+)
 endif()

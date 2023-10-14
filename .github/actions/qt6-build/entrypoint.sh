@@ -17,3 +17,28 @@ qt-cmake ../source/ \
 ninja
 # ninja test
 ninja install
+cd ..
+
+export PREFIX_PATH="$(pwd)/install"
+
+# QtQuick example
+mkdir build-example-quick && cd build-example-quick
+qt-cmake ../source/examples/quick/ \
+  -G Ninja \
+  -DCMAKE_BUILD_TYPE="Release" \
+  -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
+  -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
+  -DCMAKE_PREFIX_PATH="$PREFIX_PATH"
+ninja
+cd ..
+
+# QtWidgets example
+mkdir build-example-widgets && cd build-example-widgets
+qt-cmake ../source/examples/widgets/ \
+  -G Ninja \
+  -DCMAKE_BUILD_TYPE="Release" \
+  -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
+  -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
+  -DCMAKE_PREFIX_PATH="$PREFIX_PATH"
+ninja
+cd ..
