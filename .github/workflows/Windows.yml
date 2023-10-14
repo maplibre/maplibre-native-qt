@@ -85,7 +85,7 @@ jobs:
           tools: ${{ matrix.config.tools }}
 
       - name: Setup ninja
-        uses: seanmiddleditch/gha-setup-ninja@v3
+        uses: seanmiddleditch/gha-setup-ninja@v4
 
       - name: Setup MSVC
         if: matrix.config.arch == 'win64_msvc2019_64'
