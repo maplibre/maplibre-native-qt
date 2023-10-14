@@ -15,7 +15,6 @@ on:
   #     - ".github/actions/**"
   #     - ".github/workflows/Android.yml"
   #     - ".github/workflows/Linux.yml"
-  #     - ".github/workflows/Linux-Test.yml"
   #     - ".github/workflows/macOS.yml"
   #     - ".github/workflows/Windows.yml"
 
@@ -30,7 +29,6 @@ on:
   #     - ".github/actions/**"
   #     - ".github/workflows/Android.yml"
   #     - ".github/workflows/Linux.yml"
-  #     - ".github/workflows/Linux-Test.yml"
   #     - ".github/workflows/macOS.yml"
   #     - ".github/workflows/Windows.yml"
 
@@ -84,7 +82,6 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1
         with:
           key: iOS_QMapLibre
-          append-timestamp: false
 
       - name: Use custom version of ccache
         run: |

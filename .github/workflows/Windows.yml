@@ -16,7 +16,6 @@ on:
   #     - ".github/workflows/Android.yml"
   #     - ".github/workflows/iOS.yml"
   #     - ".github/workflows/Linux.yml"
-  #     - ".github/workflows/Linux-Test.yml"
   #     - ".github/workflows/macOS.yml"
 
   # pull_request:
@@ -31,7 +30,6 @@ on:
   #     - ".github/workflows/Android.yml"
   #     - ".github/workflows/iOS.yml"
   #     - ".github/workflows/Linux.yml"
-  #     - ".github/workflows/Linux-Test.yml"
   #     - ".github/workflows/macOS.yml"
 
 concurrency:
@@ -105,7 +103,6 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1
         with:
           key: Windows_QMapLibre_${{ matrix.config.qtarch }}
-          append-timestamp: false
 
       - name: Build QMapLibre
         shell: bash
