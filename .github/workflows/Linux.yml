@@ -50,6 +50,9 @@ jobs:
           - qt_series: 6
             qt_version: 6.5.3
             qt_modules: qtlocation qtpositioning
+          - qt_series: 6
+            qt_version: 6.6.0
+            qt_modules: qtlocation qtpositioning
 
     steps:
       - name: Checkout
@@ -103,7 +106,7 @@ jobs:
       contents: write
     strategy:
       matrix:
-        qt_version: [5.15.2, 6.5.3]
+        qt_version: [5.15.2, 6.5.3, 6.6.0]
 
     steps:
       - name: Download artifacts
