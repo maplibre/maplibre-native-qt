@@ -14,7 +14,6 @@ on:
       - ".github/FUNDING.yml"
       - ".github/workflows/Android.yml"
       - ".github/workflows/iOS.yml"
-      - ".github/workflows/Linux-Test.yml"
       - ".github/workflows/macOS.yml"
       - ".github/workflows/Windows.yml"
 
@@ -28,7 +27,6 @@ on:
       - ".github/FUNDING.yml"
       - ".github/workflows/Android.yml"
       - ".github/workflows/iOS.yml"
-      - ".github/workflows/Linux-Test.yml"
       - ".github/workflows/macOS.yml"
       - ".github/workflows/Windows.yml"
 
@@ -39,7 +37,7 @@ concurrency:
 
 jobs:
   build-and-test:
-    name: Build QMapLibre (Qt ${{ matrix.qt_version}})
+    name: Build QMapLibre for Linux (Qt${{ matrix.qt_version}}, ${{ matrix.compiler }})
     runs-on: ubuntu-22.04
     strategy:
       matrix:
@@ -47,12 +45,19 @@ jobs:
           - qt_series: 5
             qt_version: 5.15.2
             qt_modules: ""
+            compiler: default
           - qt_series: 6
             qt_version: 6.5.3
             qt_modules: qtlocation qtpositioning
+            compiler: default
           - qt_series: 6
             qt_version: 6.6.0
             qt_modules: qtlocation qtpositioning
+            compiler: default
+          - qt_series: 6
+            qt_version: 6.6.0
+            qt_modules: qtlocation qtpositioning
+            compiler: gcc-13
 
     steps:
       - name: Checkout
@@ -61,6 +66,28 @@ jobs:
           path: source
           submodules: recursive
           fetch-depth: 0
+
+      - name: Install test dependencies
+        if: matrix.compiler != 'default'
+        run: |
+          sudo apt-get install \
+            libxkbcommon-x11-0 \
+            libxcb-cursor0 \
+            libxcb-icccm4 \
+            libxcb-image0 \
+            libxcb-keysyms1 \
+            libxcb-randr0 \
+            libxcb-render-util0 \
+            libxcb-xinerama0 \
+            libxcb-xfixes0 \
+            libegl1-mesa
+
+      - name: Install compiler
+        id: install_compiler
+        if: matrix.compiler != 'default'
+        uses: rlalik/setup-cpp-compiler@master
+        with:
+          compiler: ${{ matrix.compiler }}
 
       - name: Download Qt
         uses: jurplel/install-qt-action@v3
@@ -71,27 +98,82 @@ jobs:
           target: desktop
           modules: ${{ matrix.qt_modules }}
 
+      - name: Setup ninja
+        if: matrix.compiler != 'default'
+        uses: seanmiddleditch/gha-setup-ninja@v3
+
       - name: Set up ccache
         uses: hendrikmuhs/ccache-action@v1
         with:
-          key: Linux_QMapLibre_${{ matrix.qt_version }}
-          append-timestamp: false
+          key: Linux_QMapLibre_${{ matrix.qt_version }}_${{ matrix.compiler }}
 
       - name: Build QMapLibre (Qt5)
         if: matrix.qt_series == 5
         uses: ./source/.github/actions/qt5-build
 
       - name: Build QMapLibre (Qt6)
-        if: matrix.qt_series == 6
+        if: matrix.qt_series == 6 && matrix.compiler == 'default'
         uses: ./source/.github/actions/qt6-build
 
-      - name: Create artifacts
+      - name: Build QMapLibre (Qt6, custom compiler)
+        if: matrix.qt_series == 6 && matrix.compiler != 'default'
+        env:
+          CC: ${{ steps.install_compiler.outputs.cc }}
+          CXX: ${{ steps.install_compiler.outputs.cxx }}
+        run: |
+          mkdir build && cd build
+          qt-cmake ../source/ \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE="RelWithDebInfo" \
+            -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
+            -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
+            -DCMAKE_INSTALL_PREFIX="../install" \
+            -DMLN_QT_WITH_INTERNAL_ICU=ON
+          ninja
+          ninja install
+
+      - name: Run tests
+        if: matrix.qt_series == 6 && matrix.compiler != 'default'
+        uses: coactions/setup-xvfb@v1
+        with:
+          run: ctest --output-on-failure
+          working-directory: build
+
+      - name: Build QtQuick Example (Qt6)
+        if: matrix.qt_series == 6 && matrix.compiler != 'default'
+        run: |
+          export PREFIX_PATH="$(pwd)/install"
+          mkdir build-example-quick && cd build-example-quick
+          qt-cmake ../source/examples/quick/ \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE="RelWithDebInfo" \
+            -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
+            -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
+            -DCMAKE_PREFIX_PATH="$PREFIX_PATH"
+          ninja
+
+      - name: Build QtWidgets Example (Qt6)
+        if: matrix.qt_series == 6 && matrix.compiler != 'default'
+        run: |
+          export PREFIX_PATH="$(pwd)/install"
+          mkdir build-example-widgets && cd build-example-widgets
+          qt-cmake ../source/examples/widgets/ \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE="RelWithDebInfo" \
+            -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
+            -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
+            -DCMAKE_PREFIX_PATH="$PREFIX_PATH"
+          ninja
+
+      - name: Compress installation
+        if: matrix.compiler == 'default'
         run: |
           pushd install
           tar cjvf ../QMapLibre_Linux.tar.bz2 *
           popd
 
-      - name: Upload installationUpload artifacts
+      - name: Upload installation
+        if: matrix.compiler == 'default'
         uses: actions/upload-artifact@v3
         with:
           name: QMapLibre_Linux_${{ matrix.qt_version }}

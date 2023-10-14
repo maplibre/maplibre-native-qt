@@ -15,7 +15,6 @@ on:
   #     - ".github/actions/**"
   #     - ".github/workflows/iOS.yml"
   #     - ".github/workflows/Linux.yml"
-  #     - ".github/workflows/Linux-Test.yml"
   #     - ".github/workflows/macOS.yml"
   #     - ".github/workflows/Windows.yml"
 
@@ -30,7 +29,6 @@ on:
   #     - ".github/actions/**"
   #     - ".github/workflows/iOS.yml"
   #     - ".github/workflows/Linux.yml"
-  #     - ".github/workflows/Linux-Test.yml"
   #     - ".github/workflows/macOS.yml"
   #     - ".github/workflows/Windows.yml"
 
@@ -104,7 +102,6 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1
         with:
           key: Android_QMapLibre_${{ matrix.config.abi }}
-          append-timestamp: false
 
       - name: Build QMapLibre
         env:
