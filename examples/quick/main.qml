@@ -1,11 +1,11 @@
-// Copyright (C) 2022 MapLibre contributors
+// Copyright (C) 2023 MapLibre contributors
 
 // SPDX-License-Identifier: MIT
 
-import QtQuick 2.15
-import QtQuick.Window 2.15
-import QtLocation 5.15
-import QtPositioning 5.15
+import QtQuick 6.5
+import QtQuick.Window 6.5
+import QtLocation 6.5
+import QtPositioning 6.5
 
 Window {
     id: window
@@ -37,10 +37,10 @@ Window {
 
     Plugin {
         id: mapPlugin
-        name: "maplibregl"
+        name: "maplibre"
         // specify plugin parameters if necessary
         PluginParameter {
-            name: "maplibregl.mapping.additional_style_urls"
+            name: "maplibre.map.style_urls"
             value: "https://demotiles.maplibre.org/style.json"
         }
     }
@@ -50,14 +50,14 @@ Window {
         anchors.fill: parent
         anchors.topMargin: fullWindow ? 0 : Math.round(parent.height / 3)
 
-        Map {
-            id: map
+        MapView {
+            id: mapView
             anchors.fill: parent
             anchors.topMargin: fullWindow ? 0 : Math.round(parent.height / 6)
             anchors.leftMargin: fullWindow ? 0 : Math.round(parent.width / 6)
-            plugin: mapPlugin
-            center: window.coordinate
-            zoomLevel: 5
+            map.plugin: mapPlugin
+            map.center: window.coordinate
+            map.zoomLevel: 5
         }
     }
 }

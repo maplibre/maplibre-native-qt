@@ -114,17 +114,65 @@ jobs:
           ninja test
           ninja install
 
-      - name: Create artifacts
+      - name: Build QtQuick Example (Qt 6)
+        if: matrix.qt_series == 6
+        run: |
+          export PREFIX_PATH="$(pwd)/install"
+          mkdir build-example-quick && cd build-example-quick
+          qt-cmake ../source/examples/quick/ \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE="RelWithDebInfo" \
+            -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
+            -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET="11.0" \
+            -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" \
+            -DCMAKE_PREFIX_PATH="$PREFIX_PATH"
+          ninja
+          ninja deploy
+
+      - name: Build QtWidgets Example (Qt 6)
+        if: matrix.qt_series == 6
+        run: |
+          export PREFIX_PATH="$(pwd)/install"
+          mkdir build-example-widgets && cd build-example-widgets
+          qt-cmake ../source/examples/widgets/ \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE="RelWithDebInfo" \
+            -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
+            -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET="11.0" \
+            -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" \
+            -DCMAKE_PREFIX_PATH="$PREFIX_PATH"
+          ninja
+          ninja deploy
+
+      - name: Compress installation
         run: |
           pushd install
           tar cjvf ../QMapLibre_macOS.tar.bz2 *
           popd
 
-      - name: Upload artifacts
+      - name: Compress examples
+        if: matrix.qt_series == 6
+        run: |
+          mkdir examples && pushd examples
+          cp -a ../build-example-quick/QMapLibreExampleQuick.app .
+          cp -a ../build-example-widgets/QMapLibreExampleWidgets.app .
+          tar cjvf ../QMapLibre_macOS_examples.tar.bz2 *
+          popd
+
+      - name: Upload installation
         uses: actions/upload-artifact@v3
         with:
           name: QMapLibre_macOS_${{ matrix.qt_version }}
           path: QMapLibre_macOS.tar.bz2
+
+      - name: Upload examples
+        if: matrix.qt_series == 6
+        uses: actions/upload-artifact@v3
+        with:
+          name: QMapLibre_macOS_${{ matrix.qt_version }}_examples
+          path: QMapLibre_macOS_examples.tar.bz2
 
   release:
     name: Release QMapLibre

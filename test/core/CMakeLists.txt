@@ -13,7 +13,8 @@ else()
     add_executable(test_mln_core ${test_sources})
 endif()
 
-target_include_directories(test_mln_core
+target_include_directories(
+    test_mln_core
     PRIVATE
         ${CMAKE_SOURCE_DIR}/src/core
         ${CMAKE_BINARY_DIR}/src/core/include
@@ -21,14 +22,18 @@ target_include_directories(test_mln_core
 )
 
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Test REQUIRED)
-target_link_libraries(test_mln_core
+target_link_libraries(
+    test_mln_core
     PRIVATE
-    $<$<BOOL:${Qt6_FOUND}>:Qt::OpenGLWidgets>
-    Qt::Test
-    ${MLN_QT_CORE_LIB}
+        $<$<BOOL:${Qt6_FOUND}>:Qt::OpenGLWidgets>
+        Qt::Test
+        Core
 )
 set_target_properties(test_mln_core PROPERTIES AUTOMOC ON)
 
 add_test(NAME test_mln_core COMMAND $<TARGET_FILE:test_mln_core>)
-set_tests_properties(test_mln_core PROPERTIES
-    ENVIRONMENT "MLN_FIXTURES_PATH=${CMAKE_SOURCE_DIR}/vendor/maplibre-native/test/fixtures")
+set_tests_properties(
+    test_mln_core
+    PROPERTIES
+        ENVIRONMENT "MLN_FIXTURES_PATH=${CMAKE_SOURCE_DIR}/vendor/maplibre-native/test/fixtures"
+)

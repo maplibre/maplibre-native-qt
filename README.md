@@ -15,11 +15,15 @@ Qt 5.15 is fully supported only on desktop platforms.
 
 ## How to build?
 
-Both plugin and MapLibre build in one step. Ninja is recommended.
+Both plugin and MapLibre build in one step. `ninja` and `ccache` are recommended.
 For Qt 6 using the `qt-cmake` wrapper is recommended.
 
 ```shell
-cmake ../maplibre-native-qt -GNinja
+mkdir build && cd build
+cmake ../maplibre-native-qt -GNinja \
+  -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
+  -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
+  -DCMAKE_INSTALL_PREFIX="../install"
 ninja
 ninja install
 ```
@@ -33,6 +37,25 @@ Add the following arguments to the CMake call:
 
 Add the following arguments to the CMake call:
 `-G"Ninja Multi-Config" -DCMAKE_CONFIGURATION_TYPES="Release;Debug"`
+
+## How to use?
+
+Once installed `QMapLibre` can be used in any Qt and CMake project.
+Two example projects based on Qt 6 are available in the
+[examples](examples) directory.
+
+To build an example, run the following commands:
+
+```shell
+mkdir build-example && cd build-example
+qt-cmake ../maplibre-native-qt/examples/<example> -GNinja \
+  -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
+  -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
+  -DCMAKE_PREFIX_PATH="<absolute-path-to-install>"
+ninja
+```
+
+For macOS a deployment target `deploy` is provided for convenience.
 
 ## Copyright
 

@@ -23,9 +23,8 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
 # Common QMapLibre definitions
-set(MLN_QT_CORE_LIB QMapLibre)
-set(MLN_QT_LOCATION_LIB QMapLibreLocation)
-set(MLN_QT_WIDGETS_LIB QMapLibreWidgets)
+set(MLN_QT_NAME QMapLibre)
+set(MLN_QT_NAMESPACE ${MLN_QT_NAME}::)
 set(MLN_QT_GEOSERVICES_PLUGIN qtgeoservices_maplibre)
 set(MLN_QT_QML_PLUGIN declarative_locationplugin_maplibre)
 
@@ -36,6 +35,9 @@ set(MLN_QT_WITH_WIDGETS ON CACHE BOOL "Build QMapLibreWidgets")
 # Find Qt
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Gui Network REQUIRED)  # main dependencies
+if (NOT MLN_QT_WITH_INTERNAL_SQLITE)
+    find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Sql REQUIRED)
+endif()
 if (MLN_QT_WITH_LOCATION)
     find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Location REQUIRED)     # location
 endif()

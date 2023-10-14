@@ -9,7 +9,8 @@ else()
     add_executable(test_mln_widgets ${test_sources})
 endif()
 
-target_include_directories(test_mln_widgets
+target_include_directories(
+    test_mln_widgets
     PRIVATE
         ${CMAKE_SOURCE_DIR}/src/core
         ${CMAKE_BINARY_DIR}/src/core/include
@@ -19,10 +20,11 @@ target_include_directories(test_mln_widgets
 )
 
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Test REQUIRED)
-target_link_libraries(test_mln_widgets
+target_link_libraries(
+    test_mln_widgets
     PRIVATE
-    Qt::Test
-    ${MLN_QT_WIDGETS_LIB}
+        Qt::Test
+        Widgets
 )
 set_target_properties(test_mln_widgets PROPERTIES AUTOMOC ON)
 

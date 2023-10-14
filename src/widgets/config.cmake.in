@@ -1,8 +1,0 @@
-@PACKAGE_INIT@
-
-include(CMakeFindDependencyMacro)
-find_dependency(Qt@QT_VERSION_MAJOR@
-                COMPONENTS OpenGLWidgets @REQUIRED_QT_VERSION@)
-
-include("${CMAKE_CURRENT_LIST_DIR}/@MLN_QT_WIDGETS_LIB@Targets.cmake")
-@PACKAGE_INCLUDE_QCHTARGETS@
