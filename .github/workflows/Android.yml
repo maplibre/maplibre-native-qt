@@ -96,7 +96,7 @@ jobs:
           java-version: 11
 
       - name: Setup ninja
-        uses: seanmiddleditch/gha-setup-ninja@v3
+        uses: seanmiddleditch/gha-setup-ninja@v4
 
       - name: Set up ccache
         uses: hendrikmuhs/ccache-action@v1
