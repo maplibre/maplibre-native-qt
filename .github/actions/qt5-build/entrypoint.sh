@@ -6,27 +6,16 @@ set -e
 set -x
 
 export CCACHE_DIR="$GITHUB_WORKSPACE/.ccache"
-export PATH=$Qt5_Dir/bin:$PATH
+export PATH="$Qt5_Dir/bin:$PATH"
 qmake --version
 
-if [[ "$1" = "library" ]]; then
-  mkdir build && cd build
-  cmake ../source/vendor/maplibre-native/ \
-    -G Ninja \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_C_COMPILER_LAUNCHER=ccache \
-    -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-    -DCMAKE_INSTALL_PREFIX=../install-maplibre \
-    -DMLN_WITH_QT=ON \
-    -DMLN_QT_LIBRARY_ONLY=ON \
-    -DMLN_QT_STATIC=ON
-  ninja
-  ninja install
-elif [[ "$1" = "plugin" ]]; then
-  mkdir build && cd build
-  qmake ../source/ MAPLIBRE_PATH=../install-maplibre
-  make -j2
-  INSTALL_ROOT=../install make install
-else
-  exit 1
-fi
+mkdir build && cd build
+cmake ../source/ \
+  -G Ninja \
+  -DCMAKE_BUILD_TYPE="Release" \
+  -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
+  -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
+  -DCMAKE_INSTALL_PREFIX="../install"
+ninja
+# ninja test
+ninja install

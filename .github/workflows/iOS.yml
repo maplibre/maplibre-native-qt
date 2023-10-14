@@ -1,0 +1,155 @@
+name: iOS Qt6 CI
+
+on:
+  workflow_dispatch:
+  # push:
+  #   branches:
+  #     - main
+  #   tags:
+  #     - '**'
+  #   paths-ignore:
+  #     - ".gitignore"
+  #     - "README.md"
+  #     # ignore CI for other platforms
+  #     - ".github/FUNDING.yml"
+  #     - ".github/actions/**"
+  #     - ".github/workflows/Android.yml"
+  #     - ".github/workflows/Linux.yml"
+  #     - ".github/workflows/Linux-Test.yml"
+  #     - ".github/workflows/macOS.yml"
+  #     - ".github/workflows/Windows.yml"
+
+  # pull_request:
+  #   branches:
+  #     - main
+  #   paths-ignore:
+  #     - ".gitignore"
+  #     - "README.md"
+  #     # ignore CI for other platforms
+  #     - ".github/FUNDING.yml"
+  #     - ".github/actions/**"
+  #     - ".github/workflows/Android.yml"
+  #     - ".github/workflows/Linux.yml"
+  #     - ".github/workflows/Linux-Test.yml"
+  #     - ".github/workflows/macOS.yml"
+  #     - ".github/workflows/Windows.yml"
+
+concurrency:
+  # cancel jobs on PRs only
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+env:
+  QT_VERSION: 6.5.3
+
+jobs:
+  build-plugin:
+    name: Build QMapLibre
+    runs-on: macos-13
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          path: source
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Download Qt (desktop)
+        uses: jurplel/install-qt-action@v3
+        with:
+          aqtversion: ==3.1.*
+          version: ${{ env.QT_VERSION }}
+          target: desktop
+          modules: qtlocation qtpositioning
+          set-env: false
+
+      - name: Download Qt (iOS)
+        uses: jurplel/install-qt-action@v3
+        with:
+          aqtversion: ==3.1.*
+          version: ${{ env.QT_VERSION }}
+          target: ios
+          modules: qtlocation qtpositioning
+
+      - name: Setup ninja
+        uses: seanmiddleditch/gha-setup-ninja@v3
+
+      - name: Set up ccache
+        uses: hendrikmuhs/ccache-action@v1
+        with:
+          key: iOS_QMapLibre
+          append-timestamp: false
+
+      - name: Use custom version of ccache
+        run: |
+          sed -i.bak -e 's/ccache\/ccache\.git/ntadej\/ccache.git/' -e 's/master/xarch/' /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/ccache.rb
+          brew unlink ccache
+          brew install ccache --HEAD
+
+      - name: Build QMapLibre
+        run: |
+          export CCACHE_LOGFILE="../ccache.log"
+          mkdir build && cd build
+          qt-cmake ../source/ \
+            -G"Ninja Multi-Config" \
+            -DCMAKE_CONFIGURATION_TYPES="Release;Debug" \
+            -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
+            -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
+            -DCMAKE_INSTALL_PREFIX="../install" \
+            -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=13.0 \
+            -DQT_HOST_PATH="$(readlink -f "$Qt6_DIR/../macos")"
+          ninja
+          ninja test
+          ninja install
+
+      - name: Upload ccache.log
+        uses: actions/upload-artifact@v3
+        with:
+          name: ccache_iOS
+          path: ccache.log
+
+      - name: Create artifacts
+        run: |
+          pushd install
+          tar cjvf ../QMapLibre_iOS.tar.bz2 *
+          popd
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: QMapLibre_iOS
+          path: QMapLibre_iOS.tar.bz2
+
+  release:
+    name: Release QMapLibre
+    if: github.ref_type == 'tag'
+    runs-on: macos-12
+    needs: build-plugin
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: QMapLibre_iOS
+
+      - name: Make tarball
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          mv QMapLibre_iOS.tar.bz2 QMapLibre_${TAG_NAME}_Qt${QT_VERSION}_iOS.tar.bz2
+
+      - name: Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: QMapLibre_${{ github.ref_name }}_Qt${{ env.QT_VERSION }}_iOS.tar.bz2
+          allowUpdates: true
+          draft: true

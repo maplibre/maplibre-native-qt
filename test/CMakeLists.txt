@@ -1,0 +1,11 @@
+if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+    return()
+endif()
+
+add_subdirectory(core)
+if (MLN_QT_WITH_LOCATION)
+    add_subdirectory(qml)
+endif()
+if (MLN_QT_WITH_WIDGETS)
+    add_subdirectory(widgets)
+endif()

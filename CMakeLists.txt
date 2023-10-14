@@ -1,70 +1,77 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.19...3.21)
 
-file(READ "VERSION.txt" MLN_QML_VERSION)
-string(REGEX REPLACE "\n" "" MLN_QML_VERSION "${MLN_QML_VERSION}") # get
+# Version
+file(READ "VERSION.txt" MLN_QT_VERSION)
+string(REGEX REPLACE "\n" "" MLN_QT_VERSION "${MLN_QT_VERSION}") # get rid of the newline at the end
+set(MLN_QT_VERSION_COMPATIBILITY 3.0.0)
+message(STATUS "Version ${MLN_QT_VERSION}")
 
-project(MapLibreGLQmlPlugin
-    VERSION "${MLN_QML_VERSION}"
-    DESCRIPTION "MapLibre GL Qt Location QML Plugin"
+# Project definition
+project(MapLibreNativeQt
+    VERSION "${MLN_QT_VERSION}"
+    DESCRIPTION "MapLibre Native Qt Bindings"
     LANGUAGES CXX
 )
 
-# Make sure we use the fixed BASE argument of qt_add_resource.
-set(QT_USE_FIXED_QT_ADD_RESOURCE_BASE TRUE)
+# Common CMake definitions
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
-find_package(Qt6 ${PROJECT_VERSION} CONFIG REQUIRED COMPONENTS BuildInternals Core) # special case
-# WebAssembly not supported
-if(WASM)
-    message(NOTICE "Skipping the build as the condition \"NOT WASM\" is not met.")
-    return()
+# Common QMapLibre definitions
+set(MLN_QT_CORE_LIB QMapLibre)
+set(MLN_QT_LOCATION_LIB QMapLibreLocation)
+set(MLN_QT_WIDGETS_LIB QMapLibreWidgets)
+set(MLN_QT_GEOSERVICES_PLUGIN qtgeoservices_maplibre)
+set(MLN_QT_QML_PLUGIN declarative_locationplugin_maplibre)
+
+# Options
+set(MLN_QT_WITH_LOCATION ON CACHE BOOL "Build QMapLibreLocation")
+set(MLN_QT_WITH_WIDGETS ON CACHE BOOL "Build QMapLibreWidgets")
+
+# Find Qt
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Gui Network REQUIRED)  # main dependencies
+if (MLN_QT_WITH_LOCATION)
+    find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Location REQUIRED)     # location
+endif()
+if (MLN_QT_WITH_WIDGETS)
+    if (Qt6_FOUND)
+        find_package(Qt${QT_VERSION_MAJOR} COMPONENTS OpenGLWidgets REQUIRED)
+    else()
+        find_package(Qt${QT_VERSION_MAJOR} COMPONENTS OpenGL REQUIRED)
+    endif()
+endif()
+message(STATUS "Using Qt${QT_VERSION_MAJOR}")
+
+# Debugging & ccache on Windows
+if (MSVC)
+    foreach(config DEBUG RELWITHDEBINFO)
+        foreach(lang C CXX)
+            set(flags_var "CMAKE_${lang}_FLAGS_${config}")
+            string(REPLACE "/Zi" "/Z7" ${flags_var} "${${flags_var}}")
+            set(${flags_var} "${${flags_var}}" PARENT_SCOPE)
+        endforeach()
+    endforeach()
 endif()
 
-qt_prepare_standalone_project()
+# Platform-specifics
+if(ANDROID)
+    message(STATUS "Building for ABI: ${ANDROID_ABI}")
+    set(CMAKE_STATIC_LIBRARY_SUFFIX "_${ANDROID_ABI}.a")
+elseif(CMAKE_SYSTEM_NAME STREQUAL iOS)
+    set(CMAKE_DEBUG_POSTFIX "_debug")
+elseif(MSVC OR CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    set(CMAKE_DEBUG_POSTFIX "d")
+endif()
 
-find_package(Qt6 ${PROJECT_VERSION} CONFIG REQUIRED COMPONENTS Location Positioning Network OpenGL) # special case
+# Enable testing
+enable_testing()
 
-# Core QMapLibreGL definitions
-set(MLN_WITH_QT ON CACHE BOOL "Build MapLibre GL Qt version" FORCE)
-set(MLN_QT_LIBRARY_ONLY ON CACHE BOOL "Build only the library part of QMapLibreGL" FORCE)
-set(MLN_QT_INSIDE_PLUGIN ON CACHE BOOL "Build QMapLibreGL as OBJECT library, so it can be bundled into separate single plugin lib." FORCE)
-set(MLN_ENGINE_PATH "vendor/maplibre-native" CACHE STRING "QMapLibreGL source path" FORCE)
-
-add_subdirectory(
-    ${MLN_ENGINE_PATH} # Source directory
-    QMapLibreGL           # Binary directory
-    EXCLUDE_FROM_ALL
-)
-
-qt_internal_add_plugin(QGeoServiceProviderFactoryMapLibreGLPlugin
-    OUTPUT_NAME qtgeoservices_maplibregl
-    CLASS_NAME QGeoServiceProviderFactoryMapLibreGL
-    PLUGIN_TYPE geoservices
-    SOURCES
-        src/qgeoserviceproviderpluginmaplibregl.cpp src/qgeoserviceproviderpluginmaplibregl.h
-        src/qgeomappingmanagerenginemaplibregl.cpp src/qgeomappingmanagerenginemaplibregl.h
-        src/qgeomapmaplibregl.cpp src/qgeomapmaplibregl.h src/qgeomapmaplibregl_p.h
-        src/qmaplibreglstylechange.cpp src/qmaplibreglstylechange_p.h
-        src/qsgmaplibreglnode.cpp src/qsgmaplibreglnode.h
-    INCLUDE_DIRECTORIES
-        ${MLN_ENGINE_PATH}/platform/qt/include
-    DEFINES
-        QT_MAPLIBREGL_STATIC
-    LIBRARIES
-        Qt::OpenGL
-        Qt::Network
-        Qt::LocationPrivate
-        "$<BUILD_INTERFACE:qmaplibregl>"
-        "$<BUILD_INTERFACE:mbgl-core>"
-        "$<BUILD_INTERFACE:mbgl-vendor-parsedate>"
-        "$<BUILD_INTERFACE:mbgl-vendor-nunicode>"
-        "$<BUILD_INTERFACE:mbgl-vendor-csscolorparser>"
-)
-
-set_property(TARGET QGeoServiceProviderFactoryMapLibreGLPlugin PROPERTY INTERFACE_QT_MAJOR_VERSION 6)
-
-qt_add_resources(plugin_resource_files resources/maplibregl.qrc)
-
-qt_internal_extend_target(QGeoServiceProviderFactoryMapLibreGLPlugin
-    SOURCES
-        ${plugin_resource_files}
-)
+# Add subdirectories
+add_subdirectory(src)
+add_subdirectory(test)

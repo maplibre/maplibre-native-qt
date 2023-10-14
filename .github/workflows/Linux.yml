@@ -1,0 +1,126 @@
+name: Linux CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    tags:
+      - "**"
+    paths-ignore:
+      - ".gitignore"
+      - "README.md"
+      # ignore CI for other platforms
+      - ".github/FUNDING.yml"
+      - ".github/workflows/Android.yml"
+      - ".github/workflows/iOS.yml"
+      - ".github/workflows/Linux-Test.yml"
+      - ".github/workflows/macOS.yml"
+      - ".github/workflows/Windows.yml"
+
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - ".gitignore"
+      - "README.md"
+      # ignore CI for other platforms
+      - ".github/FUNDING.yml"
+      - ".github/workflows/Android.yml"
+      - ".github/workflows/iOS.yml"
+      - ".github/workflows/Linux-Test.yml"
+      - ".github/workflows/macOS.yml"
+      - ".github/workflows/Windows.yml"
+
+concurrency:
+  # cancel jobs on PRs only
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  build-and-test:
+    name: Build QMapLibre (Qt ${{ matrix.qt_version}})
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        include:
+          - qt_series: 5
+            qt_version: 5.15.2
+            qt_modules: ""
+          - qt_series: 6
+            qt_version: 6.5.3
+            qt_modules: qtlocation qtpositioning
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          path: source
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Download Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          aqtversion: ==3.1.*
+          version: ${{ matrix.qt_version }}
+          dir: ${{ github.workspace }}
+          target: desktop
+          modules: ${{ matrix.qt_modules }}
+
+      - name: Set up ccache
+        uses: hendrikmuhs/ccache-action@v1
+        with:
+          key: Linux_QMapLibre_${{ matrix.qt_version }}
+          append-timestamp: false
+
+      - name: Build QMapLibre (Qt5)
+        if: matrix.qt_series == 5
+        uses: ./source/.github/actions/qt5-build
+
+      - name: Build QMapLibre (Qt6)
+        if: matrix.qt_series == 6
+        uses: ./source/.github/actions/qt6-build
+
+      - name: Create artifacts
+        run: |
+          pushd install
+          tar cjvf ../QMapLibre_Linux.tar.bz2 *
+          popd
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: QMapLibre_Linux_${{ matrix.qt_version }}
+          path: QMapLibre_Linux.tar.bz2
+
+  release:
+    name: Release QMapLibre
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-22.04
+    needs: build-and-test
+    permissions:
+      contents: write
+    strategy:
+      matrix:
+        qt_version: [5.15.2, 6.5.3]
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: QMapLibre_Linux_${{ matrix.qt_version }}
+
+      - name: Make tarball
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+          QT_VERSION: ${{ matrix.qt_version }}
+        run: |
+          mv QMapLibre_Linux.tar.bz2 QMapLibre_${TAG_NAME}_Qt${QT_VERSION}_Linux.tar.bz2
+
+      - name: Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: QMapLibre_${{ github.ref_name }}_Qt${{ matrix.qt_version }}_Linux.tar.bz2
+          allowUpdates: true
+          draft: true

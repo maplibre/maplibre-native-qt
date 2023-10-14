@@ -1,0 +1,80 @@
+// Copyright (C) 2023 MapLibre contributors
+// Copyright (C) 2017 The Qt Company Ltd.
+// Copyright (C) 2017 Mapbox, Inc.
+
+// SPDX-License-Identifier: LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
+
+#pragma once
+
+#include <QtCore/QHash>
+#include <QtCore/QList>
+#include <QtCore/QRectF>
+#include <QtCore/QSharedPointer>
+#include <QtCore/QTimer>
+#include <QtCore/QVariant>
+#include <QtLocation/private/qgeomap_p_p.h>
+
+namespace QMapLibre {
+class Map;
+class StyleChange;
+
+class QGeoMapMapLibrePrivate : public QGeoMapPrivate {
+    Q_DECLARE_PUBLIC(QGeoMapMapLibre)
+
+public:
+    QGeoMapMapLibrePrivate(QGeoMappingManagerEngine *engine);
+    ~QGeoMapMapLibrePrivate();
+
+    QSGNode *updateSceneGraph(QSGNode *oldNode, QQuickWindow *window);
+
+    QGeoMap::ItemTypes supportedMapItemTypes() const override;
+    void addMapItem(QDeclarativeGeoMapItemBase *item) override;
+    void removeMapItem(QDeclarativeGeoMapItemBase *item) override;
+
+    /* Data members */
+    enum SyncState : int {
+        NoSync = 0,
+        ViewportSync = 1 << 0,
+        CameraDataSync = 1 << 1,
+        MapTypeSync = 1 << 2,
+        VisibleAreaSync = 1 << 3
+    };
+    Q_DECLARE_FLAGS(SyncStates, SyncState);
+
+    Settings m_settings;
+    QString m_mapItemsBefore;
+
+    QTimer m_refresh;
+    bool m_shouldRefresh = true;
+    bool m_warned = false;
+    bool m_threadedRendering = false;
+    bool m_styleLoaded = false;
+
+    SyncStates m_syncState = NoSync;
+
+    QList<QSharedPointer<StyleChange>> m_styleChanges;
+
+protected:
+    void changeViewportSize(const QSize &size) override;
+    void changeCameraData(const QGeoCameraData &oldCameraData) override;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+    void changeActiveMapType(const QGeoMapType &mapType) override;
+#else
+    void changeActiveMapType(const QGeoMapType mapType) override;
+#endif
+
+    void setVisibleArea(const QRectF &visibleArea) override;
+    QRectF visibleArea() const override;
+
+private:
+    Q_DISABLE_COPY(QGeoMapMapLibrePrivate);
+
+    void syncStyleChanges(Map *map);
+    void threadedRenderingHack(QQuickWindow *window, Map *map);
+
+    QRectF m_visibleArea;
+};
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QGeoMapMapLibrePrivate::SyncStates)
+
+} // namespace QMapLibre
