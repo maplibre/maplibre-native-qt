@@ -57,13 +57,18 @@ QMapLibre::Feature featureFromMapCircle(QDeclarativeCircleMapItem *mapItem) {
         path, mapItem->center(), mapItem->radius(), circleSamples, leftBound);
 #endif
     QList<QDoubleVector2D> pathProjected;
-#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
-    QDeclarativeCircleMapItemPrivate::calculatePeripheralPoints(
+#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
+    QDeclarativeCircleMapItemPrivate::calculatePeripheralPointsSimple(
         pathProjected, mapItem->center(), mapItem->radius(), p, circleSamples);
     // TODO: Removed for now. Update when the 6.6 API for this is fixed
     // if (QDeclarativeCircleMapItemPrivateCPU::crossEarthPole(mapItem->center(), mapItem->radius()))
     //     QDeclarativeCircleMapItemPrivateCPU::preserveCircleGeometry(pathProjected, mapItem->center(),
     //     mapItem->radius(), p);
+    QList<QGeoCoordinate> path;
+    for (const QDoubleVector2D &c : std::as_const(pathProjected)) path << p.mapProjectionToGeo(c);
+#elif QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+    QDeclarativeCircleMapItemPrivate::calculatePeripheralPoints(
+        pathProjected, mapItem->center(), mapItem->radius(), p, circleSamples);
     QList<QGeoCoordinate> path;
     for (const QDoubleVector2D &c : std::as_const(pathProjected)) path << p.mapProjectionToGeo(c);
 #else
