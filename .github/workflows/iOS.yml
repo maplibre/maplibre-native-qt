@@ -130,7 +130,7 @@ jobs:
   release:
     name: Release QMapLibre
     if: github.ref_type == 'tag'
-    runs-on: macos-12
+    runs-on: macos-13
     needs: build-plugin
     permissions:
       contents: write
