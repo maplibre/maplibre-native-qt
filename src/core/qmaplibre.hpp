@@ -2,7 +2,7 @@
 
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "export.hpp"
+#include "export_core.hpp"
 #include "map.hpp"
 #include "settings.hpp"
 #include "types.hpp"

@@ -6,14 +6,12 @@
 #ifndef QMAPLIBRE_SETTINGS_H
 #define QMAPLIBRE_SETTINGS_H
 
+#include <QMapLibre/Export>
+
 #include <QImage>
 #include <QString>
 
 #include <functional>
-
-#include "export.hpp"
-
-// This header follows the Qt coding style: https://wiki.qt.io/Qt_Coding_Style
 
 // TODO: this will be wrapped at some point
 namespace mbgl {
@@ -22,7 +20,7 @@ class TileServerOptions;
 
 namespace QMapLibre {
 
-class Q_MAPLIBRE_EXPORT Settings {
+class Q_MAPLIBRE_CORE_EXPORT Settings {
 public:
     Settings();
 

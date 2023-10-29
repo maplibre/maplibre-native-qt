@@ -6,13 +6,13 @@
 #ifndef QMAPLIBRE_TYPES_H
 #define QMAPLIBRE_TYPES_H
 
+#include <QMapLibre/Export>
+
 #include <QColor>
 #include <QPair>
 #include <QString>
 #include <QVariant>
 #include <QVector>
-
-#include "export.hpp"
 
 namespace QMapLibre {
 
@@ -25,7 +25,7 @@ typedef QVector<Coordinates> CoordinatesCollection;
 
 typedef QVector<CoordinatesCollection> CoordinatesCollections;
 
-struct Q_MAPLIBRE_EXPORT Feature {
+struct Q_MAPLIBRE_CORE_EXPORT Feature {
     enum Type {
         PointType = 1,
         LineStringType,
@@ -48,7 +48,7 @@ struct Q_MAPLIBRE_EXPORT Feature {
     QVariant id;
 };
 
-struct Q_MAPLIBRE_EXPORT ShapeAnnotationGeometry {
+struct Q_MAPLIBRE_CORE_EXPORT ShapeAnnotationGeometry {
     enum Type {
         LineStringType = 1,
         PolygonType,
@@ -66,12 +66,12 @@ struct Q_MAPLIBRE_EXPORT ShapeAnnotationGeometry {
     CoordinatesCollections geometry;
 };
 
-struct Q_MAPLIBRE_EXPORT SymbolAnnotation {
+struct Q_MAPLIBRE_CORE_EXPORT SymbolAnnotation {
     Coordinate geometry;
     QString icon;
 };
 
-struct Q_MAPLIBRE_EXPORT LineAnnotation {
+struct Q_MAPLIBRE_CORE_EXPORT LineAnnotation {
     /*! Class constructor. */
     LineAnnotation(const ShapeAnnotationGeometry &geometry_ = ShapeAnnotationGeometry(),
                    float opacity_ = 1.0f,
@@ -88,7 +88,7 @@ struct Q_MAPLIBRE_EXPORT LineAnnotation {
     QColor color;
 };
 
-struct Q_MAPLIBRE_EXPORT FillAnnotation {
+struct Q_MAPLIBRE_CORE_EXPORT FillAnnotation {
     /*! Class constructor. */
     FillAnnotation(const ShapeAnnotationGeometry &geometry_ = ShapeAnnotationGeometry(),
                    float opacity_ = 1.0f,
@@ -109,7 +109,7 @@ typedef QVariant Annotation;
 typedef quint32 AnnotationID;
 typedef QVector<AnnotationID> AnnotationIDs;
 
-struct Q_MAPLIBRE_EXPORT CameraOptions {
+struct Q_MAPLIBRE_CORE_EXPORT CameraOptions {
     QVariant center;  // Coordinate
     QVariant anchor;  // QPointF
     QVariant zoom;    // double
@@ -118,7 +118,7 @@ struct Q_MAPLIBRE_EXPORT CameraOptions {
 };
 
 // This struct is a 1:1 copy of mbgl::CustomLayerRenderParameters.
-struct Q_MAPLIBRE_EXPORT CustomLayerRenderParameters {
+struct Q_MAPLIBRE_CORE_EXPORT CustomLayerRenderParameters {
     double width;
     double height;
     double latitude;
@@ -129,7 +129,7 @@ struct Q_MAPLIBRE_EXPORT CustomLayerRenderParameters {
     double fieldOfView;
 };
 
-class Q_MAPLIBRE_EXPORT CustomLayerHostInterface {
+class Q_MAPLIBRE_CORE_EXPORT CustomLayerHostInterface {
 public:
     virtual ~CustomLayerHostInterface() = default;
     virtual void initialize() = 0;

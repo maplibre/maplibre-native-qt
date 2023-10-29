@@ -6,6 +6,7 @@
 #ifndef QMAPLIBRE_MAP_H
 #define QMAPLIBRE_MAP_H
 
+#include <QMapLibre/Export>
 #include <QMapLibre/Settings>
 #include <QMapLibre/Types>
 
@@ -24,9 +25,7 @@ namespace QMapLibre {
 
 class MapPrivate;
 
-// This header follows the Qt coding style: https://wiki.qt.io/Qt_Coding_Style
-
-class Q_MAPLIBRE_EXPORT Map : public QObject {
+class Q_MAPLIBRE_CORE_EXPORT Map : public QObject {
     Q_OBJECT
     Q_PROPERTY(double latitude READ latitude WRITE setLatitude)
     Q_PROPERTY(double longitude READ longitude WRITE setLongitude)

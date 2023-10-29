@@ -5,6 +5,8 @@
 #ifndef QMAPLIBRE_GL_WIDGET_H
 #define QMAPLIBRE_GL_WIDGET_H
 
+#include <QMapLibreWidgets/Export>
+
 #include <QMapLibre/Map>
 #include <QMapLibre/Settings>
 
@@ -24,7 +26,7 @@ namespace QMapLibre {
 
 class GLWidgetPrivate;
 
-class Q_MAPLIBRE_EXPORT GLWidget : public QOpenGLWidget {
+class Q_MAPLIBRE_WIDGETS_EXPORT GLWidget : public QOpenGLWidget {
     Q_OBJECT
 
 public:
