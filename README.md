@@ -28,6 +28,14 @@ ninja
 ninja install
 ```
 
+### Linux
+
+Note that when using the system ICU library standalone Qt installation using
+installer is ignored. If you want to use that you need to make sure that your
+system ICU is not too new as it may prevent your app from running on older
+versions of Linux. Alternatively you can use internally bundled ICU with the
+`-DMLN_QT_WITH_INTERNAL_ICU=ON` CMake option.
+
 ### macOS
 
 Add the following arguments to the CMake call:
