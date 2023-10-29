@@ -90,6 +90,7 @@ jobs:
       - name: Setup compiler (macOS)
         if: matrix.compiler != 'default'
         run: |
+          brew install --overwrite python@3.11
           brew install "$COMPILER"
           echo "/usr/local/opt/${COMPILER}/bin" >> "$GITHUB_PATH"
           {
@@ -114,6 +115,7 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1
         with:
           key: macOS_QMapLibre_${{ matrix.qt_version }}_${{ matrix.compiler }}
+          max-size: 200M
 
       - name: Build QMapLibre (Qt5)
         if: matrix.qt_series == 5

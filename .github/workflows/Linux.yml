@@ -106,6 +106,7 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1
         with:
           key: Linux_QMapLibre_${{ matrix.qt_version }}_${{ matrix.compiler }}
+          max-size: 200M
 
       - name: Build QMapLibre (Qt5)
         if: matrix.qt_series == 5
