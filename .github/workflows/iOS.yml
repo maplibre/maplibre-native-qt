@@ -82,10 +82,10 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1
         with:
           key: iOS_QMapLibre
+          max-size: 200M
 
-      - name: Use custom version of ccache
+      - name: Use latest version of ccache
         run: |
-          sed -i.bak -e 's/ccache\/ccache\.git/ntadej\/ccache.git/' -e 's/master/xarch/' /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/ccache.rb
           brew unlink ccache
           brew install ccache --HEAD
 

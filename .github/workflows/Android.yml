@@ -102,6 +102,7 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1
         with:
           key: Android_QMapLibre_${{ matrix.config.abi }}
+          max-size: 200M
 
       - name: Build QMapLibre
         env:

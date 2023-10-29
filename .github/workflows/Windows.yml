@@ -103,6 +103,7 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1
         with:
           key: Windows_QMapLibre_${{ matrix.config.qtarch }}
+          max-size: 200M
 
       - name: Build QMapLibre
         shell: bash
