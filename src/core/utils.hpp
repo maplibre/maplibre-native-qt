@@ -6,10 +6,8 @@
 #ifndef QMAPLIBRE_UTILS_H
 #define QMAPLIBRE_UTILS_H
 
-#include "export.hpp"
-#include "types.hpp"
-
-// This header follows the Qt coding style: https://wiki.qt.io/Qt_Coding_Style
+#include <QMapLibre/Export>
+#include <QMapLibre/Types>
 
 namespace QMapLibre {
 
@@ -18,12 +16,12 @@ enum NetworkMode {
     Offline,
 };
 
-Q_MAPLIBRE_EXPORT NetworkMode networkMode();
-Q_MAPLIBRE_EXPORT void setNetworkMode(NetworkMode);
+Q_MAPLIBRE_CORE_EXPORT NetworkMode networkMode();
+Q_MAPLIBRE_CORE_EXPORT void setNetworkMode(NetworkMode);
 
-Q_MAPLIBRE_EXPORT double metersPerPixelAtLatitude(double latitude, double zoom);
-Q_MAPLIBRE_EXPORT ProjectedMeters projectedMetersForCoordinate(const Coordinate &);
-Q_MAPLIBRE_EXPORT Coordinate coordinateForProjectedMeters(const ProjectedMeters &);
+Q_MAPLIBRE_CORE_EXPORT double metersPerPixelAtLatitude(double latitude, double zoom);
+Q_MAPLIBRE_CORE_EXPORT ProjectedMeters projectedMetersForCoordinate(const Coordinate &);
+Q_MAPLIBRE_CORE_EXPORT Coordinate coordinateForProjectedMeters(const ProjectedMeters &);
 
 } // namespace QMapLibre
 

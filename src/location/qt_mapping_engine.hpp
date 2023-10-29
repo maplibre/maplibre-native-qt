@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "../core/export.hpp"
+#include "export_location.hpp"
 
 #include <QMapLibre/Settings>
 
@@ -15,7 +15,7 @@
 
 namespace QMapLibre {
 
-class Q_MAPLIBRE_EXPORT QtMappingEngine : public QGeoMappingManagerEngine {
+class Q_MAPLIBRE_LOCATION_EXPORT QtMappingEngine : public QGeoMappingManagerEngine {
     Q_OBJECT
 
 public:

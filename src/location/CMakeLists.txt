@@ -34,7 +34,7 @@ endif()
 target_compile_definitions(
     Location
     PRIVATE
-        QT_BUILD_MAPLIBRE_LIB
+        QT_BUILD_MAPLIBRE_LOCATION_LIB
 )
 
 # Common include directories

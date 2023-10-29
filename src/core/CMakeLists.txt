@@ -13,7 +13,7 @@ add_subdirectory(
 # Public headers
 string(TOLOWER ${MLN_QT_NAME} MLN_QT_NAME_LOWERCASE)
 set(Core_Headers
-    export.hpp
+    export_core.hpp
     map.hpp
     settings.hpp
     types.hpp
@@ -27,6 +27,7 @@ foreach(Header ${Core_Headers})
     string(TOUPPER ${HeaderFirstLetter} HeaderFirstLetter)
     string(REGEX REPLACE "^.(.*)" "${HeaderFirstLetter}\\1" HeaderOut "${Header}")
     string(REGEX REPLACE "\.hpp" "" HeaderOut "${HeaderOut}")
+    string(REPLACE "Export_core" "Export" HeaderOut "${HeaderOut}")
     file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/include/${MLN_QT_NAME}/${HeaderOut}" "#include \"${Header}\"")
     list(APPEND Core_Headers_Generated "${CMAKE_CURRENT_BINARY_DIR}/include/${MLN_QT_NAME}/${HeaderOut}")
 endforeach()
@@ -84,7 +85,7 @@ endif()
 target_compile_definitions(
     Core
     PRIVATE
-        QT_BUILD_MAPLIBRE_LIB
+        QT_BUILD_MAPLIBRE_CORE_LIB
 )
 # static?
 # target_compile_definitions(

@@ -1,13 +1,22 @@
 # Public headers
 string(TOLOWER ${MLN_QT_NAME}Widgets MLN_QT_WIDGETS_LOWERCASE)
 set(Widgets_Headers
+    export_widgets.hpp
     gl_widget.hpp
 )
 # Header generation
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/include/${MLN_QT_NAME}Widgets/${MLN_QT_NAME}Widgets" "#include \"${MLN_QT_WIDGETS_LOWERCASE}.hpp\"")
 list(APPEND Widgets_Headers_Generated "${CMAKE_CURRENT_BINARY_DIR}/include/${MLN_QT_NAME}Widgets/${MLN_QT_NAME}Widgets")
-file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/include/${MLN_QT_NAME}Widgets/GLWidget" "#include \"gl_widget.hpp\"")
-list(APPEND Widgets_Headers_Generated "${CMAKE_CURRENT_BINARY_DIR}/include/${MLN_QT_NAME}Widgets/GLWidget")
+foreach(Header ${Widgets_Headers})
+    string(SUBSTRING ${Header} 0 1 HeaderFirstLetter)
+    string(TOUPPER ${HeaderFirstLetter} HeaderFirstLetter)
+    string(REGEX REPLACE "^.(.*)" "${HeaderFirstLetter}\\1" HeaderOut "${Header}")
+    string(REGEX REPLACE "\.hpp" "" HeaderOut "${HeaderOut}")
+    string(REPLACE "Export_widgets" "Export" HeaderOut "${HeaderOut}")
+    string(REPLACE "Gl_widget" "GLWidget" HeaderOut "${HeaderOut}")
+    file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/include/${MLN_QT_NAME}Widgets/${HeaderOut}" "#include \"${Header}\"")
+    list(APPEND Widgets_Headers_Generated "${CMAKE_CURRENT_BINARY_DIR}/include/${MLN_QT_NAME}Widgets/${HeaderOut}")
+endforeach()
 set(Widgets_Headers ${MLN_QT_WIDGETS_LOWERCASE}.hpp ${Widgets_Headers} ${Widgets_Headers_Generated})
 
 # Make a Qt library
@@ -46,7 +55,7 @@ endif()
 target_compile_definitions(
     Widgets
     PRIVATE
-        QT_BUILD_MAPLIBRE_LIB
+        QT_BUILD_MAPLIBRE_WIDGETS_LIB
 )
 
 # Common include directories
