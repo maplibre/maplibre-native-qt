@@ -11,7 +11,8 @@ releases in the upcoming version 3.0 of the Qt bindings and Qt Location plugin.
 ## Qt support
 
 This library fully supports Qt 6.5 and newer.
-Qt 5.15 is fully supported only on desktop platforms.
+Qt 5.15 is fully supported only on desktop platforms, previous Qt 5 versions
+down to 5.6 only support widgets but not Qt Location.
 
 ## How to build?
 
