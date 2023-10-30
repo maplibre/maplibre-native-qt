@@ -169,8 +169,6 @@ public:
     void destroyRenderer();
     void setFramebufferObject(quint32 fbo, const QSize &size);
 
-    const QVector<QPair<QString, QString>> &defaultStyles() const;
-
 public slots:
     void render();
     void connectionEstablished();

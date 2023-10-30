@@ -6,13 +6,49 @@
 
 #include "qt_mapping_engine.hpp"
 #include "qgeomap.hpp"
+#include "types.hpp"
 
 #include <QtLocation/private/qabstractgeotilecache_p.h>
 #include <QtLocation/private/qgeocameracapabilities_p.h>
 #include <QtLocation/private/qgeomaptype_p.h>
 
 #include <QtCore/QDir>
+#include <QtCore/QJsonArray>
+#include <QtCore/QJsonDocument>
+#include <QtCore/QJsonObject>
+#include <QtCore/QJsonValue>
 #include <QtCore/QStandardPaths>
+#include <QtCore/QVariant>
+#include <QtQml/QJSValue>
+
+namespace {
+
+void parseStyleJsonObject(QMapLibre::Styles &styles, const QJsonObject &obj) {
+    if (!obj.contains(QStringLiteral("url"))) return;
+
+    const QString url = obj.value(QStringLiteral("url")).toString();
+    if (url.isEmpty()) return;
+
+    const QString name = obj.contains(QStringLiteral("name"))
+                             ? obj.value(QStringLiteral("name")).toString()
+                             : QStringLiteral("Style") + QString::number(styles.size() + 1);
+    QMapLibre::Style style(url, name);
+    if (obj.contains(QStringLiteral("description"))) {
+        style.description = obj.value(QStringLiteral("description")).toString();
+    }
+    if (obj.contains(QStringLiteral("night"))) {
+        style.night = obj.value(QStringLiteral("night")).toBool();
+    }
+    if (obj.contains("type")) {
+        style.type = QMapLibre::Style::Type(obj.value(QStringLiteral("type")).toInt());
+    }
+    if (obj.contains("style")) {
+        style.type = QMapLibre::Style::Type(obj.value(QStringLiteral("style")).toInt());
+    }
+    styles.append(std::move(style));
+}
+
+} // namespace
 
 namespace QMapLibre {
 
@@ -34,15 +70,33 @@ QtMappingEngine::QtMappingEngine(const QVariantMap &parameters, QGeoServiceProvi
     cameraCaps.setMaximumFieldOfView(36.87);
     setCameraCapabilities(cameraCaps);
 
+    const QStringList supportedOptions{QStringLiteral("maplibre.api.provider"),
+                                       QStringLiteral("maplibre.api.base_url"),
+                                       QStringLiteral("maplibre.api.key"),
+                                       QStringLiteral("maplibre.map.styles"),
+                                       QStringLiteral("maplibre.cache.memory"),
+                                       QStringLiteral("maplibre.cache.directory"),
+                                       QStringLiteral("maplibre.cache.size"),
+                                       QStringLiteral("maplibre.items.insert_before"),
+                                       QStringLiteral("maplibre.client.name"),
+                                       QStringLiteral("maplibre.client.version")};
+    for (const QString &key : parameters.keys()) {
+        if (!supportedOptions.contains(key)) {
+            qWarning() << "Unsupported option" << key;
+        }
+    }
+
     // API settings
     if (parameters.contains(QStringLiteral("maplibre.api.provider"))) {
-        const QString api_provider = parameters.value(QStringLiteral("maplibre.api.provider")).toString();
-        if (api_provider == "maptiler") {
-            m_settings.resetToTemplate(Settings::MapTilerSettings);
-        } else if (api_provider == "mapbox") {
-            m_settings.resetToTemplate(Settings::MapboxSettings);
+        const QString apiProvider = parameters.value(QStringLiteral("maplibre.api.provider")).toString();
+        if (apiProvider == "maplibre") {
+            m_settings.setProviderTemplate(Settings::MapLibreProvider);
+        } else if (apiProvider == "maptiler") {
+            m_settings.setProviderTemplate(Settings::MapTilerProvider);
+        } else if (apiProvider == "mapbox") {
+            m_settings.setProviderTemplate(Settings::MapboxProvider);
         } else {
-            qWarning() << "Unknown API provider" << api_provider;
+            qWarning() << "Unknown API provider" << apiProvider;
         }
     }
 
@@ -58,23 +112,47 @@ QtMappingEngine::QtMappingEngine(const QVariantMap &parameters, QGeoServiceProvi
     const QByteArray pluginName = "maplibre";
     QList<QGeoMapType> mapTypes;
     int mapId{};
-    QVariantMap mapMetadata;
-    mapMetadata["isHTTPS"] = true;
 
     if (parameters.contains(QStringLiteral("maplibre.map.styles"))) {
-        const QString ids = parameters.value(QStringLiteral("maplibre.map.styles")).toString();
-        const QStringList idList = ids.split(',', Qt::SkipEmptyParts);
+        Styles styles;
+        const QVariant stylesValue = parameters.value(QStringLiteral("maplibre.map.styles"));
+        if (stylesValue.userType() == qMetaTypeId<QJSValue>()) {
+            auto jsonDoc = QJsonDocument::fromVariant(stylesValue.value<QJSValue>().toVariant());
+            if (jsonDoc.isObject()) {
+                parseStyleJsonObject(styles, jsonDoc.object());
+            } else if (jsonDoc.isArray()) {
+                for (const auto &value : jsonDoc.array()) {
+                    if (value.isObject()) {
+                        parseStyleJsonObject(styles, value.toObject());
+                    } else if (value.isString()) {
+                        const QString url = value.toString();
+                        if (url.isEmpty()) continue;
+                        styles.append(Style(url, "Style " + QString::number(styles.size() + 1)));
+                    }
+                }
+            }
+        } else {
+            const QString urls = parameters.value(QStringLiteral("maplibre.map.styles")).toString();
+            const QStringList urlsList = urls.split(',', Qt::SkipEmptyParts);
 
-        for (const QString &url : idList) {
-            if (url.isEmpty()) continue;
+            for (const QString &url : urlsList) {
+                if (url.isEmpty()) continue;
+                styles.append(Style(url, "Style " + QString::number(styles.size() + 1)));
+            }
+        }
 
-            mapMetadata["isHTTPS"] = url.startsWith(QStringLiteral("http:"));
+        m_settings.setStyles(styles);
 
-            mapTypes << QGeoMapType(QGeoMapType::CustomMap,
-                                    url,
-                                    tr("User provided style"),
+        for (const Style &style : styles) {
+            QVariantMap mapMetadata;
+            mapMetadata[QStringLiteral("url")] = style.url;
+            mapMetadata[QStringLiteral("isHTTPS")] = style.url.startsWith(QStringLiteral("https:"));
+
+            mapTypes << QGeoMapType(QGeoMapType::MapStyle(style.type),
+                                    style.name,
+                                    style.description,
                                     false,
-                                    false,
+                                    style.night,
                                     ++mapId,
                                     pluginName,
                                     cameraCaps,
@@ -82,12 +160,17 @@ QtMappingEngine::QtMappingEngine(const QVariantMap &parameters, QGeoServiceProvi
         }
     }
 
-    for (const QPair<QString, QString> &style : m_settings.defaultStyles()) {
-        mapTypes << QGeoMapType(QGeoMapType::StreetMap,
-                                style.first,
-                                style.second,
+    // load provider styles if available
+    for (const Style &style : m_settings.providerStyles()) {
+        QVariantMap mapMetadata;
+        mapMetadata[QStringLiteral("url")] = style.url;
+        mapMetadata[QStringLiteral("isHTTPS")] = true;
+
+        mapTypes << QGeoMapType(QGeoMapType::MapStyle(style.type),
+                                style.name,
+                                style.description,
                                 false,
-                                false,
+                                style.night,
                                 ++mapId,
                                 pluginName,
                                 cameraCaps,

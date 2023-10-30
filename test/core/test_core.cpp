@@ -62,7 +62,7 @@ void TestCore::testStyleURL() {
 
     auto tester = std::make_unique<QMapLibre::MapTester>();
 
-    QString url(tester->map.defaultStyles()[0].first);
+    QString url(tester->settings.providerStyles().front().url);
 
     tester->map.setStyleUrl(url);
     QCOMPARE(tester->map.styleUrl(), url);

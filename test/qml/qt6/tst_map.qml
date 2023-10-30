@@ -28,8 +28,8 @@ Item {
         name: "maplibre"
         // specify plugin parameters if necessary
         PluginParameter {
-            name: "maplibre.map.style_urls"
-            value: "https://demotiles.maplibre.org/style.json"
+            name: "maplibre.map.styles"
+            value: "https://demotiles.maplibre.org/style.json,https://demotiles.maplibre.org/style2.json"
         }
     }
 
@@ -59,7 +59,11 @@ Item {
             wait(2000)
             window.fullWindow = true
             mapView.map.center = window.coordinate
-            wait(2000)
+            wait(500)
+        }
+
+        function test_styles() {
+            compare(mapView.map.supportedMapTypes.length, 2)
         }
     }
 }

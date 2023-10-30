@@ -49,7 +49,7 @@ target_sources(
         renderer_backend.cpp renderer_backend_p.hpp
         renderer_observer_p.hpp
         scheduler.cpp scheduler_p.hpp
-        settings.cpp
+        settings.cpp settings_p.hpp
         types.cpp
         utils.cpp
 )

@@ -40,7 +40,7 @@ Window {
         name: "maplibre"
         // specify plugin parameters if necessary
         PluginParameter {
-            name: "maplibre.map.style_urls"
+            name: "maplibre.map.styles"
             value: "https://demotiles.maplibre.org/style.json"
         }
     }
