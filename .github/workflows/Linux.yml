@@ -128,8 +128,7 @@ jobs:
             -DCMAKE_BUILD_TYPE="RelWithDebInfo" \
             -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
             -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
-            -DCMAKE_INSTALL_PREFIX="../install" \
-            -DMLN_QT_WITH_INTERNAL_ICU=ON
+            -DCMAKE_INSTALL_PREFIX="../install"
           ninja
           ninja install
 
