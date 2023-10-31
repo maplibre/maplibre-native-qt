@@ -33,8 +33,8 @@ target_link_libraries(
     ${MLN_QT_GEOSERVICES_PLUGIN}
     PRIVATE
         Location
-        Qt::Location
-        Qt::LocationPrivate)
+        Qt${QT_VERSION_MAJOR}::Location
+        Qt${QT_VERSION_MAJOR}::LocationPrivate)
 
 # QtLocation plugin installation
 install(
@@ -88,7 +88,7 @@ target_link_libraries(
     ${MLN_QT_QML_PLUGIN}
     PRIVATE
         Location
-        Qt::LocationPrivate
+        Qt${QT_VERSION_MAJOR}::LocationPrivate
 )
 
 # QtLocation QML extension plugin installation

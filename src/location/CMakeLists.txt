@@ -52,9 +52,9 @@ target_link_libraries(
     Location
     PRIVATE
         Core
-        $<$<BOOL:${Qt6_FOUND}>:Qt::OpenGL>
-        Qt::Network
-        Qt::LocationPrivate
+        $<$<BOOL:${Qt6_FOUND}>:Qt${QT_VERSION_MAJOR}::OpenGL>
+        Qt${QT_VERSION_MAJOR}::Network
+        Qt${QT_VERSION_MAJOR}::LocationPrivate
 )
 
 # Apple specifics
