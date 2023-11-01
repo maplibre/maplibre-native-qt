@@ -5,7 +5,11 @@ else()
 endif()
 
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS QuickTest REQUIRED)
-target_link_libraries(test_mln_qml PRIVATE Qt${QT_VERSION_MAJOR}::QuickTest)
+target_link_libraries(test_mln_qml
+    PRIVATE
+        Qt${QT_VERSION_MAJOR}::QuickTest
+        $<BUILD_INTERFACE:mbgl-compiler-options>
+)
 
 add_test(NAME test_mln_qml COMMAND $<TARGET_FILE:test_mln_qml> -input ${CMAKE_CURRENT_SOURCE_DIR}/qt${QT_VERSION_MAJOR})
 set_tests_properties(

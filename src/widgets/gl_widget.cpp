@@ -56,7 +56,8 @@ void GLWidget::paintGL() {
 // GLWidgetPrivate
 
 GLWidgetPrivate::GLWidgetPrivate(QObject *parent, const Settings &settings)
-    : QObject(parent) {}
+    : QObject(parent),
+      m_settings(settings) {}
 
 GLWidgetPrivate::~GLWidgetPrivate() {}
 

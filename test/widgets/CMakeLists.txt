@@ -23,8 +23,9 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Test REQUIRED)
 target_link_libraries(
     test_mln_widgets
     PRIVATE
-        Qt${QT_VERSION_MAJOR}::Test
         Widgets
+        Qt${QT_VERSION_MAJOR}::Test
+        $<BUILD_INTERFACE:mbgl-compiler-options>
 )
 set_target_properties(test_mln_widgets PROPERTIES AUTOMOC ON)
 

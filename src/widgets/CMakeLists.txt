@@ -8,14 +8,8 @@ set(Widgets_Headers
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/include/${MLN_QT_NAME}Widgets/${MLN_QT_NAME}Widgets" "#include \"${MLN_QT_WIDGETS_LOWERCASE}.hpp\"")
 list(APPEND Widgets_Headers_Generated "${CMAKE_CURRENT_BINARY_DIR}/include/${MLN_QT_NAME}Widgets/${MLN_QT_NAME}Widgets")
 foreach(Header ${Widgets_Headers})
-    string(SUBSTRING ${Header} 0 1 HeaderFirstLetter)
-    string(TOUPPER ${HeaderFirstLetter} HeaderFirstLetter)
-    string(REGEX REPLACE "^.(.*)" "${HeaderFirstLetter}\\1" HeaderOut "${Header}")
-    string(REGEX REPLACE "\.hpp" "" HeaderOut "${HeaderOut}")
-    string(REPLACE "Export_widgets" "Export" HeaderOut "${HeaderOut}")
-    string(REPLACE "Gl_widget" "GLWidget" HeaderOut "${HeaderOut}")
-    file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/include/${MLN_QT_NAME}Widgets/${HeaderOut}" "#include \"${Header}\"")
-    list(APPEND Widgets_Headers_Generated "${CMAKE_CURRENT_BINARY_DIR}/include/${MLN_QT_NAME}Widgets/${HeaderOut}")
+    mln_header_preprocess(${Header} "${MLN_QT_NAME}Widgets" HeaderOut)
+    list(APPEND Widgets_Headers_Generated ${HeaderOut})
 endforeach()
 set(Widgets_Headers ${MLN_QT_WIDGETS_LOWERCASE}.hpp ${Widgets_Headers} ${Widgets_Headers_Generated})
 
@@ -75,6 +69,8 @@ target_link_libraries(
     Widgets
     PUBLIC
         Core
+    PRIVATE
+        $<BUILD_INTERFACE:mbgl-compiler-options>
 )
 if (Qt6_FOUND)
     target_link_libraries(

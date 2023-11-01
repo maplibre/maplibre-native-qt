@@ -38,7 +38,7 @@ namespace {
 
 static const double invLog2 = 1.0 / std::log(2.0);
 
-static const double zoomLevelFrom256(double zoomLevelFor256, double tileSize) {
+static double zoomLevelFrom256(double zoomLevelFor256, double tileSize) {
     return std::log(std::pow(2.0, zoomLevelFor256) * 256.0 / tileSize) * invLog2;
 }
 

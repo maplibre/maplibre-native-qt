@@ -28,6 +28,8 @@ set(MLN_QT_NAMESPACE ${MLN_QT_NAME}::)
 set(MLN_QT_GEOSERVICES_PLUGIN qtgeoservices_maplibre)
 set(MLN_QT_QML_PLUGIN declarative_locationplugin_maplibre)
 
+include(cmake/helpers.cmake)
+
 # Options
 set(MLN_QT_WITH_LOCATION ON CACHE BOOL "Build QMapLibreLocation")
 set(MLN_QT_WITH_WIDGETS ON CACHE BOOL "Build QMapLibreWidgets")
