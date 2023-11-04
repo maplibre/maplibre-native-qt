@@ -12,7 +12,7 @@
 #include <mbgl/renderer/renderer_observer.hpp>
 #include <mbgl/util/util.hpp>
 
-#include <QObject>
+#include <QtCore/QObject>
 
 #include <QtGlobal>
 

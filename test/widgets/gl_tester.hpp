@@ -6,7 +6,7 @@
 
 #include <QMapLibreWidgets/GLWidget>
 
-#include <QPropertyAnimation>
+#include <QtCore/QPropertyAnimation>
 
 namespace QMapLibre {
 

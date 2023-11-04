@@ -5,7 +5,7 @@
 
 #include "geojson_p.hpp"
 
-#include <QDebug>
+#include <QtCore/QDebug>
 
 namespace QMapLibre::GeoJSON {
 

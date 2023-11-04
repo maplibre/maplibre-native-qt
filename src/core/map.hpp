@@ -10,13 +10,13 @@
 #include <QMapLibre/Settings>
 #include <QMapLibre/Types>
 
-#include <QImage>
-#include <QMargins>
-#include <QObject>
-#include <QPointF>
-#include <QSize>
-#include <QString>
-#include <QStringList>
+#include <QtCore/QMargins>
+#include <QtCore/QObject>
+#include <QtCore/QPointF>
+#include <QtCore/QSize>
+#include <QtCore/QString>
+#include <QtCore/QStringList>
+#include <QtGui/QImage>
 
 #include <functional>
 #include <memory>

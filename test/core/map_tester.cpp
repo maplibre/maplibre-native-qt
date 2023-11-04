@@ -4,9 +4,10 @@
 
 #include "map_tester.hpp"
 
-#include <QCoreApplication>
 #include <QOpenGLContext>
 #include <QOpenGLFunctions>
+
+#include <QtCore/QCoreApplication>
 
 namespace QMapLibre {
 

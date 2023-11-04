@@ -11,8 +11,8 @@
 #include <mbgl/style/conversion/geojson.hpp>
 #include <mbgl/style/conversion_impl.hpp>
 
-#include <QColor>
-#include <QVariant>
+#include <QtCore/QVariant>
+#include <QtGui/QColor>
 
 #include <optional>
 

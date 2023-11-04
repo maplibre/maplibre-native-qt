@@ -4,8 +4,9 @@
 
 #include "test_rendering.hpp"
 
-#include <QOffscreenSurface>
-#include <QWindow>
+#include <QtGui/QOffscreenSurface>
+#include <QtGui/QWindow>
+
 #include <memory>
 
 namespace QMapLibre {

@@ -9,7 +9,7 @@
 
 #include <mbgl/gfx/backend_scope.hpp>
 
-#include <QThreadStorage>
+#include <QtCore/QThreadStorage>
 
 namespace {
 

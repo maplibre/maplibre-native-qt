@@ -53,12 +53,12 @@
 #include <mbgl/util/tile_server_options.hpp>
 #include <mbgl/util/traits.hpp>
 
-#include <QColor>
-#include <QDebug>
-#include <QThreadStorage>
-#include <QVariant>
-#include <QVariantList>
-#include <QVariantMap>
+#include <QtCore/QDebug>
+#include <QtCore/QThreadStorage>
+#include <QtCore/QVariant>
+#include <QtCore/QVariantList>
+#include <QtCore/QVariantMap>
+#include <QtGui/QColor>
 
 #include <functional>
 #include <memory>

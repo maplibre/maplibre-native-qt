@@ -4,7 +4,7 @@
 
 #include "gl_tester.hpp"
 
-#include <QDebug>
+#include <QtCore/QDebug>
 
 namespace {
 constexpr int kAnimationDuration = 5000;

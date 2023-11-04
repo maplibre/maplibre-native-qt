@@ -8,11 +8,11 @@
 
 #include <QMapLibre/Export>
 
-#include <QColor>
-#include <QPair>
-#include <QString>
-#include <QVariant>
-#include <QVector>
+#include <QtCore/QPair>
+#include <QtCore/QString>
+#include <QtCore/QVariant>
+#include <QtCore/QVector>
+#include <QtGui/QColor>
 
 namespace QMapLibre {
 

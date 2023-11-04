@@ -11,7 +11,7 @@
 #include <mbgl/util/feature.hpp>
 #include <mbgl/util/geometry.hpp>
 
-#include <QVariant>
+#include <QtCore/QVariant>
 
 #include <string>
 
