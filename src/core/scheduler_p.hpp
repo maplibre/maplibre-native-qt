@@ -8,7 +8,7 @@
 #include <mbgl/actor/scheduler.hpp>
 #include <mbgl/util/util.hpp>
 
-#include <QObject>
+#include <QtCore/QObject>
 
 #include <memory>
 #include <mutex>

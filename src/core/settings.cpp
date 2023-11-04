@@ -11,7 +11,7 @@
 #include <mbgl/util/tile_server_options.hpp>
 #include <mbgl/util/traits.hpp>
 
-#include <QCoreApplication>
+#include <QtCore/QCoreApplication>
 
 #ifdef _MSC_VER
 #pragma warning(push)

@@ -5,8 +5,8 @@
 #include "gl_widget.hpp"
 #include "gl_widget_p.hpp"
 
-#include <QMouseEvent>
-#include <QWheelEvent>
+#include <QtGui/QMouseEvent>
+#include <QtGui/QWheelEvent>
 
 namespace QMapLibre {
 

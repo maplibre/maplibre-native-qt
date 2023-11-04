@@ -15,8 +15,8 @@
 #include <mbgl/storage/resource_transform.hpp>
 #include <mbgl/util/geo.hpp>
 
-#include <QObject>
-#include <QSize>
+#include <QtCore/QObject>
+#include <QtCore/QSize>
 
 #include <atomic>
 #include <memory>

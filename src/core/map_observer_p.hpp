@@ -10,7 +10,7 @@
 #include <mbgl/map/map_observer.hpp>
 #include <mbgl/style/style.hpp>
 
-#include <QObject>
+#include <QtCore/QObject>
 
 #include <exception>
 #include <memory>

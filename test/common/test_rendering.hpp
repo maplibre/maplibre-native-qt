@@ -2,7 +2,7 @@
 
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include <QSurface>
+#include <QtGui/QSurface>
 
 #include <memory>
 

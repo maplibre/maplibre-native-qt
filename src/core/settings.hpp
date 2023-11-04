@@ -8,8 +8,8 @@
 
 #include <QMapLibre/Export>
 
-#include <QImage>
-#include <QString>
+#include <QtCore/QString>
+#include <QtGui/QImage>
 
 #include <functional>
 
