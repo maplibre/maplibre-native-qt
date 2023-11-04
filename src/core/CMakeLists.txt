@@ -18,6 +18,10 @@ set(Core_Headers
     settings.hpp
     types.hpp
     utils.hpp
+
+    style/style_parameter.hpp
+    style/layer_parameter.hpp
+    style/source_parameter.hpp
 )
 # Header generation
 mln_umbrella_header_preprocess(${MLN_QT_NAME_LOWERCASE} ${MLN_QT_NAME} HeaderOut)
@@ -52,6 +56,16 @@ target_sources(
         settings.cpp settings_p.hpp
         types.cpp
         utils.cpp
+
+        style/style_parameter.cpp
+        style/layer_parameter.cpp
+        style/source_parameter.cpp
+
+        style/style_change.cpp style/style_change_p.hpp
+        style/style_change_utils.cpp style/style_change_utils_p.hpp
+        style/image_style_change.cpp style/image_style_change_p.hpp
+        style/layer_style_change.cpp style/layer_style_change_p.hpp
+        style/source_style_change.cpp style/source_style_change_p.hpp
 )
 
 # Linux/Mac: Set framework, version and headers
@@ -89,6 +103,7 @@ target_include_directories(
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/style
         ${CMAKE_CURRENT_BINARY_DIR}/include
         ${MLN_CORE_PATH}/src
 )

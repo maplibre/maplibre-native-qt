@@ -11,7 +11,7 @@ target_sources(
     PRIVATE
         qgeomap.cpp qgeomap.hpp qgeomap_p.hpp
         qt_mapping_engine.cpp qt_mapping_engine.hpp
-        stylechange.cpp stylechange_p.h
+        style_change_utils.cpp style_change_utils_p.hpp
         texture_node.cpp texture_node.hpp
 )
 
@@ -44,6 +44,7 @@ target_include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_BINARY_DIR}/include
         ${CMAKE_SOURCE_DIR}/src/core
+        ${CMAKE_SOURCE_DIR}/src/core/style
         ${CMAKE_BINARY_DIR}/src/core/include
 )
 

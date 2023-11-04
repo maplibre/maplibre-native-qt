@@ -6,7 +6,10 @@
 
 #pragma once
 
+#include "export_location.hpp"
+
 #include <QMapLibre/Map>
+#include <QMapLibre/StyleParameter>
 
 #include <QtLocation/private/qgeomap_p.h>
 
@@ -14,7 +17,7 @@ namespace QMapLibre {
 
 class QGeoMapMapLibrePrivate;
 
-class QGeoMapMapLibre : public QGeoMap {
+class Q_MAPLIBRE_LOCATION_EXPORT QGeoMapMapLibre : public QGeoMap {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QGeoMapMapLibre)
 
@@ -27,6 +30,10 @@ public:
     void setSettings(const Settings &settings);
     void setMapItemsBefore(const QString &mapItemsBefore);
 
+    void addStyleParameter(StyleParameter *parameter);
+    void removeStyleParameter(StyleParameter *parameter);
+    void clearStyleParameters();
+
 private Q_SLOTS:
     // QMapLibre
     void onMapChanged(Map::MapChange);
@@ -36,6 +43,9 @@ private Q_SLOTS:
     void onMapItemSubPropertyChanged();
     void onMapItemUnsupportedPropertyChanged();
     void onMapItemGeometryChanged();
+
+    // StyleParameter
+    void onStyleParameterUpdated(StyleParameter *parameter);
 
 private:
     QSGNode *updateSceneGraph(QSGNode *oldNode, QQuickWindow *window) override;

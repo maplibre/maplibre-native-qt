@@ -127,8 +127,8 @@ public:
     void updateAnnotation(AnnotationID, const Annotation &);
     void removeAnnotation(AnnotationID);
 
-    bool setLayoutProperty(const QString &layer, const QString &property, const QVariant &value);
-    bool setPaintProperty(const QString &layer, const QString &property, const QVariant &value);
+    bool setLayoutProperty(const QString &layerId, const QString &propertyName, const QVariant &value);
+    bool setPaintProperty(const QString &layerId, const QString &propertyName, const QVariant &value);
 
     [[nodiscard]] bool isFullyLoaded() const;
 
@@ -150,25 +150,25 @@ public:
     void setMargins(const QMargins &margins);
     [[nodiscard]] QMargins margins() const;
 
-    void addSource(const QString &sourceID, const QVariantMap &params);
-    bool sourceExists(const QString &sourceID);
-    void updateSource(const QString &sourceID, const QVariantMap &params);
-    void removeSource(const QString &sourceID);
+    void addSource(const QString &id, const QVariantMap &params);
+    bool sourceExists(const QString &id);
+    void updateSource(const QString &id, const QVariantMap &params);
+    void removeSource(const QString &id);
 
-    void addImage(const QString &name, const QImage &sprite);
-    void removeImage(const QString &name);
+    void addImage(const QString &id, const QImage &sprite);
+    void removeImage(const QString &id);
 
     void addCustomLayer(const QString &id,
                         std::unique_ptr<CustomLayerHostInterface> host,
                         const QString &before = QString());
-    void addLayer(const QVariantMap &params, const QString &before = QString());
+    void addLayer(const QString &id, const QVariantMap &params, const QString &before = QString());
     bool layerExists(const QString &id);
     void removeLayer(const QString &id);
 
     [[nodiscard]] QVector<QString> layerIds() const;
 
-    void setFilter(const QString &layer, const QVariant &filter);
-    [[nodiscard]] QVariant getFilter(const QString &layer) const;
+    void setFilter(const QString &layerId, const QVariant &filter);
+    [[nodiscard]] QVariant getFilter(const QString &layerId) const;
     // When rendering on a different thread,
     // should be called on the render thread.
     void createRenderer();

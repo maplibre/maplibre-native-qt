@@ -5,9 +5,14 @@
 // SPDX-License-Identifier: LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
 
 #include "qgeomap.hpp"
+#include "layer_style_change_p.hpp"
 #include "qgeomap_p.hpp"
-#include "stylechange_p.h"
+#include "source_style_change_p.hpp"
+#include "style_change_p.hpp"
+#include "style_change_utils_p.hpp"
 #include "texture_node.hpp"
+
+#include <QMapLibre/Types>
 
 #include <QtCore/QByteArray>
 #include <QtCore/QCoreApplication>
@@ -27,8 +32,7 @@
 #include <QtQuick/QQuickWindow>
 #include <QtQuick/QSGImageNode>
 
-#include <QMapLibre/Types>
-
+#include <algorithm>
 #include <cmath>
 
 namespace {
@@ -229,7 +233,11 @@ void QGeoMapMapLibrePrivate::addMapItem(QDeclarativeGeoMapItemBase *item) {
     QObject::connect(
         item, &QDeclarativeGeoMapItemBase::mapItemOpacityChanged, q, &QGeoMapMapLibre::onMapItemPropertyChanged);
 
-    m_styleChanges << StyleChange::addMapItem(item, m_mapItemsBefore);
+    std::vector<std::unique_ptr<StyleChange>> changes = StyleChange::addFeature(
+        StyleChangeUtils::featureFromMapItem(item),
+        StyleChangeUtils::featurePropertiesFromMapItem(item),
+        m_mapItemsBefore);
+    std::move(changes.begin(), changes.end(), std::back_inserter(m_styleChanges));
 
     emit q->sgNodeChanged();
 }
@@ -258,9 +266,49 @@ void QGeoMapMapLibrePrivate::removeMapItem(QDeclarativeGeoMapItemBase *item) {
 
     q->disconnect(item);
 
-    m_styleChanges << StyleChange::removeMapItem(item);
+    std::vector<std::unique_ptr<StyleChange>> changes = StyleChange::removeFeature(
+        StyleChangeUtils::featureFromMapItem(item));
+    std::move(changes.begin(), changes.end(), std::back_inserter(m_styleChanges));
 
     emit q->sgNodeChanged();
+}
+
+void QGeoMapMapLibrePrivate::addStyleParameter(StyleParameter *parameter) {
+    Q_Q(QGeoMapMapLibre);
+
+    if (m_mapParameters.contains(parameter)) {
+        return;
+    }
+
+    m_mapParameters << parameter;
+
+    QObject::connect(parameter, &StyleParameter::updated, q, &QGeoMapMapLibre::onStyleParameterUpdated);
+
+    if (m_styleLoaded) {
+        std::vector<std::unique_ptr<StyleChange>> changes = StyleChange::addParameter(parameter, m_mapItemsBefore);
+        std::move(changes.begin(), changes.end(), std::back_inserter(m_styleChanges));
+        emit q->sgNodeChanged();
+    }
+}
+
+void QGeoMapMapLibrePrivate::removeStyleParameter(StyleParameter *parameter) {
+    Q_Q(QGeoMapMapLibre);
+
+    q->disconnect(parameter);
+
+    if (m_styleLoaded) {
+        std::vector<std::unique_ptr<StyleChange>> changes = StyleChange::removeParameter(parameter);
+        std::move(changes.begin(), changes.end(), std::back_inserter(m_styleChanges));
+        emit q->sgNodeChanged();
+    }
+
+    m_mapParameters.removeOne(parameter);
+}
+
+void QGeoMapMapLibrePrivate::clearStyleParameters() {
+    for (StyleParameter *parameter : m_mapParameters) {
+        removeStyleParameter(parameter);
+    }
 }
 
 void QGeoMapMapLibrePrivate::changeViewportSize(const QSize & /* size */) {
@@ -309,7 +357,9 @@ QRectF QGeoMapMapLibrePrivate::visibleArea() const {
 
 void QGeoMapMapLibrePrivate::syncStyleChanges(Map *map) {
     for (const auto &change : m_styleChanges) {
-        change->apply(map);
+        if (change->isValid()) {
+            change->apply(map);
+        }
     }
 
     m_styleChanges.clear();
@@ -372,6 +422,21 @@ void QGeoMapMapLibre::setMapItemsBefore(const QString &before) {
     d->m_mapItemsBefore = before;
 }
 
+void QGeoMapMapLibre::addStyleParameter(StyleParameter *parameter) {
+    Q_D(QGeoMapMapLibre);
+    d->addStyleParameter(parameter);
+}
+
+void QGeoMapMapLibre::removeStyleParameter(StyleParameter *parameter) {
+    Q_D(QGeoMapMapLibre);
+    d->removeStyleParameter(parameter);
+}
+
+void QGeoMapMapLibre::clearStyleParameters() {
+    Q_D(QGeoMapMapLibre);
+    d->clearStyleParameters();
+}
+
 QGeoMap::Capabilities QGeoMapMapLibre::capabilities() const {
     return {SupportsVisibleRegion | SupportsSetBearing | SupportsAnchoringCoordinate | SupportsVisibleArea};
 }
@@ -391,7 +456,17 @@ void QGeoMapMapLibre::onMapChanged(Map::MapChange change) {
         d->m_styleChanges.clear();
 
         for (QDeclarativeGeoMapItemBase *item : d->m_mapItems) {
-            d->m_styleChanges << StyleChange::addMapItem(item, d->m_mapItemsBefore);
+            std::vector<std::unique_ptr<StyleChange>> changes = StyleChange::addFeature(
+                StyleChangeUtils::featureFromMapItem(item),
+                StyleChangeUtils::featurePropertiesFromMapItem(item),
+                d->m_mapItemsBefore);
+            std::move(changes.begin(), changes.end(), std::back_inserter(d->m_styleChanges));
+        }
+
+        for (StyleParameter *parameter : d->m_mapParameters) {
+            std::vector<std::unique_ptr<StyleChange>> changes = StyleChange::addParameter(parameter,
+                                                                                          d->m_mapItemsBefore);
+            std::move(changes.begin(), changes.end(), std::back_inserter(d->m_styleChanges));
         }
     }
 }
@@ -400,8 +475,16 @@ void QGeoMapMapLibre::onMapItemPropertyChanged() {
     Q_D(QGeoMapMapLibre);
 
     auto *item = static_cast<QDeclarativeGeoMapItemBase *>(sender());
-    d->m_styleChanges << StyleSetPaintProperty::fromMapItem(item);
-    d->m_styleChanges << StyleSetLayoutProperty::fromMapItem(item);
+    const QString id = StyleChangeUtils::featureId(item);
+    for (const FeatureProperty &property : StyleChangeUtils::featurePropertiesFromMapItem(item)) {
+        if (property.type == FeatureProperty::LayoutProperty) {
+            d->m_styleChanges.emplace_back(
+                std::make_unique<StyleSetLayoutProperties>(id, property.name, property.value));
+        } else if (property.type == FeatureProperty::PaintProperty) {
+            d->m_styleChanges.emplace_back(
+                std::make_unique<StyleSetPaintProperties>(id, property.name, property.value));
+        }
+    }
 
     emit sgNodeChanged();
 }
@@ -410,7 +493,14 @@ void QGeoMapMapLibre::onMapItemSubPropertyChanged() {
     Q_D(QGeoMapMapLibre);
 
     auto *item = static_cast<QDeclarativeGeoMapItemBase *>(sender()->parent());
-    d->m_styleChanges << StyleSetPaintProperty::fromMapItem(item);
+    const QString id = StyleChangeUtils::featureId(item);
+    for (const FeatureProperty &property : StyleChangeUtils::featurePropertiesFromMapItem(item)) {
+        // only paint properties should be handled
+        if (property.type == FeatureProperty::PaintProperty) {
+            d->m_styleChanges.emplace_back(
+                std::make_unique<StyleSetPaintProperties>(id, property.name, property.value));
+        }
+    }
 
     emit sgNodeChanged();
 }
@@ -424,7 +514,16 @@ void QGeoMapMapLibre::onMapItemGeometryChanged() {
     Q_D(QGeoMapMapLibre);
 
     auto *item = static_cast<QDeclarativeGeoMapItemBase *>(sender());
-    d->m_styleChanges << StyleAddSource::fromMapItem(item);
+    d->m_styleChanges.emplace_back(std::make_unique<StyleAddSource>(StyleChangeUtils::featureFromMapItem(item)));
+
+    emit sgNodeChanged();
+}
+
+void QGeoMapMapLibre::onStyleParameterUpdated(StyleParameter *parameter) {
+    Q_D(QGeoMapMapLibre);
+
+    std::vector<std::unique_ptr<StyleChange>> changes = StyleChange::addParameter(parameter, d->m_mapItemsBefore);
+    std::move(changes.begin(), changes.end(), std::back_inserter(d->m_styleChanges));
 
     emit sgNodeChanged();
 }

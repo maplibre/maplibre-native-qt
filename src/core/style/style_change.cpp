@@ -1,0 +1,71 @@
+// Copyright (C) 2023 MapLibre contributors
+
+// SPDX-License-Identifier: BSD-2-Clause
+
+#include "layer_style_change_p.hpp"
+#include "source_style_change_p.hpp"
+#include "style_change_p.hpp"
+
+#include <QMapLibre/Map>
+
+namespace QMapLibre {
+
+// StyleChange
+std::vector<std::unique_ptr<StyleChange>> StyleChange::addFeature(const Feature &feature,
+                                                                  const std::vector<FeatureProperty> &properties,
+                                                                  const QString &before) {
+    std::vector<std::unique_ptr<StyleChange>> changes;
+
+    changes.emplace_back(std::make_unique<StyleAddSource>(feature));
+    changes.emplace_back(std::make_unique<StyleAddLayer>(feature, properties, before));
+
+    return changes;
+}
+
+std::vector<std::unique_ptr<StyleChange>> StyleChange::removeFeature(const Feature &feature) {
+    std::vector<std::unique_ptr<StyleChange>> changes;
+
+    changes.emplace_back(std::make_unique<StyleRemoveLayer>(feature));
+    changes.emplace_back(std::make_unique<StyleRemoveSource>(feature));
+
+    return changes;
+}
+
+std::vector<std::unique_ptr<StyleChange>> StyleChange::addParameter(const StyleParameter *parameter,
+                                                                    const QString &before) {
+    std::vector<std::unique_ptr<StyleChange>> changes;
+
+    const auto *sourceParameter = qobject_cast<const SourceParameter *>(parameter);
+    if (sourceParameter != nullptr) {
+        changes.emplace_back(std::make_unique<StyleAddSource>(sourceParameter));
+        return changes;
+    }
+
+    const auto *layerParameter = qobject_cast<const LayerParameter *>(parameter);
+    if (layerParameter != nullptr) {
+        changes.emplace_back(std::make_unique<StyleAddLayer>(layerParameter, before));
+        return changes;
+    }
+
+    return changes;
+}
+
+std::vector<std::unique_ptr<StyleChange>> StyleChange::removeParameter(const StyleParameter *parameter) {
+    std::vector<std::unique_ptr<StyleChange>> changes;
+
+    const auto *sourceParameter = qobject_cast<const SourceParameter *>(parameter);
+    if (sourceParameter != nullptr) {
+        changes.emplace_back(std::make_unique<StyleRemoveSource>(sourceParameter));
+        return changes;
+    }
+
+    const auto *layerParameter = qobject_cast<const LayerParameter *>(parameter);
+    if (layerParameter != nullptr) {
+        changes.emplace_back(std::make_unique<StyleRemoveLayer>(layerParameter));
+        return changes;
+    }
+
+    return changes;
+}
+
+} // namespace QMapLibre

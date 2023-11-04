@@ -34,11 +34,12 @@ target_link_libraries(QMapLibreExampleQuick
         QMapLibre::Location
 )
 
-qmaplibre_location_copy_plugin(QMapLibreExampleQuick)
+qmaplibre_location_setup_plugins(QMapLibreExampleQuick)
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    get_property(_qmlImport TARGET QMapLibreExampleQuick PROPERTY QT_QML_IMPORT_PATH)
     add_custom_target(deploy
-        COMMAND macdeployqt QMapLibreExampleQuick.app -qmldir=${CMAKE_SOURCE_DIR}
+        COMMAND macdeployqt QMapLibreExampleQuick.app -qmldir=${CMAKE_SOURCE_DIR} -qmlimport=${_qmlImport}
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     )
     add_dependencies(deploy QMapLibreExampleQuick)

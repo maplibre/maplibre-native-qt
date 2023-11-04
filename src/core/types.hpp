@@ -78,6 +78,23 @@ struct Q_MAPLIBRE_CORE_EXPORT Feature {
     QVariant id;
 };
 
+struct Q_MAPLIBRE_CORE_EXPORT FeatureProperty {
+    enum Type {
+        LayoutProperty = 1,
+        PaintProperty,
+    };
+
+    /*! Class constructor. */
+    explicit FeatureProperty(Type type_, QString name_, QVariant value_)
+        : type(type_),
+          name(std::move(name_)),
+          value(std::move(value_)) {}
+
+    Type type;
+    QString name;
+    QVariant value;
+};
+
 struct Q_MAPLIBRE_CORE_EXPORT ShapeAnnotationGeometry {
     enum Type {
         LineStringType = 1,
