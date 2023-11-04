@@ -25,9 +25,10 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Test REQUIRED)
 target_link_libraries(
     test_mln_core
     PRIVATE
+        Core
         $<$<BOOL:${Qt6_FOUND}>:Qt::OpenGLWidgets>
         Qt::Test
-        Core
+        $<BUILD_INTERFACE:mbgl-compiler-options>
 )
 set_target_properties(test_mln_core PROPERTIES AUTOMOC ON)
 

@@ -23,13 +23,8 @@ set(Core_Headers
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/include/${MLN_QT_NAME}/${MLN_QT_NAME}" "#include \"${MLN_QT_NAME_LOWERCASE}.hpp\"")
 list(APPEND Core_Headers_Generated "${CMAKE_CURRENT_BINARY_DIR}/include/${MLN_QT_NAME}/${MLN_QT_NAME}")
 foreach(Header ${Core_Headers})
-    string(SUBSTRING ${Header} 0 1 HeaderFirstLetter)
-    string(TOUPPER ${HeaderFirstLetter} HeaderFirstLetter)
-    string(REGEX REPLACE "^.(.*)" "${HeaderFirstLetter}\\1" HeaderOut "${Header}")
-    string(REGEX REPLACE "\.hpp" "" HeaderOut "${HeaderOut}")
-    string(REPLACE "Export_core" "Export" HeaderOut "${HeaderOut}")
-    file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/include/${MLN_QT_NAME}/${HeaderOut}" "#include \"${Header}\"")
-    list(APPEND Core_Headers_Generated "${CMAKE_CURRENT_BINARY_DIR}/include/${MLN_QT_NAME}/${HeaderOut}")
+    mln_header_preprocess(${Header} ${MLN_QT_NAME} HeaderOut)
+    list(APPEND Core_Headers_Generated ${HeaderOut})
 endforeach()
 set(Core_Headers ${MLN_QT_NAME_LOWERCASE}.hpp ${Core_Headers} ${Core_Headers_Generated})
 
@@ -47,19 +42,13 @@ target_sources(
     PRIVATE
         ${Core_Headers}
         conversion_p.hpp
-        geojson.cpp
-        geojson_p.hpp
-        map_observer.cpp
-        map_observer_p.hpp
-        map_p.hpp
-        map_renderer.cpp
-        map_renderer_p.hpp
-        map.cpp
-        renderer_backend.cpp
-        renderer_backend_p.hpp
+        geojson.cpp geojson_p.hpp
+        map_observer.cpp map_observer_p.hpp
+        map.cpp map_p.hpp
+        map_renderer.cpp map_renderer_p.hpp
+        renderer_backend.cpp renderer_backend_p.hpp
         renderer_observer_p.hpp
-        scheduler.cpp
-        scheduler_p.hpp
+        scheduler.cpp scheduler_p.hpp
         settings.cpp
         types.cpp
         utils.cpp

@@ -34,7 +34,9 @@ target_link_libraries(
     PRIVATE
         Location
         Qt${QT_VERSION_MAJOR}::Location
-        Qt${QT_VERSION_MAJOR}::LocationPrivate)
+        Qt${QT_VERSION_MAJOR}::LocationPrivate
+        $<BUILD_INTERFACE:mbgl-compiler-options>
+)
 
 # QtLocation plugin installation
 install(
@@ -89,6 +91,7 @@ target_link_libraries(
     PRIVATE
         Location
         Qt${QT_VERSION_MAJOR}::LocationPrivate
+        $<BUILD_INTERFACE:mbgl-compiler-options>
 )
 
 # QtLocation QML extension plugin installation
