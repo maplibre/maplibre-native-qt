@@ -8,6 +8,8 @@
 
 #include <QtCore/QPropertyAnimation>
 
+#include <memory>
+
 namespace QMapLibre {
 
 class GLTester : public GLWidget {
@@ -26,8 +28,8 @@ private slots:
 private:
     void paintGL() final;
 
-    QPropertyAnimation *m_bearingAnimation{};
-    QPropertyAnimation *m_zoomAnimation{};
+    std::unique_ptr<QPropertyAnimation> m_bearingAnimation{};
+    std::unique_ptr<QPropertyAnimation> m_zoomAnimation{};
 
     unsigned m_animationTicks{};
     unsigned m_frameDraws{};

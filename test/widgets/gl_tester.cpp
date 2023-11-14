@@ -16,11 +16,11 @@ GLTester::GLTester(const QMapLibre::Settings &settings)
     : GLWidget(settings) {}
 
 void GLTester::initializeAnimation() {
-    m_bearingAnimation = new QPropertyAnimation(map(), "bearing");
-    m_zoomAnimation = new QPropertyAnimation(map(), "zoom");
+    m_bearingAnimation = std::make_unique<QPropertyAnimation>(map(), "bearing");
+    m_zoomAnimation = std::make_unique<QPropertyAnimation>(map(), "zoom");
 
-    connect(m_zoomAnimation, &QPropertyAnimation::finished, this, &GLTester::animationFinished);
-    connect(m_zoomAnimation, &QPropertyAnimation::valueChanged, this, &GLTester::animationValueChanged);
+    connect(m_zoomAnimation.get(), &QPropertyAnimation::finished, this, &GLTester::animationFinished);
+    connect(m_zoomAnimation.get(), &QPropertyAnimation::valueChanged, this, &GLTester::animationValueChanged);
 }
 
 int GLTester::selfTest() {

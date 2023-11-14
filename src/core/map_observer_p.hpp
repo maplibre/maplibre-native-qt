@@ -48,7 +48,7 @@ signals:
 private:
     Q_DISABLE_COPY(MapObserver)
 
-    MapPrivate *d_ptr;
+    MapPrivate *d_ptrRef;
 };
 
 } // namespace QMapLibre

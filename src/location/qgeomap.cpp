@@ -49,7 +49,7 @@ namespace QMapLibre {
 QGeoMapMapLibrePrivate::QGeoMapMapLibrePrivate(QGeoMappingManagerEngine *engine)
     : QGeoMapPrivate(engine, new QGeoProjectionWebMercator) {}
 
-QGeoMapMapLibrePrivate::~QGeoMapMapLibrePrivate() {}
+QGeoMapMapLibrePrivate::~QGeoMapMapLibrePrivate() = default;
 
 QSGNode *QGeoMapMapLibrePrivate::updateSceneGraph(QSGNode *node, QQuickWindow *window) {
     Q_Q(QGeoMapMapLibre);
@@ -60,9 +60,9 @@ QSGNode *QGeoMapMapLibrePrivate::updateSceneGraph(QSGNode *node, QQuickWindow *w
     }
 
     Map *map{};
-    if (!node) {
+    if (node == nullptr) {
         QOpenGLContext *currentCtx = QOpenGLContext::currentContext();
-        if (!currentCtx) {
+        if (currentCtx == nullptr) {
             qWarning("QOpenGLContext is NULL!");
             qWarning() << "You are running on QSG backend " << QSGContext::backend();
             qWarning("The MapLibre plugin works with both Desktop and ES 2.0+ OpenGL versions.");
@@ -74,10 +74,10 @@ QSGNode *QGeoMapMapLibrePrivate::updateSceneGraph(QSGNode *node, QQuickWindow *w
             return node;
         }
 
-        auto *mbglNode = new TextureNode(m_settings, m_viewportSize, window->devicePixelRatio(), q);
+        auto mbglNode = std::make_unique<TextureNode>(m_settings, m_viewportSize, window->devicePixelRatio(), q);
         QObject::connect(mbglNode->map(), &Map::mapChanged, q, &QGeoMapMapLibre::onMapChanged);
         m_syncState = MapTypeSync | CameraDataSync | ViewportSync | VisibleAreaSync;
-        node = mbglNode;
+        node = mbglNode.release();
     }
     map = static_cast<TextureNode *>(node)->map();
 
@@ -354,7 +354,7 @@ QGeoMapMapLibre::QGeoMapMapLibre(QGeoMappingManagerEngine *engine, QObject *pare
     d->m_refresh.setInterval(250);
 }
 
-QGeoMapMapLibre::~QGeoMapMapLibre() {}
+QGeoMapMapLibre::~QGeoMapMapLibre() = default;
 
 void QGeoMapMapLibre::setSettings(const Settings &settings) {
     Q_D(QGeoMapMapLibre);

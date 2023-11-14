@@ -128,7 +128,7 @@ mbgl::MapOptions mapOptionsFromSettings(const QMapLibre::Settings &settings, con
 }
 
 mbgl::ResourceOptions resourceOptionsFromSettings(const QMapLibre::Settings &settings) {
-    if (settings.tileServerOptions() == nullptr) {
+    if (!settings.customTileServerOptions()) {
         return std::move(mbgl::ResourceOptions()
                              .withAssetPath(settings.assetPath().toStdString())
                              .withCachePath(settings.cacheDatabasePath().toStdString())
@@ -138,7 +138,7 @@ mbgl::ResourceOptions resourceOptionsFromSettings(const QMapLibre::Settings &set
     return std::move(mbgl::ResourceOptions()
                          .withApiKey(settings.apiKey().toStdString())
                          .withAssetPath(settings.assetPath().toStdString())
-                         .withTileServerOptions(*settings.tileServerOptions())
+                         .withTileServerOptions(settings.tileServerOptions())
                          .withCachePath(settings.cacheDatabasePath().toStdString())
                          .withMaximumCacheSize(settings.cacheDatabaseMaximumSize()));
 }
@@ -312,15 +312,13 @@ Map::Map(QObject *parent_, const Settings &settings, const QSize &size, qreal pi
         loop.setLocalData(std::make_shared<mbgl::util::RunLoop>());
     }
 
-    d_ptr = new MapPrivate(this, settings, size, pixelRatio);
+    d_ptr = std::make_unique<MapPrivate>(this, settings, size, pixelRatio);
 }
 
 /*!
     Destroys this QMapLibre::Map.
 */
-Map::~Map() {
-    delete d_ptr;
-}
+Map::~Map() = default;
 
 /*!
     \property QMapLibre::Map::styleJson
@@ -921,16 +919,16 @@ void Map::updateSource(const QString &id, const QVariantMap &params) {
         return;
     }
 
-    auto sourceGeoJSON = source->as<GeoJSONSource>();
-    auto sourceImage = source->as<ImageSource>();
-    if (!sourceGeoJSON && !sourceImage) {
+    auto *sourceGeoJSON = source->as<GeoJSONSource>();
+    auto *sourceImage = source->as<ImageSource>();
+    if (sourceGeoJSON == nullptr && sourceImage == nullptr) {
         qWarning() << "Unable to update source: only GeoJSON and Image sources are mutable.";
         return;
     }
 
-    if (sourceImage && params.contains("url")) {
+    if (sourceImage != nullptr && params.contains("url")) {
         sourceImage->setURL(params["url"].toString().toStdString());
-    } else if (sourceGeoJSON && params.contains("data")) {
+    } else if (sourceGeoJSON != nullptr && params.contains("data")) {
         Error error;
         auto result = convert<mbgl::GeoJSON>(params["data"], error);
         if (result) {
@@ -1106,7 +1104,7 @@ void Map::setFilter(const QString &layer, const QVariant &filter) {
     using namespace mbgl::style::conversion;
 
     Layer *layer_ = d_ptr->mapObj->getStyle().getLayer(layer.toStdString());
-    if (!layer_) {
+    if (layer_ == nullptr) {
         qWarning() << "Layer not found:" << layer;
         return;
     }
@@ -1158,7 +1156,7 @@ QVariant Map::getFilter(const QString &layer) const {
     using namespace mbgl::style::conversion;
 
     Layer *layer_ = d_ptr->mapObj->getStyle().getLayer(layer.toStdString());
-    if (!layer_) {
+    if (layer_ == nullptr) {
         qWarning() << "Layer not found:" << layer;
         return QVariant();
     }
@@ -1341,7 +1339,7 @@ void MapPrivate::update(std::shared_ptr<mbgl::UpdateParameters> parameters) {
 
     m_updateParameters = std::move(parameters);
 
-    if (!m_mapRenderer) {
+    if (m_mapRenderer == nullptr) {
         return;
     }
 
@@ -1399,7 +1397,7 @@ void MapPrivate::render() {
 void MapPrivate::setFramebufferObject(quint32 fbo, const QSize &size) {
     std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
 
-    if (!m_mapRenderer) {
+    if (m_mapRenderer == nullptr) {
         createRenderer();
     }
 
@@ -1419,7 +1417,7 @@ bool MapPrivate::setProperty(const PropertySetter &setter,
     using namespace mbgl::style;
 
     Layer *layerObject = mapObj->getStyle().getLayer(layer.toStdString());
-    if (!layerObject) {
+    if (layerObject == nullptr) {
         qWarning() << "Layer not found:" << layer;
         return false;
     }

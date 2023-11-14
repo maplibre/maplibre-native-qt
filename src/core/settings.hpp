@@ -13,6 +13,7 @@
 #include <QtGui/QImage>
 
 #include <functional>
+#include <memory>
 
 // TODO: this will be wrapped at some point
 namespace mbgl {
@@ -110,10 +111,11 @@ public:
     double defaultZoom() const;
     void setDefaultZoom(double);
 
-    mbgl::TileServerOptions *tileServerOptions() const;
+    bool customTileServerOptions() const;
+    const mbgl::TileServerOptions &tileServerOptions() const;
 
 private:
-    SettingsPrivate *d_ptr;
+    std::unique_ptr<SettingsPrivate> d_ptr;
 };
 
 } // namespace QMapLibre

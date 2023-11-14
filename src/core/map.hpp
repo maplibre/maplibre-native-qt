@@ -188,7 +188,7 @@ signals:
 private:
     Q_DISABLE_COPY(Map)
 
-    MapPrivate *d_ptr;
+    std::unique_ptr<MapPrivate> d_ptr;
 };
 
 } // namespace QMapLibre

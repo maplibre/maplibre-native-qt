@@ -10,15 +10,14 @@
 
 namespace QMapLibre {
 
-GLWidget::GLWidget(const Settings &settings) {
-    d_ptr = new GLWidgetPrivate(this, settings);
-}
+GLWidget::GLWidget(const Settings &settings)
+    : d_ptr(std::make_unique<GLWidgetPrivate>(this, settings)) {}
 
 GLWidget::~GLWidget() {
     // Make sure we have a valid context so we
     // can delete the Map.
     makeCurrent();
-    delete d_ptr;
+    d_ptr.reset();
 }
 
 Map *GLWidget::map() {
@@ -38,7 +37,7 @@ void GLWidget::wheelEvent(QWheelEvent *event) {
 }
 
 void GLWidget::initializeGL() {
-    d_ptr->m_map.reset(new Map(nullptr, d_ptr->m_settings, size(), devicePixelRatioF()));
+    d_ptr->m_map = std::make_unique<Map>(nullptr, d_ptr->m_settings, size(), devicePixelRatioF());
     connect(d_ptr->m_map.get(), SIGNAL(needsRendering()), this, SLOT(update()));
 
     // Set default location
@@ -64,7 +63,7 @@ GLWidgetPrivate::GLWidgetPrivate(QObject *parent, const Settings &settings)
     : QObject(parent),
       m_settings(settings) {}
 
-GLWidgetPrivate::~GLWidgetPrivate() {}
+GLWidgetPrivate::~GLWidgetPrivate() = default;
 
 void GLWidgetPrivate::handleMousePressEvent(QMouseEvent *event) {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)

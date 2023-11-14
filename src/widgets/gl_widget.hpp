@@ -48,7 +48,7 @@ protected:
 private:
     Q_DISABLE_COPY(GLWidget)
 
-    GLWidgetPrivate *d_ptr;
+    std::unique_ptr<GLWidgetPrivate> d_ptr;
 };
 
 } // namespace QMapLibre

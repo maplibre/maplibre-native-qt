@@ -9,7 +9,6 @@
 #include <mbgl/gfx/renderer_backend.hpp>
 #include <mbgl/map/mode.hpp>
 #include <mbgl/util/constants.hpp>
-#include <mbgl/util/tile_server_options.hpp>
 #include <mbgl/util/traits.hpp>
 
 #include <QtCore/QCoreApplication>
@@ -149,37 +148,23 @@ namespace QMapLibre {
     but a provider template can be provided.
 */
 Settings::Settings(ProviderTemplate provider)
-    : d_ptr(new SettingsPrivate) {
+    : d_ptr(std::make_unique<SettingsPrivate>()) {
     d_ptr->setProviderTemplate(provider);
 }
 
-Settings::~Settings() {
-    delete d_ptr;
-}
+Settings::~Settings() = default;
 
 Settings::Settings(const Settings &s)
-    : d_ptr(new SettingsPrivate) {
-    *d_ptr = *s.d_ptr;
-}
+    : d_ptr(std::make_unique<SettingsPrivate>(*s.d_ptr)) {}
 
-Settings::Settings(Settings &&s) noexcept
-    : d_ptr(s.d_ptr) {
-    s.d_ptr = nullptr;
-}
+Settings::Settings(Settings &&s) noexcept = default;
 
 Settings &Settings::operator=(const Settings &s) {
-    if (d_ptr != nullptr) delete d_ptr;
-    d_ptr = new SettingsPrivate;
-    *d_ptr = *s.d_ptr;
+    d_ptr = std::make_unique<SettingsPrivate>(*s.d_ptr);
     return *this;
 }
 
-Settings &Settings::operator=(Settings &&s) noexcept {
-    if (d_ptr != nullptr) delete d_ptr;
-    d_ptr = s.d_ptr;
-    s.d_ptr = nullptr;
-    return *this;
-}
+Settings &Settings::operator=(Settings &&s) noexcept = default;
 
 /*!
     Returns the OpenGL context mode. This is specially important when mixing
@@ -340,11 +325,11 @@ void Settings::setApiKey(const QString &key) {
     Returns the API base URL.
 */
 QString Settings::apiBaseUrl() const {
-    if (tileServerOptions() == nullptr) {
+    if (!customTileServerOptions()) {
         return {};
     }
 
-    return QString::fromStdString(tileServerOptions()->baseURL());
+    return QString::fromStdString(tileServerOptions().baseURL());
 }
 
 /*!
@@ -463,11 +448,11 @@ void Settings::setStyles(const Styles &styles) {
 */
 Styles Settings::providerStyles() const {
     Styles styles;
-    if (tileServerOptions() == nullptr) {
+    if (!customTileServerOptions()) {
         return styles;
     }
 
-    for (const auto &style : tileServerOptions()->defaultStyles()) {
+    for (const auto &style : tileServerOptions().defaultStyles()) {
         styles.append(Style(QString::fromStdString(style.getUrl()), QString::fromStdString(style.getName())));
     }
     return styles;
@@ -502,11 +487,18 @@ void Settings::setDefaultZoom(double zoom) {
 }
 
 /*!
+    Returns whether the tile server options have been set by the user.
+*/
+bool Settings::customTileServerOptions() const {
+    return d_ptr->m_customTileServerOptions;
+}
+
+/*!
     Returns the provider tile server options.
 
     Note that this is mainly for internal use.
 */
-mbgl::TileServerOptions *Settings::tileServerOptions() const {
+const mbgl::TileServerOptions &Settings::tileServerOptions() const {
     return d_ptr->m_tileServerOptions;
 }
 
@@ -523,29 +515,30 @@ SettingsPrivate::SettingsPrivate()
       m_apiKey(qgetenv("MLN_API_KEY")) {}
 
 void SettingsPrivate::setProviderTemplate(Settings::ProviderTemplate providerTemplate) {
-    if (m_tileServerOptions) {
-        delete m_tileServerOptions;
-        m_tileServerOptions = nullptr;
-    }
-
     m_providerTemplate = providerTemplate;
 
     if (providerTemplate == Settings::MapLibreProvider) {
-        m_tileServerOptions = new mbgl::TileServerOptions(mbgl::TileServerOptions::MapLibreConfiguration());
+        m_tileServerOptions = mbgl::TileServerOptions::MapLibreConfiguration();
+        m_customTileServerOptions = true;
     } else if (providerTemplate == Settings::MapTilerProvider) {
-        m_tileServerOptions = new mbgl::TileServerOptions(mbgl::TileServerOptions::MapTilerConfiguration());
+        m_tileServerOptions = mbgl::TileServerOptions::MapTilerConfiguration();
+        m_customTileServerOptions = true;
     } else if (providerTemplate == Settings::MapboxProvider) {
-        m_tileServerOptions = new mbgl::TileServerOptions(mbgl::TileServerOptions::MapboxConfiguration());
+        m_tileServerOptions = mbgl::TileServerOptions::MapboxConfiguration();
+        m_customTileServerOptions = true;
+    } else {
+        m_tileServerOptions = mbgl::TileServerOptions();
+        m_customTileServerOptions = false;
     }
 }
 
 void SettingsPrivate::setProviderApiBaseUrl(const QString &url) {
-    if (m_tileServerOptions == nullptr) {
+    if (!m_customTileServerOptions) {
         qWarning() << "No provider set so not setting API URL.";
         return;
     }
 
-    m_tileServerOptions = &m_tileServerOptions->withBaseURL(url.toStdString());
+    m_tileServerOptions = std::move(m_tileServerOptions.withBaseURL(url.toStdString()));
 }
 
 } // namespace QMapLibre

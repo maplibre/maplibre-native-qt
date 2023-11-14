@@ -14,9 +14,9 @@
 namespace QMapLibre {
 
 MapObserver::MapObserver(MapPrivate *d)
-    : d_ptr(d) {}
+    : d_ptrRef(d) {}
 
-MapObserver::~MapObserver() {}
+MapObserver::~MapObserver() = default;
 
 void MapObserver::onCameraWillChange(mbgl::MapObserver::CameraChangeMode mode) {
     if (mode == mbgl::MapObserver::CameraChangeMode::Immediate) {
@@ -99,7 +99,7 @@ void MapObserver::onDidFinishLoadingStyle() {
 
 void MapObserver::onSourceChanged(mbgl::style::Source &) {
     std::string attribution;
-    for (const auto &source : d_ptr->mapObj->getStyle().getSources()) {
+    for (const auto &source : d_ptrRef->mapObj->getStyle().getSources()) {
         // Avoid duplicates by using the most complete attribution HTML snippet.
         if (source->getAttribution() && (attribution.size() < source->getAttribution()->size()))
             attribution = *source->getAttribution();
