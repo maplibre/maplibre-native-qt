@@ -121,14 +121,14 @@ std::unique_ptr<mbgl::style::Image> toStyleImage(const QString &id, const QImage
 mbgl::MapOptions mapOptionsFromSettings(const QMapLibre::Settings &settings, const QSize &size, qreal pixelRatio) {
     return std::move(mbgl::MapOptions()
                          .withSize(sanitizedSize(size))
-                         .withPixelRatio(pixelRatio)
+                         .withPixelRatio(static_cast<float>(pixelRatio))
                          .withMapMode(static_cast<mbgl::MapMode>(settings.mapMode()))
                          .withConstrainMode(static_cast<mbgl::ConstrainMode>(settings.constrainMode()))
                          .withViewportMode(static_cast<mbgl::ViewportMode>(settings.viewportMode())));
 }
 
 mbgl::ResourceOptions resourceOptionsFromSettings(const QMapLibre::Settings &settings) {
-    if (settings.tileServerOptions() == nullptr) {
+    if (!settings.customTileServerOptions()) {
         return std::move(mbgl::ResourceOptions()
                              .withAssetPath(settings.assetPath().toStdString())
                              .withCachePath(settings.cacheDatabasePath().toStdString())
@@ -138,7 +138,7 @@ mbgl::ResourceOptions resourceOptionsFromSettings(const QMapLibre::Settings &set
     return std::move(mbgl::ResourceOptions()
                          .withApiKey(settings.apiKey().toStdString())
                          .withAssetPath(settings.assetPath().toStdString())
-                         .withTileServerOptions(*settings.tileServerOptions())
+                         .withTileServerOptions(settings.tileServerOptions())
                          .withCachePath(settings.cacheDatabasePath().toStdString())
                          .withMaximumCacheSize(settings.cacheDatabaseMaximumSize()));
 }
@@ -170,26 +170,41 @@ std::optional<mbgl::Annotation> asAnnotation(const QMapLibre::Annotation &annota
     };
 
     if (annotation.canConvert<QMapLibre::SymbolAnnotation>()) {
-        QMapLibre::SymbolAnnotation symbolAnnotation = annotation.value<QMapLibre::SymbolAnnotation>();
-        QMapLibre::Coordinate &pair = symbolAnnotation.geometry;
+        const auto symbolAnnotation = annotation.value<QMapLibre::SymbolAnnotation>();
+        const QMapLibre::Coordinate &pair = symbolAnnotation.geometry;
         return {
             mbgl::SymbolAnnotation(mbgl::Point<double>{pair.second, pair.first}, symbolAnnotation.icon.toStdString())};
-    } else if (annotation.canConvert<QMapLibre::LineAnnotation>()) {
-        QMapLibre::LineAnnotation lineAnnotation = annotation.value<QMapLibre::LineAnnotation>();
+    }
+
+    if (annotation.canConvert<QMapLibre::LineAnnotation>()) {
+        const auto lineAnnotation = annotation.value<QMapLibre::LineAnnotation>();
         auto color = mbgl::Color::parse(mbgl::style::conversion::convertColor(lineAnnotation.color));
+        if (!color) {
+            qWarning() << "Unable to convert annotation:" << annotation;
+            return {};
+        }
         return {mbgl::LineAnnotation(
             asGeometry(lineAnnotation.geometry), lineAnnotation.opacity, lineAnnotation.width, {*color})};
-    } else if (annotation.canConvert<QMapLibre::FillAnnotation>()) {
-        QMapLibre::FillAnnotation fillAnnotation = annotation.value<QMapLibre::FillAnnotation>();
+    }
+
+    if (annotation.canConvert<QMapLibre::FillAnnotation>()) {
+        const auto fillAnnotation = annotation.value<QMapLibre::FillAnnotation>();
         auto color = mbgl::Color::parse(mbgl::style::conversion::convertColor(fillAnnotation.color));
+        if (!color) {
+            qWarning() << "Unable to convert annotation:" << annotation;
+            return {};
+        }
         if (fillAnnotation.outlineColor.canConvert<QColor>()) {
             auto outlineColor = mbgl::Color::parse(
                 mbgl::style::conversion::convertColor(fillAnnotation.outlineColor.value<QColor>()));
+            if (!outlineColor) {
+                qWarning() << "Unable to convert annotation:" << annotation;
+                return {};
+            }
             return {mbgl::FillAnnotation(
                 asGeometry(fillAnnotation.geometry), fillAnnotation.opacity, {*color}, {*outlineColor})};
-        } else {
-            return {mbgl::FillAnnotation(asGeometry(fillAnnotation.geometry), fillAnnotation.opacity, {*color}, {})};
         }
+        return {mbgl::FillAnnotation(asGeometry(fillAnnotation.geometry), fillAnnotation.opacity, {*color}, {})};
     }
 
     qWarning() << "Unable to convert annotation:" << annotation;
@@ -312,15 +327,13 @@ Map::Map(QObject *parent_, const Settings &settings, const QSize &size, qreal pi
         loop.setLocalData(std::make_shared<mbgl::util::RunLoop>());
     }
 
-    d_ptr = new MapPrivate(this, settings, size, pixelRatio);
+    d_ptr = std::make_unique<MapPrivate>(this, settings, size, pixelRatio);
 }
 
 /*!
     Destroys this QMapLibre::Map.
 */
-Map::~Map() {
-    delete d_ptr;
-}
+Map::~Map() = default;
 
 /*!
     \property QMapLibre::Map::styleJson
@@ -372,6 +385,7 @@ void Map::setStyleUrl(const QString &url) {
     might constrain it within the limits of the Web Mercator projection.
 */
 double Map::latitude() const {
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     return d_ptr->mapObj->getCameraOptions(d_ptr->margins).center->latitude();
 }
 
@@ -389,6 +403,7 @@ void Map::setLatitude(double latitude_) {
     as setting it to 0.
 */
 double Map::longitude() const {
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     return d_ptr->mapObj->getCameraOptions(d_ptr->margins).center->longitude();
 }
 
@@ -411,7 +426,8 @@ void Map::setLongitude(double longitude_) {
     \sa zoom()
 */
 double Map::scale() const {
-    return std::pow(2.0, zoom());
+    constexpr double zoomScaleBase{2.0};
+    return std::pow(zoomScaleBase, zoom());
 }
 
 void Map::setScale(double scale_, const QPointF &center) {
@@ -430,6 +446,7 @@ void Map::setScale(double scale_, const QPointF &center) {
     \sa scale()
 */
 double Map::zoom() const {
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     return *d_ptr->mapObj->getCameraOptions().zoom;
 }
 
@@ -443,6 +460,7 @@ void Map::setZoom(double zoom_) {
     \sa maximumZoom()
 */
 double Map::minimumZoom() const {
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     return *d_ptr->mapObj->getBounds().minZoom;
 }
 
@@ -452,6 +470,7 @@ double Map::minimumZoom() const {
     \sa minimumZoom()
 */
 double Map::maximumZoom() const {
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     return *d_ptr->mapObj->getBounds().maxZoom;
 }
 
@@ -464,8 +483,9 @@ double Map::maximumZoom() const {
     \sa margins()
 */
 Coordinate Map::coordinate() const {
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     const mbgl::LatLng latLng = *d_ptr->mapObj->getCameraOptions(d_ptr->margins).center;
-    return Coordinate(latLng.latitude(), latLng.longitude());
+    return {latLng.latitude(), latLng.longitude()};
 }
 
 void Map::setCoordinate(const Coordinate &coordinate_) {
@@ -498,11 +518,11 @@ void Map::setCoordinateZoom(const Coordinate &coordinate_, double zoom_) {
 void Map::jumpTo(const CameraOptions &camera) {
     mbgl::CameraOptions mbglCamera;
     if (camera.center.isValid()) {
-        const Coordinate center = camera.center.value<Coordinate>();
+        const auto center = camera.center.value<Coordinate>();
         mbglCamera.center = mbgl::LatLng{center.first, center.second};
     }
     if (camera.anchor.isValid()) {
-        const QPointF anchor = camera.anchor.value<QPointF>();
+        const auto anchor = camera.anchor.value<QPointF>();
         mbglCamera.anchor = mbgl::ScreenCoordinate{anchor.x(), anchor.y()};
     }
     if (camera.zoom.isValid()) {
@@ -533,6 +553,7 @@ void Map::jumpTo(const CameraOptions &camera) {
     \sa margins()
 */
 double Map::bearing() const {
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     return *d_ptr->mapObj->getCameraOptions().bearing;
 }
 
@@ -555,6 +576,7 @@ void Map::setBearing(double degrees, const QPointF &center) {
     \sa margins()
 */
 double Map::pitch() const {
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     return *d_ptr->mapObj->getCameraOptions().pitch;
 }
 
@@ -609,7 +631,12 @@ void Map::setTransitionOptions(qint64 duration, qint64 delay) {
     \sa addAnnotationIcon()
 */
 AnnotationID Map::addAnnotation(const Annotation &annotation) {
-    return static_cast<AnnotationID>(d_ptr->mapObj->addAnnotation(*asAnnotation(annotation)));
+    std::optional<mbgl::Annotation> a = asAnnotation(annotation);
+    if (!a) {
+        return 0;
+    }
+
+    return static_cast<AnnotationID>(d_ptr->mapObj->addAnnotation(*a));
 }
 
 /*!
@@ -618,7 +645,12 @@ AnnotationID Map::addAnnotation(const Annotation &annotation) {
     \sa addAnnotationIcon()
 */
 void Map::updateAnnotation(AnnotationID id, const Annotation &annotation) {
-    d_ptr->mapObj->updateAnnotation(id, *asAnnotation(annotation));
+    std::optional<mbgl::Annotation> a = asAnnotation(annotation);
+    if (!a) {
+        return;
+    }
+
+    d_ptr->mapObj->updateAnnotation(id, *a);
 }
 
 /*!
@@ -775,13 +807,15 @@ void Map::rotateBy(const QPointF &first, const QPointF &second) {
 void Map::resize(const QSize &size_) {
     auto size = sanitizedSize(size_);
 
-    if (d_ptr->mapObj->getMapOptions().size() == size) return;
+    if (d_ptr->mapObj->getMapOptions().size() == size) {
+        return;
+    }
 
     d_ptr->mapObj->setSize(size);
 }
 
 /*!
-    Adds an \a icon to the annotation icon pool. This can be later used by the annotation
+    Adds an \a sprite to the annotation icon pool. This can be later used by the annotation
     functions to shown any drawing on the map by referencing its \a name.
 
     Unlike using addIcon() for runtime styling, annotations added with addAnnotation()
@@ -789,10 +823,12 @@ void Map::resize(const QSize &size_) {
 
     \sa addAnnotation()
 */
-void Map::addAnnotationIcon(const QString &name, const QImage &icon) {
-    if (icon.isNull()) return;
+void Map::addAnnotationIcon(const QString &name, const QImage &sprite) {
+    if (sprite.isNull()) {
+        return;
+    }
 
-    d_ptr->mapObj->addAnnotationImage(toStyleImage(name, icon));
+    d_ptr->mapObj->addAnnotationImage(toStyleImage(name, sprite));
 }
 
 /*!
@@ -810,7 +846,7 @@ QPointF Map::pixelForCoordinate(const Coordinate &coordinate_) const {
     const mbgl::ScreenCoordinate pixel = d_ptr->mapObj->pixelForLatLng(
         mbgl::LatLng{coordinate_.first, coordinate_.second});
 
-    return QPointF(pixel.x, pixel.y);
+    return {pixel.x, pixel.y};
 }
 
 /*!
@@ -819,7 +855,7 @@ QPointF Map::pixelForCoordinate(const Coordinate &coordinate_) const {
 Coordinate Map::coordinateForPixel(const QPointF &pixel) const {
     const mbgl::LatLng latLng = d_ptr->mapObj->latLngForPixel(mbgl::ScreenCoordinate{pixel.x(), pixel.y()});
 
-    return Coordinate(latLng.latitude(), latLng.longitude());
+    return {latLng.latitude(), latLng.longitude()};
 }
 
 /*!
@@ -829,7 +865,7 @@ Coordinate Map::coordinateForPixel(const QPointF &pixel) const {
 CoordinateZoom Map::coordinateZoomForBounds(const Coordinate &sw, const Coordinate &ne) const {
     auto bounds = mbgl::LatLngBounds::hull(mbgl::LatLng{sw.first, sw.second}, mbgl::LatLng{ne.first, ne.second});
     mbgl::CameraOptions camera = d_ptr->mapObj->cameraForLatLngBounds(bounds, d_ptr->margins);
-
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     return {{(*camera.center).latitude(), (*camera.center).longitude()}, *camera.zoom};
 }
 
@@ -845,6 +881,7 @@ CoordinateZoom Map::coordinateZoomForBounds(const Coordinate &sw,
 {
     auto bounds = mbgl::LatLngBounds::hull(mbgl::LatLng{sw.first, sw.second}, mbgl::LatLng{ne.first, ne.second});
     mbgl::CameraOptions camera = d_ptr->mapObj->cameraForLatLngBounds(bounds, d_ptr->margins, newBearing, newPitch);
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     return {{(*camera.center).latitude(), (*camera.center).longitude()}, *camera.zoom};
 }
 
@@ -862,7 +899,10 @@ void Map::setMargins(const QMargins &margins_) {
 }
 
 QMargins Map::margins() const {
-    return QMargins(d_ptr->margins.left(), d_ptr->margins.top(), d_ptr->margins.right(), d_ptr->margins.bottom());
+    return {static_cast<int>(d_ptr->margins.left()),
+            static_cast<int>(d_ptr->margins.top()),
+            static_cast<int>(d_ptr->margins.right()),
+            static_cast<int>(d_ptr->margins.bottom())};
 }
 
 /*!
@@ -884,12 +924,10 @@ QMargins Map::margins() const {
     \endcode
 */
 void Map::addSource(const QString &id, const QVariantMap &params) {
-    using namespace mbgl::style;
-    using namespace mbgl::style::conversion;
-
-    Error error;
-    std::optional<std::unique_ptr<Source>> source = convert<std::unique_ptr<Source>>(
-        QVariant(params), error, id.toStdString());
+    mbgl::style::conversion::Error error;
+    std::optional<std::unique_ptr<mbgl::style::Source>> source =
+        mbgl::style::conversion::convert<std::unique_ptr<mbgl::style::Source>>(
+            QVariant(params), error, id.toStdString());
     if (!source) {
         qWarning() << "Unable to add source:" << error.message.c_str();
         return;
@@ -902,7 +940,7 @@ void Map::addSource(const QString &id, const QVariantMap &params) {
     Returns true if the layer with given \a sourceID exists, false otherwise.
 */
 bool Map::sourceExists(const QString &sourceID) {
-    return !!d_ptr->mapObj->getStyle().getSource(sourceID.toStdString());
+    return d_ptr->mapObj->getStyle().getSource(sourceID.toStdString()) != nullptr;
 }
 
 /*!
@@ -912,27 +950,24 @@ bool Map::sourceExists(const QString &sourceID) {
     image and GeoJSON sources can be updated.
 */
 void Map::updateSource(const QString &id, const QVariantMap &params) {
-    using namespace mbgl::style;
-    using namespace mbgl::style::conversion;
-
-    auto source = d_ptr->mapObj->getStyle().getSource(id.toStdString());
-    if (!source) {
+    mbgl::style::Source *source = d_ptr->mapObj->getStyle().getSource(id.toStdString());
+    if (source == nullptr) {
         addSource(id, params);
         return;
     }
 
-    auto sourceGeoJSON = source->as<GeoJSONSource>();
-    auto sourceImage = source->as<ImageSource>();
-    if (!sourceGeoJSON && !sourceImage) {
+    auto *sourceGeoJSON = source->as<mbgl::style::GeoJSONSource>();
+    auto *sourceImage = source->as<mbgl::style::ImageSource>();
+    if (sourceGeoJSON == nullptr && sourceImage == nullptr) {
         qWarning() << "Unable to update source: only GeoJSON and Image sources are mutable.";
         return;
     }
 
-    if (sourceImage && params.contains("url")) {
+    if (sourceImage != nullptr && params.contains("url")) {
         sourceImage->setURL(params["url"].toString().toStdString());
-    } else if (sourceGeoJSON && params.contains("data")) {
-        Error error;
-        auto result = convert<mbgl::GeoJSON>(params["data"], error);
+    } else if (sourceGeoJSON != nullptr && params.contains("data")) {
+        mbgl::style::conversion::Error error;
+        auto result = mbgl::style::conversion::convert<mbgl::GeoJSON>(params["data"], error);
         if (result) {
             sourceGeoJSON->setGeoJSON(*result);
         }
@@ -947,7 +982,7 @@ void Map::updateSource(const QString &id, const QVariantMap &params) {
 void Map::removeSource(const QString &id) {
     auto sourceIDStdString = id.toStdString();
 
-    if (d_ptr->mapObj->getStyle().getSource(sourceIDStdString)) {
+    if (d_ptr->mapObj->getStyle().getSource(sourceIDStdString) != nullptr) {
         d_ptr->mapObj->getStyle().removeSource(sourceIDStdString);
     }
 }
@@ -961,16 +996,16 @@ void Map::removeSource(const QString &id) {
     this API and is not officially supported. Use at your own risk.
 */
 void Map::addCustomLayer(const QString &id, std::unique_ptr<CustomLayerHostInterface> host, const QString &before) {
-    class HostWrapper : public mbgl::style::CustomLayerHost {
+    class HostWrapper final : public mbgl::style::CustomLayerHost {
     public:
         std::unique_ptr<CustomLayerHostInterface> ptr{};
-        HostWrapper(std::unique_ptr<CustomLayerHostInterface> p)
+        explicit HostWrapper(std::unique_ptr<CustomLayerHostInterface> p)
             : ptr(std::move(p)) {}
 
-        void initialize() { ptr->initialize(); }
+        void initialize() final { ptr->initialize(); }
 
-        void render(const mbgl::style::CustomLayerRenderParameters &params) {
-            CustomLayerRenderParameters renderParams;
+        void render(const mbgl::style::CustomLayerRenderParameters &params) final {
+            CustomLayerRenderParameters renderParams{};
             renderParams.width = params.width;
             renderParams.height = params.height;
             renderParams.latitude = params.latitude;
@@ -982,9 +1017,9 @@ void Map::addCustomLayer(const QString &id, std::unique_ptr<CustomLayerHostInter
             ptr->render(renderParams);
         }
 
-        void contextLost() {}
+        void contextLost() final {}
 
-        void deinitialize() { ptr->deinitialize(); }
+        void deinitialize() final { ptr->deinitialize(); }
     };
 
     d_ptr->mapObj->getStyle().addLayer(
@@ -1013,11 +1048,9 @@ void Map::addCustomLayer(const QString &id, std::unique_ptr<CustomLayerHostInter
     /note The source must exist prior to adding a layer.
 */
 void Map::addLayer(const QVariantMap &params, const QString &before) {
-    using namespace mbgl::style;
-    using namespace mbgl::style::conversion;
-
-    Error error;
-    std::optional<std::unique_ptr<Layer>> layer = convert<std::unique_ptr<Layer>>(QVariant(params), error);
+    mbgl::style::conversion::Error error;
+    std::optional<std::unique_ptr<mbgl::style::Layer>> layer =
+        mbgl::style::conversion::convert<std::unique_ptr<mbgl::style::Layer>>(QVariant(params), error);
     if (!layer) {
         qWarning() << "Unable to add layer:" << error.message.c_str();
         return;
@@ -1032,7 +1065,7 @@ void Map::addLayer(const QVariantMap &params, const QString &before) {
     Returns true if the layer with given \a id exists, false otherwise.
 */
 bool Map::layerExists(const QString &id) {
-    return !!d_ptr->mapObj->getStyle().getLayer(id.toStdString());
+    return d_ptr->mapObj->getStyle().getLayer(id.toStdString()) != nullptr;
 }
 
 /*!
@@ -1059,7 +1092,7 @@ QVector<QString> Map::layerIds() const {
 }
 
 /*!
-    Adds the \a image with the identifier \a id that can be used
+    Adds the \a sprite with the identifier \a id that can be used
     later by a symbol layer.
 
     If the \a id was already added, it gets replaced by the new
@@ -1068,17 +1101,19 @@ QVector<QString> Map::layerIds() const {
 
     \sa addLayer()
 */
-void Map::addImage(const QString &id, const QImage &image) {
-    if (image.isNull()) return;
+void Map::addImage(const QString &name, const QImage &sprite) {
+    if (sprite.isNull()) {
+        return;
+    }
 
-    d_ptr->mapObj->getStyle().addImage(toStyleImage(id, image));
+    d_ptr->mapObj->getStyle().addImage(toStyleImage(name, sprite));
 }
 
 /*!
     Removes the image \a id.
 */
-void Map::removeImage(const QString &id) {
-    d_ptr->mapObj->getStyle().removeImage(id.toStdString());
+void Map::removeImage(const QString &name) {
+    d_ptr->mapObj->getStyle().removeImage(name.toStdString());
 }
 
 /*!
@@ -1102,23 +1137,20 @@ void Map::removeImage(const QString &id) {
     \endcode
 */
 void Map::setFilter(const QString &layer, const QVariant &filter) {
-    using namespace mbgl::style;
-    using namespace mbgl::style::conversion;
-
-    Layer *layer_ = d_ptr->mapObj->getStyle().getLayer(layer.toStdString());
-    if (!layer_) {
+    mbgl::style::Layer *layer_ = d_ptr->mapObj->getStyle().getLayer(layer.toStdString());
+    if (layer_ == nullptr) {
         qWarning() << "Layer not found:" << layer;
         return;
     }
 
-    Error error;
-    std::optional<Filter> converted = convert<Filter>(filter, error);
+    mbgl::style::conversion::Error error;
+    std::optional<mbgl::style::Filter> converted = mbgl::style::conversion::convert<mbgl::style::Filter>(filter, error);
     if (!converted) {
         qWarning() << "Error parsing filter:" << error.message.c_str();
         return;
     }
 
-    layer_->setFilter(std::move(*converted));
+    layer_->setFilter(*converted);
 }
 
 QVariant QVariantFromValue(const mbgl::Value &value) {
@@ -1128,7 +1160,12 @@ QVariant QVariantFromValue(const mbgl::Value &value) {
                        [](const int64_t value_) { return QVariant(static_cast<qlonglong>(value_)); },
                        [](const double value_) { return QVariant(value_); },
                        [](const std::string &value_) { return QVariant(value_.c_str()); },
-                       [](const mbgl::Color &value_) { return QColor(value_.r, value_.g, value_.b, value_.a); },
+                       [](const mbgl::Color &value_) {
+                           return QColor(static_cast<int>(value_.r),
+                                         static_cast<int>(value_.g),
+                                         static_cast<int>(value_.b),
+                                         static_cast<int>(value_.a));
+                       },
                        [&](const std::vector<mbgl::Value> &vector) {
                            QVariantList list;
                            list.reserve(static_cast<int>(vector.size()));
@@ -1139,7 +1176,7 @@ QVariant QVariantFromValue(const mbgl::Value &value) {
                        },
                        [&](const std::unordered_map<std::string, mbgl::Value> &map) {
                            QVariantMap varMap;
-                           for (auto &item : map) {
+                           for (const auto &item : map) {
                                varMap.insert(item.first.c_str(), QVariantFromValue(item.second));
                            }
                            return varMap;
@@ -1154,13 +1191,10 @@ QVariant QVariantFromValue(const mbgl::Value &value) {
     Filter value types are described in the {https://maplibre.org/maplibre-style-spec/types/}{MapLibre Style Spec}.
 */
 QVariant Map::getFilter(const QString &layer) const {
-    using namespace mbgl::style;
-    using namespace mbgl::style::conversion;
-
-    Layer *layer_ = d_ptr->mapObj->getStyle().getLayer(layer.toStdString());
-    if (!layer_) {
+    mbgl::style::Layer *layer_ = d_ptr->mapObj->getStyle().getLayer(layer.toStdString());
+    if (layer_ == nullptr) {
         qWarning() << "Layer not found:" << layer;
-        return QVariant();
+        return {};
     }
 
     auto serialized = layer_->getFilter().serialize();
@@ -1194,7 +1228,7 @@ void Map::destroyRenderer() {
     \sa QMapLibre::Settings::MapMode
 */
 void Map::startStaticRender() {
-    d_ptr->mapObj->renderStill([this](std::exception_ptr err) {
+    d_ptr->mapObj->renderStill([this](const std::exception_ptr &err) {
         QString what;
 
         try {
@@ -1287,8 +1321,8 @@ void Map::connectionEstablished() {
     \a copyrightsHtml is a string with a HTML snippet.
 */
 
-MapPrivate::MapPrivate(Map *q, const Settings &settings, const QSize &size, qreal pixelRatio_)
-    : QObject(q),
+MapPrivate::MapPrivate(Map *map, const Settings &settings, const QSize &size, qreal pixelRatio_)
+    : QObject(map),
       m_mode(settings.contextMode()),
       m_pixelRatio(pixelRatio_),
       m_localFontFamily(settings.localFontFamily()) {
@@ -1297,9 +1331,9 @@ MapPrivate::MapPrivate(Map *q, const Settings &settings, const QSize &size, qrea
 
     qRegisterMetaType<Map::MapChange>("Map::MapChange");
 
-    connect(m_mapObserver.get(), &MapObserver::mapChanged, q, &Map::mapChanged);
-    connect(m_mapObserver.get(), &MapObserver::mapLoadingFailed, q, &Map::mapLoadingFailed);
-    connect(m_mapObserver.get(), &MapObserver::copyrightsChanged, q, &Map::copyrightsChanged);
+    connect(m_mapObserver.get(), &MapObserver::mapChanged, map, &Map::mapChanged);
+    connect(m_mapObserver.get(), &MapObserver::mapLoadingFailed, map, &Map::mapLoadingFailed);
+    connect(m_mapObserver.get(), &MapObserver::copyrightsChanged, map, &Map::copyrightsChanged);
 
     auto resourceOptions = resourceOptionsFromSettings(settings);
     auto clientOptions = clientOptionsFromSettings(settings);
@@ -1314,9 +1348,10 @@ MapPrivate::MapPrivate(Map *q, const Settings &settings, const QSize &size, qrea
     if (settings.resourceTransform()) {
         m_resourceTransform = std::make_unique<mbgl::Actor<mbgl::ResourceTransform::TransformCallback>>(
             *mbgl::Scheduler::GetCurrent(),
-            [callback = settings.resourceTransform()](
-                mbgl::Resource::Kind, const std::string &url_, mbgl::ResourceTransform::FinishedCallback onFinished) {
-                onFinished(callback(std::move(url_)));
+            [callback = settings.resourceTransform()](mbgl::Resource::Kind,
+                                                      const std::string &url_,
+                                                      const mbgl::ResourceTransform::FinishedCallback &onFinished) {
+                onFinished(callback(url_));
             });
 
         mbgl::ResourceTransform transform{[actorRef = m_resourceTransform->self()](
@@ -1325,23 +1360,23 @@ MapPrivate::MapPrivate(Map *q, const Settings &settings, const QSize &size, qrea
                                               mbgl::ResourceTransform::FinishedCallback onFinished) {
             actorRef.invoke(&mbgl::ResourceTransform::TransformCallback::operator(), kind, url, std::move(onFinished));
         }};
-        std::shared_ptr<mbgl::FileSource> fs = mbgl::FileSourceManager::get()->getFileSource(
+        const std::shared_ptr<mbgl::FileSource> fs = mbgl::FileSourceManager::get()->getFileSource(
             mbgl::FileSourceType::Network, resourceOptions, clientOptions);
         fs->setResourceTransform(std::move(transform));
     }
 
     // Needs to be Queued to give time to discard redundant draw calls via the `renderQueued` flag.
-    connect(this, &MapPrivate::needsRendering, q, &Map::needsRendering, Qt::QueuedConnection);
+    connect(this, &MapPrivate::needsRendering, map, &Map::needsRendering, Qt::QueuedConnection);
 }
 
-MapPrivate::~MapPrivate() {}
+MapPrivate::~MapPrivate() = default;
 
 void MapPrivate::update(std::shared_ptr<mbgl::UpdateParameters> parameters) {
-    std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
+    const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
 
     m_updateParameters = std::move(parameters);
 
-    if (!m_mapRenderer) {
+    if (m_mapRenderer == nullptr) {
         return;
     }
 
@@ -1353,17 +1388,17 @@ void MapPrivate::update(std::shared_ptr<mbgl::UpdateParameters> parameters) {
 void MapPrivate::setObserver(mbgl::RendererObserver &observer) {
     m_rendererObserver = std::make_shared<RendererObserver>(*mbgl::util::RunLoop::Get(), observer);
 
-    std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
+    const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
 
-    if (m_mapRenderer) {
-        m_mapRenderer->setObserver(m_rendererObserver);
+    if (m_mapRenderer != nullptr) {
+        m_mapRenderer->setObserver(m_rendererObserver.get());
     }
 }
 
 void MapPrivate::createRenderer() {
-    std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
+    const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
 
-    if (m_mapRenderer) {
+    if (m_mapRenderer != nullptr) {
         return;
     }
 
@@ -1371,24 +1406,24 @@ void MapPrivate::createRenderer() {
 
     connect(m_mapRenderer.get(), &MapRenderer::needsRendering, this, &MapPrivate::requestRendering);
 
-    m_mapRenderer->setObserver(m_rendererObserver);
+    m_mapRenderer->setObserver(m_rendererObserver.get());
 
-    if (m_updateParameters) {
+    if (m_updateParameters != nullptr) {
         m_mapRenderer->updateParameters(m_updateParameters);
         requestRendering();
     }
 }
 
 void MapPrivate::destroyRenderer() {
-    std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
+    const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
 
     m_mapRenderer.reset();
 }
 
 void MapPrivate::render() {
-    std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
+    const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
 
-    if (!m_mapRenderer) {
+    if (m_mapRenderer == nullptr) {
         createRenderer();
     }
 
@@ -1397,9 +1432,9 @@ void MapPrivate::render() {
 }
 
 void MapPrivate::setFramebufferObject(quint32 fbo, const QSize &size) {
-    std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
+    const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
 
-    if (!m_mapRenderer) {
+    if (m_mapRenderer == nullptr) {
         createRenderer();
     }
 
@@ -1415,18 +1450,16 @@ void MapPrivate::requestRendering() {
 bool MapPrivate::setProperty(const PropertySetter &setter,
                              const QString &layer,
                              const QString &name,
-                             const QVariant &value) {
-    using namespace mbgl::style;
-
-    Layer *layerObject = mapObj->getStyle().getLayer(layer.toStdString());
-    if (!layerObject) {
+                             const QVariant &value) const {
+    mbgl::style::Layer *layerObject = mapObj->getStyle().getLayer(layer.toStdString());
+    if (layerObject == nullptr) {
         qWarning() << "Layer not found:" << layer;
         return false;
     }
 
     const std::string &propertyString = name.toStdString();
 
-    std::optional<conversion::Error> result;
+    std::optional<mbgl::style::conversion::Error> result;
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     if (value.typeId() == QMetaType::QString) {

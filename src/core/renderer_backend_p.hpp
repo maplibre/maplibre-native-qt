@@ -14,10 +14,10 @@ namespace QMapLibre {
 
 class RendererBackend final : public mbgl::gl::RendererBackend, public mbgl::gfx::Renderable {
 public:
-    RendererBackend(mbgl::gfx::ContextMode);
+    explicit RendererBackend(mbgl::gfx::ContextMode mode);
     ~RendererBackend() override;
 
-    void updateFramebuffer(quint32 fbo, const mbgl::Size &);
+    void updateFramebuffer(quint32 fbo, const mbgl::Size &newSize);
     void restoreFramebufferBinding();
 
     // mbgl::gfx::RendererBackend implementation
@@ -31,7 +31,7 @@ protected:
 
     // mbgl::gl::RendererBackend implementation
 protected:
-    mbgl::gl::ProcAddress getExtensionFunctionPointer(const char *) override;
+    mbgl::gl::ProcAddress getExtensionFunctionPointer(const char *name) override;
     void updateAssumedState() override;
 
 private:

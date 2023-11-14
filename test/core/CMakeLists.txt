@@ -32,6 +32,10 @@ target_link_libraries(
 )
 set_target_properties(test_mln_core PROPERTIES AUTOMOC ON)
 
+if(MLN_QT_WITH_CLANG_TIDY)
+    set_target_properties(test_mln_core PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
+endif()
+
 add_test(NAME test_mln_core COMMAND $<TARGET_FILE:test_mln_core>)
 set_tests_properties(
     test_mln_core

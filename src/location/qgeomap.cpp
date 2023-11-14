@@ -31,15 +31,15 @@
 
 #include <cmath>
 
-// FIXME: Expose from MapLibre Native constants
-#define MBGL_TILE_SIZE 512.0
-
 namespace {
 
-static const double invLog2 = 1.0 / std::log(2.0);
+constexpr int mapLibreTileSize{512};
+const double invLog2 = 1.0 / std::log(2.0);
 
-static double zoomLevelFrom256(double zoomLevelFor256, double tileSize) {
-    return std::log(std::pow(2.0, zoomLevelFor256) * 256.0 / tileSize) * invLog2;
+double zoomLevelFrom256(double zoomLevelFor256, double tileSize) {
+    constexpr double size256{256.0};
+    constexpr double zoomScaleBase{2.0};
+    return std::log(std::pow(zoomScaleBase, zoomLevelFor256) * size256 / tileSize) * invLog2;
 }
 
 } // namespace
@@ -49,20 +49,20 @@ namespace QMapLibre {
 QGeoMapMapLibrePrivate::QGeoMapMapLibrePrivate(QGeoMappingManagerEngine *engine)
     : QGeoMapPrivate(engine, new QGeoProjectionWebMercator) {}
 
-QGeoMapMapLibrePrivate::~QGeoMapMapLibrePrivate() {}
+QGeoMapMapLibrePrivate::~QGeoMapMapLibrePrivate() = default;
 
 QSGNode *QGeoMapMapLibrePrivate::updateSceneGraph(QSGNode *node, QQuickWindow *window) {
     Q_Q(QGeoMapMapLibre);
 
     if (m_viewportSize.isEmpty()) {
-        delete node;
+        delete node; // NOLINT(cppcoreguidelines-owning-memory)
         return nullptr;
     }
 
     Map *map{};
-    if (!node) {
+    if (node == nullptr) {
         QOpenGLContext *currentCtx = QOpenGLContext::currentContext();
-        if (!currentCtx) {
+        if (currentCtx == nullptr) {
             qWarning("QOpenGLContext is NULL!");
             qWarning() << "You are running on QSG backend " << QSGContext::backend();
             qWarning("The MapLibre plugin works with both Desktop and ES 2.0+ OpenGL versions.");
@@ -74,39 +74,40 @@ QSGNode *QGeoMapMapLibrePrivate::updateSceneGraph(QSGNode *node, QQuickWindow *w
             return node;
         }
 
-        auto *mbglNode = new TextureNode(m_settings, m_viewportSize, window->devicePixelRatio(), q);
+        auto mbglNode = std::make_unique<TextureNode>(m_settings, m_viewportSize, window->devicePixelRatio(), q);
         QObject::connect(mbglNode->map(), &Map::mapChanged, q, &QGeoMapMapLibre::onMapChanged);
         m_syncState = MapTypeSync | CameraDataSync | ViewportSync | VisibleAreaSync;
-        node = mbglNode;
+        node = mbglNode.release();
     }
     map = static_cast<TextureNode *>(node)->map();
 
-    if ((m_syncState & MapTypeSync) && m_activeMapType.metadata().contains(QStringLiteral("url"))) {
+    if ((m_syncState & MapTypeSync) != 0 && m_activeMapType.metadata().contains(QStringLiteral("url"))) {
         map->setStyleUrl(m_activeMapType.metadata()[QStringLiteral("url")].toString());
     }
 
-    if (m_syncState & VisibleAreaSync) {
+    if ((m_syncState & VisibleAreaSync) != 0) {
         if (m_visibleArea.isEmpty()) {
             map->setMargins(QMargins());
         } else {
-            QMargins margins(m_visibleArea.x(),                                                     // left
-                             m_visibleArea.y(),                                                     // top
-                             m_viewportSize.width() - m_visibleArea.width() - m_visibleArea.x(),    // right
-                             m_viewportSize.height() - m_visibleArea.height() - m_visibleArea.y()); // bottom
+            const QMargins margins(
+                static_cast<int>(m_visibleArea.x()),                                                     // left
+                static_cast<int>(m_visibleArea.y()),                                                     // top
+                static_cast<int>(m_viewportSize.width() - m_visibleArea.width() - m_visibleArea.x()),    // right
+                static_cast<int>(m_viewportSize.height() - m_visibleArea.height() - m_visibleArea.y())); // bottom
             map->setMargins(margins);
         }
     }
 
-    if (m_syncState & CameraDataSync || m_syncState & VisibleAreaSync) {
-        map->setZoom(zoomLevelFrom256(m_cameraData.zoomLevel(), MBGL_TILE_SIZE));
+    if ((m_syncState & CameraDataSync) != 0 || (m_syncState & VisibleAreaSync) != 0) {
+        map->setZoom(zoomLevelFrom256(m_cameraData.zoomLevel(), mapLibreTileSize));
         map->setBearing(m_cameraData.bearing());
         map->setPitch(m_cameraData.tilt());
 
-        QGeoCoordinate coordinate = m_cameraData.center();
+        const QGeoCoordinate coordinate = m_cameraData.center();
         map->setCoordinate(Coordinate(coordinate.latitude(), coordinate.longitude()));
     }
 
-    if (m_syncState & ViewportSync) {
+    if ((m_syncState & ViewportSync) != 0) {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         static_cast<TextureNode *>(node)->resize(m_viewportSize, window->devicePixelRatio(), window);
 #else
@@ -140,7 +141,7 @@ void QGeoMapMapLibrePrivate::addMapItem(QDeclarativeGeoMapItemBase *item) {
         case QGeoMap::CustomMapItem:
             return;
         case QGeoMap::MapRectangle: {
-            QDeclarativeRectangleMapItem *mapItem = static_cast<QDeclarativeRectangleMapItem *>(item);
+            auto *mapItem = static_cast<QDeclarativeRectangleMapItem *>(item);
             QObject::connect(mapItem, &QQuickItem::visibleChanged, q, &QGeoMapMapLibre::onMapItemPropertyChanged);
             QObject::connect(mapItem,
                              &QDeclarativeGeoMapItemBase::mapItemOpacityChanged,
@@ -164,7 +165,7 @@ void QGeoMapMapLibrePrivate::addMapItem(QDeclarativeGeoMapItemBase *item) {
                              &QGeoMapMapLibre::onMapItemUnsupportedPropertyChanged);
         } break;
         case QGeoMap::MapCircle: {
-            QDeclarativeCircleMapItem *mapItem = static_cast<QDeclarativeCircleMapItem *>(item);
+            auto *mapItem = static_cast<QDeclarativeCircleMapItem *>(item);
             QObject::connect(mapItem, &QQuickItem::visibleChanged, q, &QGeoMapMapLibre::onMapItemPropertyChanged);
             QObject::connect(mapItem,
                              &QDeclarativeGeoMapItemBase::mapItemOpacityChanged,
@@ -186,7 +187,7 @@ void QGeoMapMapLibrePrivate::addMapItem(QDeclarativeGeoMapItemBase *item) {
                              &QGeoMapMapLibre::onMapItemUnsupportedPropertyChanged);
         } break;
         case QGeoMap::MapPolygon: {
-            QDeclarativePolygonMapItem *mapItem = static_cast<QDeclarativePolygonMapItem *>(item);
+            auto *mapItem = static_cast<QDeclarativePolygonMapItem *>(item);
             QObject::connect(mapItem, &QQuickItem::visibleChanged, q, &QGeoMapMapLibre::onMapItemPropertyChanged);
             QObject::connect(mapItem,
                              &QDeclarativeGeoMapItemBase::mapItemOpacityChanged,
@@ -206,7 +207,7 @@ void QGeoMapMapLibrePrivate::addMapItem(QDeclarativeGeoMapItemBase *item) {
                              &QGeoMapMapLibre::onMapItemUnsupportedPropertyChanged);
         } break;
         case QGeoMap::MapPolyline: {
-            QDeclarativePolylineMapItem *mapItem = static_cast<QDeclarativePolylineMapItem *>(item);
+            auto *mapItem = static_cast<QDeclarativePolylineMapItem *>(item);
             QObject::connect(mapItem, &QQuickItem::visibleChanged, q, &QGeoMapMapLibre::onMapItemPropertyChanged);
             QObject::connect(mapItem,
                              &QDeclarativeGeoMapItemBase::mapItemOpacityChanged,
@@ -262,14 +263,14 @@ void QGeoMapMapLibrePrivate::removeMapItem(QDeclarativeGeoMapItemBase *item) {
     emit q->sgNodeChanged();
 }
 
-void QGeoMapMapLibrePrivate::changeViewportSize(const QSize &) {
+void QGeoMapMapLibrePrivate::changeViewportSize(const QSize & /* size */) {
     Q_Q(QGeoMapMapLibre);
 
     m_syncState = m_syncState | ViewportSync;
     emit q->sgNodeChanged();
 }
 
-void QGeoMapMapLibrePrivate::changeCameraData(const QGeoCameraData &) {
+void QGeoMapMapLibrePrivate::changeCameraData(const QGeoCameraData & /* data */) {
     Q_Q(QGeoMapMapLibre);
 
     m_syncState = m_syncState | CameraDataSync;
@@ -277,9 +278,9 @@ void QGeoMapMapLibrePrivate::changeCameraData(const QGeoCameraData &) {
 }
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
-void QGeoMapMapLibrePrivate::changeActiveMapType(const QGeoMapType &)
+void QGeoMapMapLibrePrivate::changeActiveMapType(const QGeoMapType & /* mapType */)
 #else
-void QGeoMapMapLibrePrivate::changeActiveMapType(const QGeoMapType)
+void QGeoMapMapLibrePrivate::changeActiveMapType(const QGeoMapType /* mapType */)
 #endif
 {
     Q_Q(QGeoMapMapLibre);
@@ -291,7 +292,9 @@ void QGeoMapMapLibrePrivate::changeActiveMapType(const QGeoMapType)
 void QGeoMapMapLibrePrivate::setVisibleArea(const QRectF &visibleArea) {
     Q_Q(QGeoMapMapLibre);
     const QRectF va = clampVisibleArea(visibleArea);
-    if (va == m_visibleArea) return;
+    if (va == m_visibleArea) {
+        return;
+    }
 
     m_visibleArea = va;
     m_geoProjection->setVisibleArea(va);
@@ -350,11 +353,13 @@ QGeoMapMapLibre::QGeoMapMapLibre(QGeoMappingManagerEngine *engine, QObject *pare
     : QGeoMap(*new QGeoMapMapLibrePrivate(engine), parent) {
     Q_D(QGeoMapMapLibre);
 
+    constexpr int refreshInterval{250};
+
     connect(&d->m_refresh, &QTimer::timeout, this, &QGeoMap::sgNodeChanged);
-    d->m_refresh.setInterval(250);
+    d->m_refresh.setInterval(refreshInterval);
 }
 
-QGeoMapMapLibre::~QGeoMapMapLibre() {}
+QGeoMapMapLibre::~QGeoMapMapLibre() = default;
 
 void QGeoMapMapLibre::setSettings(const Settings &settings) {
     Q_D(QGeoMapMapLibre);
@@ -368,7 +373,7 @@ void QGeoMapMapLibre::setMapItemsBefore(const QString &before) {
 }
 
 QGeoMap::Capabilities QGeoMapMapLibre::capabilities() const {
-    return Capabilities(SupportsVisibleRegion | SupportsSetBearing | SupportsAnchoringCoordinate | SupportsVisibleArea);
+    return {SupportsVisibleRegion | SupportsSetBearing | SupportsAnchoringCoordinate | SupportsVisibleArea};
 }
 
 QSGNode *QGeoMapMapLibre::updateSceneGraph(QSGNode *oldNode, QQuickWindow *window) {
@@ -385,15 +390,16 @@ void QGeoMapMapLibre::onMapChanged(Map::MapChange change) {
         d->m_styleLoaded = false;
         d->m_styleChanges.clear();
 
-        for (QDeclarativeGeoMapItemBase *item : d->m_mapItems)
+        for (QDeclarativeGeoMapItemBase *item : d->m_mapItems) {
             d->m_styleChanges << StyleChange::addMapItem(item, d->m_mapItemsBefore);
+        }
     }
 }
 
 void QGeoMapMapLibre::onMapItemPropertyChanged() {
     Q_D(QGeoMapMapLibre);
 
-    QDeclarativeGeoMapItemBase *item = static_cast<QDeclarativeGeoMapItemBase *>(sender());
+    auto *item = static_cast<QDeclarativeGeoMapItemBase *>(sender());
     d->m_styleChanges << StyleSetPaintProperty::fromMapItem(item);
     d->m_styleChanges << StyleSetLayoutProperty::fromMapItem(item);
 
@@ -403,7 +409,7 @@ void QGeoMapMapLibre::onMapItemPropertyChanged() {
 void QGeoMapMapLibre::onMapItemSubPropertyChanged() {
     Q_D(QGeoMapMapLibre);
 
-    QDeclarativeGeoMapItemBase *item = static_cast<QDeclarativeGeoMapItemBase *>(sender()->parent());
+    auto *item = static_cast<QDeclarativeGeoMapItemBase *>(sender()->parent());
     d->m_styleChanges << StyleSetPaintProperty::fromMapItem(item);
 
     emit sgNodeChanged();
@@ -417,7 +423,7 @@ void QGeoMapMapLibre::onMapItemUnsupportedPropertyChanged() {
 void QGeoMapMapLibre::onMapItemGeometryChanged() {
     Q_D(QGeoMapMapLibre);
 
-    QDeclarativeGeoMapItemBase *item = static_cast<QDeclarativeGeoMapItemBase *>(sender());
+    auto *item = static_cast<QDeclarativeGeoMapItemBase *>(sender());
     d->m_styleChanges << StyleAddSource::fromMapItem(item);
 
     emit sgNodeChanged();

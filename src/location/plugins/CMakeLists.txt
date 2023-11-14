@@ -39,6 +39,11 @@ target_link_libraries(
         $<BUILD_INTERFACE:CompilerOptions>
 )
 
+# QtLocation plugin development specifics
+if(MLN_QT_WITH_CLANG_TIDY)
+    set_target_properties(${MLN_QT_GEOSERVICES_PLUGIN} PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
+endif()
+
 # QtLocation plugin installation
 install(
     EXPORT ${MLN_QT_NAME}LocationPluginGeoServicesTargets
@@ -95,6 +100,11 @@ target_link_libraries(
         $<BUILD_INTERFACE:mbgl-compiler-options>
         $<BUILD_INTERFACE:CompilerOptions>
 )
+
+# QtLocation QML extenstion plugin development specifics
+if(MLN_QT_WITH_CLANG_TIDY)
+    set_target_properties(${MLN_QT_QML_PLUGIN} PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
+endif()
 
 # QtLocation QML extension plugin installation
 install(

@@ -19,37 +19,40 @@
 
 namespace {
 
+constexpr double fullCircle{360.0};
+constexpr double halfCircle{180.0};
+
 QString getId(QDeclarativeGeoMapItemBase *mapItem) {
     return QStringLiteral("QtLocation-") +
-           ((mapItem->objectName().isEmpty()) ? QString::number(quint64(mapItem)) : mapItem->objectName());
+           ((mapItem->objectName().isEmpty()) ? QString::number(quint64(mapItem)) // NOLINT(google-readability-casting)
+                                              : mapItem->objectName());
 }
 
 // MapLibre Native supports geometry segments that spans above 180 degrees in
 // longitude. To keep visual expectations in parity with Qt, we need to adapt
 // the coordinates to always use the shortest path when in ambiguity.
-static bool geoRectangleCrossesDateLine(const QGeoRectangle &rect) {
+bool geoRectangleCrossesDateLine(const QGeoRectangle &rect) {
     return rect.topLeft().longitude() > rect.bottomRight().longitude();
 }
 
 QMapLibre::Feature featureFromMapRectangle(QDeclarativeRectangleMapItem *mapItem) {
-    const QGeoRectangle *rect = static_cast<const QGeoRectangle *>(&mapItem->geoShape());
+    const auto *rect = static_cast<const QGeoRectangle *>(&mapItem->geoShape());
     QMapLibre::Coordinate bottomLeft{rect->bottomLeft().latitude(), rect->bottomLeft().longitude()};
     QMapLibre::Coordinate topLeft{rect->topLeft().latitude(), rect->topLeft().longitude()};
     QMapLibre::Coordinate bottomRight{rect->bottomRight().latitude(), rect->bottomRight().longitude()};
     QMapLibre::Coordinate topRight{rect->topRight().latitude(), rect->topRight().longitude()};
     if (geoRectangleCrossesDateLine(*rect)) {
-        bottomRight.second += 360.0;
-        topRight.second += 360.0;
+        bottomRight.second += fullCircle;
+        topRight.second += fullCircle;
     }
-    QMapLibre::CoordinatesCollections geometry{{{bottomLeft, bottomRight, topRight, topLeft, bottomLeft}}};
+    const QMapLibre::CoordinatesCollections geometry{{{bottomLeft, bottomRight, topRight, topLeft, bottomLeft}}};
 
     return QMapLibre::Feature(QMapLibre::Feature::PolygonType, geometry, {}, getId(mapItem));
 }
 
 QMapLibre::Feature featureFromMapCircle(QDeclarativeCircleMapItem *mapItem) {
-    static const int circleSamples = 128;
-    const QGeoProjectionWebMercator &p = static_cast<const QGeoProjectionWebMercator &>(
-        mapItem->map()->geoProjection());
+    constexpr int circleSamples{128};
+    const auto &p = static_cast<const QGeoProjectionWebMercator &>(mapItem->map()->geoProjection());
 #if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
     QList<QGeoCoordinate> path;
     QGeoCoordinate leftBound;
@@ -65,7 +68,9 @@ QMapLibre::Feature featureFromMapCircle(QDeclarativeCircleMapItem *mapItem) {
     //     QDeclarativeCircleMapItemPrivateCPU::preserveCircleGeometry(pathProjected, mapItem->center(),
     //     mapItem->radius(), p);
     QList<QGeoCoordinate> path;
-    for (const QDoubleVector2D &c : std::as_const(pathProjected)) path << p.mapProjectionToGeo(c);
+    for (const QDoubleVector2D &c : std::as_const(pathProjected)) {
+        path << p.mapProjectionToGeo(c);
+    }
 #elif QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
     QDeclarativeCircleMapItemPrivate::calculatePeripheralPoints(
         pathProjected, mapItem->center(), mapItem->radius(), p, circleSamples);
@@ -85,30 +90,32 @@ QMapLibre::Feature featureFromMapCircle(QDeclarativeCircleMapItem *mapItem) {
         coordinates << QMapLibre::Coordinate{coordinate.latitude(), coordinate.longitude()};
     }
     coordinates.append(coordinates.first()); // closing the path
-    QMapLibre::CoordinatesCollections geometry{{coordinates}};
+    const QMapLibre::CoordinatesCollections geometry{{coordinates}};
     return QMapLibre::Feature(QMapLibre::Feature::PolygonType, geometry, {}, getId(mapItem));
 }
 
-static QMapLibre::Coordinates qgeocoordinate2mapboxcoordinate(const QList<QGeoCoordinate> &crds,
-                                                              const bool crossesDateline,
-                                                              bool closed = false) {
+QMapLibre::Coordinates qgeocoordinate2mapboxcoordinate(const QList<QGeoCoordinate> &crds,
+                                                       const bool crossesDateline,
+                                                       bool closed = false) {
     QMapLibre::Coordinates coordinates;
     for (const QGeoCoordinate &coordinate : crds) {
         if (!coordinates.empty() && crossesDateline &&
-            qAbs(coordinate.longitude() - coordinates.last().second) > 180.0) {
+            qAbs(coordinate.longitude() - coordinates.last().second) > halfCircle) {
             coordinates << QMapLibre::Coordinate{
-                coordinate.latitude(), coordinate.longitude() + (coordinate.longitude() >= 0 ? -360.0 : 360.0)};
+                coordinate.latitude(),
+                coordinate.longitude() + (coordinate.longitude() >= 0 ? -fullCircle : fullCircle)};
         } else {
             coordinates << QMapLibre::Coordinate{coordinate.latitude(), coordinate.longitude()};
         }
     }
-    if (closed && !coordinates.empty() && coordinates.last() != coordinates.first())
+    if (closed && !coordinates.empty() && coordinates.last() != coordinates.first()) {
         coordinates.append(coordinates.first()); // closing the path
+    }
     return coordinates;
 }
 
 QMapLibre::Feature featureFromMapPolygon(QDeclarativePolygonMapItem *mapItem) {
-    const QGeoPolygon *polygon = static_cast<const QGeoPolygon *>(&mapItem->geoShape());
+    const auto *polygon = static_cast<const QGeoPolygon *>(&mapItem->geoShape());
     const bool crossesDateline = geoRectangleCrossesDateLine(polygon->boundingGeoRectangle());
     QMapLibre::CoordinatesCollections geometry;
     QMapLibre::CoordinatesCollection poly;
@@ -128,19 +135,20 @@ QMapLibre::Feature featureFromMapPolygon(QDeclarativePolygonMapItem *mapItem) {
 }
 
 QMapLibre::Feature featureFromMapPolyline(QDeclarativePolylineMapItem *mapItem) {
-    const QGeoPath *path = static_cast<const QGeoPath *>(&mapItem->geoShape());
+    const auto *path = static_cast<const QGeoPath *>(&mapItem->geoShape());
     QMapLibre::Coordinates coordinates;
     const bool crossesDateline = geoRectangleCrossesDateLine(path->boundingGeoRectangle());
     for (const QGeoCoordinate &coordinate : path->path()) {
         if (!coordinates.empty() && crossesDateline &&
-            qAbs(coordinate.longitude() - coordinates.last().second) > 180.0) {
+            qAbs(coordinate.longitude() - coordinates.last().second) > halfCircle) {
             coordinates << QMapLibre::Coordinate{
-                coordinate.latitude(), coordinate.longitude() + (coordinate.longitude() >= 0 ? -360.0 : 360.0)};
+                coordinate.latitude(),
+                coordinate.longitude() + (coordinate.longitude() >= 0 ? -fullCircle : fullCircle)};
         } else {
             coordinates << QMapLibre::Coordinate{coordinate.latitude(), coordinate.longitude()};
         }
     }
-    QMapLibre::CoordinatesCollections geometry{{coordinates}};
+    const QMapLibre::CoordinatesCollections geometry{{coordinates}};
 
     return QMapLibre::Feature(QMapLibre::Feature::LineStringType, geometry, {}, getId(mapItem));
 }
@@ -180,7 +188,7 @@ QList<QSharedPointer<StyleChange>> StyleChange::addMapItem(QDeclarativeGeoMapIte
             return changes;
     }
 
-    Feature feature = featureFromMapItem(item);
+    const Feature feature = featureFromMapItem(item);
 
     changes << StyleAddLayer::fromFeature(feature, before);
     changes << StyleAddSource::fromFeature(feature);
@@ -239,17 +247,17 @@ QList<QSharedPointer<StyleChange>> StyleSetLayoutProperty::fromMapItem(QDeclarat
     return changes;
 }
 
-StyleSetLayoutProperty::StyleSetLayoutProperty(const QString &layer, const QString &property, const QVariant &value)
-    : m_layer(layer),
-      m_property(property),
-      m_value(value) {}
+StyleSetLayoutProperty::StyleSetLayoutProperty(QString layer, QString property, QVariant value)
+    : m_layer(std::move(layer)),
+      m_property(std::move(property)),
+      m_value(std::move(value)) {}
 
 // StyleSetPaintProperty
 
-StyleSetPaintProperty::StyleSetPaintProperty(const QString &layer, const QString &property, const QVariant &value)
-    : m_layer(layer),
-      m_property(property),
-      m_value(value) {}
+StyleSetPaintProperty::StyleSetPaintProperty(QString layer, QString property, QVariant value)
+    : m_layer(std::move(layer)),
+      m_property(std::move(property)),
+      m_value(std::move(value)) {}
 
 void StyleSetPaintProperty::apply(Map *map) {
     map->setPaintProperty(m_layer, m_property, m_value);
@@ -267,7 +275,7 @@ QList<QSharedPointer<StyleChange>> StyleSetPaintProperty::fromMapItem(QDeclarati
             return fromMapItem(static_cast<QDeclarativePolylineMapItem *>(item));
         default:
             qWarning() << "Unsupported QGeoMap item type: " << item->itemType();
-            return QList<QSharedPointer<StyleChange>>();
+            return {};
     }
 }
 
@@ -339,7 +347,8 @@ void StyleAddLayer::apply(Map *map) {
 }
 
 QSharedPointer<StyleChange> StyleAddLayer::fromFeature(const Feature &feature, const QString &before) {
-    auto layer = new StyleAddLayer();
+    // TODO: will be refactored in a follow-up PR
+    auto *layer = new StyleAddLayer(); // NOLINT(cppcoreguidelines-owning-memory)
     layer->m_params[QStringLiteral("id")] = feature.id;
     layer->m_params[QStringLiteral("source")] = feature.id;
 
@@ -366,8 +375,8 @@ void StyleRemoveLayer::apply(Map *map) {
     map->removeLayer(m_id);
 }
 
-StyleRemoveLayer::StyleRemoveLayer(const QString &id)
-    : m_id(id) {}
+StyleRemoveLayer::StyleRemoveLayer(QString id)
+    : m_id(std::move(id)) {}
 
 // StyleAddSource
 
@@ -376,7 +385,8 @@ void StyleAddSource::apply(Map *map) {
 }
 
 QSharedPointer<StyleChange> StyleAddSource::fromFeature(const Feature &feature) {
-    auto source = new StyleAddSource();
+    // TODO: will be refactored in a follow-up PR
+    auto *source = new StyleAddSource(); // NOLINT(cppcoreguidelines-owning-memory)
 
     source->m_id = feature.id.toString();
     source->m_params[QStringLiteral("type")] = QStringLiteral("geojson");
@@ -395,8 +405,8 @@ void StyleRemoveSource::apply(Map *map) {
     map->removeSource(m_id);
 }
 
-StyleRemoveSource::StyleRemoveSource(const QString &id)
-    : m_id(id) {}
+StyleRemoveSource::StyleRemoveSource(QString id)
+    : m_id(std::move(id)) {}
 
 // StyleSetFilter
 

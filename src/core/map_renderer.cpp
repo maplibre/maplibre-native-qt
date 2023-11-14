@@ -13,7 +13,7 @@
 
 namespace {
 
-static bool needsToForceScheduler() {
+bool needsToForceScheduler() {
     static QThreadStorage<bool> force;
 
     if (!force.hasLocalData()) {
@@ -23,7 +23,7 @@ static bool needsToForceScheduler() {
     return force.localData();
 };
 
-static auto *getScheduler() {
+auto *getScheduler() {
     static QThreadStorage<std::shared_ptr<QMapLibre::Scheduler>> scheduler;
 
     if (!scheduler.hasLocalData()) {
@@ -49,7 +49,7 @@ MapRenderer::MapRenderer(qreal pixelRatio, Settings::GLContextMode mode, const Q
     // dummy scheduler that needs to be explicitly forced to
     // process events.
     if (m_forceScheduler) {
-        auto scheduler = getScheduler();
+        Scheduler *scheduler = getScheduler();
 
         if (mbgl::Scheduler::GetCurrent() == nullptr) {
             mbgl::Scheduler::SetCurrent(scheduler);
@@ -63,9 +63,9 @@ MapRenderer::~MapRenderer() {
     MBGL_VERIFY_THREAD(tid);
 }
 
-void MapRenderer::updateParameters(std::shared_ptr<mbgl::UpdateParameters> newParameters) {
-    std::lock_guard<std::mutex> lock(m_updateMutex);
-    m_updateParameters = std::move(newParameters);
+void MapRenderer::updateParameters(std::shared_ptr<mbgl::UpdateParameters> parameters) {
+    const std::lock_guard<std::mutex> lock(m_updateMutex);
+    m_updateParameters = std::move(parameters);
 }
 
 void MapRenderer::updateFramebuffer(quint32 fbo, const mbgl::Size &size) {
@@ -80,7 +80,7 @@ void MapRenderer::render() {
     std::shared_ptr<mbgl::UpdateParameters> params;
     {
         // Lock on the parameters
-        std::lock_guard<std::mutex> lock(m_updateMutex);
+        const std::lock_guard<std::mutex> lock(m_updateMutex);
 
         // UpdateParameters should always be available when rendering.
         assert(m_updateParameters);
@@ -90,7 +90,7 @@ void MapRenderer::render() {
     }
 
     // The OpenGL implementation automatically enables the OpenGL context for us.
-    mbgl::gfx::BackendScope scope(m_backend, mbgl::gfx::BackendScope::ScopeType::Implicit);
+    const mbgl::gfx::BackendScope scope(m_backend, mbgl::gfx::BackendScope::ScopeType::Implicit);
 
     m_renderer->render(params);
 
@@ -99,8 +99,8 @@ void MapRenderer::render() {
     }
 }
 
-void MapRenderer::setObserver(std::shared_ptr<mbgl::RendererObserver> observer) {
-    m_renderer->setObserver(observer.get());
+void MapRenderer::setObserver(mbgl::RendererObserver *observer) {
+    m_renderer->setObserver(observer);
 }
 
 } // namespace QMapLibre

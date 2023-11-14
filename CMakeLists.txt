@@ -34,6 +34,7 @@ include(cmake/helpers.cmake)
 option(MLN_QT_WITH_LOCATION "Build QMapLibreLocation" ON)
 option(MLN_QT_WITH_WIDGETS "Build QMapLibreWidgets" ON)
 option(MLN_QT_WITH_COVERAGE "Build QMapLibre with code coverage collection" OFF)
+option(MLN_QT_WITH_CLANG_TIDY "Build QMapLibre with clang-tidy checks enabled" OFF)
 
 # Find Qt
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
@@ -62,6 +63,20 @@ if (MSVC)
             set(${flags_var} "${${flags_var}}" PARENT_SCOPE)
         endforeach()
     endforeach()
+endif()
+
+# clang-tidy
+if(MLN_QT_WITH_CLANG_TIDY)
+    find_program(CLANG_TIDY_COMMAND NAMES clang-tidy)
+    if(NOT CLANG_TIDY_COMMAND)
+        message(FATAL_ERROR "ENABLE_CLANG_TIDY is ON but clang-tidy is not found!")
+    else()
+        message(STATUS "Found clang-tidy at ${CLANG_TIDY_COMMAND}")
+    endif()
+    # TODO: there are options which are only available on GCC(e.g. -Werror=maybe-uninitialized),
+    # that's why we need to disable this `unknown-warning-option` here.
+    # We could check if current compiler supports particular flag before enabling it.
+    set(CLANG_TIDY_COMMAND "${CLANG_TIDY_COMMAND};--extra-arg=-Wno-error=unknown-warning-option")
 endif()
 
 # Platform-specifics

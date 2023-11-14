@@ -17,13 +17,13 @@ namespace QMapLibre {
 
 // Forwards RendererObserver signals to the given
 // Delegate RendererObserver on the given RunLoop
-class RendererObserver : public mbgl::RendererObserver {
+class RendererObserver final : public mbgl::RendererObserver {
 public:
     RendererObserver(mbgl::util::RunLoop &mapRunLoop, mbgl::RendererObserver &delegate_)
         : mailbox(std::make_shared<mbgl::Mailbox>(mapRunLoop)),
           delegate(delegate_, mailbox) {}
 
-    ~RendererObserver() { mailbox->close(); }
+    ~RendererObserver() final { mailbox->close(); }
 
     void onInvalidate() final { delegate.invoke(&mbgl::RendererObserver::onInvalidate); }
 

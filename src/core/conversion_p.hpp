@@ -16,9 +16,7 @@
 
 #include <optional>
 
-namespace mbgl {
-namespace style {
-namespace conversion {
+namespace mbgl::style::conversion {
 
 std::string convertColor(const QColor &color);
 
@@ -58,9 +56,9 @@ public:
 
         if (iter != map.constEnd()) {
             return iter.value();
-        } else {
-            return {};
         }
+
+        return {};
     }
 
     template <class Fn>
@@ -87,9 +85,9 @@ public:
         if (value.type() == QVariant::Bool) {
 #endif
             return value.toBool();
-        } else {
-            return {};
         }
+
+        return {};
     }
 
     static std::optional<float> toNumber(const QVariant &value) {
@@ -99,9 +97,9 @@ public:
         if (value.type() == QVariant::Int || value.type() == QVariant::Double) {
 #endif
             return value.toFloat();
-        } else {
-            return {};
         }
+
+        return {};
     }
 
     static std::optional<double> toDouble(const QVariant &value) {
@@ -111,82 +109,104 @@ public:
         if (value.type() == QVariant::Int || value.type() == QVariant::Double) {
 #endif
             return value.toDouble();
-        } else {
-            return {};
         }
+
+        return {};
     }
 
     static std::optional<std::string> toString(const QVariant &value) {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         if (value.typeId() == QMetaType::QString) {
             return value.toString().toStdString();
-        } else if (value.typeId() == QMetaType::QColor) {
+        }
+
+        if (value.typeId() == QMetaType::QColor) {
             return convertColor(value.value<QColor>());
-        } else {
-            return {};
         }
 #else
         if (value.type() == QVariant::String) {
             return value.toString().toStdString();
-        } else if (value.type() == QVariant::Color) {
+        }
+
+        if (value.type() == QVariant::Color) {
             return convertColor(value.value<QColor>());
-        } else {
-            return {};
         }
 #endif
+        return {};
     }
 
     static std::optional<Value> toValue(const QVariant &value) {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         if (value.typeId() == QMetaType::Bool) {
             return {value.toBool()};
-        } else if (value.typeId() == QMetaType::QString) {
+        }
+
+        if (value.typeId() == QMetaType::QString) {
             return {value.toString().toStdString()};
-        } else if (value.typeId() == QMetaType::QColor) {
+        }
+
+        if (value.typeId() == QMetaType::QColor) {
             return {convertColor(value.value<QColor>())};
-        } else if (value.typeId() == QMetaType::Int) {
-            return {int64_t(value.toInt())};
-        } else if (QMetaType::canConvert(value.metaType(), QMetaType(QMetaType::Double))) {
+        }
+
+        if (value.typeId() == QMetaType::Int) {
+            return {static_cast<int64_t>(value.toInt())};
+        }
+
+        if (QMetaType::canConvert(value.metaType(), QMetaType(QMetaType::Double))) {
             return {value.toDouble()};
-        } else {
-            return {};
         }
 #else
         if (value.type() == QVariant::Bool) {
             return {value.toBool()};
-        } else if (value.type() == QVariant::String) {
+        }
+
+        if (value.type() == QVariant::String) {
             return {value.toString().toStdString()};
-        } else if (value.type() == QVariant::Color) {
+        }
+
+        if (value.type() == QVariant::Color) {
             return {convertColor(value.value<QColor>())};
-        } else if (value.type() == QVariant::Int) {
-            return {int64_t(value.toInt())};
-        } else if (value.canConvert(QVariant::Double)) {
+        }
+
+        if (value.type() == QVariant::Int) {
+            return {static_cast<int64_t>(value.toInt())};
+        }
+
+        if (value.canConvert(QVariant::Double)) {
             return {value.toDouble()};
-        } else {
-            return {};
         }
 #endif
+        return {};
     }
 
     static std::optional<GeoJSON> toGeoJSON(const QVariant &value, Error &error) {
         if (value.typeName() == QStringLiteral("QMapLibre::Feature")) {
             return GeoJSON{QMapLibre::GeoJSON::asFeature(value.value<QMapLibre::Feature>())};
-        } else if (value.userType() == qMetaTypeId<QVector<QMapLibre::Feature>>()) {
+        }
+
+        if (value.userType() == qMetaTypeId<QVector<QMapLibre::Feature>>()) {
             return featureCollectionToGeoJSON(value.value<QVector<QMapLibre::Feature>>());
-        } else if (value.userType() == qMetaTypeId<QList<QMapLibre::Feature>>()) {
+        }
+
+        if (value.userType() == qMetaTypeId<QList<QMapLibre::Feature>>()) {
             return featureCollectionToGeoJSON(value.value<QList<QMapLibre::Feature>>());
-        } else if (value.userType() == qMetaTypeId<std::list<QMapLibre::Feature>>()) {
+        }
+
+        if (value.userType() == qMetaTypeId<std::list<QMapLibre::Feature>>()) {
             return featureCollectionToGeoJSON(value.value<std::list<QMapLibre::Feature>>());
+        }
+
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-        } else if (value.typeId() != QMetaType::QByteArray) {
+        if (value.typeId() != QMetaType::QByteArray) {
 #else
-        } else if (value.type() != QVariant::ByteArray) {
+        if (value.type() != QVariant::ByteArray) {
 #endif
             error = {"JSON data must be in QByteArray"};
             return {};
         }
 
-        QByteArray data = value.toByteArray();
+        const QByteArray data = value.toByteArray();
         return parseGeoJSON(std::string(data.constData(), data.size()), error);
     }
 
@@ -212,6 +232,4 @@ inline std::string convertColor(const QColor &color) {
         .toStdString();
 }
 
-} // namespace conversion
-} // namespace style
-} // namespace mbgl
+} // namespace mbgl::style::conversion

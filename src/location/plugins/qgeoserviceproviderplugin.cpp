@@ -6,7 +6,7 @@
 
 #include "../qt_mapping_engine.hpp"
 
-QGeoServiceProviderFactoryMapLibre::QGeoServiceProviderFactoryMapLibre() {}
+QGeoServiceProviderFactoryMapLibre::QGeoServiceProviderFactoryMapLibre() = default;
 
 QGeoCodingManagerEngine *QGeoServiceProviderFactoryMapLibre::createGeocodingManagerEngine(
     const QVariantMap &parameters, QGeoServiceProvider::Error *error, QString *errorString) const {
@@ -19,6 +19,7 @@ QGeoCodingManagerEngine *QGeoServiceProviderFactoryMapLibre::createGeocodingMana
 
 QGeoMappingManagerEngine *QGeoServiceProviderFactoryMapLibre::createMappingManagerEngine(
     const QVariantMap &parameters, QGeoServiceProvider::Error *error, QString *errorString) const {
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
     return new QMapLibre::QtMappingEngine(parameters, error, errorString);
 }
 

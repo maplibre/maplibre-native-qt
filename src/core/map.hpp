@@ -73,42 +73,45 @@ public:
         NorthLeftwards,
     };
 
-    Map(QObject *parent = 0, const Settings & = Settings(), const QSize &size = QSize(), qreal pixelRatio = 1);
-    virtual ~Map();
+    explicit Map(QObject *parent = nullptr,
+                 const Settings &settings = Settings(),
+                 const QSize &size = QSize(),
+                 qreal pixelRatio = 1);
+    ~Map() override;
 
-    QString styleJson() const;
-    QString styleUrl() const;
+    [[nodiscard]] QString styleJson() const;
+    [[nodiscard]] QString styleUrl() const;
 
     void setStyleJson(const QString &);
     void setStyleUrl(const QString &);
 
-    double latitude() const;
+    [[nodiscard]] double latitude() const;
     void setLatitude(double latitude);
 
-    double longitude() const;
+    [[nodiscard]] double longitude() const;
     void setLongitude(double longitude);
 
-    double scale() const;
+    [[nodiscard]] double scale() const;
     void setScale(double scale, const QPointF &center = QPointF());
 
-    double zoom() const;
+    [[nodiscard]] double zoom() const;
     void setZoom(double zoom);
 
-    double minimumZoom() const;
-    double maximumZoom() const;
+    [[nodiscard]] double minimumZoom() const;
+    [[nodiscard]] double maximumZoom() const;
 
-    double bearing() const;
+    [[nodiscard]] double bearing() const;
     void setBearing(double degrees);
     void setBearing(double degrees, const QPointF &center);
 
-    double pitch() const;
+    [[nodiscard]] double pitch() const;
     void setPitch(double pitch);
     void pitchBy(double pitch);
 
-    NorthOrientation northOrientation() const;
+    [[nodiscard]] NorthOrientation northOrientation() const;
     void setNorthOrientation(NorthOrientation);
 
-    Coordinate coordinate() const;
+    [[nodiscard]] Coordinate coordinate() const;
     void setCoordinate(const Coordinate &);
     void setCoordinateZoom(const Coordinate &, double zoom);
 
@@ -127,7 +130,7 @@ public:
     bool setLayoutProperty(const QString &layer, const QString &property, const QVariant &value);
     bool setPaintProperty(const QString &layer, const QString &property, const QVariant &value);
 
-    bool isFullyLoaded() const;
+    [[nodiscard]] bool isFullyLoaded() const;
 
     void moveBy(const QPointF &offset);
     void scaleBy(double scale, const QPointF &center = QPointF());
@@ -135,14 +138,17 @@ public:
 
     void resize(const QSize &size);
 
-    QPointF pixelForCoordinate(const Coordinate &) const;
-    Coordinate coordinateForPixel(const QPointF &) const;
+    [[nodiscard]] QPointF pixelForCoordinate(const Coordinate &) const;
+    [[nodiscard]] Coordinate coordinateForPixel(const QPointF &) const;
 
-    CoordinateZoom coordinateZoomForBounds(const Coordinate &sw, const Coordinate &ne) const;
-    CoordinateZoom coordinateZoomForBounds(const Coordinate &sw, const Coordinate &ne, double bearing, double pitch);
+    [[nodiscard]] CoordinateZoom coordinateZoomForBounds(const Coordinate &sw, const Coordinate &ne) const;
+    [[nodiscard]] CoordinateZoom coordinateZoomForBounds(const Coordinate &sw,
+                                                         const Coordinate &ne,
+                                                         double bearing,
+                                                         double pitch);
 
     void setMargins(const QMargins &margins);
-    QMargins margins() const;
+    [[nodiscard]] QMargins margins() const;
 
     void addSource(const QString &sourceID, const QVariantMap &params);
     bool sourceExists(const QString &sourceID);
@@ -159,10 +165,10 @@ public:
     bool layerExists(const QString &id);
     void removeLayer(const QString &id);
 
-    QVector<QString> layerIds() const;
+    [[nodiscard]] QVector<QString> layerIds() const;
 
     void setFilter(const QString &layer, const QVariant &filter);
-    QVariant getFilter(const QString &layer) const;
+    [[nodiscard]] QVariant getFilter(const QString &layer) const;
     // When rendering on a different thread,
     // should be called on the render thread.
     void createRenderer();
@@ -188,7 +194,7 @@ signals:
 private:
     Q_DISABLE_COPY(Map)
 
-    MapPrivate *d_ptr;
+    std::unique_ptr<MapPrivate> d_ptr;
 };
 
 } // namespace QMapLibre

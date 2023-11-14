@@ -43,7 +43,7 @@ private:
     static QList<QSharedPointer<StyleChange>> fromMapItem(QDeclarativePolylineMapItem *);
 
     StyleSetLayoutProperty() = default;
-    StyleSetLayoutProperty(const QString &layer, const QString &property, const QVariant &value);
+    StyleSetLayoutProperty(QString layer, QString property, QVariant value);
 
     QString m_layer;
     QString m_property;
@@ -63,7 +63,7 @@ private:
     static QList<QSharedPointer<StyleChange>> fromMapItem(QDeclarativePolylineMapItem *);
 
     StyleSetPaintProperty() = default;
-    StyleSetPaintProperty(const QString &layer, const QString &property, const QVariant &value);
+    StyleSetPaintProperty(QString layer, QString property, QVariant value);
 
     QString m_layer;
     QString m_property;
@@ -85,7 +85,7 @@ private:
 
 class StyleRemoveLayer : public StyleChange {
 public:
-    explicit StyleRemoveLayer(const QString &id);
+    explicit StyleRemoveLayer(QString id);
 
     void apply(Map *map) override;
 
@@ -111,7 +111,7 @@ private:
 
 class StyleRemoveSource : public StyleChange {
 public:
-    explicit StyleRemoveSource(const QString &id);
+    explicit StyleRemoveSource(QString id);
 
     void apply(Map *map) override;
 

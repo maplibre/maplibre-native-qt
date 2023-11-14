@@ -23,8 +23,8 @@ class QGeoMapMapLibrePrivate : public QGeoMapPrivate {
     Q_DECLARE_PUBLIC(QGeoMapMapLibre)
 
 public:
-    QGeoMapMapLibrePrivate(QGeoMappingManagerEngine *engine);
-    ~QGeoMapMapLibrePrivate();
+    explicit QGeoMapMapLibrePrivate(QGeoMappingManagerEngine *engine);
+    ~QGeoMapMapLibrePrivate() override;
 
     QSGNode *updateSceneGraph(QSGNode *oldNode, QQuickWindow *window);
 
@@ -57,7 +57,7 @@ public:
 
 protected:
     void changeViewportSize(const QSize &size) override;
-    void changeCameraData(const QGeoCameraData &oldCameraData) override;
+    void changeCameraData(const QGeoCameraData &data) override;
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
     void changeActiveMapType(const QGeoMapType &mapType) override;
 #else

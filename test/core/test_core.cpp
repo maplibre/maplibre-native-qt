@@ -17,7 +17,7 @@ private slots:
 };
 
 void TestCore::testStyleJSON() {
-    std::unique_ptr<QSurface> surface = QMapLibre::createTestSurface(QSurface::Window);
+    const std::unique_ptr<QSurface> surface = QMapLibre::createTestSurface(QSurface::Window);
     QVERIFY(surface != nullptr);
 
     QOpenGLContext ctx;
@@ -26,14 +26,14 @@ void TestCore::testStyleJSON() {
 
     auto tester = std::make_unique<QMapLibre::MapTester>();
 
-    QString fixturesPath = qgetenv("MLN_FIXTURES_PATH");
+    const QString fixturesPath = qgetenv("MLN_FIXTURES_PATH");
     QVERIFY(!fixturesPath.isEmpty());
 
     QFile f(fixturesPath + "/resources/style_vector.json");
     QVERIFY(f.open(QFile::ReadOnly | QFile::Text));
 
     QTextStream in(&f);
-    QString json = in.readAll();
+    const QString json = in.readAll();
 
     tester->map.setStyleJson(json);
     QCOMPARE(tester->map.styleJson(), json);
@@ -53,7 +53,7 @@ void TestCore::testStyleJSON() {
 }
 
 void TestCore::testStyleURL() {
-    std::unique_ptr<QSurface> surface = QMapLibre::createTestSurface(QSurface::Window);
+    const std::unique_ptr<QSurface> surface = QMapLibre::createTestSurface(QSurface::Window);
     QVERIFY(surface != nullptr);
 
     QOpenGLContext ctx;
@@ -62,7 +62,7 @@ void TestCore::testStyleURL() {
 
     auto tester = std::make_unique<QMapLibre::MapTester>();
 
-    QString url(tester->settings.providerStyles().front().url);
+    const QString url(tester->settings.providerStyles().front().url);
 
     tester->map.setStyleUrl(url);
     QCOMPARE(tester->map.styleUrl(), url);
@@ -75,5 +75,6 @@ void TestCore::testStyleURL() {
     tester->runUntil(QMapLibre::Map::MapChangeDidFailLoadingMap);
 }
 
+// NOLINTNEXTLINE(misc-const-correctness)
 QTEST_MAIN(TestCore)
 #include "test_core.moc"
