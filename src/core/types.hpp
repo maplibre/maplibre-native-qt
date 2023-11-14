@@ -25,6 +25,35 @@ typedef QVector<Coordinates> CoordinatesCollection;
 
 typedef QVector<CoordinatesCollection> CoordinatesCollections;
 
+struct Q_MAPLIBRE_CORE_EXPORT Style {
+    enum Type { // Taken from Qt to be in sync with QtLocation
+        NoMap = 0,
+        StreetMap,
+        SatelliteMapDay,
+        SatelliteMapNight,
+        TerrainMap,
+        HybridMap,
+        TransitMap,
+        GrayStreetMap,
+        PedestrianMap,
+        CarNavigationMap,
+        CycleMap,
+        CustomMap = 100
+    };
+
+    Style(const QString &url_, const QString &name_ = QString())
+        : url(url_),
+          name(name_) {}
+
+    QString url;
+    QString name;
+    QString description;
+    bool night{};
+    Type type{CustomMap};
+};
+
+typedef QVector<Style> Styles;
+
 struct Q_MAPLIBRE_CORE_EXPORT Feature {
     enum Type {
         PointType = 1,

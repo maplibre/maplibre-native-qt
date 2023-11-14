@@ -7,6 +7,7 @@
 #define QMAPLIBRE_SETTINGS_H
 
 #include <QMapLibre/Export>
+#include <QMapLibre/Types>
 
 #include <QtCore/QString>
 #include <QtGui/QImage>
@@ -20,10 +21,10 @@ class TileServerOptions;
 
 namespace QMapLibre {
 
+class SettingsPrivate;
+
 class Q_MAPLIBRE_CORE_EXPORT Settings {
 public:
-    Settings();
-
     enum GLContextMode {
         UniqueGLContext = 0,
         SharedGLContext
@@ -45,12 +46,19 @@ public:
         FlippedYViewport
     };
 
-    enum SettingsTemplate {
-        DefaultSettings = 0,
-        MapLibreSettings,
-        MapTilerSettings,
-        MapboxSettings
+    enum ProviderTemplate {
+        NoProvider = 0,
+        MapLibreProvider,
+        MapTilerProvider,
+        MapboxProvider
     };
+
+    explicit Settings(ProviderTemplate provider = NoProvider);
+    ~Settings();
+    Settings(const Settings &);
+    Settings(Settings &&) noexcept;
+    Settings &operator=(const Settings &);
+    Settings &operator=(Settings &&) noexcept;
 
     GLContextMode contextMode() const;
     void setContextMode(GLContextMode);
@@ -91,28 +99,21 @@ public:
     std::function<std::string(const std::string &)> resourceTransform() const;
     void setResourceTransform(const std::function<std::string(const std::string &)> &);
 
-    void resetToTemplate(SettingsTemplate);
+    void setProviderTemplate(ProviderTemplate);
+    void setStyles(const Styles &styles);
 
-    QVector<QPair<QString, QString>> defaultStyles() const;
+    const Styles &styles() const;
+    Styles providerStyles() const;
 
-    mbgl::TileServerOptions *tileServerOptionsInternal() const;
+    Coordinate defaultCoordinate() const;
+    void setDefaultCoordinate(const Coordinate &);
+    double defaultZoom() const;
+    void setDefaultZoom(double);
+
+    mbgl::TileServerOptions *tileServerOptions() const;
 
 private:
-    GLContextMode m_contextMode;
-    MapMode m_mapMode;
-    ConstrainMode m_constrainMode;
-    ViewportMode m_viewportMode;
-
-    unsigned m_cacheMaximumSize;
-    QString m_cacheDatabasePath;
-    QString m_assetPath;
-    QString m_apiKey;
-    QString m_localFontFamily;
-    QString m_clientName;
-    QString m_clientVersion;
-    std::function<std::string(const std::string &)> m_resourceTransform;
-
-    mbgl::TileServerOptions *m_tileServerOptionsInternal{};
+    SettingsPrivate *d_ptr;
 };
 
 } // namespace QMapLibre

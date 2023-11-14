@@ -81,8 +81,8 @@ QSGNode *QGeoMapMapLibrePrivate::updateSceneGraph(QSGNode *node, QQuickWindow *w
     }
     map = static_cast<TextureNode *>(node)->map();
 
-    if (m_syncState & MapTypeSync) {
-        map->setStyleUrl(m_activeMapType.name());
+    if ((m_syncState & MapTypeSync) && m_activeMapType.metadata().contains(QStringLiteral("url"))) {
+        map->setStyleUrl(m_activeMapType.metadata()[QStringLiteral("url")].toString());
     }
 
     if (m_syncState & VisibleAreaSync) {

@@ -13,6 +13,7 @@ namespace QMapLibre {
 
 MapTester::MapTester()
     : size(512, 512),
+      settings(Settings::MapLibreProvider),
       map(nullptr, settings, size) {
     connect(&map, &Map::mapChanged, this, &MapTester::onMapChanged);
     connect(&map, &Map::needsRendering, this, &MapTester::onNeedsRendering);

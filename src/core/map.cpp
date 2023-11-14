@@ -128,10 +128,17 @@ mbgl::MapOptions mapOptionsFromSettings(const QMapLibre::Settings &settings, con
 }
 
 mbgl::ResourceOptions resourceOptionsFromSettings(const QMapLibre::Settings &settings) {
+    if (settings.tileServerOptions() == nullptr) {
+        return std::move(mbgl::ResourceOptions()
+                             .withAssetPath(settings.assetPath().toStdString())
+                             .withCachePath(settings.cacheDatabasePath().toStdString())
+                             .withMaximumCacheSize(settings.cacheDatabaseMaximumSize()));
+    }
+
     return std::move(mbgl::ResourceOptions()
                          .withApiKey(settings.apiKey().toStdString())
                          .withAssetPath(settings.assetPath().toStdString())
-                         .withTileServerOptions(*settings.tileServerOptionsInternal())
+                         .withTileServerOptions(*settings.tileServerOptions())
                          .withCachePath(settings.cacheDatabasePath().toStdString())
                          .withMaximumCacheSize(settings.cacheDatabaseMaximumSize()));
 }
@@ -1237,14 +1244,6 @@ void Map::connectionEstablished() {
 }
 
 /*!
-    Returns a list containing a pair of string objects, representing the style
-    URL and name, respectively.
-*/
-const QVector<QPair<QString, QString>> &Map::defaultStyles() const {
-    return d_ptr->defaultStyles;
-}
-
-/*!
     \fn void QMapLibre::Map::needsRendering()
 
     This signal is emitted when the visual contents of the map have changed
@@ -1303,11 +1302,6 @@ MapPrivate::MapPrivate(Map *q, const Settings &settings, const QSize &size, qrea
     connect(m_mapObserver.get(), &MapObserver::copyrightsChanged, q, &Map::copyrightsChanged);
 
     auto resourceOptions = resourceOptionsFromSettings(settings);
-    for (auto style : resourceOptions.tileServerOptions().defaultStyles()) {
-        defaultStyles.append(
-            QPair<QString, QString>(QString::fromStdString(style.getUrl()), QString::fromStdString(style.getName())));
-    }
-
     auto clientOptions = clientOptionsFromSettings(settings);
 
     // Setup the Map object.

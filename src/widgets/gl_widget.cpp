@@ -41,10 +41,15 @@ void GLWidget::initializeGL() {
     d_ptr->m_map.reset(new Map(nullptr, d_ptr->m_settings, size(), devicePixelRatioF()));
     connect(d_ptr->m_map.get(), SIGNAL(needsRendering()), this, SLOT(update()));
 
-    // Set default location to Helsinki.
-    d_ptr->m_map->setCoordinateZoom(Coordinate(60.170448, 24.942046), 5);
+    // Set default location
+    d_ptr->m_map->setCoordinateZoom(d_ptr->m_settings.defaultCoordinate(), d_ptr->m_settings.defaultZoom());
+
     // Set default style
-    d_ptr->m_map->setStyleUrl(d_ptr->m_map->defaultStyles()[0].first);
+    if (!d_ptr->m_settings.styles().empty()) {
+        d_ptr->m_map->setStyleUrl(d_ptr->m_settings.styles().front().url);
+    } else if (!d_ptr->m_settings.providerStyles().empty()) {
+        d_ptr->m_map->setStyleUrl(d_ptr->m_settings.providerStyles().front().url);
+    }
 }
 
 void GLWidget::paintGL() {

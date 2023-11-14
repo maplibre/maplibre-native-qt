@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "settings.hpp"
+#include "settings_p.hpp"
 
 #include <mbgl/gfx/renderer_backend.hpp>
 #include <mbgl/map/mode.hpp>
@@ -12,6 +13,7 @@
 #include <mbgl/util/traits.hpp>
 
 #include <QtCore/QCoreApplication>
+#include <QtCore/QDebug>
 
 #ifdef _MSC_VER
 #pragma warning(push)
@@ -143,18 +145,41 @@ namespace QMapLibre {
 
 /*!
     Constructs a Settings object with the default values. The default
-    configuration is valid for initializing a QMapLibre::Map.
+    configuration is not valid for initializing a \a QMapLibre::Map,
+    but a provider template can be provided.
 */
-Settings::Settings()
-    : m_contextMode(Settings::SharedGLContext),
-      m_mapMode(Settings::Continuous),
-      m_constrainMode(Settings::ConstrainHeightOnly),
-      m_viewportMode(Settings::DefaultViewport),
-      m_cacheMaximumSize(mbgl::util::DEFAULT_MAX_CACHE_SIZE),
-      m_cacheDatabasePath(":memory:"),
-      m_assetPath(QCoreApplication::applicationDirPath()),
-      m_apiKey(qgetenv("MLN_API_KEY")),
-      m_tileServerOptionsInternal(new mbgl::TileServerOptions(mbgl::TileServerOptions::DefaultConfiguration())) {}
+Settings::Settings(ProviderTemplate provider)
+    : d_ptr(new SettingsPrivate) {
+    d_ptr->setProviderTemplate(provider);
+}
+
+Settings::~Settings() {
+    delete d_ptr;
+}
+
+Settings::Settings(const Settings &s)
+    : d_ptr(new SettingsPrivate) {
+    *d_ptr = *s.d_ptr;
+}
+
+Settings::Settings(Settings &&s) noexcept
+    : d_ptr(s.d_ptr) {
+    s.d_ptr = nullptr;
+}
+
+Settings &Settings::operator=(const Settings &s) {
+    if (d_ptr != nullptr) delete d_ptr;
+    d_ptr = new SettingsPrivate;
+    *d_ptr = *s.d_ptr;
+    return *this;
+}
+
+Settings &Settings::operator=(Settings &&s) noexcept {
+    if (d_ptr != nullptr) delete d_ptr;
+    d_ptr = s.d_ptr;
+    s.d_ptr = nullptr;
+    return *this;
+}
 
 /*!
     Returns the OpenGL context mode. This is specially important when mixing
@@ -163,14 +188,14 @@ Settings::Settings()
     By default, it is set to Settings::SharedGLContext.
 */
 Settings::GLContextMode Settings::contextMode() const {
-    return m_contextMode;
+    return d_ptr->m_contextMode;
 }
 
 /*!
     Sets the OpenGL context \a mode.
 */
 void Settings::setContextMode(GLContextMode mode) {
-    m_contextMode = mode;
+    d_ptr->m_contextMode = mode;
 }
 
 /*!
@@ -186,14 +211,14 @@ void Settings::setContextMode(GLContextMode mode) {
     By default, it is set to QMapLibre::Settings::Continuous.
 */
 Settings::MapMode Settings::mapMode() const {
-    return m_mapMode;
+    return d_ptr->m_mapMode;
 }
 
 /*!
     Sets the map \a mode.
 */
 void Settings::setMapMode(MapMode mode) {
-    m_mapMode = mode;
+    d_ptr->m_mapMode = mode;
 }
 
 /*!
@@ -203,14 +228,14 @@ void Settings::setMapMode(MapMode mode) {
     By default, it is set to QMapLibre::Settings::ConstrainHeightOnly.
 */
 Settings::ConstrainMode Settings::constrainMode() const {
-    return m_constrainMode;
+    return d_ptr->m_constrainMode;
 }
 
 /*!
     Sets the map constrain \a mode.
 */
 void Settings::setConstrainMode(ConstrainMode mode) {
-    m_constrainMode = mode;
+    d_ptr->m_constrainMode = mode;
 }
 
 /*!
@@ -220,14 +245,14 @@ void Settings::setConstrainMode(ConstrainMode mode) {
     By default, it is set to QMapLibre::Settings::DefaultViewport.
 */
 Settings::ViewportMode Settings::viewportMode() const {
-    return m_viewportMode;
+    return d_ptr->m_viewportMode;
 }
 
 /*!
     Sets the viewport \a mode.
 */
 void Settings::setViewportMode(ViewportMode mode) {
-    m_viewportMode = mode;
+    d_ptr->m_viewportMode = mode;
 }
 
 /*!
@@ -239,14 +264,14 @@ void Settings::setViewportMode(ViewportMode mode) {
     By default, it is set to 50 MB.
 */
 unsigned Settings::cacheDatabaseMaximumSize() const {
-    return m_cacheMaximumSize;
+    return d_ptr->m_cacheMaximumSize;
 }
 
 /*!
     Returns the maximum allowed cache database \a size in bytes.
 */
 void Settings::setCacheDatabaseMaximumSize(unsigned size) {
-    m_cacheMaximumSize = size;
+    d_ptr->m_cacheMaximumSize = size;
 }
 
 /*!
@@ -260,7 +285,7 @@ void Settings::setCacheDatabaseMaximumSize(unsigned size) {
     cache instead of a file on disk.
 */
 QString Settings::cacheDatabasePath() const {
-    return m_cacheDatabasePath;
+    return d_ptr->m_cacheDatabasePath;
 }
 
 /*!
@@ -269,7 +294,7 @@ QString Settings::cacheDatabasePath() const {
     Setting the \a path to \c :memory: will create an in-memory cache.
 */
 void Settings::setCacheDatabasePath(const QString &path) {
-    m_cacheDatabasePath = path;
+    d_ptr->m_cacheDatabasePath = path;
 }
 
 /*!
@@ -281,14 +306,14 @@ void Settings::setCacheDatabasePath(const QString &path) {
     By default, it is set to the value returned by QCoreApplication::applicationDirPath().
 */
 QString Settings::assetPath() const {
-    return m_assetPath;
+    return d_ptr->m_assetPath;
 }
 
 /*!
     Sets the asset \a path.
 */
 void Settings::setAssetPath(const QString &path) {
-    m_assetPath = path;
+    d_ptr->m_assetPath = path;
 }
 
 /*!
@@ -298,7 +323,7 @@ void Settings::setAssetPath(const QString &path) {
     or empty if the variable is not set.
 */
 QString Settings::apiKey() const {
-    return m_apiKey;
+    return d_ptr->m_apiKey;
 }
 
 /*!
@@ -308,14 +333,18 @@ QString Settings::apiKey() const {
     key or access token.
 */
 void Settings::setApiKey(const QString &key) {
-    m_apiKey = key;
+    d_ptr->m_apiKey = key;
 }
 
 /*!
     Returns the API base URL.
 */
 QString Settings::apiBaseUrl() const {
-    return QString::fromStdString(m_tileServerOptionsInternal->baseURL());
+    if (tileServerOptions() == nullptr) {
+        return {};
+    }
+
+    return QString::fromStdString(tileServerOptions()->baseURL());
 }
 
 /*!
@@ -326,14 +355,14 @@ QString Settings::apiBaseUrl() const {
     changed, for instance, to a tile cache server address.
 */
 void Settings::setApiBaseUrl(const QString &url) {
-    m_tileServerOptionsInternal = &m_tileServerOptionsInternal->withBaseURL(url.toStdString());
+    d_ptr->setProviderApiBaseUrl(url);
 }
 
 /*!
     Returns the local font family. Returns an empty string if no local font family is set.
 */
 QString Settings::localFontFamily() const {
-    return m_localFontFamily;
+    return d_ptr->m_localFontFamily;
 }
 
 /*!
@@ -345,42 +374,42 @@ QString Settings::localFontFamily() const {
    instead of font data fetched from the server.
 */
 void Settings::setLocalFontFamily(const QString &family) {
-    m_localFontFamily = family;
+    d_ptr->m_localFontFamily = family;
 }
 
 /*!
     Returns the client name. Returns an empty string if no client name is set.
 */
 QString Settings::clientName() const {
-    return m_clientName;
+    return d_ptr->m_clientName;
 }
 
 /*!
     Sets the client name.
 */
 void Settings::setClientName(const QString &name) {
-    m_clientName = name;
+    d_ptr->m_clientName = name;
 }
 
 /*!
     Returns the client version. Returns an empty string if no client version is set.
 */
 QString Settings::clientVersion() const {
-    return m_clientVersion;
+    return d_ptr->m_clientVersion;
 }
 
 /*!
     Sets the client version.
 */
 void Settings::setClientVersion(const QString &version) {
-    m_clientVersion = version;
+    d_ptr->m_clientVersion = version;
 }
 
 /*!
     Returns resource transformation callback used to transform requested URLs.
 */
 std::function<std::string(const std::string &)> Settings::resourceTransform() const {
-    return m_resourceTransform;
+    return d_ptr->m_resourceTransform;
 }
 
 /*!
@@ -392,7 +421,7 @@ std::function<std::string(const std::string &)> Settings::resourceTransform() co
     servers or endpoints.
 */
 void Settings::setResourceTransform(const std::function<std::string(const std::string &)> &transform) {
-    m_resourceTransform = transform;
+    d_ptr->m_resourceTransform = transform;
 }
 
 /*!
@@ -403,36 +432,120 @@ void Settings::setResourceTransform(const std::function<std::string(const std::s
     in the library. This function will re-initialise all settings based
     on the default values of specific service provider defaults.
 */
-void Settings::resetToTemplate(SettingsTemplate settings_template) {
-    if (m_tileServerOptionsInternal) delete m_tileServerOptionsInternal;
-
-    if (settings_template == MapLibreSettings) {
-        m_tileServerOptionsInternal = new mbgl::TileServerOptions(mbgl::TileServerOptions::MapLibreConfiguration());
-    } else if (settings_template == MapTilerSettings) {
-        m_tileServerOptionsInternal = new mbgl::TileServerOptions(mbgl::TileServerOptions::MapTilerConfiguration());
-    } else if (settings_template == MapboxSettings) {
-        m_tileServerOptionsInternal = new mbgl::TileServerOptions(mbgl::TileServerOptions::MapboxConfiguration());
-    } else {
-        m_tileServerOptionsInternal = new mbgl::TileServerOptions(mbgl::TileServerOptions::DefaultConfiguration());
-    }
+void Settings::setProviderTemplate(ProviderTemplate providerTemplate) {
+    d_ptr->setProviderTemplate(providerTemplate);
 }
 
 /*!
-    All predefined styles.
+    Returns the map styles set by user.
 
-    Return all styles that are defined in default settings.
+    The styles are a list type \c QMapLibre::Style. Each style is a pair
+    of URL and name/label.
 */
-QVector<QPair<QString, QString>> Settings::defaultStyles() const {
-    QVector<QPair<QString, QString>> styles;
-    for (const auto &style : tileServerOptionsInternal()->defaultStyles()) {
-        styles.append(
-            QPair<QString, QString>(QString::fromStdString(style.getUrl()), QString::fromStdString(style.getName())));
+const Styles &Settings::styles() const {
+    return d_ptr->m_styles;
+}
+
+/*!
+    Sets the map styles.
+
+    The styles are a list type \c QMapLibre::Style. Each style is a pair
+    of URL and name/label.
+*/
+void Settings::setStyles(const Styles &styles) {
+    d_ptr->m_styles = styles;
+}
+
+/*!
+    All predefined provider styles.
+
+    Return all styles that are defined in provider settings template.
+*/
+Styles Settings::providerStyles() const {
+    Styles styles;
+    if (tileServerOptions() == nullptr) {
+        return styles;
+    }
+
+    for (const auto &style : tileServerOptions()->defaultStyles()) {
+        styles.append(Style(QString::fromStdString(style.getUrl()), QString::fromStdString(style.getName())));
     }
     return styles;
 }
 
-mbgl::TileServerOptions *Settings::tileServerOptionsInternal() const {
-    return m_tileServerOptionsInternal;
+/*!
+    Returns the default coordinate.
+*/
+Coordinate Settings::defaultCoordinate() const {
+    return d_ptr->m_defaultCoordinate;
+}
+
+/*!
+    Sets the default coordinate.
+*/
+void Settings::setDefaultCoordinate(const Coordinate &coordinate) {
+    d_ptr->m_defaultCoordinate = coordinate;
+}
+
+/*!
+    Returns the default zoom level.
+*/
+double Settings::defaultZoom() const {
+    return d_ptr->m_defaultZoom;
+}
+
+/*!
+    Sets the default zoom level.
+*/
+void Settings::setDefaultZoom(double zoom) {
+    d_ptr->m_defaultZoom = zoom;
+}
+
+/*!
+    Returns the provider tile server options.
+
+    Note that this is mainly for internal use.
+*/
+mbgl::TileServerOptions *Settings::tileServerOptions() const {
+    return d_ptr->m_tileServerOptions;
+}
+
+// Private implementation
+SettingsPrivate::SettingsPrivate()
+    : m_contextMode(Settings::SharedGLContext),
+      m_mapMode(Settings::Continuous),
+      m_constrainMode(Settings::ConstrainHeightOnly),
+      m_viewportMode(Settings::DefaultViewport),
+      m_providerTemplate(Settings::NoProvider),
+      m_cacheMaximumSize(mbgl::util::DEFAULT_MAX_CACHE_SIZE),
+      m_cacheDatabasePath(":memory:"),
+      m_assetPath(QCoreApplication::applicationDirPath()),
+      m_apiKey(qgetenv("MLN_API_KEY")) {}
+
+void SettingsPrivate::setProviderTemplate(Settings::ProviderTemplate providerTemplate) {
+    if (m_tileServerOptions) {
+        delete m_tileServerOptions;
+        m_tileServerOptions = nullptr;
+    }
+
+    m_providerTemplate = providerTemplate;
+
+    if (providerTemplate == Settings::MapLibreProvider) {
+        m_tileServerOptions = new mbgl::TileServerOptions(mbgl::TileServerOptions::MapLibreConfiguration());
+    } else if (providerTemplate == Settings::MapTilerProvider) {
+        m_tileServerOptions = new mbgl::TileServerOptions(mbgl::TileServerOptions::MapTilerConfiguration());
+    } else if (providerTemplate == Settings::MapboxProvider) {
+        m_tileServerOptions = new mbgl::TileServerOptions(mbgl::TileServerOptions::MapboxConfiguration());
+    }
+}
+
+void SettingsPrivate::setProviderApiBaseUrl(const QString &url) {
+    if (m_tileServerOptions == nullptr) {
+        qWarning() << "No provider set so not setting API URL.";
+        return;
+    }
+
+    m_tileServerOptions = &m_tileServerOptions->withBaseURL(url.toStdString());
 }
 
 } // namespace QMapLibre
