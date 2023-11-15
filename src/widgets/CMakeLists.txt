@@ -5,8 +5,8 @@ set(Widgets_Headers
     gl_widget.hpp
 )
 # Header generation
-file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/include/${MLN_QT_NAME}Widgets/${MLN_QT_NAME}Widgets" "#include \"${MLN_QT_WIDGETS_LOWERCASE}.hpp\"")
-list(APPEND Widgets_Headers_Generated "${CMAKE_CURRENT_BINARY_DIR}/include/${MLN_QT_NAME}Widgets/${MLN_QT_NAME}Widgets")
+mln_umbrella_header_preprocess(${MLN_QT_WIDGETS_LOWERCASE} ${MLN_QT_NAME}Widgets HeaderOut)
+list(APPEND Widgets_Headers_Generated ${HeaderOut})
 foreach(Header ${Widgets_Headers})
     mln_header_preprocess(${Header} "${MLN_QT_NAME}Widgets" HeaderOut)
     list(APPEND Widgets_Headers_Generated ${HeaderOut})
