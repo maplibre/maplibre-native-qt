@@ -6,8 +6,6 @@
 
 #include "mainwindow.hpp"
 
-#include <QMapLibreWidgets/GLWidget>
-
 #include <QApplication>
 #include <QKeyEvent>
 #include <QMessageBox>
@@ -15,31 +13,38 @@
 
 Window::Window(MainWindow *mainWindow)
     : QWidget(mainWindow),
-      m_mainWindow(mainWindow) {
+      m_mainWindowRef(mainWindow) {
+    QMapLibre::Styles styles;
+    styles.emplace_back("https://demotiles.maplibre.org/style.json", "Demo Tiles");
+
     QMapLibre::Settings settings;
-    settings.setProviderTemplate(QMapLibre::Settings::MapLibreProvider);
-    m_glWidget = new QMapLibre::GLWidget(settings);
+    settings.setStyles(styles);
+    settings.setDefaultZoom(5);
+    settings.setDefaultCoordinate(QMapLibre::Coordinate(43, 21));
 
-    auto *layout = new QVBoxLayout;
-    layout->addWidget(m_glWidget);
-    m_buttonDock = new QPushButton(tr("Undock"), this);
-    connect(m_buttonDock, &QPushButton::clicked, this, &Window::dockUndock);
-    layout->addWidget(m_buttonDock);
+    m_glWidget = std::make_unique<QMapLibre::GLWidget>(settings);
 
-    setLayout(layout);
+    m_layout = std::make_unique<QVBoxLayout>(this);
+    m_layout->addWidget(m_glWidget.get());
+    m_buttonDock = std::make_unique<QPushButton>(tr("Undock"), this);
+    connect(m_buttonDock.get(), &QPushButton::clicked, this, &Window::dockUndock);
+    m_layout->addWidget(m_buttonDock.get());
+
+    setLayout(m_layout.get());
 
     setWindowTitle(tr("Hello QMapLibre"));
 }
 
 void Window::keyPressEvent(QKeyEvent *e) {
-    if (e->key() == Qt::Key_Escape)
+    if (e->key() == Qt::Key_Escape) {
         close();
-    else
+    } else {
         QWidget::keyPressEvent(e);
+    }
 }
 
 void Window::dockUndock() {
-    if (parent()) {
+    if (parent() != nullptr) {
         setParent(nullptr);
         setAttribute(Qt::WA_DeleteOnClose);
         move(QGuiApplication::primaryScreen()->size().width() / 2 - width() / 2,
@@ -47,11 +52,11 @@ void Window::dockUndock() {
         m_buttonDock->setText(tr("Dock"));
         show();
     } else {
-        if (!m_mainWindow->centralWidget()) {
-            if (m_mainWindow->isVisible()) {
+        if (m_mainWindowRef->centralWidget() == nullptr) {
+            if (m_mainWindowRef->isVisible()) {
                 setAttribute(Qt::WA_DeleteOnClose, false);
                 m_buttonDock->setText(tr("Undock"));
-                m_mainWindow->setCentralWidget(this);
+                m_mainWindowRef->setCentralWidget(this);
             } else {
                 QMessageBox::information(nullptr, tr("Cannot dock"), tr("Main window already closed"));
             }

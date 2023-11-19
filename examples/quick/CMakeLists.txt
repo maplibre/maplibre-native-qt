@@ -11,11 +11,13 @@ qt_standard_project_setup()
 
 find_package(QMapLibre COMPONENTS Location REQUIRED)
 
-qt_add_executable(QMapLibreExampleQuick
+qt_add_executable(
+    QMapLibreExampleQuick
     main.cpp
 )
 
-qt_add_qml_module(QMapLibreExampleQuick
+qt_add_qml_module(
+    QMapLibreExampleQuick
     URI Example
     VERSION 1.0
     RESOURCE_PREFIX "/"
@@ -23,12 +25,15 @@ qt_add_qml_module(QMapLibreExampleQuick
         main.qml
 )
 
-set_target_properties(QMapLibreExampleQuick PROPERTIES
-    WIN32_EXECUTABLE ON
-    MACOSX_BUNDLE ON
+set_target_properties(
+    QMapLibreExampleQuick
+    PROPERTIES
+        WIN32_EXECUTABLE ON
+        MACOSX_BUNDLE ON
 )
 
-target_link_libraries(QMapLibreExampleQuick
+target_link_libraries(
+    QMapLibreExampleQuick
     PRIVATE
         Qt::Quick
         QMapLibre::Location
@@ -38,7 +43,8 @@ qmaplibre_location_setup_plugins(QMapLibreExampleQuick)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     get_property(_qmlImport TARGET QMapLibreExampleQuick PROPERTY QT_QML_IMPORT_PATH)
-    add_custom_target(deploy
+    add_custom_target(
+        deploy
         COMMAND macdeployqt QMapLibreExampleQuick.app -qmldir=${CMAKE_SOURCE_DIR} -qmlimport=${_qmlImport}
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     )
