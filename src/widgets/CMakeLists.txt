@@ -41,7 +41,7 @@ set_target_properties(
 )
 
 # Qt MOC
-if (Qt6_FOUND AND COMMAND qt_enable_autogen_tool)
+if(Qt6_FOUND AND COMMAND qt_enable_autogen_tool)
     qt_enable_autogen_tool(Widgets "moc" ON)
 endif()
 
@@ -73,7 +73,7 @@ target_link_libraries(
         $<BUILD_INTERFACE:mbgl-compiler-options>
         $<BUILD_INTERFACE:CompilerOptions>
 )
-if (Qt6_FOUND)
+if(Qt6_FOUND)
     target_link_libraries(
         Widgets
         PUBLIC
@@ -88,7 +88,7 @@ else()
 endif()
 
 # Apple specifics
-if (APPLE)
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set_target_properties(
         Widgets
         PROPERTIES

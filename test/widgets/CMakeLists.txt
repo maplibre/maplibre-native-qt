@@ -3,7 +3,7 @@ set(test_sources
     gl_tester.cpp gl_tester.hpp
     test_widgets.cpp
 )
-if (COMMAND qt_add_executable)
+if(COMMAND qt_add_executable)
     qt_add_executable(test_mln_widgets ${test_sources})
 else()
     add_executable(test_mln_widgets ${test_sources})
@@ -33,4 +33,7 @@ if(MLN_QT_WITH_CLANG_TIDY)
     set_target_properties(test_mln_widgets PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
 endif()
 
-add_test(NAME test_mln_widgets COMMAND $<TARGET_FILE:test_mln_widgets>)
+add_test(
+    NAME test_mln_widgets
+    COMMAND $<TARGET_FILE:test_mln_widgets>
+)

@@ -1,14 +1,18 @@
 # QtLocation plugin
 if(COMMAND qt_add_plugin)
-    qt_add_plugin(${MLN_QT_GEOSERVICES_PLUGIN}
+    qt_add_plugin(
+        ${MLN_QT_GEOSERVICES_PLUGIN}
         CLASS_NAME QGeoServiceProviderFactoryMapLibre
         OUTPUT_TARGETS GeoServicesPluginOutputTargets
         PLUGIN_TYPE geoservices
         qgeoserviceproviderplugin.cpp qgeoserviceproviderplugin.hpp
     )
 else()
-    add_library(${MLN_QT_GEOSERVICES_PLUGIN} SHARED
-        qgeoserviceproviderplugin.cpp qgeoserviceproviderplugin.hpp)
+    add_library(
+        ${MLN_QT_GEOSERVICES_PLUGIN}
+        SHARED
+        qgeoserviceproviderplugin.cpp qgeoserviceproviderplugin.hpp
+    )
     target_compile_definitions(${MLN_QT_GEOSERVICES_PLUGIN} PRIVATE QT_PLUGIN)
 endif()
 
@@ -70,7 +74,8 @@ set(Plugin_Sources
 )
 
 if(COMMAND qt_add_qml_module)
-    qt_add_qml_module(${MLN_QT_QML_PLUGIN}
+    qt_add_qml_module(
+        ${MLN_QT_QML_PLUGIN}
         URI QtLocation.MapLibre
         VERSION ${PROJECT_VERSION}
         PLUGIN_TARGET ${MLN_QT_QML_PLUGIN}
@@ -82,18 +87,40 @@ if(COMMAND qt_add_qml_module)
         OUTPUT_TARGETS QmlPluginOutputTargets
         SOURCES ${Plugin_Sources}
     )
-    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/qmldir.in" "${CMAKE_CURRENT_BINARY_DIR}/QtLocation/MapLibre/qmldir" @ONLY)
+    configure_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/qmldir.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/QtLocation/MapLibre/qmldir"
+        @ONLY
+    )
 else()
-    add_library(${MLN_QT_QML_PLUGIN} SHARED ${Plugin_Sources} legacy/qml_module.cpp legacy/qml_registration.cpp)
-    target_compile_definitions(${MLN_QT_QML_PLUGIN} PRIVATE QT_PLUGIN)
-    target_include_directories(${MLN_QT_QML_PLUGIN} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+    add_library(
+        ${MLN_QT_QML_PLUGIN}
+        SHARED
+        ${Plugin_Sources}
+        legacy/qml_module.cpp
+        legacy/qml_registration.cpp
+    )
+    target_compile_definitions(
+        ${MLN_QT_QML_PLUGIN}
+        PRIVATE
+            QT_PLUGIN
+    )
+    target_include_directories(
+        ${MLN_QT_QML_PLUGIN}
+        PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}
+    )
     set_target_properties(
         ${MLN_QT_QML_PLUGIN}
         PROPERTIES
             AUTOMOC ON
             LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/QtLocation/MapLibre"
     )
-    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/legacy/qmldir.in" "${CMAKE_CURRENT_BINARY_DIR}/QtLocation/MapLibre/qmldir" @ONLY)
+    configure_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/legacy/qmldir.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/QtLocation/MapLibre/qmldir"
+        @ONLY
+    )
 endif()
 set_property(TARGET ${MLN_QT_QML_PLUGIN} PROPERTY EXPORT_NAME PluginQml)
 
@@ -140,10 +167,10 @@ install(
     DESTINATION "qml/QtLocation/MapLibre"
 )
 
-if (COMMAND qt_add_qml_module)
+if(COMMAND qt_add_qml_module)
     install(
         FILES
             "${CMAKE_CURRENT_BINARY_DIR}/QtLocation/MapLibre/${MLN_QT_QML_PLUGIN}.qmltypes"
         DESTINATION "qml/QtLocation/MapLibre"
-)
+    )
 endif()

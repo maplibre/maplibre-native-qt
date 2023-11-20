@@ -1,11 +1,15 @@
-if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+if(
+    CMAKE_SYSTEM_NAME STREQUAL "Android"
+    OR CMAKE_SYSTEM_NAME STREQUAL "Emscripten"
+    OR CMAKE_SYSTEM_NAME STREQUAL "iOS"
+)
     return()
 endif()
 
 add_subdirectory(core)
-if (MLN_QT_WITH_LOCATION)
+if(MLN_QT_WITH_LOCATION)
     add_subdirectory(qml)
 endif()
-if (MLN_QT_WITH_WIDGETS)
+if(MLN_QT_WITH_WIDGETS)
     add_subdirectory(widgets)
 endif()

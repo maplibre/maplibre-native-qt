@@ -1,4 +1,4 @@
-if (Qt5_FOUND)
+if(Qt5_FOUND)
     return()
 endif()
 
@@ -7,7 +7,7 @@ set(test_sources
     map_tester.cpp map_tester.hpp
     test_core.cpp
 )
-if (COMMAND qt_add_executable)
+if(COMMAND qt_add_executable)
     qt_add_executable(test_mln_core ${test_sources})
 else()
     add_executable(test_mln_core ${test_sources})
@@ -36,7 +36,10 @@ if(MLN_QT_WITH_CLANG_TIDY)
     set_target_properties(test_mln_core PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
 endif()
 
-add_test(NAME test_mln_core COMMAND $<TARGET_FILE:test_mln_core>)
+add_test(
+    NAME test_mln_core
+    COMMAND $<TARGET_FILE:test_mln_core>
+)
 set_tests_properties(
     test_mln_core
     PROPERTIES
