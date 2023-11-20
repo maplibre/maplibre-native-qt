@@ -5,8 +5,9 @@
 
 #pragma once
 
-#include "renderer_backend_p.hpp"
 #include "settings.hpp"
+
+#include "utils/renderer_backend.hpp"
 
 #include <mbgl/renderer/renderer.hpp>
 #include <mbgl/renderer/renderer_observer.hpp>
