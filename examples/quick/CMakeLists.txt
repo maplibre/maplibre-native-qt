@@ -9,6 +9,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 find_package(Qt6 REQUIRED COMPONENTS Quick REQUIRED)
 qt_standard_project_setup()
 
+if(QT_KNOWN_POLICY_QTP0002)
+    qt_policy(SET QTP0002 NEW)
+endif()
+
 find_package(QMapLibre COMPONENTS Location REQUIRED)
 
 qt_add_executable(QMapLibreExampleQuick
@@ -43,4 +47,15 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     )
     add_dependencies(deploy QMapLibreExampleQuick)
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Android")
+    include(FetchContent)
+    FetchContent_Declare(
+        android_openssl
+        DOWNLOAD_EXTRACT_TIMESTAMP true
+        URL https://github.com/KDAB/android_openssl/archive/refs/heads/master.zip
+    )
+    FetchContent_MakeAvailable(android_openssl)
+    include(${android_openssl_SOURCE_DIR}/android_openssl.cmake)
+
+    add_android_openssl_libraries(QMapLibreExampleQuick)
 endif()

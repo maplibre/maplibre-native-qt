@@ -1,49 +1,56 @@
-name: iOS Qt6 CI
+name: iOS CI
 
 on:
   workflow_dispatch:
-  # push:
-  #   branches:
-  #     - main
-  #   tags:
-  #     - '**'
-  #   paths-ignore:
-  #     - ".gitignore"
-  #     - "README.md"
-  #     # ignore CI for other platforms
-  #     - ".github/FUNDING.yml"
-  #     - ".github/actions/**"
-  #     - ".github/workflows/Android.yml"
-  #     - ".github/workflows/Linux.yml"
-  #     - ".github/workflows/macOS.yml"
-  #     - ".github/workflows/Windows.yml"
+  push:
+    branches:
+      - main
+    tags:
+      - "**"
+    paths-ignore:
+      - ".gitignore"
+      - "README.md"
+      # ignore CI for other platforms
+      - ".github/FUNDING.yml"
+      - ".github/actions/**"
+      - ".github/workflows/Android.yml"
+      - ".github/workflows/Linux.yml"
+      - ".github/workflows/macOS.yml"
+      - ".github/workflows/Windows.yml"
 
-  # pull_request:
-  #   branches:
-  #     - main
-  #   paths-ignore:
-  #     - ".gitignore"
-  #     - "README.md"
-  #     # ignore CI for other platforms
-  #     - ".github/FUNDING.yml"
-  #     - ".github/actions/**"
-  #     - ".github/workflows/Android.yml"
-  #     - ".github/workflows/Linux.yml"
-  #     - ".github/workflows/macOS.yml"
-  #     - ".github/workflows/Windows.yml"
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - ".gitignore"
+      - "README.md"
+      # ignore CI for other platforms
+      - ".github/FUNDING.yml"
+      - ".github/actions/**"
+      - ".github/workflows/Android.yml"
+      - ".github/workflows/Linux.yml"
+      - ".github/workflows/macOS.yml"
+      - ".github/workflows/Windows.yml"
 
 concurrency:
   # cancel jobs on PRs only
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
-env:
-  QT_VERSION: 6.5.3
-
 jobs:
-  build-plugin:
-    name: Build QMapLibre
+  build:
+    name: Build QMapLibre for iOS (Qt${{ matrix.qt_version}})
     runs-on: macos-13
+    strategy:
+      matrix:
+        include:
+          - qt_version: 6.5.3
+            deployment_target: 14.0
+          - qt_version: 6.6.0
+            deployment_target: 14.0
+
+    env:
+      DEPLOYMENT_TARGET: ${{ matrix.deployment_target }}
 
     steps:
       - name: Checkout
@@ -62,7 +69,7 @@ jobs:
         uses: jurplel/install-qt-action@v3
         with:
           aqtversion: ==3.1.*
-          version: ${{ env.QT_VERSION }}
+          version: ${{ matrix.qt_version }}
           target: desktop
           modules: qtlocation qtpositioning
           set-env: false
@@ -71,7 +78,7 @@ jobs:
         uses: jurplel/install-qt-action@v3
         with:
           aqtversion: ==3.1.*
-          version: ${{ env.QT_VERSION }}
+          version: ${{ matrix.qt_version }}
           target: ios
           modules: qtlocation qtpositioning
 
@@ -81,7 +88,7 @@ jobs:
       - name: Set up ccache
         uses: hendrikmuhs/ccache-action@v1
         with:
-          key: iOS_QMapLibre
+          key: iOS_QMapLibre_${{ matrix.qt_version }}
           max-size: 200M
 
       - name: Use latest version of ccache
@@ -91,7 +98,6 @@ jobs:
 
       - name: Build QMapLibre
         run: |
-          export CCACHE_LOGFILE="../ccache.log"
           mkdir build && cd build
           qt-cmake ../source/ \
             -G"Ninja Multi-Config" \
@@ -100,53 +106,50 @@ jobs:
             -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
             -DCMAKE_INSTALL_PREFIX="../install" \
             -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=13.0 \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET="${DEPLOYMENT_TARGET}" \
             -DQT_HOST_PATH="$(readlink -f "$Qt6_DIR/../macos")"
           ninja
-          ninja test
           ninja install
 
-      - name: Upload ccache.log
-        uses: actions/upload-artifact@v4
-        with:
-          name: ccache_iOS
-          path: ccache.log
-
-      - name: Create artifacts
+      - name: Compress installation
         run: |
           pushd install
           tar cjvf ../QMapLibre_iOS.tar.bz2 *
           popd
 
-      - name: Upload artifacts
+      - name: Upload installation
         uses: actions/upload-artifact@v4
         with:
-          name: QMapLibre_iOS
+          name: QMapLibre_iOS_${{ matrix.qt_version }}
           path: QMapLibre_iOS.tar.bz2
 
   release:
     name: Release QMapLibre
     if: github.ref_type == 'tag'
     runs-on: macos-13
-    needs: build-plugin
+    needs: build
     permissions:
       contents: write
+    strategy:
+      matrix:
+        qt_version: [6.5.3, 6.6.0]
 
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: QMapLibre_iOS
+          name: QMapLibre_iOS_${{ matrix.qt_version }}
 
       - name: Make tarball
         env:
           TAG_NAME: ${{ github.ref_name }}
+          QT_VERSION: ${{ matrix.qt_version }}
         run: |
           mv QMapLibre_iOS.tar.bz2 QMapLibre_${TAG_NAME}_Qt${QT_VERSION}_iOS.tar.bz2
 
       - name: Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: QMapLibre_${{ github.ref_name }}_Qt${{ env.QT_VERSION }}_iOS.tar.bz2
+          artifacts: QMapLibre_${{ github.ref_name }}_Qt${{ matrix.qt_version }}_iOS.tar.bz2
           allowUpdates: true
           draft: true
