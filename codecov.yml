@@ -1,0 +1,13 @@
+ignore:
+  - "examples/"
+  - "test/"
+  - "vendor/"
+
+coverage:
+  status:
+    project:
+      default:
+        threshold: 1%
+
+fixes:
+  - "source/::"

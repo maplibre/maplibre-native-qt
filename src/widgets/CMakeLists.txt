@@ -71,6 +71,7 @@ target_link_libraries(
         Core
     PRIVATE
         $<BUILD_INTERFACE:mbgl-compiler-options>
+        $<BUILD_INTERFACE:CompilerOptions>
 )
 if (Qt6_FOUND)
     target_link_libraries(
