@@ -20,8 +20,8 @@ set(Core_Headers
     utils.hpp
 )
 # Header generation
-file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/include/${MLN_QT_NAME}/${MLN_QT_NAME}" "#include \"${MLN_QT_NAME_LOWERCASE}.hpp\"")
-list(APPEND Core_Headers_Generated "${CMAKE_CURRENT_BINARY_DIR}/include/${MLN_QT_NAME}/${MLN_QT_NAME}")
+mln_umbrella_header_preprocess(${MLN_QT_NAME_LOWERCASE} ${MLN_QT_NAME} HeaderOut)
+list(APPEND Core_Headers_Generated ${HeaderOut})
 foreach(Header ${Core_Headers})
     mln_header_preprocess(${Header} ${MLN_QT_NAME} HeaderOut)
     list(APPEND Core_Headers_Generated ${HeaderOut})
