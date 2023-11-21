@@ -78,6 +78,11 @@ if (APPLE)
     )
 endif()
 
+# Development specifics
+if(MLN_QT_WITH_CLANG_TIDY)
+    set_target_properties(Location PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
+endif()
+
 # Export and installation
 install(
     EXPORT ${MLN_QT_NAME}LocationTargets

@@ -13,11 +13,12 @@
 #include <QtGui/QImage>
 
 #include <functional>
+#include <memory>
 
 // TODO: this will be wrapped at some point
 namespace mbgl {
 class TileServerOptions;
-}
+} // namespace mbgl
 
 namespace QMapLibre {
 
@@ -25,8 +26,8 @@ class SettingsPrivate;
 
 class Q_MAPLIBRE_CORE_EXPORT Settings {
 public:
-    enum GLContextMode {
-        UniqueGLContext = 0,
+    enum GLContextMode : bool {
+        UniqueGLContext,
         SharedGLContext
     };
 
@@ -55,65 +56,66 @@ public:
 
     explicit Settings(ProviderTemplate provider = NoProvider);
     ~Settings();
-    Settings(const Settings &);
-    Settings(Settings &&) noexcept;
-    Settings &operator=(const Settings &);
-    Settings &operator=(Settings &&) noexcept;
+    Settings(const Settings &s);
+    Settings(Settings &&s) noexcept;
+    Settings &operator=(const Settings &s);
+    Settings &operator=(Settings &&s) noexcept;
 
-    GLContextMode contextMode() const;
+    [[nodiscard]] GLContextMode contextMode() const;
     void setContextMode(GLContextMode);
 
-    MapMode mapMode() const;
+    [[nodiscard]] MapMode mapMode() const;
     void setMapMode(MapMode);
 
-    ConstrainMode constrainMode() const;
+    [[nodiscard]] ConstrainMode constrainMode() const;
     void setConstrainMode(ConstrainMode);
 
-    ViewportMode viewportMode() const;
+    [[nodiscard]] ViewportMode viewportMode() const;
     void setViewportMode(ViewportMode);
 
-    unsigned cacheDatabaseMaximumSize() const;
+    [[nodiscard]] unsigned cacheDatabaseMaximumSize() const;
     void setCacheDatabaseMaximumSize(unsigned);
 
-    QString cacheDatabasePath() const;
-    void setCacheDatabasePath(const QString &);
+    [[nodiscard]] QString cacheDatabasePath() const;
+    void setCacheDatabasePath(const QString &path);
 
-    QString assetPath() const;
-    void setAssetPath(const QString &);
+    [[nodiscard]] QString assetPath() const;
+    void setAssetPath(const QString &path);
 
-    QString apiKey() const;
-    void setApiKey(const QString &);
+    [[nodiscard]] QString apiKey() const;
+    void setApiKey(const QString &key);
 
-    QString apiBaseUrl() const;
-    void setApiBaseUrl(const QString &);
+    [[nodiscard]] QString apiBaseUrl() const;
+    void setApiBaseUrl(const QString &url);
 
-    QString localFontFamily() const;
-    void setLocalFontFamily(const QString &);
+    [[nodiscard]] QString localFontFamily() const;
+    void setLocalFontFamily(const QString &family);
 
-    QString clientName() const;
-    void setClientName(const QString &);
+    [[nodiscard]] QString clientName() const;
+    void setClientName(const QString &name);
 
-    QString clientVersion() const;
-    void setClientVersion(const QString &);
+    [[nodiscard]] QString clientVersion() const;
+    void setClientVersion(const QString &version);
 
-    std::function<std::string(const std::string &)> resourceTransform() const;
-    void setResourceTransform(const std::function<std::string(const std::string &)> &);
+    [[nodiscard]] std::function<std::string(const std::string &)> resourceTransform() const;
+    void setResourceTransform(const std::function<std::string(const std::string &)> &transform);
 
     void setProviderTemplate(ProviderTemplate);
     void setStyles(const Styles &styles);
 
-    const Styles &styles() const;
-    Styles providerStyles() const;
+    [[nodiscard]] const Styles &styles() const;
+    [[nodiscard]] Styles providerStyles() const;
 
-    Coordinate defaultCoordinate() const;
-    void setDefaultCoordinate(const Coordinate &);
-    double defaultZoom() const;
-    void setDefaultZoom(double);
+    [[nodiscard]] Coordinate defaultCoordinate() const;
+    void setDefaultCoordinate(const Coordinate &coordinate);
+    [[nodiscard]] double defaultZoom() const;
+    void setDefaultZoom(double zoom);
 
-    mbgl::TileServerOptions *tileServerOptions() const;
+    [[nodiscard]] bool customTileServerOptions() const;
+    [[nodiscard]] const mbgl::TileServerOptions &tileServerOptions() const;
 
 private:
-    SettingsPrivate *d_ptr;
+    std::unique_ptr<SettingsPrivate> d_ptr;
 };
 
 } // namespace QMapLibre

@@ -13,17 +13,18 @@
 #include <QtCore/QVariant>
 #include <QtCore/QVector>
 #include <QtGui/QColor>
+#include <utility>
 
 namespace QMapLibre {
 
-typedef QPair<double, double> Coordinate;
-typedef QPair<Coordinate, double> CoordinateZoom;
-typedef QPair<double, double> ProjectedMeters;
+using Coordinate = QPair<double, double>;
+using CoordinateZoom = QPair<Coordinate, double>;
+using ProjectedMeters = QPair<double, double>;
 
-typedef QVector<Coordinate> Coordinates;
-typedef QVector<Coordinates> CoordinatesCollection;
+using Coordinates = QVector<Coordinate>;
+using CoordinatesCollection = QVector<Coordinates>;
 
-typedef QVector<CoordinatesCollection> CoordinatesCollections;
+using CoordinatesCollections = QVector<CoordinatesCollection>;
 
 struct Q_MAPLIBRE_CORE_EXPORT Style {
     enum Type { // Taken from Qt to be in sync with QtLocation
@@ -41,9 +42,9 @@ struct Q_MAPLIBRE_CORE_EXPORT Style {
         CustomMap = 100
     };
 
-    Style(const QString &url_, const QString &name_ = QString())
-        : url(url_),
-          name(name_) {}
+    explicit Style(QString url_, QString name_ = QString())
+        : url(std::move(url_)),
+          name(std::move(name_)) {}
 
     QString url;
     QString name;
@@ -52,7 +53,7 @@ struct Q_MAPLIBRE_CORE_EXPORT Style {
     Type type{CustomMap};
 };
 
-typedef QVector<Style> Styles;
+using Styles = QVector<Style>;
 
 struct Q_MAPLIBRE_CORE_EXPORT Feature {
     enum Type {
@@ -62,14 +63,14 @@ struct Q_MAPLIBRE_CORE_EXPORT Feature {
     };
 
     /*! Class constructor. */
-    Feature(Type type_ = PointType,
-            const CoordinatesCollections &geometry_ = CoordinatesCollections(),
-            const QVariantMap &properties_ = QVariantMap(),
-            const QVariant &id_ = QVariant())
+    explicit Feature(Type type_ = PointType,
+                     CoordinatesCollections geometry_ = CoordinatesCollections(),
+                     QVariantMap properties_ = QVariantMap(),
+                     QVariant id_ = QVariant())
         : type(type_),
-          geometry(geometry_),
-          properties(properties_),
-          id(id_) {}
+          geometry(std::move(geometry_)),
+          properties(std::move(properties_)),
+          id(std::move(id_)) {}
 
     Type type;
     CoordinatesCollections geometry;
@@ -86,10 +87,10 @@ struct Q_MAPLIBRE_CORE_EXPORT ShapeAnnotationGeometry {
     };
 
     /*! Class constructor. */
-    ShapeAnnotationGeometry(Type type_ = LineStringType,
-                            const CoordinatesCollections &geometry_ = CoordinatesCollections())
+    explicit ShapeAnnotationGeometry(Type type_ = LineStringType,
+                                     CoordinatesCollections geometry_ = CoordinatesCollections())
         : type(type_),
-          geometry(geometry_) {}
+          geometry(std::move(geometry_)) {}
 
     Type type;
     CoordinatesCollections geometry;
@@ -102,11 +103,11 @@ struct Q_MAPLIBRE_CORE_EXPORT SymbolAnnotation {
 
 struct Q_MAPLIBRE_CORE_EXPORT LineAnnotation {
     /*! Class constructor. */
-    LineAnnotation(const ShapeAnnotationGeometry &geometry_ = ShapeAnnotationGeometry(),
-                   float opacity_ = 1.0f,
-                   float width_ = 1.0f,
-                   const QColor &color_ = Qt::black)
-        : geometry(geometry_),
+    explicit LineAnnotation(ShapeAnnotationGeometry geometry_ = ShapeAnnotationGeometry(),
+                            float opacity_ = 1.0f,
+                            float width_ = 1.0f,
+                            const QColor &color_ = Qt::black)
+        : geometry(std::move(geometry_)),
           opacity(opacity_),
           width(width_),
           color(color_) {}
@@ -119,14 +120,14 @@ struct Q_MAPLIBRE_CORE_EXPORT LineAnnotation {
 
 struct Q_MAPLIBRE_CORE_EXPORT FillAnnotation {
     /*! Class constructor. */
-    FillAnnotation(const ShapeAnnotationGeometry &geometry_ = ShapeAnnotationGeometry(),
-                   float opacity_ = 1.0f,
-                   const QColor &color_ = Qt::black,
-                   const QVariant &outlineColor_ = QVariant())
-        : geometry(geometry_),
+    explicit FillAnnotation(ShapeAnnotationGeometry geometry_ = ShapeAnnotationGeometry(),
+                            float opacity_ = 1.0f,
+                            const QColor &color_ = Qt::black,
+                            QVariant outlineColor_ = QVariant())
+        : geometry(std::move(geometry_)),
           opacity(opacity_),
           color(color_),
-          outlineColor(outlineColor_) {}
+          outlineColor(std::move(outlineColor_)) {}
 
     ShapeAnnotationGeometry geometry;
     float opacity;
@@ -134,9 +135,9 @@ struct Q_MAPLIBRE_CORE_EXPORT FillAnnotation {
     QVariant outlineColor;
 };
 
-typedef QVariant Annotation;
-typedef quint32 AnnotationID;
-typedef QVector<AnnotationID> AnnotationIDs;
+using Annotation = QVariant;
+using AnnotationID = quint32;
+using AnnotationIDs = QVector<AnnotationID>;
 
 struct Q_MAPLIBRE_CORE_EXPORT CameraOptions {
     QVariant center;  // Coordinate

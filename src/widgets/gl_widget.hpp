@@ -31,7 +31,7 @@ class Q_MAPLIBRE_WIDGETS_EXPORT GLWidget : public QOpenGLWidget {
 
 public:
     explicit GLWidget(const Settings &);
-    virtual ~GLWidget();
+    ~GLWidget() override;
 
     Map *map();
 
@@ -48,7 +48,7 @@ protected:
 private:
     Q_DISABLE_COPY(GLWidget)
 
-    GLWidgetPrivate *d_ptr;
+    std::unique_ptr<GLWidgetPrivate> d_ptr;
 };
 
 } // namespace QMapLibre

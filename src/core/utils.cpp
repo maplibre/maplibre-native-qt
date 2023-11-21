@@ -61,7 +61,7 @@ double metersPerPixelAtLatitude(double latitude, double zoom) {
 ProjectedMeters projectedMetersForCoordinate(const Coordinate &coordinate) {
     auto projectedMeters = mbgl::Projection::projectedMetersForLatLng(
         mbgl::LatLng{coordinate.first, coordinate.second});
-    return ProjectedMeters(projectedMeters.northing(), projectedMeters.easting());
+    return {projectedMeters.northing(), projectedMeters.easting()};
 }
 
 /*!
@@ -70,7 +70,7 @@ ProjectedMeters projectedMetersForCoordinate(const Coordinate &coordinate) {
 Coordinate coordinateForProjectedMeters(const ProjectedMeters &projectedMeters) {
     auto latLng = mbgl::Projection::latLngForProjectedMeters(
         mbgl::ProjectedMeters{projectedMeters.first, projectedMeters.second});
-    return Coordinate(latLng.latitude(), latLng.longitude());
+    return {latLng.latitude(), latLng.longitude()};
 }
 
 } // namespace QMapLibre

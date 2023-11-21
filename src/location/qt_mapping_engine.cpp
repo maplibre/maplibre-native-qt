@@ -21,13 +21,19 @@
 #include <QtCore/QVariant>
 #include <QtQml/QJSValue>
 
+#include <memory>
+
 namespace {
 
 void parseStyleJsonObject(QMapLibre::Styles &styles, const QJsonObject &obj) {
-    if (!obj.contains(QStringLiteral("url"))) return;
+    if (!obj.contains(QStringLiteral("url"))) {
+        return;
+    }
 
     const QString url = obj.value(QStringLiteral("url")).toString();
-    if (url.isEmpty()) return;
+    if (url.isEmpty()) {
+        return;
+    }
 
     const QString name = obj.contains(QStringLiteral("name"))
                              ? obj.value(QStringLiteral("name")).toString()
@@ -52,22 +58,29 @@ void parseStyleJsonObject(QMapLibre::Styles &styles, const QJsonObject &obj) {
 
 namespace QMapLibre {
 
-QtMappingEngine::QtMappingEngine(const QVariantMap &parameters, QGeoServiceProvider::Error *error, QString *errorString)
-    : QGeoMappingManagerEngine() {
+QtMappingEngine::QtMappingEngine(const QVariantMap &parameters,
+                                 QGeoServiceProvider::Error *error,
+                                 QString *errorString) {
     *error = QGeoServiceProvider::NoError;
     errorString->clear();
+
+    // constants
+    constexpr int tileSize{512};
+    constexpr double maxZoom{20.0};
+    constexpr double maxTilt{60.0};
+    constexpr double fieldOfView{36.87};
 
     // capabilities
     QGeoCameraCapabilities cameraCaps;
     cameraCaps.setMinimumZoomLevel(0.0);
-    cameraCaps.setMaximumZoomLevel(20.0);
-    cameraCaps.setTileSize(512);
+    cameraCaps.setMaximumZoomLevel(maxZoom);
+    cameraCaps.setTileSize(tileSize);
     cameraCaps.setSupportsBearing(true);
     cameraCaps.setSupportsTilting(true);
     cameraCaps.setMinimumTilt(0);
-    cameraCaps.setMaximumTilt(60);
-    cameraCaps.setMinimumFieldOfView(36.87);
-    cameraCaps.setMaximumFieldOfView(36.87);
+    cameraCaps.setMaximumTilt(maxTilt);
+    cameraCaps.setMinimumFieldOfView(fieldOfView);
+    cameraCaps.setMaximumFieldOfView(fieldOfView);
     setCameraCapabilities(cameraCaps);
 
     const QStringList supportedOptions{QStringLiteral("maplibre.api.provider"),
@@ -126,7 +139,9 @@ QtMappingEngine::QtMappingEngine(const QVariantMap &parameters, QGeoServiceProvi
                         parseStyleJsonObject(styles, value.toObject());
                     } else if (value.isString()) {
                         const QString url = value.toString();
-                        if (url.isEmpty()) continue;
+                        if (url.isEmpty()) {
+                            continue;
+                        }
                         styles.append(Style(url, "Style " + QString::number(styles.size() + 1)));
                     }
                 }
@@ -136,7 +151,9 @@ QtMappingEngine::QtMappingEngine(const QVariantMap &parameters, QGeoServiceProvi
             const QStringList urlsList = urls.split(',', Qt::SkipEmptyParts);
 
             for (const QString &url : urlsList) {
-                if (url.isEmpty()) continue;
+                if (url.isEmpty()) {
+                    continue;
+                }
                 styles.append(Style(url, "Style " + QString::number(styles.size() + 1)));
             }
         }
@@ -148,7 +165,7 @@ QtMappingEngine::QtMappingEngine(const QVariantMap &parameters, QGeoServiceProvi
             mapMetadata[QStringLiteral("url")] = style.url;
             mapMetadata[QStringLiteral("isHTTPS")] = style.url.startsWith(QStringLiteral("https:"));
 
-            mapTypes << QGeoMapType(QGeoMapType::MapStyle(style.type),
+            mapTypes << QGeoMapType(static_cast<QGeoMapType::MapStyle>(style.type),
                                     style.name,
                                     style.description,
                                     false,
@@ -166,7 +183,7 @@ QtMappingEngine::QtMappingEngine(const QVariantMap &parameters, QGeoServiceProvi
         mapMetadata[QStringLiteral("url")] = style.url;
         mapMetadata[QStringLiteral("isHTTPS")] = true;
 
-        mapTypes << QGeoMapType(QGeoMapType::MapStyle(style.type),
+        mapTypes << QGeoMapType(static_cast<QGeoMapType::MapStyle>(style.type),
                                 style.name,
                                 style.description,
                                 false,
@@ -227,11 +244,10 @@ QtMappingEngine::QtMappingEngine(const QVariantMap &parameters, QGeoServiceProvi
 }
 
 QGeoMap *QtMappingEngine::createMap() {
-    QGeoMapMapLibre *map = new QGeoMapMapLibre(this);
+    auto map = std::make_unique<QGeoMapMapLibre>(this);
     map->setSettings(m_settings);
     map->setMapItemsBefore(m_mapItemsBefore);
-
-    return map;
+    return map.release();
 }
 
 } // namespace QMapLibre

@@ -20,28 +20,28 @@ private slots:
 };
 
 void TestWidgets::testGLWidgetNoProvider() {
-    std::unique_ptr<QSurface> surface = QMapLibre::createTestSurface(QSurface::Window);
+    const std::unique_ptr<QSurface> surface = QMapLibre::createTestSurface(QSurface::Window);
     QVERIFY(surface != nullptr);
 
     QOpenGLContext ctx;
     QVERIFY(ctx.create());
     QVERIFY(ctx.makeCurrent(surface.get()));
 
-    QMapLibre::Settings settings;
+    const QMapLibre::Settings settings;
     auto tester = std::make_unique<QMapLibre::GLTester>(settings);
     tester->show();
     QTest::qWait(1000);
 }
 
 void TestWidgets::testGLWidgetMapLibreProvider() {
-    std::unique_ptr<QSurface> surface = QMapLibre::createTestSurface(QSurface::Window);
+    const std::unique_ptr<QSurface> surface = QMapLibre::createTestSurface(QSurface::Window);
     QVERIFY(surface != nullptr);
 
     QOpenGLContext ctx;
     QVERIFY(ctx.create());
     QVERIFY(ctx.makeCurrent(surface.get()));
 
-    QMapLibre::Settings settings(QMapLibre::Settings::MapLibreProvider);
+    const QMapLibre::Settings settings(QMapLibre::Settings::MapLibreProvider);
     auto tester = std::make_unique<QMapLibre::GLTester>(settings);
     tester->show();
     QTest::qWait(100);
@@ -50,7 +50,7 @@ void TestWidgets::testGLWidgetMapLibreProvider() {
 }
 
 void TestWidgets::testGLWidgetStyle() {
-    std::unique_ptr<QSurface> surface = QMapLibre::createTestSurface(QSurface::Window);
+    const std::unique_ptr<QSurface> surface = QMapLibre::createTestSurface(QSurface::Window);
     QVERIFY(surface != nullptr);
 
     QOpenGLContext ctx;
@@ -69,5 +69,6 @@ void TestWidgets::testGLWidgetStyle() {
     QTest::qWait(tester->selfTest());
 }
 
+// NOLINTNEXTLINE(misc-const-correctness)
 QTEST_MAIN(TestWidgets)
 #include "test_widgets.moc"

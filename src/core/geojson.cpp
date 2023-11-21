@@ -77,7 +77,7 @@ mbgl::Value asPropertyValue(const QVariant &value) {
         std::unordered_map<std::string, mbgl::Value> mbglMap;
         mbglMap.reserve(map.size());
         for (auto it = map.constBegin(); it != map.constEnd(); ++it) {
-            mbglMap.emplace(std::make_pair(it.key().toStdString(), asPropertyValue(it.value())));
+            mbglMap.emplace(it.key().toStdString(), asPropertyValue(it.value()));
         }
         return mbglMap;
     };
@@ -92,9 +92,9 @@ mbgl::Value asPropertyValue(const QVariant &value) {
         case QMetaType::Bool:
             return {value.toBool()};
         case QMetaType::ULongLong:
-            return {uint64_t(value.toULongLong())};
+            return {static_cast<uint64_t>(value.toULongLong())};
         case QMetaType::LongLong:
-            return {int64_t(value.toLongLong())};
+            return {static_cast<int64_t>(value.toLongLong())};
         case QMetaType::Double:
             return {value.toDouble()};
         case QMetaType::QString:
@@ -118,9 +118,9 @@ mbgl::FeatureIdentifier asFeatureIdentifier(const QVariant &id) {
         case QMetaType::UnknownType:
             return {};
         case QMetaType::ULongLong:
-            return {uint64_t(id.toULongLong())};
+            return {static_cast<uint64_t>(id.toULongLong())};
         case QMetaType::LongLong:
-            return {int64_t(id.toLongLong())};
+            return {static_cast<int64_t>(id.toLongLong())};
         case QMetaType::Double:
             return {id.toDouble()};
         case QMetaType::QString:
@@ -144,24 +144,27 @@ mbgl::GeoJSONFeature asFeature(const Feature &feature) {
         const Coordinates &points = feature.geometry.first().first();
         if (points.size() == 1) {
             return {asPoint(points.first()), std::move(properties), std::move(id)};
-        } else {
-            return {asMultiPoint(points), std::move(properties), std::move(id)};
         }
-    } else if (feature.type == Feature::LineStringType) {
+        return {asMultiPoint(points), std::move(properties), std::move(id)};
+    }
+
+    if (feature.type == Feature::LineStringType) {
         const CoordinatesCollection &lineStrings = feature.geometry.first();
         if (lineStrings.size() == 1) {
             return {asLineString(lineStrings.first()), std::move(properties), std::move(id)};
-        } else {
-            return {asMultiLineString(lineStrings), std::move(properties), std::move(id)};
         }
-    } else { // PolygonType
+        return {asMultiLineString(lineStrings), std::move(properties), std::move(id)};
+    }
+
+    if (feature.type == Feature::PolygonType) {
         const CoordinatesCollections &polygons = feature.geometry;
         if (polygons.size() == 1) {
             return {asPolygon(polygons.first()), std::move(properties), std::move(id)};
-        } else {
-            return {asMultiPolygon(polygons), std::move(properties), std::move(id)};
         }
+        return {asMultiPolygon(polygons), std::move(properties), std::move(id)};
     }
+
+    throw std::runtime_error("Unsupported feature type");
 };
 
 } // namespace QMapLibre::GeoJSON

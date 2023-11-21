@@ -8,7 +8,7 @@
 
 namespace {
 constexpr int kAnimationDuration = 5000;
-}
+} // anonymous namespace
 
 namespace QMapLibre {
 
@@ -16,11 +16,11 @@ GLTester::GLTester(const QMapLibre::Settings &settings)
     : GLWidget(settings) {}
 
 void GLTester::initializeAnimation() {
-    m_bearingAnimation = new QPropertyAnimation(map(), "bearing");
-    m_zoomAnimation = new QPropertyAnimation(map(), "zoom");
+    m_bearingAnimation = std::make_unique<QPropertyAnimation>(map(), "bearing");
+    m_zoomAnimation = std::make_unique<QPropertyAnimation>(map(), "zoom");
 
-    connect(m_zoomAnimation, &QPropertyAnimation::finished, this, &GLTester::animationFinished);
-    connect(m_zoomAnimation, &QPropertyAnimation::valueChanged, this, &GLTester::animationValueChanged);
+    connect(m_zoomAnimation.get(), &QPropertyAnimation::finished, this, &GLTester::animationFinished);
+    connect(m_zoomAnimation.get(), &QPropertyAnimation::valueChanged, this, &GLTester::animationValueChanged);
 }
 
 int GLTester::selfTest() {
@@ -43,9 +43,10 @@ void GLTester::animationValueChanged() {
     m_animationTicks++;
 }
 
-void GLTester::animationFinished() {
-    qDebug() << "Animation ticks/s: " << m_animationTicks / static_cast<float>(kAnimationDuration) * 1000.;
-    qDebug() << "Frame draws/s: " << m_frameDraws / static_cast<float>(kAnimationDuration) * 1000.;
+void GLTester::animationFinished() const {
+    qDebug() << "Animation ticks/s: "
+             << static_cast<float>(m_animationTicks) / static_cast<float>(kAnimationDuration) * 1000.f;
+    qDebug() << "Frame draws/s: " << static_cast<float>(m_frameDraws) / static_cast<float>(kAnimationDuration) * 1000.f;
 }
 
 void GLTester::paintGL() {

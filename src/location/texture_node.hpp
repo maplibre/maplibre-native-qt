@@ -25,7 +25,7 @@ class TextureNode : public QSGSimpleTextureNode {
 public:
     TextureNode(const Settings &setting, const QSize &size, qreal pixelRatio, QGeoMapMapLibre *geoMap);
 
-    Map *map() const;
+    [[nodiscard]] Map *map() const;
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     void resize(const QSize &size, qreal pixelRatio, QQuickWindow *window);

@@ -19,10 +19,10 @@ class QGeoMapMapLibre : public QGeoMap {
     Q_DECLARE_PRIVATE(QGeoMapMapLibre)
 
 public:
-    QGeoMapMapLibre(QGeoMappingManagerEngine *engine, QObject *parent = nullptr);
-    virtual ~QGeoMapMapLibre();
+    explicit QGeoMapMapLibre(QGeoMappingManagerEngine *engine, QObject *parent = nullptr);
+    ~QGeoMapMapLibre() override;
 
-    Capabilities capabilities() const override;
+    [[nodiscard]] Capabilities capabilities() const override;
 
     void setSettings(const Settings &settings);
     void setMapItemsBefore(const QString &mapItemsBefore);

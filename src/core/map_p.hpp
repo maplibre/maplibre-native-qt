@@ -27,13 +27,13 @@ class MapPrivate : public QObject, public mbgl::RendererFrontend {
     Q_OBJECT
 
 public:
-    explicit MapPrivate(Map *, const Settings &, const QSize &size, qreal pixelRatio);
-    virtual ~MapPrivate();
+    explicit MapPrivate(Map *map, const Settings &settings, const QSize &size, qreal pixelRatio);
+    ~MapPrivate() override;
 
     // mbgl::RendererFrontend implementation.
     void reset() final {}
-    void setObserver(mbgl::RendererObserver &) final;
-    void update(std::shared_ptr<mbgl::UpdateParameters>) final;
+    void setObserver(mbgl::RendererObserver &observer) final;
+    void update(std::shared_ptr<mbgl::UpdateParameters> parameters) final;
 
     // These need to be called on the same thread.
     void createRenderer();
@@ -43,7 +43,10 @@ public:
 
     using PropertySetter = std::optional<mbgl::style::conversion::Error> (mbgl::style::Layer::*)(
         const std::string &, const mbgl::style::conversion::Convertible &);
-    bool setProperty(const PropertySetter &setter, const QString &layer, const QString &name, const QVariant &value);
+    [[nodiscard]] bool setProperty(const PropertySetter &setter,
+                                   const QString &layer,
+                                   const QString &name,
+                                   const QVariant &value) const;
 
     mbgl::EdgeInsets margins;
     std::unique_ptr<mbgl::Map> mapObj{};

@@ -16,13 +16,15 @@ class MapLibreStyleAttached : public QObject {
     QML_ANONYMOUS
     Q_PROPERTY(QString style READ style WRITE setStyle NOTIFY styleChanged)
 public:
-    MapLibreStyleAttached(QObject *parent)
+    explicit MapLibreStyleAttached(QObject *parent)
         : QObject(parent) {}
 
-    QString style() const { return m_style; }
+    [[nodiscard]] QString style() const { return m_style; }
     void setStyle(const QString &style) {
         qDebug() << "Setting style to" << style;
-        if (style == m_style) return;
+        if (style == m_style) {
+            return;
+        }
         m_style = style;
         emit styleChanged(m_style);
     }
@@ -40,10 +42,8 @@ class MapLibreStyleProperties : public QObject {
     QML_NAMED_ELEMENT(MapLibre)
 
 public:
-    static MapLibreStyleAttached *qmlAttachedProperties(QObject *object) {
-        qDebug() << "Attaching to" << object;
-        return new MapLibreStyleAttached(object);
-    }
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
+    static MapLibreStyleAttached *qmlAttachedProperties(QObject *object) { return new MapLibreStyleAttached(object); }
 };
 
 #endif // QMAPLIBREQMLTYPES_H

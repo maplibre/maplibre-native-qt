@@ -23,12 +23,12 @@ class GLWidgetPrivate : public QObject {
     Q_OBJECT
 
 public:
-    explicit GLWidgetPrivate(QObject *parent, const Settings &settings);
-    virtual ~GLWidgetPrivate();
+    explicit GLWidgetPrivate(QObject *parent, Settings settings);
+    ~GLWidgetPrivate() override;
 
     void handleMousePressEvent(QMouseEvent *event);
     void handleMouseMoveEvent(QMouseEvent *event);
-    void handleWheelEvent(QWheelEvent *event);
+    void handleWheelEvent(QWheelEvent *event) const;
 
     std::unique_ptr<Map> m_map{};
     Settings m_settings;

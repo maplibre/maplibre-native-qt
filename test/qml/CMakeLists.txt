@@ -11,6 +11,10 @@ target_link_libraries(test_mln_qml
         $<BUILD_INTERFACE:mbgl-compiler-options>
 )
 
+if(MLN_QT_WITH_CLANG_TIDY)
+    set_target_properties(test_mln_qml PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
+endif()
+
 add_test(NAME test_mln_qml COMMAND $<TARGET_FILE:test_mln_qml> -input ${CMAKE_CURRENT_SOURCE_DIR}/qt${QT_VERSION_MAJOR})
 set_tests_properties(
     test_mln_qml

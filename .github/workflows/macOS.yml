@@ -134,6 +134,8 @@ jobs:
 
       - name: Build QMapLibre (Qt 6)
         if: matrix.qt_series == 6
+        env:
+          MLN_QT_WITH_CLANG_TIDY: ${{ matrix.compiler != 'default' }}
         run: |
           mkdir build && cd build
           qt-cmake ../source/ \
@@ -143,7 +145,8 @@ jobs:
             -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
             -DCMAKE_INSTALL_PREFIX="../install" \
             -DCMAKE_OSX_DEPLOYMENT_TARGET="${DEPLOYMENT_TARGET}" \
-            -DCMAKE_OSX_ARCHITECTURES="${DEPLOYMENT_ARCH}"
+            -DCMAKE_OSX_ARCHITECTURES="${DEPLOYMENT_ARCH}" \
+            -DMLN_QT_WITH_CLANG_TIDY="${MLN_QT_WITH_CLANG_TIDY}"
           ninja
           ninja test
           ninja install

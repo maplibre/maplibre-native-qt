@@ -22,12 +22,11 @@ namespace QMapLibre {
 
 static const QSize minTextureSize = QSize(64, 64);
 
-TextureNode::TextureNode(const Settings &settings, const QSize &size, qreal pixelRatio, QGeoMapMapLibre *geoMap)
-    : QSGSimpleTextureNode() {
+TextureNode::TextureNode(const Settings &settings, const QSize &size, qreal pixelRatio, QGeoMapMapLibre *geoMap) {
     setTextureCoordinatesTransform(QSGSimpleTextureNode::MirrorVertically);
     setFiltering(QSGTexture::Linear);
 
-    m_map.reset(new Map(nullptr, settings, size.expandedTo(minTextureSize), pixelRatio));
+    m_map = std::make_unique<Map>(nullptr, settings, size.expandedTo(minTextureSize), pixelRatio);
 
     QObject::connect(m_map.get(), &Map::needsRendering, geoMap, &QGeoMap::sgNodeChanged);
 }
@@ -43,7 +42,7 @@ void TextureNode::resize(const QSize &size, qreal pixelRatio)
 
     m_map->resize(minSize);
 
-    m_fbo.reset(new QOpenGLFramebufferObject(fbSize, QOpenGLFramebufferObject::CombinedDepthStencil));
+    m_fbo = std::make_unique<QOpenGLFramebufferObject>(fbSize, QOpenGLFramebufferObject::CombinedDepthStencil);
     m_map->setFramebufferObject(m_fbo->handle(), fbSize);
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
@@ -52,7 +51,7 @@ void TextureNode::resize(const QSize &size, qreal pixelRatio)
     setOwnsTexture(true);
 #else
     auto *fboTexture = static_cast<QSGPlainTexture *>(texture());
-    if (!fboTexture) {
+    if (fboTexture == nullptr) {
         fboTexture = new QSGPlainTexture;
         fboTexture->setHasAlphaChannel(true);
     }
@@ -60,7 +59,7 @@ void TextureNode::resize(const QSize &size, qreal pixelRatio)
     fboTexture->setTextureId(m_fbo->texture());
     fboTexture->setTextureSize(fbSize);
 
-    if (!texture()) {
+    if (texture() == nullptr) {
         setTexture(fboTexture);
         setOwnsTexture(true);
     }
@@ -81,7 +80,7 @@ void TextureNode::render(QQuickWindow *window) {
 
     f->glViewport(0, 0, m_fbo->width(), m_fbo->height());
 
-    GLint alignment;
+    GLint alignment{};
     f->glGetIntegerv(GL_UNPACK_ALIGNMENT, &alignment);
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
@@ -90,8 +89,9 @@ void TextureNode::render(QQuickWindow *window) {
 
     m_fbo->bind();
 
+    const GLboolean on{1};
     f->glClearColor(0.f, 0.f, 0.f, 0.f);
-    f->glColorMask(true, true, true, true);
+    f->glColorMask(on, on, on, on);
     f->glClear(GL_COLOR_BUFFER_BIT);
 
     m_map->render();
