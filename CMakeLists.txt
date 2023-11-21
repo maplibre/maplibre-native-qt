@@ -31,8 +31,9 @@ set(MLN_QT_QML_PLUGIN declarative_locationplugin_maplibre)
 include(cmake/helpers.cmake)
 
 # Options
-set(MLN_QT_WITH_LOCATION ON CACHE BOOL "Build QMapLibreLocation")
-set(MLN_QT_WITH_WIDGETS ON CACHE BOOL "Build QMapLibreWidgets")
+option(MLN_QT_WITH_LOCATION "Build QMapLibreLocation" ON)
+option(MLN_QT_WITH_WIDGETS "Build QMapLibreWidgets" ON)
+option(MLN_QT_WITH_COVERAGE "Build QMapLibre with code coverage collection" OFF)
 
 # Find Qt
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
@@ -73,9 +74,28 @@ elseif(MSVC OR CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set(CMAKE_DEBUG_POSTFIX "d")
 endif()
 
+# Common configuration
+add_library(CompilerOptions INTERFACE)
+target_compile_options(
+    CompilerOptions
+    INTERFACE
+        $<$<BOOL:${MLN_QT_WITH_COVERAGE}>:--coverage>
+)
+target_link_libraries(
+    CompilerOptions
+    INTERFACE
+        $<$<BOOL:${MLN_QT_WITH_COVERAGE}>:--coverage>
+)
+
 # Enable testing
 enable_testing()
 
 # Add subdirectories
 add_subdirectory(src)
 add_subdirectory(test)
+
+# Coverage
+if(MLN_QT_WITH_COVERAGE)
+    include(cmake/coverage.cmake)
+    setup_target_for_coverage(coverage ${CMAKE_CTEST_COMMAND} "${CMAKE_BINARY_DIR}/coverage" "-V")
+endif()

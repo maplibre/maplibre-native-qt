@@ -58,6 +58,7 @@ jobs:
             qt_version: 6.6.0
             qt_modules: qtlocation qtpositioning
             compiler: gcc-13
+            gcov: gcov-13
 
     steps:
       - name: Checkout
@@ -88,6 +89,29 @@ jobs:
         uses: rlalik/setup-cpp-compiler@master
         with:
           compiler: ${{ matrix.compiler }}
+
+      - name: Install lcov
+        if: matrix.compiler != 'default'
+        run: |
+          sudo apt-get install \
+            libcapture-tiny-perl \
+            libdatetime-perl \
+            libdatetime-format-dateparse-perl \
+            libgd-perl \
+            libgd3 \
+            libjbig0 \
+            libjpeg-turbo8 \
+            libjpeg8 \
+            libjson-perl \
+            libperlio-gzip-perl \
+            libtiff5 \
+            libwebp7
+
+          git clone https://github.com/linux-test-project/lcov.git -b v2.0
+          pushd lcov
+          sudo make -j$(nproc) install
+          popd
+          rm -rf lcov
 
       - name: Download Qt
         uses: jurplel/install-qt-action@v3
@@ -121,6 +145,7 @@ jobs:
         env:
           CC: ${{ steps.install_compiler.outputs.cc }}
           CXX: ${{ steps.install_compiler.outputs.cxx }}
+          GCOV: ${{ matrix.gcov }}
         run: |
           mkdir build && cd build
           qt-cmake ../source/ \
@@ -128,7 +153,9 @@ jobs:
             -DCMAKE_BUILD_TYPE="RelWithDebInfo" \
             -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
             -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
-            -DCMAKE_INSTALL_PREFIX="../install"
+            -DCMAKE_INSTALL_PREFIX="../install" \
+            -DMLN_QT_WITH_COVERAGE=ON \
+            -DGCOV_PATH="$(which ${GCOV})"
           ninja
           ninja install
 
@@ -137,6 +164,13 @@ jobs:
         uses: coactions/setup-xvfb@v1
         with:
           run: ctest --output-on-failure
+          working-directory: build
+
+      - name: Run code coverage
+        if: matrix.qt_series == 6 && matrix.compiler != 'default'
+        uses: coactions/setup-xvfb@v1
+        with:
+          run: ninja coverage
           working-directory: build
 
       - name: Build QtQuick Example (Qt6)
@@ -178,6 +212,13 @@ jobs:
         with:
           name: QMapLibre_Linux_${{ matrix.qt_version }}
           path: QMapLibre_Linux.tar.bz2
+
+      - name: Upload coverage reports to Codecov
+        if: matrix.qt_series == 6 && matrix.compiler != 'default'
+        uses: codecov/codecov-action@v3
+        with:
+          files: build/coverage.info
+          verbose: true
 
   release:
     name: Release QMapLibre

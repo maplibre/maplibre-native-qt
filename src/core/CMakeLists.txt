@@ -104,6 +104,7 @@ target_link_libraries(
         $<BUILD_INTERFACE:mbgl-compiler-options>
         $<BUILD_INTERFACE:mbgl-core-interface>
         $<BUILD_INTERFACE:mbgl-core>
+        $<BUILD_INTERFACE:CompilerOptions>
 )
 if (NOT MLN_QT_WITH_INTERNAL_SQLITE)
     target_link_libraries(
