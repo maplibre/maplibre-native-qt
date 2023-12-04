@@ -17,6 +17,7 @@ Window::Window(MainWindow *mainWindow)
     : QWidget(mainWindow),
       m_mainWindow(mainWindow) {
     QMapLibre::Settings settings;
+    settings.setProviderTemplate(QMapLibre::Settings::MapLibreProvider);
     m_glWidget = new QMapLibre::GLWidget(settings);
 
     auto *layout = new QVBoxLayout;
