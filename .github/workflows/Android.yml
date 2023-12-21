@@ -90,7 +90,7 @@ jobs:
           sed -i "s/C:\/Qt\/Qt-${QT_VERSION}/\/usr\/local\/Qt-${QT_VERSION}/g" "$Qt6_DIR/lib/cmake/Qt6BuildInternals/QtBuildInternalsExtra.cmake"
 
       - name: Set up OpenJDK 11
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: adopt
           java-version: 11
