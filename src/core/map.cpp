@@ -699,8 +699,8 @@ void Map::removeAnnotation(AnnotationID id) {
         \li QVariantList
     \endtable
 */
-bool Map::setLayoutProperty(const QString &layer, const QString &propertyName, const QVariant &value) {
-    return d_ptr->setProperty(&mbgl::style::Layer::setProperty, layer, propertyName, value);
+bool Map::setLayoutProperty(const QString &layerId, const QString &propertyName, const QVariant &value) {
+    return d_ptr->setProperty(&mbgl::style::Layer::setProperty, layerId, propertyName, value);
 }
 
 /*!
@@ -758,8 +758,8 @@ bool Map::setLayoutProperty(const QString &layer, const QString &propertyName, c
     \endcode
 */
 
-bool Map::setPaintProperty(const QString &layer, const QString &propertyName, const QVariant &value) {
-    return d_ptr->setProperty(&mbgl::style::Layer::setProperty, layer, propertyName, value);
+bool Map::setPaintProperty(const QString &layerId, const QString &propertyName, const QVariant &value) {
+    return d_ptr->setProperty(&mbgl::style::Layer::setProperty, layerId, propertyName, value);
 }
 
 /*!
@@ -929,7 +929,7 @@ void Map::addSource(const QString &id, const QVariantMap &params) {
         mbgl::style::conversion::convert<std::unique_ptr<mbgl::style::Source>>(
             QVariant(params), error, id.toStdString());
     if (!source) {
-        qWarning() << "Unable to add source:" << error.message.c_str();
+        qWarning() << "Unable to add source with id" << id << ":" << error.message.c_str();
         return;
     }
 
@@ -937,10 +937,10 @@ void Map::addSource(const QString &id, const QVariantMap &params) {
 }
 
 /*!
-    Returns true if the layer with given \a sourceID exists, false otherwise.
+    Returns true if the layer with given \a id exists, false otherwise.
 */
-bool Map::sourceExists(const QString &sourceID) {
-    return d_ptr->mapObj->getStyle().getSource(sourceID.toStdString()) != nullptr;
+bool Map::sourceExists(const QString &id) {
+    return d_ptr->mapObj->getStyle().getSource(id.toStdString()) != nullptr;
 }
 
 /*!
@@ -980,10 +980,10 @@ void Map::updateSource(const QString &id, const QVariantMap &params) {
     This method has no effect if the source does not exist.
 */
 void Map::removeSource(const QString &id) {
-    auto sourceIDStdString = id.toStdString();
+    auto idStdString = id.toStdString();
 
-    if (d_ptr->mapObj->getStyle().getSource(sourceIDStdString) != nullptr) {
-        d_ptr->mapObj->getStyle().removeSource(sourceIDStdString);
+    if (d_ptr->mapObj->getStyle().getSource(idStdString) != nullptr) {
+        d_ptr->mapObj->getStyle().removeSource(idStdString);
     }
 }
 
@@ -1047,12 +1047,12 @@ void Map::addCustomLayer(const QString &id, std::unique_ptr<CustomLayerHostInter
 
     /note The source must exist prior to adding a layer.
 */
-void Map::addLayer(const QVariantMap &params, const QString &before) {
+void Map::addLayer(const QString &id, const QVariantMap &params, const QString &before) {
     mbgl::style::conversion::Error error;
     std::optional<std::unique_ptr<mbgl::style::Layer>> layer =
         mbgl::style::conversion::convert<std::unique_ptr<mbgl::style::Layer>>(QVariant(params), error);
     if (!layer) {
-        qWarning() << "Unable to add layer:" << error.message.c_str();
+        qWarning() << "Unable to add layer with id" << id << ":" << error.message.c_str();
         return;
     }
 
@@ -1101,19 +1101,19 @@ QVector<QString> Map::layerIds() const {
 
     \sa addLayer()
 */
-void Map::addImage(const QString &name, const QImage &sprite) {
+void Map::addImage(const QString &id, const QImage &sprite) {
     if (sprite.isNull()) {
         return;
     }
 
-    d_ptr->mapObj->getStyle().addImage(toStyleImage(name, sprite));
+    d_ptr->mapObj->getStyle().addImage(toStyleImage(id, sprite));
 }
 
 /*!
     Removes the image \a id.
 */
-void Map::removeImage(const QString &name) {
-    d_ptr->mapObj->getStyle().removeImage(name.toStdString());
+void Map::removeImage(const QString &id) {
+    d_ptr->mapObj->getStyle().removeImage(id.toStdString());
 }
 
 /*!
@@ -1136,10 +1136,10 @@ void Map::removeImage(const QString &name) {
         map->setFilter(QLatin1String("marker"), filter);
     \endcode
 */
-void Map::setFilter(const QString &layer, const QVariant &filter) {
-    mbgl::style::Layer *layer_ = d_ptr->mapObj->getStyle().getLayer(layer.toStdString());
-    if (layer_ == nullptr) {
-        qWarning() << "Layer not found:" << layer;
+void Map::setFilter(const QString &layerId, const QVariant &filter) {
+    mbgl::style::Layer *layer = d_ptr->mapObj->getStyle().getLayer(layerId.toStdString());
+    if (layer == nullptr) {
+        qWarning() << "Layer not found:" << layerId;
         return;
     }
 
@@ -1150,7 +1150,7 @@ void Map::setFilter(const QString &layer, const QVariant &filter) {
         return;
     }
 
-    layer_->setFilter(*converted);
+    layer->setFilter(*converted);
 }
 
 QVariant QVariantFromValue(const mbgl::Value &value) {
@@ -1186,18 +1186,18 @@ QVariant QVariantFromValue(const mbgl::Value &value) {
 
 /*!
     Returns the current \a expression-based filter value applied to a style
-    \layer, if any.
+    \layerId, if any.
 
     Filter value types are described in the {https://maplibre.org/maplibre-style-spec/types/}{MapLibre Style Spec}.
 */
-QVariant Map::getFilter(const QString &layer) const {
-    mbgl::style::Layer *layer_ = d_ptr->mapObj->getStyle().getLayer(layer.toStdString());
-    if (layer_ == nullptr) {
-        qWarning() << "Layer not found:" << layer;
+QVariant Map::getFilter(const QString &layerId) const {
+    mbgl::style::Layer *layer = d_ptr->mapObj->getStyle().getLayer(layerId.toStdString());
+    if (layer == nullptr) {
+        qWarning() << "Layer not found:" << layerId;
         return {};
     }
 
-    auto serialized = layer_->getFilter().serialize();
+    auto serialized = layer->getFilter().serialize();
     return QVariantFromValue(serialized);
 }
 
@@ -1448,12 +1448,12 @@ void MapPrivate::requestRendering() {
 }
 
 bool MapPrivate::setProperty(const PropertySetter &setter,
-                             const QString &layer,
+                             const QString &layerId,
                              const QString &name,
                              const QVariant &value) const {
-    mbgl::style::Layer *layerObject = mapObj->getStyle().getLayer(layer.toStdString());
-    if (layerObject == nullptr) {
-        qWarning() << "Layer not found:" << layer;
+    mbgl::style::Layer *layer = mapObj->getStyle().getLayer(layerId.toStdString());
+    if (layer == nullptr) {
+        qWarning() << "Layer not found:" << layerId;
         return false;
     }
 
@@ -1471,16 +1471,16 @@ bool MapPrivate::setProperty(const PropertySetter &setter,
         if (!document.HasParseError()) {
             // Treat value as a valid JSON.
             const mbgl::JSValue *jsonValue = &document;
-            result = (layerObject->*setter)(propertyString, jsonValue);
+            result = (layer->*setter)(propertyString, jsonValue);
         } else {
-            result = (layerObject->*setter)(propertyString, value);
+            result = (layer->*setter)(propertyString, value);
         }
     } else {
-        result = (layerObject->*setter)(propertyString, value);
+        result = (layer->*setter)(propertyString, value);
     }
 
     if (result) {
-        qWarning() << "Error setting property" << name << "on layer" << layer << ":"
+        qWarning() << "Error setting property" << name << "on layer" << layerId << ":"
                    << QString::fromStdString(result->message);
         return false;
     }

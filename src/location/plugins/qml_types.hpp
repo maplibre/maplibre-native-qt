@@ -5,35 +5,54 @@
 #ifndef QMAPLIBREQMLTYPES_H
 #define QMAPLIBREQMLTYPES_H
 
-#include "../qgeomap.hpp"
+#include "declarative_style.hpp"
 
 #include <QtLocation/private/qdeclarativegeomap_p.h>
-#include <QtQml/qqml.h>
-#include <QtCore/QObject>
+
+#include <QtQml/QQmlEngine>
 
 class MapLibreStyleAttached : public QObject {
     Q_OBJECT
     QML_ANONYMOUS
-    Q_PROPERTY(QString style READ style WRITE setStyle NOTIFY styleChanged)
+    Q_PROPERTY(QMapLibre::DeclarativeStyle *style READ style WRITE setStyle NOTIFY styleChanged)
 public:
     explicit MapLibreStyleAttached(QObject *parent)
         : QObject(parent) {}
 
-    [[nodiscard]] QString style() const { return m_style; }
-    void setStyle(const QString &style) {
-        qDebug() << "Setting style to" << style;
-        if (style == m_style) {
+    [[nodiscard]] QMapLibre::DeclarativeStyle *style() const { return m_style; }
+
+    void setStyle(QMapLibre::DeclarativeStyle *style) {
+        m_style = style;
+        Q_EMIT styleChanged(m_style);
+
+        // Check for QQuickItem
+        auto *quickItem = qobject_cast<QQuickItem *>(parent());
+        if (quickItem == nullptr) {
+            qWarning() << "Not a QQuickItem!";
             return;
         }
-        m_style = style;
-        emit styleChanged(m_style);
+
+        // Check for MapView
+        QDeclarativeGeoMap *declarativeMap{};
+        if (QString(quickItem->metaObject()->className()).startsWith("MapView")) {
+            declarativeMap = QQmlProperty::read(quickItem, "map").value<QDeclarativeGeoMap *>();
+        } else {
+            declarativeMap = qobject_cast<QDeclarativeGeoMap *>(parent());
+        }
+
+        if (declarativeMap == nullptr) {
+            qWarning() << "Map object not found!";
+            return;
+        }
+
+        style->setDeclarativeMap(declarativeMap);
     }
 
 Q_SIGNALS:
-    void styleChanged(QString style);
+    void styleChanged(QMapLibre::DeclarativeStyle *style);
 
 private:
-    QString m_style;
+    QMapLibre::DeclarativeStyle *m_style{};
 };
 
 class MapLibreStyleProperties : public QObject {

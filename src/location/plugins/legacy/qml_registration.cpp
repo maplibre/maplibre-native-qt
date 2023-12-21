@@ -5,6 +5,9 @@
 #include <QtQml/qqml.h>
 #include <QtQml/qqmlmoduleregistration.h>
 
+#include <declarative_layer_parameter.hpp>
+#include <declarative_source_parameter.hpp>
+#include <declarative_style.hpp>
 #include <qml_types.hpp>
 
 #if !defined(QT_STATIC)
@@ -15,6 +18,10 @@
 Q_QMLTYPE_EXPORT void qml_register_types_QtLocation_MapLibre() {
     qmlRegisterTypesAndRevisions<MapLibreStyleAttached>("QtLocation.MapLibre", 3);
     qmlRegisterTypesAndRevisions<MapLibreStyleProperties>("QtLocation.MapLibre", 3);
+    qmlRegisterTypesAndRevisions<QMapLibre::DeclarativeLayerParameter>("QtLocation.MapLibre", 3);
+    qmlRegisterTypesAndRevisions<QMapLibre::DeclarativeSourceParameter>("QtLocation.MapLibre", 3);
+    qmlRegisterTypesAndRevisions<QMapLibre::DeclarativeStyle>("QtLocation.MapLibre", 3);
+    qmlRegisterAnonymousType<QQuickItem>("QtLocation.MapLibre", 3);
     qmlRegisterModule("QtLocation.MapLibre", 3, 0);
 }
 

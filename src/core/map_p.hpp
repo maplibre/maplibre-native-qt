@@ -44,7 +44,7 @@ public:
     using PropertySetter = std::optional<mbgl::style::conversion::Error> (mbgl::style::Layer::*)(
         const std::string &, const mbgl::style::conversion::Convertible &);
     [[nodiscard]] bool setProperty(const PropertySetter &setter,
-                                   const QString &layer,
+                                   const QString &layerId,
                                    const QString &name,
                                    const QVariant &value) const;
 

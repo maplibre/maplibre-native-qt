@@ -89,6 +89,24 @@ namespace QMapLibre {
 */
 
 /*!
+    \class QMapLibre::FeatureProperty
+
+    \inmodule MapLibre Maps SDK for Qt
+
+    Represents map feature properties via its \a type (LayoutProperty or PaintProperty),
+    \a name and \a value.
+*/
+
+/*!
+    \enum QMapLibre::FeatureProperty::Type
+
+    This enum is used as basis for property type disambiguation in QMapLibre::FeatureProperty.
+
+    \value LayoutProperty      A layout property type.
+    \value PaintProperty       A paint property type.
+*/
+
+/*!
     \class QMapLibre::ShapeAnnotationGeometry
 
     \inmodule MapLibre Maps SDK for Qt

@@ -6,6 +6,11 @@
 
 #pragma once
 
+#include "qgeomap.hpp"
+
+#include <QMapLibre/Settings>
+#include <QMapLibre/StyleParameter>
+
 #include <QtLocation/private/qgeomap_p_p.h>
 
 #include <QtCore/QHash>
@@ -16,6 +21,7 @@
 #include <QtCore/QVariant>
 
 namespace QMapLibre {
+
 class Map;
 class StyleChange;
 
@@ -32,6 +38,10 @@ public:
     void addMapItem(QDeclarativeGeoMapItemBase *item) override;
     void removeMapItem(QDeclarativeGeoMapItemBase *item) override;
 
+    void addStyleParameter(StyleParameter *parameter);
+    void removeStyleParameter(StyleParameter *parameter);
+    void clearStyleParameters();
+
     /* Data members */
     enum SyncState : int {
         NoSync = 0,
@@ -45,6 +55,8 @@ public:
     Settings m_settings;
     QString m_mapItemsBefore;
 
+    QList<StyleParameter *> m_mapParameters;
+
     QTimer m_refresh;
     bool m_shouldRefresh = true;
     bool m_warned = false;
@@ -53,7 +65,7 @@ public:
 
     SyncStates m_syncState = NoSync;
 
-    QList<QSharedPointer<StyleChange>> m_styleChanges;
+    std::vector<std::unique_ptr<StyleChange>> m_styleChanges;
 
 protected:
     void changeViewportSize(const QSize &size) override;

@@ -92,9 +92,12 @@ public:
 
     static std::optional<float> toNumber(const QVariant &value) {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-        if (value.typeId() == QMetaType::Int || value.typeId() == QMetaType::Double) {
+        if (value.typeId() == QMetaType::Int || value.typeId() == QMetaType::Double ||
+            value.typeId() == QMetaType::Long || value.typeId() == QMetaType::LongLong ||
+            value.typeId() == QMetaType::ULong || value.typeId() == QMetaType::ULongLong) {
 #else
-        if (value.type() == QVariant::Int || value.type() == QVariant::Double) {
+        if (value.type() == QVariant::Int || value.type() == QVariant::Double || value.type() == QVariant::LongLong ||
+            value.type() == QVariant::ULongLong) {
 #endif
             return value.toFloat();
         }
@@ -104,9 +107,12 @@ public:
 
     static std::optional<double> toDouble(const QVariant &value) {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-        if (value.typeId() == QMetaType::Int || value.typeId() == QMetaType::Double) {
+        if (value.typeId() == QMetaType::Int || value.typeId() == QMetaType::Double ||
+            value.typeId() == QMetaType::Long || value.typeId() == QMetaType::LongLong ||
+            value.typeId() == QMetaType::ULong || value.typeId() == QMetaType::ULongLong) {
 #else
-        if (value.type() == QVariant::Int || value.type() == QVariant::Double) {
+        if (value.type() == QVariant::Int || value.type() == QVariant::Double || value.type() == QVariant::LongLong ||
+            value.type() == QVariant::ULongLong) {
 #endif
             return value.toDouble();
         }

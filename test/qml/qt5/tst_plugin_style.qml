@@ -3,14 +3,12 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 import QtQuick 2.15
-import QtQuick.Window 2.15
 import QtLocation 5.15
 import QtPositioning 5.15
 
 import QtTest 1.0
 
 Item {
-    id: window
     width: 512
     height: 512
 
@@ -43,11 +41,13 @@ Item {
         id: map
         anchors.fill: parent
         plugin: mapPlugin
+        zoomLevel: 3
     }
 
     TestCase {
         id: tc1
-        name: "Run"
+        name: "Plugin"
+        when: windowShown
 
         function test_plugin_style() {
             compare(map.supportedMapTypes.length, 3)

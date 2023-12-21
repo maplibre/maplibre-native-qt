@@ -1,0 +1,6 @@
+module QtLocation.MapLibre
+linktarget QMapLibre::PluginQml
+plugin @MLN_QT_QML_PLUGIN@
+classname QtLocationMapLibreQmlModule
+typeinfo @MLN_QT_QML_PLUGIN@.qmltypes
+prefer :/QtLocation/MapLibre/

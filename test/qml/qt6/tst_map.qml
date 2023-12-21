@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 import QtQuick 2.15
-import QtQuick.Window 2.15
 import QtLocation 6.5
 import QtLocation.MapLibre 3.0
 import QtPositioning 5.15
@@ -11,12 +10,12 @@ import QtPositioning 5.15
 import QtTest 1.0
 
 Item {
-    id: window
+    id: root
     width: 512
     height: 512
 
     property var coordinate: QtPositioning.coordinate(59.91, 10.75)  // Oslo
-    property bool fullWindow: false
+    property bool fullView: false
 
     Rectangle {
         color: "blue"
@@ -36,18 +35,18 @@ Item {
     Rectangle {
         color: "red"
         anchors.fill: parent
-        anchors.topMargin: fullWindow ? 0 : Math.round(parent.height / 3)
+        anchors.topMargin: fullView ? 0 : Math.round(parent.height / 3)
 
         MapView {
             id: mapView
             anchors.fill: parent
-            anchors.topMargin: fullWindow ? 0 : Math.round(parent.height / 6)
-            anchors.leftMargin: fullWindow ? 0 : Math.round(parent.width / 6)
+            anchors.topMargin: fullView ? 0 : Math.round(parent.height / 6)
+            anchors.leftMargin: fullView ? 0 : Math.round(parent.width / 6)
             map.plugin: mapPlugin
-            map.center: window.coordinate
+            map.center: root.coordinate
             map.zoomLevel: 5
 
-            map.MapLibre.style: "foo"
+            map.MapLibre.style: Style {}
         }
     }
 
@@ -57,8 +56,8 @@ Item {
 
         function test_map() {
             wait(2000)
-            window.fullWindow = true
-            mapView.map.center = window.coordinate
+            root.fullView = true
+            mapView.map.center = root.coordinate
             wait(500)
         }
 
