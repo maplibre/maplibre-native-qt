@@ -233,7 +233,7 @@ jobs:
 
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: QMapLibre_Linux_${{ matrix.qt_version }}
 
