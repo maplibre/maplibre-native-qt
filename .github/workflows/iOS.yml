@@ -107,7 +107,7 @@ jobs:
           ninja install
 
       - name: Upload ccache.log
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ccache_iOS
           path: ccache.log
@@ -119,7 +119,7 @@ jobs:
           popd
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: QMapLibre_iOS
           path: QMapLibre_iOS.tar.bz2

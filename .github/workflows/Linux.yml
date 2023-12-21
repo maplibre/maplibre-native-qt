@@ -208,7 +208,7 @@ jobs:
 
       - name: Upload installation
         if: matrix.compiler == 'default'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: QMapLibre_Linux_${{ matrix.qt_version }}
           path: QMapLibre_Linux.tar.bz2
