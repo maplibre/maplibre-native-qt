@@ -127,7 +127,7 @@ jobs:
           popd
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: QMapLibre_Android_${{ matrix.config.abi }}
           path: install/home/runner/work/QMapLibre
@@ -176,7 +176,7 @@ jobs:
           popd
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: QMapLibre_Android
           path: QMapLibre_Android.tar.bz2
