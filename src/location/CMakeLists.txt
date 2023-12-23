@@ -26,7 +26,7 @@ set_target_properties(
 )
 
 # Qt MOC
-if (Qt6_FOUND AND COMMAND qt_enable_autogen_tool)
+if(Qt6_FOUND AND COMMAND qt_enable_autogen_tool)
     qt_enable_autogen_tool(Location "moc" ON)
 endif()
 
@@ -62,7 +62,7 @@ target_link_libraries(
 )
 
 # Apple specifics
-if (APPLE)
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set_target_properties(
         Location
         PROPERTIES
@@ -103,7 +103,11 @@ install(
     PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${MLN_QT_NAME}Location"
 )
 
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/macros.cmake" "${CMAKE_CURRENT_BINARY_DIR}/${MLN_QT_NAME}LocationMacros.cmake" COPYONLY)
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/macros.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/${MLN_QT_NAME}LocationMacros.cmake"
+    COPYONLY
+)
 install(
     FILES
         ${CMAKE_CURRENT_BINARY_DIR}/${MLN_QT_NAME}LocationMacros.cmake

@@ -2,12 +2,13 @@ cmake_minimum_required(VERSION 3.19...3.21)
 
 # Version
 file(READ "VERSION.txt" MLN_QT_VERSION)
-string(REGEX REPLACE "\n" "" MLN_QT_VERSION "${MLN_QT_VERSION}") # get rid of the newline at the end
+string(STRIP "${MLN_QT_VERSION}" MLN_QT_VERSION) # get rid of the whitespace
 set(MLN_QT_VERSION_COMPATIBILITY 3.0.0)
 message(STATUS "Version ${MLN_QT_VERSION}")
 
 # Project definition
-project(MapLibreNativeQt
+project(
+    MapLibreNativeQt
     VERSION "${MLN_QT_VERSION}"
     DESCRIPTION "MapLibre Native Qt Bindings"
     LANGUAGES CXX
@@ -38,15 +39,15 @@ option(MLN_QT_WITH_CLANG_TIDY "Build QMapLibre with clang-tidy checks enabled" O
 
 # Find Qt
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Gui Network REQUIRED)  # main dependencies
-if (NOT MLN_QT_WITH_INTERNAL_SQLITE)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Gui Network REQUIRED) # main dependencies
+if(NOT MLN_QT_WITH_INTERNAL_SQLITE)
     find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Sql REQUIRED)
 endif()
-if (MLN_QT_WITH_LOCATION)
-    find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Location REQUIRED)     # location
+if(MLN_QT_WITH_LOCATION)
+    find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Location REQUIRED) # location
 endif()
-if (MLN_QT_WITH_WIDGETS)
-    if (Qt6_FOUND)
+if(MLN_QT_WITH_WIDGETS)
+    if(Qt6_FOUND)
         find_package(Qt${QT_VERSION_MAJOR} COMPONENTS OpenGLWidgets REQUIRED)
     else()
         find_package(Qt${QT_VERSION_MAJOR} COMPONENTS OpenGL REQUIRED)
@@ -55,7 +56,7 @@ endif()
 message(STATUS "Using Qt${QT_VERSION_MAJOR}")
 
 # Debugging & ccache on Windows
-if (MSVC)
+if(MSVC)
     foreach(config DEBUG RELWITHDEBINFO)
         foreach(lang C CXX)
             set(flags_var "CMAKE_${lang}_FLAGS_${config}")
@@ -73,9 +74,9 @@ if(MLN_QT_WITH_CLANG_TIDY)
     else()
         message(STATUS "Found clang-tidy at ${CLANG_TIDY_COMMAND}")
     endif()
-    # TODO: there are options which are only available on GCC(e.g. -Werror=maybe-uninitialized),
-    # that's why we need to disable this `unknown-warning-option` here.
-    # We could check if current compiler supports particular flag before enabling it.
+    # TODO: there are options which are only available on GCC (e.g. -Werror=maybe-uninitialized),
+    # that's why we need to disable this `unknown-warning-option` here. We could check if current
+    # compiler supports particular flag before enabling it.
     set(CLANG_TIDY_COMMAND "${CLANG_TIDY_COMMAND};--extra-arg=-Wno-error=unknown-warning-option")
 endif()
 

@@ -48,8 +48,8 @@ target_sources(
         conversion_p.hpp
         geojson.cpp geojson_p.hpp
         map_observer.cpp map_observer_p.hpp
-        map.cpp map_p.hpp
         map_renderer.cpp map_renderer_p.hpp
+        map.cpp map_p.hpp
         renderer_backend.cpp renderer_backend_p.hpp
         renderer_observer_p.hpp
         scheduler.cpp scheduler_p.hpp
@@ -80,7 +80,7 @@ set_target_properties(
 )
 
 # Qt MOC
-if (Qt6_FOUND AND COMMAND qt_enable_autogen_tool)
+if(Qt6_FOUND AND COMMAND qt_enable_autogen_tool)
     qt_enable_autogen_tool(Core "moc" ON)
 endif()
 
@@ -90,11 +90,6 @@ target_compile_definitions(
     PRIVATE
         QT_BUILD_MAPLIBRE_CORE_LIB
 )
-# static?
-# target_compile_definitions(
-#     Core
-#     PUBLIC QT_MAPLIBRE_STATIC
-# )
 
 # Common include directories
 target_include_directories(
@@ -121,7 +116,7 @@ target_link_libraries(
         $<BUILD_INTERFACE:mbgl-core>
         $<BUILD_INTERFACE:CompilerOptions>
 )
-if (NOT MLN_QT_WITH_INTERNAL_SQLITE)
+if(NOT MLN_QT_WITH_INTERNAL_SQLITE)
     target_link_libraries(
         Core
         PUBLIC
@@ -130,7 +125,7 @@ if (NOT MLN_QT_WITH_INTERNAL_SQLITE)
 endif()
 
 # Apple specifics
-if (APPLE)
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set_target_properties(
         Core
         PROPERTIES
@@ -156,7 +151,8 @@ endif()
 install(
     EXPORT ${MLN_QT_NAME}CoreTargets
     NAMESPACE ${MLN_QT_NAMESPACE}
-    DESTINATION ${CMAKECONFIG_INSTALL_DIR})
+    DESTINATION ${CMAKECONFIG_INSTALL_DIR}
+)
 
 install(
     DIRECTORY ${CMAKE_SOURCE_DIR}/vendor/maplibre-native/include/mbgl
