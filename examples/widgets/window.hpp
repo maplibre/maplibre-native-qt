@@ -5,12 +5,14 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
+#include <QMapLibreWidgets/GLWidget>
+
 #include <QPushButton>
+#include <QVBoxLayout>
 #include <QWidget>
 
-namespace QMapLibre {
-class GLWidget;
-}
+#include <memory>
+
 class MainWindow;
 
 class Window : public QWidget {
@@ -26,9 +28,10 @@ private slots:
     void dockUndock();
 
 private:
-    QMapLibre::GLWidget *m_glWidget;
-    QPushButton *m_buttonDock;
-    MainWindow *m_mainWindow;
+    std::unique_ptr<QMapLibre::GLWidget> m_glWidget{};
+    std::unique_ptr<QVBoxLayout> m_layout{};
+    std::unique_ptr<QPushButton> m_buttonDock{};
+    MainWindow *m_mainWindowRef{};
 };
 
 #endif

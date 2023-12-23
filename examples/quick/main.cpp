@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
     QQuickWindow::setGraphicsApi(QSGRendererInterface::OpenGLRhi);
 #endif
 
-    QGuiApplication app(argc, argv);
+    const QGuiApplication app(argc, argv);
 
     QQmlApplicationEngine engine;
     engine.load(QUrl(QStringLiteral("qrc:/Example/main.qml")));
