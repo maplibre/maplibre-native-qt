@@ -154,25 +154,25 @@ jobs:
 
     steps:
       - name: Download artifacts for x86
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: QMapLibre_Android_${{ matrix.qt_version}}_x86
           path: x86
 
       - name: Download artifacts for x86_64
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: QMapLibre_Android_${{ matrix.qt_version}}_x86_64
           path: x86_64
 
       - name: Download artifacts for armeabi-v7a
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: QMapLibre_Android_${{ matrix.qt_version}}_armeabi-v7a
           path: armeabi-v7a
 
       - name: Download artifacts for arm64-v8a
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: QMapLibre_Android_${{ matrix.qt_version}}_arm64-v8a
           path: arm64-v8a
