@@ -50,9 +50,6 @@ target_sources(
         map_observer.cpp map_observer_p.hpp
         map_renderer.cpp map_renderer_p.hpp
         map.cpp map_p.hpp
-        renderer_backend.cpp renderer_backend_p.hpp
-        renderer_observer_p.hpp
-        scheduler.cpp scheduler_p.hpp
         settings.cpp settings_p.hpp
         types.cpp
         utils.cpp
@@ -101,6 +98,7 @@ target_include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/style
         ${CMAKE_CURRENT_BINARY_DIR}/include
         ${MLN_CORE_PATH}/src
+        ${MLN_CORE_PATH}/platform/qt/src
 )
 
 # Common link libraries
@@ -112,7 +110,6 @@ target_link_libraries(
         Qt${QT_VERSION_MAJOR}::Network
     PRIVATE
         $<BUILD_INTERFACE:mbgl-compiler-options>
-        $<BUILD_INTERFACE:mbgl-core-interface>
         $<BUILD_INTERFACE:mbgl-core>
         $<BUILD_INTERFACE:CompilerOptions>
 )
@@ -123,6 +120,13 @@ if(NOT MLN_QT_WITH_INTERNAL_SQLITE)
             Qt${QT_VERSION_MAJOR}::Sql
     )
 endif()
+foreach(target ${MLN_QT_VENDOR_LIBRARIES})
+    target_link_libraries(
+        Core
+            PRIVATE
+                $<BUILD_INTERFACE:${target}>
+    )
+endforeach()
 
 # Apple specifics
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
