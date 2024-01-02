@@ -22,7 +22,7 @@ set_target_properties(
     PROPERTIES
         AUTOMOC ON
         EXPORT_NAME PluginGeoServices
-        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/geoservices"
+        LIBRARY_OUTPUT_DIRECTORY $<1:${CMAKE_CURRENT_BINARY_DIR}/geoservices>
 )
 
 # QtLocation plugin include directories
@@ -87,6 +87,11 @@ if(COMMAND qt_add_qml_module)
         OUTPUT_TARGETS QmlPluginOutputTargets
         SOURCES ${Plugin_Sources}
     )
+    set_target_properties(
+        ${MLN_QT_QML_PLUGIN}
+        PROPERTIES
+            LIBRARY_OUTPUT_DIRECTORY $<1:${CMAKE_CURRENT_BINARY_DIR}/QtLocation/MapLibre>
+    )
     configure_file(
         "${CMAKE_CURRENT_SOURCE_DIR}/qmldir.in"
         "${CMAKE_CURRENT_BINARY_DIR}/QtLocation/MapLibre/qmldir"
@@ -114,7 +119,7 @@ else()
         ${MLN_QT_QML_PLUGIN}
         PROPERTIES
             AUTOMOC ON
-            LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/QtLocation/MapLibre"
+            LIBRARY_OUTPUT_DIRECTORY $<1:${CMAKE_CURRENT_BINARY_DIR}/QtLocation/MapLibre>
     )
     configure_file(
         "${CMAKE_CURRENT_SOURCE_DIR}/legacy/qmldir.in"

@@ -19,6 +19,11 @@ class Map;
 
 class Q_MAPLIBRE_CORE_EXPORT StyleChange {
 public:
+    StyleChange() = default;
+    StyleChange(const StyleChange &s) = delete;
+    StyleChange(StyleChange &&s) noexcept = default;
+    StyleChange &operator=(const StyleChange &s) = delete;
+    StyleChange &operator=(StyleChange &&s) noexcept = default;
     virtual ~StyleChange() = default;
 
     [[nodiscard]] bool isValid() const { return m_valid; }

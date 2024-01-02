@@ -2,35 +2,35 @@ name: Windows CI
 
 on:
   workflow_dispatch:
-  # push:
-  #   branches:
-  #     - main
-  #   tags:
-  #     - '**'
-  #   paths-ignore:
-  #     - ".gitignore"
-  #     - "README.md"
-  #     # ignore CI for other platforms
-  #     - ".github/FUNDING.yml"
-  #     - ".github/actions/**"
-  #     - ".github/workflows/Android.yml"
-  #     - ".github/workflows/iOS.yml"
-  #     - ".github/workflows/Linux.yml"
-  #     - ".github/workflows/macOS.yml"
+  push:
+    branches:
+      - main
+    tags:
+      - "**"
+    paths-ignore:
+      - ".gitignore"
+      - "README.md"
+      # ignore CI for other platforms
+      - ".github/FUNDING.yml"
+      - ".github/actions/**"
+      - ".github/workflows/Android.yml"
+      - ".github/workflows/iOS.yml"
+      - ".github/workflows/Linux.yml"
+      - ".github/workflows/macOS.yml"
 
-  # pull_request:
-  #   branches:
-  #     - main
-  #   paths-ignore:
-  #     - ".gitignore"
-  #     - "README.md"
-  #     # ignore CI for other platforms
-  #     - ".github/FUNDING.yml"
-  #     - ".github/actions/**"
-  #     - ".github/workflows/Android.yml"
-  #     - ".github/workflows/iOS.yml"
-  #     - ".github/workflows/Linux.yml"
-  #     - ".github/workflows/macOS.yml"
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - ".gitignore"
+      - "README.md"
+      # ignore CI for other platforms
+      - ".github/FUNDING.yml"
+      - ".github/actions/**"
+      - ".github/workflows/Android.yml"
+      - ".github/workflows/iOS.yml"
+      - ".github/workflows/Linux.yml"
+      - ".github/workflows/macOS.yml"
 
 concurrency:
   # cancel jobs on PRs only
@@ -38,26 +38,36 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 env:
-  QT_VERSION: 6.5.0
   CCACHE_CONFIGPATH: C:/Users/runneradmin/AppData/Roaming/ccache/ccache.conf
 
 jobs:
-  build-plugin:
-    name: Build QMapLibre for ${{ matrix.config.qtarch }}
+  build-and-test:
+    name: Build QMapLibre for Windows (Qt${{ matrix.qt_version}}, ${{ matrix.arch }})
     runs-on: windows-2022
     strategy:
       matrix:
-        config:
-          - arch: win64_msvc2019_64
-            qtarch: msvc2019_64
+        include:
+          - qt_series: 5
+            qt_version: 5.15.2
+            qt_arch: win64_msvc2019_64
+            qt_modules: ""
+            arch: msvc2019_64
             compiler: x64
             compiler_version: 14.29
-            tools: ""
-          - arch: win64_mingw
-            qtarch: mingw_64
-            compiler: mingw1120_64
-            compiler_version: 11.2.0
-            tools: tools_mingw90
+          - qt_series: 6
+            qt_version: 6.5.3
+            qt_arch: win64_msvc2019_64
+            qt_modules: qtlocation qtpositioning
+            arch: msvc2019_64
+            compiler: x64
+            compiler_version: 14.29
+          - qt_series: 6
+            qt_version: 6.6.0
+            qt_arch: win64_msvc2019_64
+            qt_modules: qtlocation qtpositioning
+            arch: msvc2019_64
+            compiler: x64
+            compiler_version: 14.29
 
     steps:
       - name: Checkout
@@ -78,21 +88,20 @@ jobs:
         uses: jurplel/install-qt-action@v3
         with:
           aqtversion: ==3.1.*
-          version: ${{ env.QT_VERSION }}
+          version: ${{ matrix.qt_version }}
           target: desktop
-          arch: ${{ matrix.config.arch }}
-          modules: qtlocation qtpositioning
-          tools: ${{ matrix.config.tools }}
+          arch: ${{ matrix.arch }}
+          modules: ${{ matrix.qt_modules }}
 
       - name: Setup ninja
         uses: seanmiddleditch/gha-setup-ninja@v4
 
       - name: Setup MSVC
-        if: matrix.config.arch == 'win64_msvc2019_64'
+        if: matrix.qt_arch == 'win64_msvc2019_64'
         uses: ilammy/msvc-dev-cmd@v1
         with:
-          arch: ${{ matrix.config.compiler }}
-          toolset: ${{ matrix.config.compiler_version }}
+          arch: ${{ matrix.compiler }}
+          toolset: ${{ matrix.compiler_version }}
 
       - name: Update ccache
         run: |
@@ -102,74 +111,116 @@ jobs:
       - name: Set up ccache
         uses: hendrikmuhs/ccache-action@v1
         with:
-          key: Windows_QMapLibre_${{ matrix.config.qtarch }}
+          key: Windows_QMapLibre_${{ matrix.qt_version }}_${{ matrix.arch }}
           max-size: 200M
 
       - name: Build QMapLibre
         shell: bash
         env:
-          COMPILER_TYPE: ${{ matrix.config.compiler }}
+          COMPILER_TYPE: ${{ matrix.compiler }}
         run: |
-          export PATH=$IQTA_TOOLS/$COMPILER_TYPE/bin:$PATH
-          echo "$PATH"
           mkdir build && cd build
           qt-cmake.bat ../source/ \
             -G"Ninja Multi-Config" \
             -DCMAKE_CONFIGURATION_TYPES="Release;Debug" \
             -DCMAKE_C_COMPILER_LAUNCHER="ccache.exe" \
             -DCMAKE_CXX_COMPILER_LAUNCHER="ccache.exe" \
-            -DQT_USE_CCACHE=ON
+            -DCMAKE_INSTALL_PREFIX="../install" \
           ninja.exe
-          DESTDIR=../install ninja.exe install
+          ninja.exe test
+          ninja.exe install
 
-      - name: Create artifacts
+      - name: Build QtQuick Example (Qt 6)
+        if: matrix.qt_series == 6
+        run: |
+          export PREFIX_PATH="$(pwd)/install"
+          mkdir build-example-quick && cd build-example-quick
+          qt-cmake ../source/examples/quick/ \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE="Release" \
+            -DCMAKE_C_COMPILER_LAUNCHER="ccache.exe" \
+            -DCMAKE_CXX_COMPILER_LAUNCHER="ccache.exe" \
+            -DCMAKE_PREFIX_PATH="$PREFIX_PATH"
+          ninja
+          ninja deploy
+
+      - name: Build QtWidgets Example (Qt 6)
+        if: matrix.qt_series == 6
+        run: |
+          export PREFIX_PATH="$(pwd)/install"
+          mkdir build-example-widgets && cd build-example-widgets
+          qt-cmake ../source/examples/widgets/ \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE="Release" \
+            -DCMAKE_C_COMPILER_LAUNCHER="ccache.exe" \
+            -DCMAKE_CXX_COMPILER_LAUNCHER="ccache.exe" \
+            -DCMAKE_PREFIX_PATH="$PREFIX_PATH"
+          ninja
+          ninja deploy
+
+      - name: Compress installation
         shell: bash
         env:
-          TAG_ARCH: ${{ matrix.config.qtarch }}
+          TAG_ARCH: ${{ matrix.arch }}
         run: |
-          pushd install/a/maplibre-native-qt
-          tar cjvf ../../../QMapLibre_Windows_${TAG_ARCH}.tar.bz2 Qt
+          pushd install
+          tar cjvf ../QMapLibre_Windows_${TAG_ARCH}.tar.bz2 *
           popd
 
-      - name: Upload artifacts
+      - name: Compress examples
+        if: matrix.qt_series == 6
+        shell: bash
+        env:
+          TAG_ARCH: ${{ matrix.arch }}
+        run: |
+          mkdir examples && pushd examples
+          cp -a ../build-example-quick/QMapLibreExampleQuick.exe .
+          cp -a ../build-example-widgets/QMapLibreExampleWidgets.exe .
+          tar cjvf ../QMapLibre_Windows_${TAG_ARCH}_examples.tar.bz2 *
+          popd
+
+      - name: Upload installation
         uses: actions/upload-artifact@v4
         with:
-          name: QMapLibre_Windows_${{ matrix.config.qtarch }}
-          path: QMapLibre_Windows_${{ matrix.config.qtarch }}.tar.bz2
+          name: QMapLibre_Windows_${{ matrix.arch }}_${{ matrix.qt_version }}
+          path: QMapLibre_Windows_${{ matrix.arch }}.tar.bz2
+
+      - name: Upload examples
+        if: matrix.qt_series == 6
+        uses: actions/upload-artifact@v4
+        with:
+          name: QMapLibre_Windows_${{ matrix.arch }}_${{ matrix.qt_version }}_examples
+          path: QMapLibre_Windows_${{ matrix.arch }}_examples.tar.bz2
 
   release:
     name: Release QMapLibre
     if: github.ref_type == 'tag'
     runs-on: windows-2022
-    needs: build-plugin
-    strategy:
-      matrix:
-        config:
-          - qtarch: msvc2019_64
-            outarch: msvc2019
-          - qtarch: mingw_64
-            outarch: mingw
+    needs: build-and-test
     permissions:
       contents: write
+    strategy:
+      matrix:
+        qt_version: [5.15.2, 6.5.3, 6.6.0]
+        arch: [msvc2019_64]
 
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: QMapLibre_Windows_${{ matrix.config.qtarch }}
+          name: QMapLibre_Windows_${{ matrix.arch }}_${{ matrix.qt_version }}}
 
       - name: Make tarball
         shell: bash
         env:
           TAG_NAME: ${{ github.ref_name }}
-          QT_ARCH: ${{ matrix.config.qtarch }}
-          TAG_ARCH: ${{ matrix.config.outarch }}
+          TAG_ARCH: ${{ matrix.arch }}
         run: |
-          mv QMapLibre_Windows_${QT_ARCH}.tar.bz2 QMapLibre_${TAG_NAME}_Qt${QT_VERSION}_win64_${TAG_ARCH}.tar.bz2
+          mv QMapLibre_Windows_${TAG_ARCH}.tar.bz2 QMapLibre_${TAG_NAME}_Qt${QT_VERSION}_${TAG_ARCH}.tar.bz2
 
       - name: Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: QMapLibre_${{ github.ref_name }}_Qt${{ env.QT_VERSION }}_win64_${{ matrix.config.outarch }}.tar.bz2
+          artifacts: QMapLibre_${{ github.ref_name }}_Qt${{ matrix.qt_version }}_win64_${{ matrix.arch }}.tar.bz2
           allowUpdates: true
           draft: true
