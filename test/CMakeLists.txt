@@ -6,7 +6,7 @@ if(
     return()
 endif()
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows" AND CMAKE_VERSION VERSION_LESS "3.22.0") 
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows" AND CMAKE_VERSION VERSION_LESS "3.22.0")
     message(STATUS "Tests on Windows require CMake 3.22 or later and will be disabled")
     return()
 endif()
