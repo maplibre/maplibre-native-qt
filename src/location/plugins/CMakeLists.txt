@@ -23,6 +23,7 @@ set_target_properties(
         AUTOMOC ON
         EXPORT_NAME PluginGeoServices
         LIBRARY_OUTPUT_DIRECTORY $<1:${CMAKE_CURRENT_BINARY_DIR}/geoservices>
+        RUNTIME_OUTPUT_DIRECTORY $<1:${CMAKE_CURRENT_BINARY_DIR}/geoservices>
 )
 
 # QtLocation plugin include directories
@@ -62,6 +63,7 @@ install(
     ARCHIVE DESTINATION "plugins/geoservices"
     LIBRARY DESTINATION "plugins/geoservices"
     OBJECTS DESTINATION "plugins/geoservices"
+    RUNTIME DESTINATION "plugins/geoservices"
 )
 
 # QtLocation QML extension plugin
@@ -91,6 +93,7 @@ if(COMMAND qt_add_qml_module)
         ${MLN_QT_QML_PLUGIN}
         PROPERTIES
             LIBRARY_OUTPUT_DIRECTORY $<1:${CMAKE_CURRENT_BINARY_DIR}/QtLocation/MapLibre>
+            RUNTIME_OUTPUT_DIRECTORY $<1:${CMAKE_CURRENT_BINARY_DIR}/QtLocation/MapLibre>
     )
     configure_file(
         "${CMAKE_CURRENT_SOURCE_DIR}/qmldir.in"
@@ -120,6 +123,7 @@ else()
         PROPERTIES
             AUTOMOC ON
             LIBRARY_OUTPUT_DIRECTORY $<1:${CMAKE_CURRENT_BINARY_DIR}/QtLocation/MapLibre>
+            RUNTIME_OUTPUT_DIRECTORY $<1:${CMAKE_CURRENT_BINARY_DIR}/QtLocation/MapLibre>
     )
     configure_file(
         "${CMAKE_CURRENT_SOURCE_DIR}/legacy/qmldir.in"
@@ -165,6 +169,7 @@ install(
     ARCHIVE DESTINATION "qml/QtLocation/MapLibre"
     LIBRARY DESTINATION "qml/QtLocation/MapLibre"
     OBJECTS DESTINATION "qml/QtLocation/MapLibre"
+    RUNTIME DESTINATION "qml/QtLocation/MapLibre"
 )
 install(
     FILES

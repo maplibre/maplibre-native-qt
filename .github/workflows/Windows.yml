@@ -90,7 +90,7 @@ jobs:
           aqtversion: ==3.1.*
           version: ${{ matrix.qt_version }}
           target: desktop
-          arch: ${{ matrix.arch }}
+          arch: ${{ matrix.qt_arch }}
           modules: ${{ matrix.qt_modules }}
 
       - name: Setup ninja
@@ -114,7 +114,25 @@ jobs:
           key: Windows_QMapLibre_${{ matrix.qt_version }}_${{ matrix.arch }}
           max-size: 200M
 
-      - name: Build QMapLibre
+      - name: Build QMapLibre (Qt 5)
+        if: matrix.qt_series == 5
+        shell: bash
+        env:
+          COMPILER_TYPE: ${{ matrix.compiler }}
+        run: |
+          mkdir build && cd build
+          cmake.exe ../source/ \
+            -G"Ninja Multi-Config" \
+            -DCMAKE_CONFIGURATION_TYPES="Release;Debug" \
+            -DCMAKE_C_COMPILER_LAUNCHER="ccache.exe" \
+            -DCMAKE_CXX_COMPILER_LAUNCHER="ccache.exe" \
+            -DCMAKE_INSTALL_PREFIX="../install"
+          ninja.exe
+          ninja.exe test
+          ninja.exe install
+
+      - name: Build QMapLibre (Qt 6)
+        if: matrix.qt_series == 6
         shell: bash
         env:
           COMPILER_TYPE: ${{ matrix.compiler }}
@@ -125,7 +143,7 @@ jobs:
             -DCMAKE_CONFIGURATION_TYPES="Release;Debug" \
             -DCMAKE_C_COMPILER_LAUNCHER="ccache.exe" \
             -DCMAKE_CXX_COMPILER_LAUNCHER="ccache.exe" \
-            -DCMAKE_INSTALL_PREFIX="../install" \
+            -DCMAKE_INSTALL_PREFIX="../install"
           ninja.exe
           ninja.exe test
           ninja.exe install
