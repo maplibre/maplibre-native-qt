@@ -91,11 +91,6 @@ jobs:
           key: iOS_QMapLibre_${{ matrix.qt_version }}
           max-size: 200M
 
-      - name: Use latest version of ccache
-        run: |
-          brew unlink ccache
-          brew install ccache --HEAD
-
       - name: Build QMapLibre
         run: |
           mkdir build && cd build
