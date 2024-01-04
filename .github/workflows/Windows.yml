@@ -150,31 +150,35 @@ jobs:
 
       - name: Build QtQuick Example (Qt 6)
         if: matrix.qt_series == 6
+        shell: bash
         run: |
           export PREFIX_PATH="$(pwd)/install"
           mkdir build-example-quick && cd build-example-quick
-          qt-cmake ../source/examples/quick/ \
+          qt-cmake.bat ../source/examples/quick/ \
             -G Ninja \
             -DCMAKE_BUILD_TYPE="Release" \
             -DCMAKE_C_COMPILER_LAUNCHER="ccache.exe" \
             -DCMAKE_CXX_COMPILER_LAUNCHER="ccache.exe" \
+            -DCMAKE_INSTALL_PREFIX="../install-example-quick" \
             -DCMAKE_PREFIX_PATH="$PREFIX_PATH"
-          ninja
-          ninja deploy
+          ninja.exe
+          ninja.exe install
 
       - name: Build QtWidgets Example (Qt 6)
         if: matrix.qt_series == 6
+        shell: bash
         run: |
           export PREFIX_PATH="$(pwd)/install"
           mkdir build-example-widgets && cd build-example-widgets
-          qt-cmake ../source/examples/widgets/ \
+          qt-cmake.bat ../source/examples/widgets/ \
             -G Ninja \
             -DCMAKE_BUILD_TYPE="Release" \
             -DCMAKE_C_COMPILER_LAUNCHER="ccache.exe" \
             -DCMAKE_CXX_COMPILER_LAUNCHER="ccache.exe" \
+            -DCMAKE_INSTALL_PREFIX="../install-example-widgets" \
             -DCMAKE_PREFIX_PATH="$PREFIX_PATH"
-          ninja
-          ninja deploy
+          ninja.exe
+          ninja.exe install
 
       - name: Compress installation
         shell: bash
@@ -192,8 +196,8 @@ jobs:
           TAG_ARCH: ${{ matrix.arch }}
         run: |
           mkdir examples && pushd examples
-          cp -a ../build-example-quick/QMapLibreExampleQuick.exe .
-          cp -a ../build-example-widgets/QMapLibreExampleWidgets.exe .
+          cp -a ../install-example-quick/ Quick
+          cp -a ../install-example-widgets/ Widgets
           tar cjvf ../QMapLibre_Windows_${TAG_ARCH}_examples.tar.bz2 *
           popd
 
