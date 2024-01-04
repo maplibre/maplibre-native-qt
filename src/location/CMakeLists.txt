@@ -13,6 +13,8 @@ target_sources(
         qt_mapping_engine.cpp qt_mapping_engine.hpp
         style_change_utils.cpp style_change_utils_p.hpp
         texture_node.cpp texture_node.hpp
+
+        $<$<PLATFORM_ID:Windows>:${CMAKE_BINARY_DIR}/version_info.rc>
 )
 
 # Linux/Mac: Set framework, version and headers

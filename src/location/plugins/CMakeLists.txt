@@ -6,12 +6,16 @@ if(COMMAND qt_add_plugin)
         OUTPUT_TARGETS GeoServicesPluginOutputTargets
         PLUGIN_TYPE geoservices
         qgeoserviceproviderplugin.cpp qgeoserviceproviderplugin.hpp
+
+        $<$<PLATFORM_ID:Windows>:${CMAKE_BINARY_DIR}/version_info.rc>
     )
 else()
     add_library(
         ${MLN_QT_GEOSERVICES_PLUGIN}
         SHARED
         qgeoserviceproviderplugin.cpp qgeoserviceproviderplugin.hpp
+
+        $<$<PLATFORM_ID:Windows>:${CMAKE_BINARY_DIR}/version_info.rc>
     )
     target_compile_definitions(${MLN_QT_GEOSERVICES_PLUGIN} PRIVATE QT_PLUGIN)
 endif()
@@ -73,6 +77,8 @@ set(Plugin_Sources
     declarative_style_parameter.hpp
     declarative_layer_parameter.cpp declarative_layer_parameter.hpp
     declarative_source_parameter.cpp declarative_source_parameter.hpp
+
+    $<$<PLATFORM_ID:Windows>:${CMAKE_BINARY_DIR}/version_info.rc>
 )
 
 if(COMMAND qt_add_qml_module)

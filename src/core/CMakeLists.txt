@@ -63,6 +63,8 @@ target_sources(
         style/image_style_change.cpp style/image_style_change_p.hpp
         style/layer_style_change.cpp style/layer_style_change_p.hpp
         style/source_style_change.cpp style/source_style_change_p.hpp
+
+        $<$<PLATFORM_ID:Windows>:${CMAKE_BINARY_DIR}/version_info.rc>
 )
 
 # Linux/Mac: Set framework, version and headers
