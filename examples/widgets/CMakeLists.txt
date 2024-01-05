@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.19)
+cmake_minimum_required(VERSION 3.19...3.21)
 
 project(QMapLibreExampleWidgets VERSION 1.0.0 LANGUAGES CXX)
 
@@ -36,11 +36,21 @@ target_link_libraries(
         QMapLibre::Widgets
 )
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    add_custom_target(
-        deploy
-        COMMAND macdeployqt QMapLibreExampleWidgets.app
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+install(TARGETS QMapLibreExampleWidgets
+    BUNDLE DESTINATION .
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+qt_generate_deploy_app_script(
+    TARGET QMapLibreExampleWidgets
+    OUTPUT_SCRIPT deploy_script
+    NO_UNSUPPORTED_PLATFORM_ERROR
+)
+install(SCRIPT ${deploy_script})
+
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    install(
+        IMPORTED_RUNTIME_ARTIFACTS QMapLibre::Core QMapLibre::Widgets
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
-    add_dependencies(deploy QMapLibreExampleWidgets)
 endif()

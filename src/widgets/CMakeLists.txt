@@ -27,6 +27,8 @@ target_sources(
         ${Widgets_Headers}
         gl_widget.cpp
         gl_widget_p.hpp
+
+        $<$<PLATFORM_ID:Windows>:${CMAKE_BINARY_DIR}/version_info.rc>
 )
 
 # Linux/Mac: Set framework, version and headers

@@ -17,6 +17,15 @@ if(MLN_QT_WITH_WIDGETS)
     message(STATUS "Building widgets module")
 endif()
 
+# Windows metadata
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    configure_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/version_info.rc.in"
+        "${CMAKE_BINARY_DIR}/version_info.rc"
+        @ONLY
+    )
+endif()
+
 # Setup package and install
 configure_package_config_file(
     "config.cmake.in"

@@ -37,3 +37,9 @@ add_test(
     NAME test_mln_widgets
     COMMAND $<TARGET_FILE:test_mln_widgets>
 )
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    set_tests_properties(
+        test_mln_widgets
+        PROPERTIES
+            ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:$<TARGET_FILE_DIR:Core>;PATH=path_list_prepend:$<TARGET_FILE_DIR:Widgets>")
+endif()

@@ -45,3 +45,9 @@ set_tests_properties(
     PROPERTIES
         ENVIRONMENT "MLN_FIXTURES_PATH=${CMAKE_SOURCE_DIR}/vendor/maplibre-native/test/fixtures"
 )
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    set_tests_properties(
+        test_mln_core
+        PROPERTIES
+            ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:$<TARGET_FILE_DIR:Core>")
+endif()

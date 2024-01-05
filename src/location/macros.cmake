@@ -48,6 +48,11 @@ function(qmaplibre_location_setup_plugins target)
             COPY "${_ImportedLocationGeoServices}"
             DESTINATION "${_targetName}.app/Contents/PlugIns/geoservices"
         )
+    elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+        install(
+            FILES "${_ImportedLocationGeoServices}"
+            DESTINATION "plugins/geoservices"
+        )
     elseif(${CMAKE_SYSTEM_NAME} MATCHES "Android")
         set_target_properties(
             ${target}

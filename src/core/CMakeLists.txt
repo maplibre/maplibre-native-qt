@@ -1,6 +1,9 @@
 # Core MapLibre Native definitions
 set(MLN_WITH_QT ON CACHE BOOL "Build MapLibre Native Core with Qt platform" FORCE)
 set(MLN_QT_LIBRARY_ONLY ON CACHE BOOL "Build only MapLibre Native Core Qt bindings libraries" FORCE)
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    set(MLN_QT_WITH_INTERNAL_SQLITE ON CACHE BOOL "Build MapLibre Native Core with internal sqlite" FORCE)
+endif()
 set(MLN_CORE_PATH "${CMAKE_SOURCE_DIR}/vendor/maplibre-native" CACHE STRING "MapLibre Native Core source path" FORCE)
 
 # Build MapLibre Native Core
@@ -63,6 +66,8 @@ target_sources(
         style/image_style_change.cpp style/image_style_change_p.hpp
         style/layer_style_change.cpp style/layer_style_change_p.hpp
         style/source_style_change.cpp style/source_style_change_p.hpp
+
+        $<$<PLATFORM_ID:Windows>:${CMAKE_BINARY_DIR}/version_info.rc>
 )
 
 # Linux/Mac: Set framework, version and headers

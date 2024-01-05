@@ -161,11 +161,12 @@ jobs:
             -DCMAKE_BUILD_TYPE="RelWithDebInfo" \
             -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
             -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
+            -DCMAKE_INSTALL_PREFIX="../install-example-quick" \
             -DCMAKE_OSX_DEPLOYMENT_TARGET="${DEPLOYMENT_TARGET}" \
             -DCMAKE_OSX_ARCHITECTURES="${DEPLOYMENT_ARCH}" \
             -DCMAKE_PREFIX_PATH="$PREFIX_PATH"
           ninja
-          ninja deploy
+          ninja install
 
       - name: Build QtWidgets Example (Qt 6)
         if: matrix.qt_series == 6
@@ -177,11 +178,12 @@ jobs:
             -DCMAKE_BUILD_TYPE="RelWithDebInfo" \
             -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
             -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
+            -DCMAKE_INSTALL_PREFIX="../install-example-widgets" \
             -DCMAKE_OSX_DEPLOYMENT_TARGET="${DEPLOYMENT_TARGET}" \
             -DCMAKE_OSX_ARCHITECTURES="${DEPLOYMENT_ARCH}" \
             -DCMAKE_PREFIX_PATH="$PREFIX_PATH"
           ninja
-          ninja deploy
+          ninja install
 
       - name: Compress installation
         if: matrix.compiler == 'default'
@@ -194,8 +196,8 @@ jobs:
         if: matrix.qt_series == 6 && matrix.compiler == 'default'
         run: |
           mkdir examples && pushd examples
-          cp -a ../build-example-quick/QMapLibreExampleQuick.app .
-          cp -a ../build-example-widgets/QMapLibreExampleWidgets.app .
+          cp -a ../install-example-quick/QMapLibreExampleQuick.app .
+          cp -a ../install-example-widgets/QMapLibreExampleWidgets.app .
           tar cjvf ../QMapLibre_macOS_examples.tar.bz2 *
           popd
 

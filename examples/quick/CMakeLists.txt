@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.19)
+cmake_minimum_required(VERSION 3.19...3.21)
 
 project(QMapLibreExampleQuick VERSION 1.0.0 LANGUAGES CXX)
 
@@ -45,14 +45,26 @@ target_link_libraries(
 
 qmaplibre_location_setup_plugins(QMapLibreExampleQuick)
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    get_property(_qmlImport TARGET QMapLibreExampleQuick PROPERTY QT_QML_IMPORT_PATH)
-    add_custom_target(
-        deploy
-        COMMAND macdeployqt QMapLibreExampleQuick.app -qmldir=${CMAKE_SOURCE_DIR} -qmlimport=${_qmlImport}
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+install(
+    TARGETS QMapLibreExampleQuick
+    BUNDLE DESTINATION .
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+qt_generate_deploy_qml_app_script(
+    TARGET QMapLibreExampleQuick
+    OUTPUT_SCRIPT deploy_script
+    MACOS_BUNDLE_POST_BUILD
+    NO_UNSUPPORTED_PLATFORM_ERROR
+    DEPLOY_USER_QML_MODULES_ON_UNSUPPORTED_PLATFORM
+)
+install(SCRIPT ${deploy_script})
+
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    install(
+        IMPORTED_RUNTIME_ARTIFACTS QMapLibre::Core QMapLibre::Location
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
-    add_dependencies(deploy QMapLibreExampleQuick)
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Android")
     include(FetchContent)
     FetchContent_Declare(
