@@ -34,6 +34,7 @@ include(cmake/helpers.cmake)
 # Options
 option(MLN_QT_WITH_LOCATION "Build QMapLibreLocation" ON)
 option(MLN_QT_WITH_WIDGETS "Build QMapLibreWidgets" ON)
+option(MLN_QT_STATIC "Build QMapLibre staticaly (force static build with Qt6)" OFF)
 option(MLN_QT_WITH_COVERAGE "Build QMapLibre with code coverage collection" OFF)
 option(MLN_QT_WITH_CLANG_TIDY "Build QMapLibre with clang-tidy checks enabled" OFF)
 

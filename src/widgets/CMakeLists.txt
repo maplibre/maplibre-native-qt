@@ -15,9 +15,17 @@ set(Widgets_Headers ${MLN_QT_WIDGETS_LOWERCASE}.hpp ${Widgets_Headers} ${Widgets
 
 # Make a Qt library
 if(COMMAND qt_add_library)
-    qt_add_library(Widgets)
+    if(MLN_QT_STATIC)
+        qt_add_library(Widgets STATIC)
+    else()
+        qt_add_library(Widgets)
+    endif()
 else()
-    add_library(Widgets SHARED)
+    if(MLN_QT_STATIC)
+        add_library(Widgets STATIC)
+    else()
+        add_library(Widgets SHARED)
+    endif()
 endif()
 add_library(${MLN_QT_NAME}::Widgets ALIAS Core)
 

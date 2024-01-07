@@ -1,24 +1,37 @@
 # QtLocation plugin
 if(COMMAND qt_add_plugin)
-    qt_add_plugin(
-        ${MLN_QT_GEOSERVICES_PLUGIN}
-        CLASS_NAME QGeoServiceProviderFactoryMapLibre
-        OUTPUT_TARGETS GeoServicesPluginOutputTargets
-        PLUGIN_TYPE geoservices
-        qgeoserviceproviderplugin.cpp qgeoserviceproviderplugin.hpp
-
-        $<$<PLATFORM_ID:Windows>:${CMAKE_BINARY_DIR}/version_info.rc>
-    )
+    if(MLN_QT_STATIC)
+        qt_add_plugin(
+            ${MLN_QT_GEOSERVICES_PLUGIN}
+            STATIC
+            CLASS_NAME QGeoServiceProviderFactoryMapLibre
+            OUTPUT_TARGETS GeoServicesPluginOutputTargets
+            PLUGIN_TYPE geoservices
+        )
+    else()
+        qt_add_plugin(
+            ${MLN_QT_GEOSERVICES_PLUGIN}
+            CLASS_NAME QGeoServiceProviderFactoryMapLibre
+            OUTPUT_TARGETS GeoServicesPluginOutputTargets
+            PLUGIN_TYPE geoservices
+        )
+    endif()
 else()
-    add_library(
-        ${MLN_QT_GEOSERVICES_PLUGIN}
-        SHARED
-        qgeoserviceproviderplugin.cpp qgeoserviceproviderplugin.hpp
-
-        $<$<PLATFORM_ID:Windows>:${CMAKE_BINARY_DIR}/version_info.rc>
-    )
+    if(MLN_QT_STATIC)
+        add_library(${MLN_QT_GEOSERVICES_PLUGIN} STATIC)
+    else()
+        add_library(${MLN_QT_GEOSERVICES_PLUGIN} SHARED)
+    endif()
     target_compile_definitions(${MLN_QT_GEOSERVICES_PLUGIN} PRIVATE QT_PLUGIN)
 endif()
+
+target_sources(
+    ${MLN_QT_GEOSERVICES_PLUGIN}
+    PRIVATE
+        qgeoserviceproviderplugin.cpp qgeoserviceproviderplugin.hpp
+
+        $<$<PLATFORM_ID:Windows>:${CMAKE_BINARY_DIR}/version_info.rc>
+)
 
 # QtLocation plugin extra target properties
 set_target_properties(
@@ -82,19 +95,36 @@ set(Plugin_Sources
 )
 
 if(COMMAND qt_add_qml_module)
-    qt_add_qml_module(
-        ${MLN_QT_QML_PLUGIN}
-        URI QtLocation.MapLibre
-        VERSION ${PROJECT_VERSION}
-        PLUGIN_TARGET ${MLN_QT_QML_PLUGIN}
-        NO_PLUGIN_OPTIONAL
-        NO_GENERATE_QMLDIR
-        CLASS_NAME QtLocationMapLibreQmlModule
-        RESOURCE_PREFIX "/"
-        OUTPUT_DIRECTORY "QtLocation/MapLibre"
-        OUTPUT_TARGETS QmlPluginOutputTargets
-        SOURCES ${Plugin_Sources}
-    )
+    if(MLN_QT_STATIC)
+        qt_add_qml_module(
+            ${MLN_QT_QML_PLUGIN}
+            STATIC
+            URI QtLocation.MapLibre
+            VERSION ${PROJECT_VERSION}
+            PLUGIN_TARGET ${MLN_QT_QML_PLUGIN}
+            NO_PLUGIN_OPTIONAL
+            NO_GENERATE_QMLDIR
+            CLASS_NAME QtLocationMapLibreQmlModule
+            RESOURCE_PREFIX "/"
+            OUTPUT_DIRECTORY "QtLocation/MapLibre"
+            OUTPUT_TARGETS QmlPluginOutputTargets
+            SOURCES ${Plugin_Sources}
+        )
+    else()
+        qt_add_qml_module(
+            ${MLN_QT_QML_PLUGIN}
+            URI QtLocation.MapLibre
+            VERSION ${PROJECT_VERSION}
+            PLUGIN_TARGET ${MLN_QT_QML_PLUGIN}
+            NO_PLUGIN_OPTIONAL
+            NO_GENERATE_QMLDIR
+            CLASS_NAME QtLocationMapLibreQmlModule
+            RESOURCE_PREFIX "/"
+            OUTPUT_DIRECTORY "QtLocation/MapLibre"
+            OUTPUT_TARGETS QmlPluginOutputTargets
+            SOURCES ${Plugin_Sources}
+        )
+    endif()
     set_target_properties(
         ${MLN_QT_QML_PLUGIN}
         PROPERTIES
@@ -107,13 +137,23 @@ if(COMMAND qt_add_qml_module)
         @ONLY
     )
 else()
-    add_library(
-        ${MLN_QT_QML_PLUGIN}
-        SHARED
-        ${Plugin_Sources}
-        legacy/qml_module.cpp
-        legacy/qml_registration.cpp
-    )
+    if(MLN_QT_STATIC)
+        add_library(
+            ${MLN_QT_QML_PLUGIN}
+            STATIC
+            ${Plugin_Sources}
+            legacy/qml_module.cpp
+            legacy/qml_registration.cpp
+        )
+    else()
+        add_library(
+            ${MLN_QT_QML_PLUGIN}
+            SHARED
+            ${Plugin_Sources}
+            legacy/qml_module.cpp
+            legacy/qml_registration.cpp
+        )
+    endif()
     target_compile_definitions(
         ${MLN_QT_QML_PLUGIN}
         PRIVATE
