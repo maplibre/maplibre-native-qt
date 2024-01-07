@@ -46,7 +46,7 @@ jobs:
         include:
           - qt_version: 6.5.3
             deployment_target: 14.0
-          - qt_version: 6.6.0
+          - qt_version: 6.6.1
             deployment_target: 14.0
 
     env:
@@ -127,7 +127,7 @@ jobs:
       contents: write
     strategy:
       matrix:
-        qt_version: [6.5.3, 6.6.0]
+        qt_version: [6.5.3, 6.6.1]
 
     steps:
       - name: Download artifacts

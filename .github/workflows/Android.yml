@@ -56,16 +56,16 @@ jobs:
           - qt_version: 6.5.3
             abi: arm64-v8a
             arch: android_arm64_v8a
-          - qt_version: 6.6.0
+          - qt_version: 6.6.1
             abi: x86
             arch: android_x86
-          - qt_version: 6.6.0
+          - qt_version: 6.6.1
             abi: x86_64
             arch: android_x86_64
-          - qt_version: 6.6.0
+          - qt_version: 6.6.1
             abi: armeabi-v7a
             arch: android_armv7
-          - qt_version: 6.6.0
+          - qt_version: 6.6.1
             abi: arm64-v8a
             arch: android_arm64_v8a
 
@@ -150,7 +150,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        qt_version: [6.5.3, 6.6.0]
+        qt_version: [6.5.3, 6.6.1]
 
     steps:
       - name: Download artifacts for x86
@@ -207,7 +207,7 @@ jobs:
       contents: write
     strategy:
       matrix:
-        qt_version: [6.5.3, 6.6.0]
+        qt_version: [6.5.3, 6.6.1]
 
     steps:
       - name: Download artifacts
