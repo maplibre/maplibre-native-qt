@@ -94,7 +94,38 @@ QThreadStorage<std::shared_ptr<mbgl::util::RunLoop>> loop;
 
 // Conversion helper functions.
 
-mbgl::Size sanitizedSize(const QSize &size) {
+QVariant variantFromValue(const mbgl::Value &value) {
+    return value.match([](const mbgl::NullValue) { return QVariant(); },
+                       [](const bool value_) { return QVariant(value_); },
+                       [](const float value_) { return QVariant(value_); },
+                       [](const int64_t value_) { return QVariant(static_cast<qlonglong>(value_)); },
+                       [](const double value_) { return QVariant(value_); },
+                       [](const std::string &value_) { return QVariant(value_.c_str()); },
+                       [](const mbgl::Color &value_) {
+                           return QColor(static_cast<int>(value_.r),
+                                         static_cast<int>(value_.g),
+                                         static_cast<int>(value_.b),
+                                         static_cast<int>(value_.a));
+                       },
+                       [&](const std::vector<mbgl::Value> &vector) {
+                           QVariantList list;
+                           list.reserve(static_cast<int>(vector.size()));
+                           for (const auto &value_ : vector) {
+                               list.push_back(variantFromValue(value_));
+                           }
+                           return list;
+                       },
+                       [&](const std::unordered_map<std::string, mbgl::Value> &map) {
+                           QVariantMap varMap;
+                           for (const auto &item : map) {
+                               varMap.insert(item.first.c_str(), variantFromValue(item.second));
+                           }
+                           return varMap;
+                       },
+                       [](const auto &) { return QVariant(); });
+}
+
+mbgl::Size sanitizeSize(const QSize &size) {
     return mbgl::Size{
         mbgl::util::max(0u, static_cast<uint32_t>(size.width())),
         mbgl::util::max(0u, static_cast<uint32_t>(size.height())),
@@ -121,7 +152,7 @@ std::unique_ptr<mbgl::style::Image> toStyleImage(const QString &id, const QImage
 
 mbgl::MapOptions mapOptionsFromSettings(const QMapLibre::Settings &settings, const QSize &size, qreal pixelRatio) {
     return std::move(mbgl::MapOptions()
-                         .withSize(sanitizedSize(size))
+                         .withSize(sanitizeSize(size))
                          .withPixelRatio(static_cast<float>(pixelRatio))
                          .withMapMode(static_cast<mbgl::MapMode>(settings.mapMode()))
                          .withConstrainMode(static_cast<mbgl::ConstrainMode>(settings.constrainMode()))
@@ -217,112 +248,162 @@ std::optional<mbgl::Annotation> asAnnotation(const QMapLibre::Annotation &annota
 namespace QMapLibre {
 
 /*!
-    \class QMapLibre::Map
-    \brief The QMapLibre::Map class is a Qt wrapper for the MapLibre Native engine.
+    \class Map
+    \brief The Map class is a Qt wrapper for the MapLibre Native engine.
+    \ingroup QMapLibre
 
-    \inmodule MapLibre Maps SDK for Qt
+    Map is a Qt friendly version the MapLibre Native engine using Qt types
+    and deep integration with Qt event loop. Map relies as much as possible
+    on Qt, trying to minimize the external dependencies. For instance it will
+    use \c QNetworkAccessManager for HTTP requests and \c QString for UTF-8
+    manipulation.
 
-    QMapLibre::Map is a Qt friendly version the MapLibre Native engine using Qt types
-    and deep integration with Qt event loop. QMapLibre::Map relies as much as possible
-    on Qt, trying to minimize the external dependencies. For instance it will use
-    QNetworkAccessManager for HTTP requests and QString for UTF-8 manipulation.
-
-    QMapLibre::Map is not thread-safe and it is assumed that it will be accessed from
+    Map is not thread-safe and it is assumed that it will be accessed from
     the same thread as the thread where the OpenGL context lives.
 */
 
 /*!
-    \enum QMapLibre::Map::MapChange
+    \enum Map::MapChange
 
     This enum represents the last changed occurred to the map state.
 
-    \value MapChangeRegionWillChange                      A region of the map will change, like
-    when resizing the map.
-
-    \value MapChangeRegionWillChangeAnimated              Not in use by QMapLibre::Map.
-
-    \value MapChangeRegionIsChanging                      A region of the map is changing.
-
-    \value MapChangeRegionDidChange                       A region of the map finished changing.
-
-    \value MapChangeRegionDidChangeAnimated               Not in use by QMapLibre::Map.
-
-    \value MapChangeWillStartLoadingMap                   The map is getting loaded. This state
-    is set only once right after QMapLibre::Map is created and a style is set.
-
-    \value MapChangeDidFinishLoadingMap                   All the resources were loaded and parsed
-    and the map is fully rendered. After this state the mapChanged() signal won't fire again unless
-    the is some client side interaction with the map or a tile expires, causing a new resource
-    to be requested from the network.
-
-    \value MapChangeDidFailLoadingMap                     An error occurred when loading the map.
-
-    \value MapChangeWillStartRenderingFrame               Just before rendering the frame. This
-    is the state of the map just after calling render() and might happened many times before
-    the map is fully loaded.
-
-    \value MapChangeDidFinishRenderingFrame               The current frame was rendered but was
-    left in a partial state. Some parts of the map might be missing because have not arrived
-    from the network or are being parsed.
-
-    \value MapChangeDidFinishRenderingFrameFullyRendered  The current frame was fully rendered.
-
-    \value MapChangeWillStartRenderingMap                 Set once when the map is about to get
-    rendered for the first time.
-
-    \value MapChangeDidFinishRenderingMap                 Not in use by QMapLibre::Map.
-
-    \value MapChangeDidFinishRenderingMapFullyRendered    Map is fully loaded and rendered.
-
-    \value MapChangeDidFinishLoadingStyle                 The style was loaded.
-
-    \value MapChangeSourceDidChange                       A source has changed.
-
     \sa mapChanged()
+*/
+/*!
+    \var Map::MapChangeRegionWillChange
+    A region of the map will change, like when resizing the map.
+*/
+/*!
+    \var Map::MapChangeRegionWillChangeAnimated
+    Not in use by Map.
+*/
+/*!
+    \var Map::MapChangeRegionIsChanging
+    A region of the map is changing.
+*/
+/*!
+    \var Map::MapChangeRegionDidChange
+    A region of the map finished changing.
+*/
+/*!
+    \var Map::MapChangeRegionDidChangeAnimated
+    Not in use by Map.
+*/
+/*!
+    \var Map::MapChangeWillStartLoadingMap
+    The map is getting loaded. This state is set only once right after Map is created
+    and a style is set.
+*/
+/*!
+    \var Map::MapChangeDidFinishLoadingMap
+    All the resources were loaded and parsed and the map is fully rendered. After this state the
+    mapChanged() signal won't fire again unless the is some client side interaction with the map
+    or a tile expires, causing a new resource to be requested from the network.
+*/
+/*!
+    \var Map::MapChangeDidFailLoadingMap
+    An error occurred when loading the map.
+*/
+/*!
+    \var Map::MapChangeWillStartRenderingFrame
+    Just before rendering the frame. This is the state of the map just after calling render()
+    and might happened many times before the map is fully loaded.
+*/
+/*!
+    \var Map::MapChangeDidFinishRenderingFrame
+    The current frame was rendered but was left in a partial state. Some parts of the map might
+    be missing because have not arrived from the network or are being parsed.
+*/
+/*!
+    \var Map::MapChangeDidFinishRenderingFrameFullyRendered
+    The current frame was fully rendered.
+*/
+/*!
+    \var Map::MapChangeWillStartRenderingMap
+    Set once when the map is about to get rendered for the first time.
+*/
+/*!
+    \var Map::MapChangeDidFinishRenderingMap
+    Not in use by Map.
+*/
+/*!
+    \var Map::MapChangeDidFinishRenderingMapFullyRendered
+    Map is fully loaded and rendered.
+*/
+/*!
+    \var Map::MapChangeDidFinishLoadingStyle
+    The style was loaded.
+*/
+/*!
+    \var Map::MapChangeSourceDidChange
+    A source has changed.
 */
 
 /*!
-    \enum QMapLibre::Map::MapLoadingFailure
+    \enum Map::MapLoadingFailure
 
     This enum represents map loading failure type.
 
-    \value StyleParseFailure                             Failure to parse the style.
-    \value StyleLoadFailure                              Failure to load the style data.
-    \value NotFoundFailure                               Failure to obtain style resource file.
-    \value UnknownFailure                                Unknown map loading failure.
-
     \sa mapLoadingFailed()
+*/
+/*!
+    \var Map::StyleParseFailure
+    Failure to parse the style.
+*/
+/*!
+    \var Map::StyleLoadFailure
+    Failure to load the style data.
+*/
+/*!
+    \var Map::NotFoundFailure
+    Failure to obtain style resource file.
+*/
+/*!
+    \var Map::UnknownFailure
+    Unknown map loading failure.
 */
 
 /*!
-    \enum QMapLibre::Map::NorthOrientation
+    \enum Map::NorthOrientation
 
     This enum sets the orientation of the north bearing. It will directly affect bearing when
     resetting the north (i.e. setting bearing to 0).
 
-    \value NorthUpwards     The north is pointing up in the map. This is usually how maps are oriented.
-
-    \value NorthRightwards  The north is pointing right.
-
-    \value NorthDownwards   The north is pointing down.
-
-    \value NorthLeftwards   The north is pointing left.
-
     \sa northOrientation()
     \sa bearing()
 */
+/*!
+    \var Map::NorthUpwards
+    The north is pointing up in the map. This is usually how maps are oriented.
+*/
+/*!
+    \var Map::NorthRightwards
+    The north is pointing right.
+*/
+/*!
+    \var Map::NorthDownwards
+    The north is pointing down.
+*/
+/*!
+    \var Map::NorthLeftwards
+    The north is pointing left.
+*/
 
 /*!
-    Constructs a QMapLibre::Map object with \a settings and sets \a parent_ as the parent
-    object. The \a settings cannot be changed after the object is constructed. The
-    \a size represents the size of the viewport and the \a pixelRatio the initial pixel
-    density of the screen.
+    \brief Main constructor for Map.
+    \param parent The parent object.
+    \param settings The settings for the map.
+    \param size The size of the viewport.
+    \param pixelRatio The initial pixel density of the screen.
+
+    Constructs a Map object with settings and sets the parent object.
+    The settings cannot be changed after the object is constructed.
 */
-Map::Map(QObject *parent_, const Settings &settings, const QSize &size, qreal pixelRatio)
-    : QObject(parent_) {
+Map::Map(QObject *parent, const Settings &settings, const QSize &size, qreal pixelRatio)
+    : QObject(parent) {
     assert(!size.isEmpty());
 
-    // Multiple QMapLibre::Map running on the same thread
+    // Multiple Map instances running on the same thread
     // will share the same mbgl::util::RunLoop
     if (!loop.hasLocalData()) {
         loop.setLocalData(std::make_shared<mbgl::util::RunLoop>());
@@ -331,98 +412,138 @@ Map::Map(QObject *parent_, const Settings &settings, const QSize &size, qreal pi
     d_ptr = std::make_unique<MapPrivate>(this, settings, size, pixelRatio);
 }
 
-/*!
-    Destroys this QMapLibre::Map.
-*/
 Map::~Map() = default;
 
 /*!
-    \property QMapLibre::Map::styleJson
-    \brief the map style JSON.
+    \property Map::styleJson
+    \brief The map's current style JSON.
+    \sa styleJson()
+    \sa setStyleJson()
+*/
 
-    Sets a new \a style from a JSON that must conform to the
-    \l {https://maplibre.org/maplibre-style-spec/}
-    {MapLibre Style spec}.
-
-    \note In case of a invalid style it will trigger a mapChanged
-    signal with QMapLibre::Map::MapChangeDidFailLoadingMap as argument.
+/*!
+    \brief Get the map style JSON.
+    \return The map style JSON.
 */
 QString Map::styleJson() const {
     return QString::fromStdString(d_ptr->mapObj->getStyle().getJSON());
 }
 
+/*!
+    \brief Set a new style from a JSON.
+    \param style The style JSON.
+
+    The JSON must conform to the
+    <a href="https://maplibre.org/maplibre-style-spec/">MapLibre Style spec</a>.
+
+    \note In case of a invalid style it will trigger a \ref mapChanged
+    signal with Map::MapChangeDidFailLoadingMap as argument.
+*/
 void Map::setStyleJson(const QString &style) {
     d_ptr->mapObj->getStyle().loadJSON(style.toStdString());
 }
 
 /*!
-    \property QMapLibre::Map::styleUrl
-    \brief the map style URL.
+    \property Map::styleUrl
+    \brief The map's current style URL.
+    \sa styleUrl()
+    \sa setStyleUrl()
+*/
 
-    Sets a URL for fetching a JSON that will be later fed to
-    setStyleJson. URLs using the Mapbox scheme (\a mapbox://) are
-    also accepted and translated automatically to an actual HTTPS
-    request.
-
-    The Mapbox scheme is not enforced and a style can be fetched
-    from anything that QNetworkAccessManager can handle.
-
-    \note In case of a invalid style it will trigger a mapChanged
-    signal with QMapLibre::Map::MapChangeDidFailLoadingMap as argument.
+/*!
+    \brief Get the map style URL.
+    \return The map style URL.
 */
 QString Map::styleUrl() const {
     return QString::fromStdString(d_ptr->mapObj->getStyle().getURL());
 }
 
+/*!
+    \brief Set the map style URL.
+    \param url The map style URL.
+
+    Sets a URL for fetching a JSON that will be later fed to
+    \ref setStyleJson. URLs using the Mapbox scheme (`mapbox://`) are
+    also accepted and translated automatically to an actual HTTPS
+    request.
+
+    The Mapbox scheme is not enforced and a style can be fetched
+    from anything that \c QNetworkAccessManager can handle.
+
+    \note In case of a invalid style it will trigger a \ref mapChanged
+    signal with Map::MapChangeDidFailLoadingMap as argument.
+*/
 void Map::setStyleUrl(const QString &url) {
     d_ptr->mapObj->getStyle().loadURL(url.toStdString());
 }
 
 /*!
-    \property QMapLibre::Map::latitude
-    \brief the map's current latitude in degrees.
+    \property Map::latitude
+    \brief The map's current latitude in degrees.
+    \sa latitude()
+    \sa setLatitude()
+*/
 
-    Setting a latitude doesn't necessarily mean it will be accepted since QMapLibre::Map
-    might constrain it within the limits of the Web Mercator projection.
+/*!
+    \brief Get the map latitude.
+    \return The map latitude in degrees.
 */
 double Map::latitude() const {
     // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     return d_ptr->mapObj->getCameraOptions(d_ptr->margins).center->latitude();
 }
 
-void Map::setLatitude(double latitude_) {
+/*!
+    \brief Set the map latitude.
+    \param latitude The map latitude in degrees.
+
+    Setting a latitude doesn't necessarily mean it will be accepted since Map
+    might constrain it within the limits of the Web Mercator projection.
+*/
+void Map::setLatitude(double latitude) {
     d_ptr->mapObj->jumpTo(
-        mbgl::CameraOptions().withCenter(mbgl::LatLng{latitude_, longitude()}).withPadding(d_ptr->margins));
+        mbgl::CameraOptions().withCenter(mbgl::LatLng{latitude, longitude()}).withPadding(d_ptr->margins));
 }
 
 /*!
-    \property QMapLibre::Map::longitude
-    \brief the map current longitude in degrees.
+    \property Map::longitude
+    \brief The map current longitude in degrees.
+    \sa longitude()
+    \sa setLongitude()
+*/
 
-    Setting a longitude beyond the limits of the Web Mercator projection will make
-    the map wrap. As an example, setting the longitude to 360 is effectively the same
-    as setting it to 0.
+/*!
+    \brief Get the map longitude.
+    \return The map longitude in degrees.
 */
 double Map::longitude() const {
     // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     return d_ptr->mapObj->getCameraOptions(d_ptr->margins).center->longitude();
 }
 
-void Map::setLongitude(double longitude_) {
+/*!
+    \brief Set the map longitude.
+    \param longitude The map longitude in degrees.
+
+    Setting a longitude beyond the limits of the Web Mercator projection will
+    make the map wrap. As an example, setting the longitude to 360 is effectively
+    the same as setting it to 0.
+*/
+void Map::setLongitude(double longitude) {
     d_ptr->mapObj->jumpTo(
-        mbgl::CameraOptions().withCenter(mbgl::LatLng{latitude(), longitude_}).withPadding(d_ptr->margins));
+        mbgl::CameraOptions().withCenter(mbgl::LatLng{latitude(), longitude}).withPadding(d_ptr->margins));
 }
 
 /*!
-    \property QMapLibre::Map::scale
-    \brief the map scale factor.
+    \property Map::scale
+    \brief The map scale factor.
+    \sa scale()
+    \sa setScale()
+*/
 
-    This property is used to zoom the map. When \a center is defined, the map will
-    scale in the direction of the center pixel coordinates. The \a center will remain
-    at the same pixel coordinate after scaling as before calling this method.
-
-    \note This function could be used for implementing a pinch gesture or zooming
-    by using the mouse scroll wheel.
+/*!
+    \brief Get the map scale factor.
+    \return The map scale factor.
 
     \sa zoom()
 */
@@ -431,18 +552,35 @@ double Map::scale() const {
     return std::pow(zoomScaleBase, zoom());
 }
 
-void Map::setScale(double scale_, const QPointF &center) {
+/*!
+    \brief Set the map scale factor.
+    \param scale The map scale factor.
+    \param center The center pixel coordinate.
+
+    This property is used to zoom the map. When \a center is defined, the map will
+    scale in the direction of the center pixel coordinates. The \a center will remain
+    at the same pixel coordinate after scaling as before calling this method.
+
+    \note This function could be used for implementing a pinch gesture or zooming
+    by using the mouse scroll wheel.
+
+    \sa setZoom()
+*/
+void Map::setScale(double scale, const QPointF &center) {
     d_ptr->mapObj->jumpTo(
-        mbgl::CameraOptions().withZoom(::log2(scale_)).withAnchor(mbgl::ScreenCoordinate{center.x(), center.y()}));
+        mbgl::CameraOptions().withZoom(::log2(scale)).withAnchor(mbgl::ScreenCoordinate{center.x(), center.y()}));
 }
 
 /*!
-    \property QMapLibre::Map::zoom
+    \property Map::zoom
     \brief the map zoom factor.
+    \sa zoom()
+    \sa setZoom()
+*/
 
-    This property is used to zoom the map. When \a center is defined, the map will
-    zoom in the direction of the center. This function could be used for implementing
-    a pinch gesture or zooming by using the mouse scroll wheel.
+/*!
+    \brief Get the map zoom factor.
+    \return The map zoom factor.
 
     \sa scale()
 */
@@ -451,12 +589,23 @@ double Map::zoom() const {
     return *d_ptr->mapObj->getCameraOptions().zoom;
 }
 
-void Map::setZoom(double zoom_) {
-    d_ptr->mapObj->jumpTo(mbgl::CameraOptions().withZoom(zoom_).withPadding(d_ptr->margins));
+/*!
+    \brief Set the map zoom factor.
+    \param zoom The map zoom factor.
+
+    This property is used to zoom the map. When \a center is defined, the map will
+    zoom in the direction of the center. This function could be used for implementing
+    a pinch gesture or zooming by using the mouse scroll wheel.
+
+    \sa setZoom()
+*/
+void Map::setZoom(double zoom) {
+    d_ptr->mapObj->jumpTo(mbgl::CameraOptions().withZoom(zoom).withPadding(d_ptr->margins));
 }
 
 /*!
-    Returns the minimum zoom level allowed for the map.
+    \brief Get the minimum zoom level allowed for the map.
+    \return The minimum zoom level allowed for the map.
 
     \sa maximumZoom()
 */
@@ -466,7 +615,8 @@ double Map::minimumZoom() const {
 }
 
 /*!
-    Returns the maximum zoom level allowed for the map.
+    \brief Get the maximum zoom level allowed for the map.
+    \return The maximum zoom level allowed for the map.
 
     \sa minimumZoom()
 */
@@ -476,10 +626,15 @@ double Map::maximumZoom() const {
 }
 
 /*!
-    \property QMapLibre::Map::coordinate
-    \brief the map center \a coordinate.
+    \property Map::coordinate
+    \brief The map center coordinate.
+    \sa coordinate()
+    \sa setCoordinate()
+*/
 
-    Centers the map at a geographic coordinate respecting the margins, if set.
+/*!
+    \brief Get the map center coordinate.
+    \return The map center coordinate.
 
     \sa margins()
 */
@@ -489,16 +644,24 @@ Coordinate Map::coordinate() const {
     return {latLng.latitude(), latLng.longitude()};
 }
 
-void Map::setCoordinate(const Coordinate &coordinate_) {
+/*!
+    \brief Set the map center coordinate.
+    \param coordinate The map center coordinate.
+
+    Centers the map at a geographic coordinate respecting the margins, if set.
+
+    \sa setMargins()
+*/
+void Map::setCoordinate(const Coordinate &coordinate) {
     d_ptr->mapObj->jumpTo(mbgl::CameraOptions()
-                              .withCenter(mbgl::LatLng{coordinate_.first, coordinate_.second})
+                              .withCenter(mbgl::LatLng{coordinate.first, coordinate.second})
                               .withPadding(d_ptr->margins));
 }
 
 /*!
-    \fn QMapLibre::Map::setCoordinateZoom(const Coordinate &coordinate, double zoom)
-
-    Convenience method for setting the \a coordinate and \a zoom simultaneously.
+    \brief Convenience method for setting the coordinate and zoom simultaneously.
+    \param coordinate The map center coordinate.
+    \param zoom The map zoom factor.
 
     \note Setting \a coordinate and \a zoom at once is more efficient than doing
     it in two steps.
@@ -506,15 +669,16 @@ void Map::setCoordinate(const Coordinate &coordinate_) {
     \sa zoom()
     \sa coordinate()
 */
-void Map::setCoordinateZoom(const Coordinate &coordinate_, double zoom_) {
+void Map::setCoordinateZoom(const Coordinate &coordinate, double zoom) {
     d_ptr->mapObj->jumpTo(mbgl::CameraOptions()
-                              .withCenter(mbgl::LatLng{coordinate_.first, coordinate_.second})
-                              .withZoom(zoom_)
+                              .withCenter(mbgl::LatLng{coordinate.first, coordinate.second})
+                              .withZoom(zoom)
                               .withPadding(d_ptr->margins));
 }
 
 /*!
-    Atomically jumps to the \a camera options.
+    \brief Atomically jump to the camera options.
+    \param camera The camera options.
 */
 void Map::jumpTo(const CameraOptions &camera) {
     mbgl::CameraOptions mbglCamera;
@@ -542,14 +706,15 @@ void Map::jumpTo(const CameraOptions &camera) {
 }
 
 /*!
-    \property QMapLibre::Map::bearing
+    \property Map::bearing
     \brief the map bearing in degrees.
+    \sa bearing()
+    \sa setBearing()
+*/
 
-    Set the angle in degrees. Negative values and values over 360 are
-    valid and will wrap. The direction of the rotation is counterclockwise.
-
-    When \a center is defined, the map will rotate around the center pixel coordinate
-    respecting the margins if defined.
+/*!
+    \brief Get the bearing angle.
+    \return The bearing angle in degrees.
 
     \sa margins()
 */
@@ -558,21 +723,47 @@ double Map::bearing() const {
     return *d_ptr->mapObj->getCameraOptions().bearing;
 }
 
+/*!
+    \brief Set the bearing angle.
+    \param degrees The bearing angle in degrees.
+
+    Negative values and values over 360 are valid and will wrap.
+    The direction of the rotation is counterclockwise.
+
+    \sa setMargins()
+*/
 void Map::setBearing(double degrees) {
     d_ptr->mapObj->jumpTo(mbgl::CameraOptions().withBearing(degrees).withPadding(d_ptr->margins));
 }
 
+/*!
+    \brief Set the bearing angle.
+    \param degrees The bearing angle in degrees.
+    \param center The center pixel coordinate.
+
+    Negative values and values over 360 are valid and will wrap.
+    The direction of the rotation is counterclockwise.
+
+    When \a center is defined, the map will rotate around the center pixel
+    coordinate respecting the margins if defined.
+
+    \sa setMargins()
+*/
 void Map::setBearing(double degrees, const QPointF &center) {
     d_ptr->mapObj->jumpTo(
         mbgl::CameraOptions().withBearing(degrees).withAnchor(mbgl::ScreenCoordinate{center.x(), center.y()}));
 }
 
 /*!
-    \property QMapLibre::Map::pitch
+    \property Map::pitch
     \brief the map pitch in degrees.
+    \sa pitch()
+    \sa setPitch()
+*/
 
-    Pitch toward the horizon measured in degrees, with 0 resulting in a
-    two-dimensional map. It will be constrained at 60 degrees.
+/*!
+    \brief Get the pitch angle.
+    \return The pitch angle in degrees.
 
     \sa margins()
 */
@@ -581,40 +772,65 @@ double Map::pitch() const {
     return *d_ptr->mapObj->getCameraOptions().pitch;
 }
 
-void Map::setPitch(double pitch_) {
-    d_ptr->mapObj->jumpTo(mbgl::CameraOptions().withPitch(pitch_));
-}
+/*!
+    \brief Set the pitch angle.
+    \param pitch The pitch angle in degrees.
 
-void Map::pitchBy(double pitch_) {
-    d_ptr->mapObj->pitchBy(pitch_);
+    Pitch toward the horizon measured in degrees, with 0 resulting in a
+    two-dimensional map. It will be constrained at 60 degrees.
+
+    \sa margins()
+    \sa pitchBy()
+*/
+void Map::setPitch(double pitch) {
+    d_ptr->mapObj->jumpTo(mbgl::CameraOptions().withPitch(pitch));
 }
 
 /*!
-    Returns the north orientation mode.
+    \brief Pitch the map for an angle.
+    \param pitch The pitch angle in degrees.
+
+    \sa setPitch()
+*/
+void Map::pitchBy(double pitch) {
+    d_ptr->mapObj->pitchBy(pitch);
+}
+
+/*!
+    \brief Get the map north orientation mode.
+    \return The map north orientation mode.
 */
 Map::NorthOrientation Map::northOrientation() const {
     return static_cast<Map::NorthOrientation>(d_ptr->mapObj->getMapOptions().northOrientation());
 }
 
 /*!
-    Sets the north orientation mode to \a orientation.
+    \brief Set the north orientation mode.
+    \param orientation The north orientation mode.
 */
 void Map::setNorthOrientation(NorthOrientation orientation) {
     d_ptr->mapObj->setNorthOrientation(static_cast<mbgl::NorthOrientation>(orientation));
 }
 
 /*!
-    Tells the map rendering engine that there is currently a gesture in \a progress. This
-    affects how the map renders labels, as it will use different texture filters if a gesture
-    is ongoing.
+    \brief Set gesture in progress status.
+    \param progress The gesture in progress status.
+
+    Tells the map rendering engine that there is currently a gesture in progress.
+    This affects how the map renders labels, as it will use different textur
+    filters if a gesture is ongoing.
 */
 void Map::setGestureInProgress(bool progress) {
     d_ptr->mapObj->setGestureInProgress(progress);
 }
 
 /*!
-    Sets the \a duration and \a delay of style transitions. Style paint property
-    values transition to new values with animation when they are updated.
+    \brief Set transition options.
+    \param duration The transition duration in milliseconds.
+    \param delay The transition delay in milliseconds.
+
+    Style paint property values transition to new values with animation when
+    they are updated.
 */
 void Map::setTransitionOptions(qint64 duration, qint64 delay) {
     static auto convert = [](qint64 value) -> std::optional<mbgl::Duration> {
@@ -625,197 +841,10 @@ void Map::setTransitionOptions(qint64 duration, qint64 delay) {
 }
 
 /*!
-    Adds an \a annotation to the map.
+    \brief Add an annotation icon to the map.
+    \param name The icon name.
+    \param sprite The icon image.
 
-    Returns the unique identifier for the new annotation.
-
-    \sa addAnnotationIcon()
-*/
-AnnotationID Map::addAnnotation(const Annotation &annotation) {
-    std::optional<mbgl::Annotation> a = asAnnotation(annotation);
-    if (!a) {
-        return 0;
-    }
-
-    return static_cast<AnnotationID>(d_ptr->mapObj->addAnnotation(*a));
-}
-
-/*!
-    Updates an existing \a annotation referred by \a id.
-
-    \sa addAnnotationIcon()
-*/
-void Map::updateAnnotation(AnnotationID id, const Annotation &annotation) {
-    std::optional<mbgl::Annotation> a = asAnnotation(annotation);
-    if (!a) {
-        return;
-    }
-
-    d_ptr->mapObj->updateAnnotation(id, *a);
-}
-
-/*!
-    Removes an existing annotation referred by \a id.
-*/
-void Map::removeAnnotation(AnnotationID id) {
-    d_ptr->mapObj->removeAnnotation(id);
-}
-
-/*!
-    Sets a layout \a property_ \a value to an existing \a layer. The \a property_ string can be any
-    as defined by the \l {https://maplibre.org/maplibre-style-spec/} {MapLibre Style Spec}
-    for layout properties. Returns true if the operation succeeds, and false otherwise.
-
-    The implementation attempts to treat \a value as a JSON string, if the
-    QVariant inner type is a string. If not a valid JSON string, then it'll
-    proceed with the mapping described below.
-
-    This example hides the layer \c route:
-
-    \code
-        map->setLayoutProperty("route", "visibility", "none");
-    \endcode
-
-    This table describes the mapping between \l {https://maplibre.org/maplibre-style-spec/#types}
-    {style types} and Qt types accepted by setLayoutProperty():
-
-    \table
-    \header
-        \li MapLibre style type
-        \li Qt type
-    \row
-        \li Enum
-        \li QString
-    \row
-        \li String
-        \li QString
-    \row
-        \li Boolean
-        \li \c bool
-    \row
-        \li Number
-        \li \c int, \c double or \c float
-    \row
-        \li Array
-        \li QVariantList
-    \endtable
-*/
-bool Map::setLayoutProperty(const QString &layerId, const QString &propertyName, const QVariant &value) {
-    return d_ptr->setProperty(&mbgl::style::Layer::setProperty, layerId, propertyName, value);
-}
-
-/*!
-    Sets a paint \a property_ \a value to an existing \a layer. The \a property_ string can be any
-    as defined by the \l {https://maplibre.org/maplibre-style-spec/} {MapLibre Style Spec}
-    for paint properties. Returns true if the operation succeeds, and false otherwise.
-
-    The implementation attempts to treat \a value as a JSON string, if the
-    QVariant inner type is a string. If not a valid JSON string, then it'll
-    proceed with the mapping described below.
-
-    For paint properties that take a color as \a value, such as \c fill-color, a string such as
-    \c blue can be passed or a QColor.
-
-    \code
-        map->setPaintProperty("route", "line-color", QColor("blue"));
-    \endcode
-
-    This table describes the mapping between \l {https://maplibre.org/maplibre-style-spec/#types}
-    {style types} and Qt types accepted by setPaintProperty():
-
-    \table
-    \header
-        \li MapLibre style type
-        \li Qt type
-    \row
-        \li Color
-        \li QString or QColor
-    \row
-        \li Enum
-        \li QString
-    \row
-        \li String
-        \li QString
-    \row
-        \li Boolean
-        \li \c bool
-    \row
-        \li Number
-        \li \c int, \c double or \c float
-    \row
-        \li Array
-        \li QVariantList
-    \endtable
-
-    If the style specification defines the property's type as \b Array, use a QVariantList. For
-    example, the following code sets a \c route layer's \c line-dasharray property:
-
-    \code
-        QVariantList lineDashArray;
-        lineDashArray.append(1);
-        lineDashArray.append(2);
-
-        map->setPaintProperty("route","line-dasharray", lineDashArray);
-    \endcode
-*/
-
-bool Map::setPaintProperty(const QString &layerId, const QString &propertyName, const QVariant &value) {
-    return d_ptr->setProperty(&mbgl::style::Layer::setProperty, layerId, propertyName, value);
-}
-
-/*!
-    Returns true when the map is completely rendered, false otherwise. A partially
-    rendered map ranges from nothing rendered at all to only labels missing.
-*/
-bool Map::isFullyLoaded() const {
-    return d_ptr->mapObj->isFullyLoaded();
-}
-
-/*!
-    Pan the map by \a offset in pixels.
-
-    The pixel coordinate origin is located at the upper left corner of the map.
-*/
-void Map::moveBy(const QPointF &offset) {
-    d_ptr->mapObj->moveBy(mbgl::ScreenCoordinate{offset.x(), offset.y()});
-}
-
-/*!
-    \fn QMapLibre::Map::scaleBy(double scale, const QPointF &center)
-
-    Scale the map by \a scale in the direction of the \a center. This function
-    can be used for implementing a pinch gesture.
-*/
-void Map::scaleBy(double scale_, const QPointF &center) {
-    d_ptr->mapObj->scaleBy(scale_, mbgl::ScreenCoordinate{center.x(), center.y()});
-}
-
-/*!
-    Rotate the map from the \a first screen coordinate to the \a second screen coordinate.
-    This method can be used for implementing rotating the map by clicking and dragging,
-    being \a first the cursor coordinate at the last frame and \a second the cursor coordinate
-    at the current frame.
-*/
-void Map::rotateBy(const QPointF &first, const QPointF &second) {
-    d_ptr->mapObj->rotateBy(mbgl::ScreenCoordinate{first.x(), first.y()},
-                            mbgl::ScreenCoordinate{second.x(), second.y()});
-}
-
-/*!
-    Resize the map to \a size_ and scale to fit at the framebuffer. For
-    high DPI screens, the size will be smaller than the framebuffer.
-*/
-void Map::resize(const QSize &size_) {
-    auto size = sanitizedSize(size_);
-
-    if (d_ptr->mapObj->getMapOptions().size() == size) {
-        return;
-    }
-
-    d_ptr->mapObj->setSize(size);
-}
-
-/*!
     Adds an \a sprite to the annotation icon pool. This can be later used by the annotation
     functions to shown any drawing on the map by referencing its \a name.
 
@@ -833,7 +862,198 @@ void Map::addAnnotationIcon(const QString &name, const QImage &sprite) {
 }
 
 /*!
-    \fn QMapLibre::Map::pixelForCoordinate(const Coordinate &coordinate) const
+    \brief Add an annotation to the map.
+    \param annotation The annotation to add.
+    \return The unique identifier for the new annotation.
+
+    \sa addAnnotationIcon()
+*/
+AnnotationID Map::addAnnotation(const Annotation &annotation) {
+    std::optional<mbgl::Annotation> a = asAnnotation(annotation);
+    if (!a) {
+        return 0;
+    }
+
+    return static_cast<AnnotationID>(d_ptr->mapObj->addAnnotation(*a));
+}
+
+/*!
+    \brief Update an existing annotation.
+    \param id The unique identifier for the annotation to update.
+    \param annotation The updated annotation.
+
+    \sa addAnnotationIcon()
+*/
+void Map::updateAnnotation(AnnotationID id, const Annotation &annotation) {
+    std::optional<mbgl::Annotation> a = asAnnotation(annotation);
+    if (!a) {
+        return;
+    }
+
+    d_ptr->mapObj->updateAnnotation(id, *a);
+}
+
+/*!
+    \brief Remove an existing annotation.
+    \param id The unique identifier for the annotation to remove.
+*/
+void Map::removeAnnotation(AnnotationID id) {
+    d_ptr->mapObj->removeAnnotation(id);
+}
+
+/*!
+    \brief Set layer layout property.
+    \param layerId The layer identifier.
+    \param propertyName The layout property name.
+    \param value The layout property value.
+    \return \c true if the operation succeeds, \c false otherwise.
+
+    Sets a layout property value to an existing layer. The property string can
+    be any as defined by the <a href="https://maplibre.org/maplibre-style-spec/">
+    MapLibre Style Spec</a> for layout properties.
+
+    The implementation attempts to treat value as a JSON string, if the
+    \c QVariant inner type is a string. If not a valid JSON string, then it'll
+    proceed with the mapping described below.
+
+    This example hides the layer \c route:
+
+    \code
+        map->setLayoutProperty("route", "visibility", "none");
+    \endcode
+
+    This table describes the mapping between <a href="https://maplibre.org/maplibre-style-spec/#types">
+    style types</a> and Qt types accepted by setLayoutProperty():
+
+    MapLibre style type  |  Qt type
+    ---------------------|---------------------
+    Enum                 | \c QString
+    String               | \c QString
+    Boolean              | \c bool
+    Number               | \c int, \c double or \c float
+    Array                | \c QVariantList
+*/
+bool Map::setLayoutProperty(const QString &layerId, const QString &propertyName, const QVariant &value) {
+    return d_ptr->setProperty(&mbgl::style::Layer::setProperty, layerId, propertyName, value);
+}
+
+/*!
+    \brief Set layer paint property.
+    \param layerId The layer identifier.
+    \param propertyName The paint property name.
+    \param value The paint property value.
+    \return \c true if the operation succeeds, \c false otherwise.
+
+    Sets a layout property value to an existing layer. The property string can
+    be any as defined by the <a href="https://maplibre.org/maplibre-style-spec/">
+    MapLibre Style Spec</a> for paint properties.
+
+    The implementation attempts to treat value as a JSON string, if the
+    \c QVariant inner type is a string. If not a valid JSON string, then it'll
+    proceed with the mapping described below.
+
+    For paint properties that take a color as value, such as fill-color,
+    a string such as \c blue can be passed or a \c QColor.
+
+    \code
+        map->setPaintProperty("route", "line-color", QColor("blue"));
+    \endcode
+
+    This table describes the mapping between <a href="https://maplibre.org/maplibre-style-spec/#types">
+    style types</a> and Qt types accepted by setPaintProperty():
+
+    MapLibre style type  |  Qt type
+    ---------------------|---------------------
+    Color                | \c QString or \c QColor
+    Enum                 | \c QString
+    String               | \c QString
+    Boolean              | \c bool
+    Number               | \c int, \c double or \c float
+    Array                | \c QVariantList
+
+    If the style specification defines the property's type as \b Array,
+    use a \c QVariantList. For example, the following code sets a \c route
+    layer's \c line-dasharray property:
+
+    \code
+        QVariantList lineDashArray;
+        lineDashArray.append(1);
+        lineDashArray.append(2);
+
+        map->setPaintProperty("route","line-dasharray", lineDashArray);
+    \endcode
+*/
+bool Map::setPaintProperty(const QString &layerId, const QString &propertyName, const QVariant &value) {
+    return d_ptr->setProperty(&mbgl::style::Layer::setProperty, layerId, propertyName, value);
+}
+
+/*!
+    \brief Get loaded state.
+    \return \c true if the map is completely rendered, \c false otherwise.
+
+    A partially rendered map ranges from nothing rendered at all to only labels missing.
+*/
+bool Map::isFullyLoaded() const {
+    return d_ptr->mapObj->isFullyLoaded();
+}
+
+/*!
+    \brief Pan the map by an offset.
+    \param offset The offset in pixels.
+
+    The pixel coordinate origin is located at the upper left corner of the map.
+*/
+void Map::moveBy(const QPointF &offset) {
+    d_ptr->mapObj->moveBy(mbgl::ScreenCoordinate{offset.x(), offset.y()});
+}
+
+/*!
+    \brief Scale the map.
+    \param scale The scale factor.
+    \param center The direction pixel coordinate.
+
+    Scale the map by \a scale in the direction of the \a center.
+    This function can be used for implementing a pinch gesture.
+*/
+void Map::scaleBy(double scale, const QPointF &center) {
+    d_ptr->mapObj->scaleBy(scale, mbgl::ScreenCoordinate{center.x(), center.y()});
+}
+
+/*!
+    \brief Rotate the map.
+    \param first The first screen coordinate.
+    \param second The second screen coordinate.
+
+    Rotate the map from the \a first screen coordinate to the \a second screen coordinate.
+    This method can be used for implementing rotating the map by clicking and dragging,
+    being \a first the cursor coordinate at the last frame and \a second the cursor coordinate
+    at the current frame.
+*/
+void Map::rotateBy(const QPointF &first, const QPointF &second) {
+    d_ptr->mapObj->rotateBy(mbgl::ScreenCoordinate{first.x(), first.y()},
+                            mbgl::ScreenCoordinate{second.x(), second.y()});
+}
+
+/*!
+    \brief Resize the map.
+    \param size The new size.
+
+    Resize the map to \a size and scale to fit at the framebuffer.
+    For high DPI screens, the size will be smaller than the framebuffer.
+*/
+void Map::resize(const QSize &size) {
+    auto sanitizedSize = sanitizeSize(size);
+    if (d_ptr->mapObj->getMapOptions().size() == sanitizedSize) {
+        return;
+    }
+
+    d_ptr->mapObj->setSize(sanitizedSize);
+}
+
+/*!
+    \brief Get pixel for coordinate.
+    \param coordinate The geographic coordinate.
+    \return The pixel coordinate.
 
     Returns the offset in pixels for \a coordinate. The origin pixel coordinate is
     located at the top left corner of the map view.
@@ -841,16 +1061,20 @@ void Map::addAnnotationIcon(const QString &name, const QImage &sprite) {
     This method returns the correct value for any coordinate, even if the coordinate
     is not currently visible on the screen.
 
-    /note The return value is affected by the current zoom level, bearing and pitch.
+    \note The return value is affected by the current zoom level, bearing and pitch.
 */
-QPointF Map::pixelForCoordinate(const Coordinate &coordinate_) const {
+QPointF Map::pixelForCoordinate(const Coordinate &coordinate) const {
     const mbgl::ScreenCoordinate pixel = d_ptr->mapObj->pixelForLatLng(
-        mbgl::LatLng{coordinate_.first, coordinate_.second});
+        mbgl::LatLng{coordinate.first, coordinate.second});
 
     return {pixel.x, pixel.y};
 }
 
 /*!
+    \brief Get coordinate for pixel.
+    \param pixel The pixel coordinate.
+    \return The geographic coordinate.
+
     Returns the geographic coordinate for the \a pixel coordinate.
 */
 Coordinate Map::coordinateForPixel(const QPointF &pixel) const {
@@ -860,6 +1084,11 @@ Coordinate Map::coordinateForPixel(const QPointF &pixel) const {
 }
 
 /*!
+    \brief Get the coordinate and zoom for required bounds.
+    \param sw The southwest coordinate.
+    \param ne The northeast coordinate.
+    \return The coordinate and zoom combination.
+
     Returns the coordinate and zoom combination needed in order to make the coordinate
     bounding box \a sw and \a ne visible.
 */
@@ -871,6 +1100,13 @@ CoordinateZoom Map::coordinateZoomForBounds(const Coordinate &sw, const Coordina
 }
 
 /*!
+    \brief Get the coordinate and zoom for required bounds with updated bearing and pitch.
+    \param sw The southwest coordinate.
+    \param ne The northeast coordinate.
+    \param newBearing The updated bearing.
+    \param newPitch The updated pitch.
+    \return The coordinate and zoom combination.
+
     Returns the coordinate and zoom combination needed in order to make the coordinate
     bounding box \a sw and \a ne visible taking into account \a newBearing and \a newPitch.
 */
@@ -887,18 +1123,16 @@ CoordinateZoom Map::coordinateZoomForBounds(const Coordinate &sw,
 }
 
 /*!
-    \property QMapLibre::Map::margins
+    \property Map::margins
     \brief the map margins in pixels from the corners of the map.
-
-    This property sets a new reference center for the map.
+    \sa margins()
+    \sa setMargins()
 */
-void Map::setMargins(const QMargins &margins_) {
-    d_ptr->margins = {static_cast<double>(margins_.top()),
-                      static_cast<double>(margins_.left()),
-                      static_cast<double>(margins_.bottom()),
-                      static_cast<double>(margins_.right())};
-}
 
+/*!
+    \brief Get the map margins.
+    \return The map margins in pixels.
+*/
 QMargins Map::margins() const {
     return {static_cast<int>(d_ptr->margins.left()),
             static_cast<int>(d_ptr->margins.top()),
@@ -907,9 +1141,26 @@ QMargins Map::margins() const {
 }
 
 /*!
-    Adds a source \a id to the map as specified by the \l
-    {https://maplibre.org/maplibre-style-spec/#root-sources}{MapLibre Style Specification} with
-    \a params.
+    \brief Set the map margins.
+    \param margins The map margins in pixels.
+
+    This sets a new reference center for the map.
+*/
+void Map::setMargins(const QMargins &margins) {
+    d_ptr->margins = {static_cast<double>(margins.top()),
+                      static_cast<double>(margins.left()),
+                      static_cast<double>(margins.bottom()),
+                      static_cast<double>(margins.right())};
+}
+
+/*!
+    \brief Add a style source.
+    \param id The source identifier.
+    \param params The source parameters.
+
+    Adds a source with \a id to the map as specified by the
+    <a href="https://maplibre.org/maplibre-style-spec/#root-sources">MapLibre Style Specification</a>
+    with parameters.
 
     This example reads a GeoJSON from the Qt resource system and adds it as source:
 
@@ -938,14 +1189,18 @@ void Map::addSource(const QString &id, const QVariantMap &params) {
 }
 
 /*!
-    Returns true if the layer with given \a id exists, false otherwise.
+    \brief Check if a style source exists.
+    \param id The source identifier.
+    \return \c true if the layer with given \a id exists, \c false otherwise.
 */
 bool Map::sourceExists(const QString &id) {
     return d_ptr->mapObj->getStyle().getSource(id.toStdString()) != nullptr;
 }
 
 /*!
-    Updates the source \a id with new \a params.
+    \brief Update a style source.
+    \param id The source identifier.
+    \param params The source parameters.
 
     If the source does not exist, it will be added like in addSource(). Only
     image and GeoJSON sources can be updated.
@@ -976,9 +1231,10 @@ void Map::updateSource(const QString &id, const QVariantMap &params) {
 }
 
 /*!
-    Removes the source \a id.
+    \brief Remove a style source.
+    \param id The source identifier.
 
-    This method has no effect if the source does not exist.
+    This method has no effect if the style source does not exist.
 */
 void Map::removeSource(const QString &id) {
     auto idStdString = id.toStdString();
@@ -989,9 +1245,13 @@ void Map::removeSource(const QString &id) {
 }
 
 /*!
-    Adds a custom layer \a id with the initialization function \a initFn, the
-    render function \a renderFn and the deinitialization function \a deinitFn with
-    the user data \a context before the existing layer \a before.
+    \brief Add a custom style layer.
+    \param id The layer identifier.
+    \param host The custom layer host interface.
+    \param before The layer identifier before which the new layer will be added.
+
+    Adds a custom layer with \a id with the custom layer host interface \a host
+    before the existing layer \a before.
 
     \warning This is used for delegating the rendering of a layer to the user of
     this API and is not officially supported. Use at your own risk.
@@ -1029,10 +1289,15 @@ void Map::addCustomLayer(const QString &id, std::unique_ptr<CustomLayerHostInter
 }
 
 /*!
-    Adds a style layer to the map as specified by the \l
-    {https://maplibre.org/maplibre-style-spec/#root-layers}{MapLibre style specification} with
-    \a params. The layer will be added under the layer specified by \a before, if specified.
-    Otherwise it will be added as the topmost layer.
+    \brief Add a style layer.
+    \param id The layer identifier.
+    \param params The layer parameters.
+    \param before The layer identifier before which the new layer will be added.
+
+    Adds a style layer to the map as specified by the
+    <a href="https://maplibre.org/maplibre-style-spec/#root-layers">MapLibre style specification</a>
+    with parameters. The layer will be added under the layer specified by \a before,
+    if specified. Otherwise it will be added as the topmost layer.
 
     This example shows how to add a layer that will be used to show a route line on the map. Note
     that nothing will be drawn until we set paint properties using setPaintProperty().
@@ -1045,7 +1310,7 @@ void Map::addCustomLayer(const QString &id, std::unique_ptr<CustomLayerHostInter
         map->addLayer("route", route);
     \endcode
 
-    /note The source must exist prior to adding a layer.
+    \note The source must exist prior to adding a layer.
 */
 void Map::addLayer(const QString &id, const QVariantMap &params, const QString &before) {
     QVariantMap parameters = params;
@@ -1065,21 +1330,27 @@ void Map::addLayer(const QString &id, const QVariantMap &params, const QString &
 }
 
 /*!
-    Returns true if the layer with given \a id exists, false otherwise.
+    \brief Check if a style layer exists.
+    \param id The layer identifier.
+    \return \c true if the layer with given \a id exists, \c false otherwise.
 */
 bool Map::layerExists(const QString &id) {
     return d_ptr->mapObj->getStyle().getLayer(id.toStdString()) != nullptr;
 }
 
 /*!
-    Removes the layer with given \a id.
+    \brief Remove a style layer.
+    \param id The layer identifier.
+
+    This method has no effect if the style layer does not exist.
 */
 void Map::removeLayer(const QString &id) {
     d_ptr->mapObj->getStyle().removeLayer(id.toStdString());
 }
 
 /*!
-    List of all existing layer ids from the current style.
+    \brief List all existing layers.
+    \return List of all existing layer IDs from the current style.
 */
 QVector<QString> Map::layerIds() const {
     const auto &layers = d_ptr->mapObj->getStyle().getLayers();
@@ -1095,6 +1366,10 @@ QVector<QString> Map::layerIds() const {
 }
 
 /*!
+    \brief Add a style image.
+    \param id The image identifier.
+    \param sprite The image.
+
     Adds the \a sprite with the identifier \a id that can be used
     later by a symbol layer.
 
@@ -1113,19 +1388,24 @@ void Map::addImage(const QString &id, const QImage &sprite) {
 }
 
 /*!
-    Removes the image \a id.
+    \brief Remove a style image.
+    \param id The image identifier.
 */
 void Map::removeImage(const QString &id) {
     d_ptr->mapObj->getStyle().removeImage(id.toStdString());
 }
 
 /*!
-    Adds a \a filter to a style \a layer using the format described in the \l
-    {https://maplibre.org/maplibre-style-spec/deprecations/#other-filter}{MapLibre Style Spec}.
+    \brief Set a style filter to a layer.
+    \param layerId The layer identifier.
+    \param filter The filter expression.
 
-    Given a layer \c marker from an arbitrary GeoJSON source containing features of type \b
-    "Point" and \b "LineString", this example shows how to make sure the layer will only tag
-    features of type \b "Point".
+    Adds a \a filter to a style \a layer using the format described in the
+    <a href="https://maplibre.org/maplibre-style-spec/deprecations/#other-filter">MapLibre Style Spec</a>.
+
+    Given a layer \c marker from an arbitrary GeoJSON source containing features
+    of type \b "Point" and \b "LineString", this example shows how to make sure
+    the layer will only tag features of type \b "Point".
 
     \code
         QVariantList filterExpression;
@@ -1156,42 +1436,16 @@ void Map::setFilter(const QString &layerId, const QVariant &filter) {
     layer->setFilter(*converted);
 }
 
-QVariant QVariantFromValue(const mbgl::Value &value) {
-    return value.match([](const mbgl::NullValue) { return QVariant(); },
-                       [](const bool value_) { return QVariant(value_); },
-                       [](const float value_) { return QVariant(value_); },
-                       [](const int64_t value_) { return QVariant(static_cast<qlonglong>(value_)); },
-                       [](const double value_) { return QVariant(value_); },
-                       [](const std::string &value_) { return QVariant(value_.c_str()); },
-                       [](const mbgl::Color &value_) {
-                           return QColor(static_cast<int>(value_.r),
-                                         static_cast<int>(value_.g),
-                                         static_cast<int>(value_.b),
-                                         static_cast<int>(value_.a));
-                       },
-                       [&](const std::vector<mbgl::Value> &vector) {
-                           QVariantList list;
-                           list.reserve(static_cast<int>(vector.size()));
-                           for (const auto &value_ : vector) {
-                               list.push_back(QVariantFromValue(value_));
-                           }
-                           return list;
-                       },
-                       [&](const std::unordered_map<std::string, mbgl::Value> &map) {
-                           QVariantMap varMap;
-                           for (const auto &item : map) {
-                               varMap.insert(item.first.c_str(), QVariantFromValue(item.second));
-                           }
-                           return varMap;
-                       },
-                       [](const auto &) { return QVariant(); });
-}
-
 /*!
-    Returns the current \a expression-based filter value applied to a style
-    \layerId, if any.
+    \brief Get a style filter of a layer.
+    \param layerId The layer identifier.
+    \return The filter expression.
 
-    Filter value types are described in the {https://maplibre.org/maplibre-style-spec/types/}{MapLibre Style Spec}.
+    Returns the current \a expression-based filter value applied to a layer
+    with ID \a layerId, if any.
+
+    Filter value types are described in the
+    <a href="https://maplibre.org/maplibre-style-spec/types/">MapLibre Style Spec</a>.
 */
 QVariant Map::getFilter(const QString &layerId) const {
     mbgl::style::Layer *layer = d_ptr->mapObj->getStyle().getLayer(layerId.toStdString());
@@ -1201,10 +1455,12 @@ QVariant Map::getFilter(const QString &layerId) const {
     }
 
     auto serialized = layer->getFilter().serialize();
-    return QVariantFromValue(serialized);
+    return variantFromValue(serialized);
 }
 
 /*!
+    \brief Create the renderer.
+
     Creates the infrastructure needed for rendering the map. It
     should be called before any call to render().
 
@@ -1215,6 +1471,8 @@ void Map::createRenderer() {
 }
 
 /*!
+    \brief Destroy the renderer.
+
     Destroys the infrastructure needed for rendering the map,
     releasing resources.
 
@@ -1225,10 +1483,12 @@ void Map::destroyRenderer() {
 }
 
 /*!
-    Start a static rendering of the current state of the map. This
-    should only be called when the map is initialized in static mode.
+    \brief Start the static renderer.
 
-    \sa QMapLibre::Settings::MapMode
+    Start a static rendering of the current state of the map.
+    This should only be called when the map is initialized in static mode.
+
+    \sa Settings::MapMode
 */
 void Map::startStaticRender() {
     d_ptr->mapObj->renderStill([this](const std::exception_ptr &err) {
@@ -1247,6 +1507,8 @@ void Map::startStaticRender() {
 }
 
 /*!
+    \brief Render.
+
     Renders the map using OpenGL draw calls. It will make sure to bind the
     framebuffer object before drawing; otherwise a valid OpenGL context is
     expected with an appropriate OpenGL viewport state set for the size of
@@ -1262,6 +1524,10 @@ void Map::render() {
 }
 
 /*!
+    \brief Set the framebuffer object.
+    \param fbo The framebuffer object ID.
+    \param size The framebuffer size.
+
     If MapLibre Native needs to rebind the default \a fbo, it will use the
     ID supplied here. \a size is the size of the framebuffer, which
     on high DPI screens is usually bigger than the map size.
@@ -1273,15 +1539,18 @@ void Map::setFramebufferObject(quint32 fbo, const QSize &size) {
 }
 
 /*!
+    \brief Set connection established.
+
     Informs the map that the network connection has been established, causing
     all network requests that previously timed out to be retried immediately.
 */
-void Map::connectionEstablished() {
+void Map::setConnectionEstablished() {
     mbgl::NetworkStatus::Reachable();
 }
 
 /*!
-    \fn void QMapLibre::Map::needsRendering()
+    \fn void Map::needsRendering()
+    \brief Signal emitted when the rendering is needed.
 
     This signal is emitted when the visual contents of the map have changed
     and a redraw is needed in order to keep the map visually consistent
@@ -1291,17 +1560,21 @@ void Map::connectionEstablished() {
 */
 
 /*!
-    \fn void QMapLibre::Map::staticRenderFinished(const QString &error)
+    \fn void Map::staticRenderFinished(const QString &error)
+    \brief Signal emitted when a static map is fully drawn.
+    \param error The error message.
 
     This signal is emitted when a static map is fully drawn. Usually the next
     step is to extract the map from a framebuffer into a container like a
-    QImage. \a error is set to a message when an error occurs.
+    \c QImage. \a error is set to a message when an error occurs.
 
     \sa startStaticRender()
 */
 
 /*!
-    \fn void QMapLibre::Map::mapChanged(QMapLibre::Map::MapChange change)
+    \fn void Map::mapChanged(Map::MapChange change)
+    \brief Signal emitted when the map has changed.
+    \param change The map change mode.
 
     This signal is emitted when the state of the map has changed. This signal
     may be used for detecting errors when loading a style or detecting when
@@ -1309,19 +1582,22 @@ void Map::connectionEstablished() {
 */
 
 /*!
-    \fn void QMapLibre::Map::mapLoadingFailed(QMapLibre::Map::MapLoadingFailure type, const QString &description)
+    \fn void Map::mapLoadingFailed(Map::MapLoadingFailure type, const QString &description)
+    \brief Signal emitted when a map loading failure happens.
+    \param type The type of failure.
+    \param description The description of the failure.
 
     This signal is emitted when a map loading failure happens. Details of the
     failures are provided, including its \a type and textual \a description.
 */
 
 /*!
-    \fn void QMapLibre::Map::copyrightsChanged(const QString &copyrightsHtml);
+    \fn void Map::copyrightsChanged(const QString &copyrightsHtml);
+    \brief Signal emitted when the copyrights have changed.
+    \param copyrightsHtml The HTML of the copyrights.
 
     This signal is emitted when the copyrights of the current content of the map
     have changed. This can be caused by a style change or adding a new source.
-
-    \a copyrightsHtml is a string with a HTML snippet.
 */
 
 MapPrivate::MapPrivate(Map *map, const Settings &settings, const QSize &size, qreal pixelRatio_)
@@ -1441,7 +1717,7 @@ void MapPrivate::setFramebufferObject(quint32 fbo, const QSize &size) {
         createRenderer();
     }
 
-    m_mapRenderer->updateFramebuffer(fbo, sanitizedSize(size));
+    m_mapRenderer->updateFramebuffer(fbo, sanitizeSize(size));
 }
 
 void MapPrivate::requestRendering() {

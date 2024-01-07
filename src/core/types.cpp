@@ -22,178 +22,234 @@ namespace QMapLibre {
 
 /*!
     \namespace QMapLibre
-    \inmodule MapLibre Maps SDK for Qt
 
-    Contains miscellaneous MapLibre types and utilities used throughout QMapLibre.
+    Contains miscellaneous MapLibre types and utilities used throughout MapLibre Qt bindings.
 */
 
 /*!
-    \typedef QMapLibre::Coordinate
+    \typedef Coordinate
+    \brief Coordinate helper type.
 
-    Alias for QPair<double, double>.
+    Alias for `QPair< double, double >`.
     Representation for geographical coordinates - latitude and longitude, respectively.
 */
 
 /*!
-    \typedef QMapLibre::CoordinateZoom
+    \typedef CoordinateZoom
+    \brief Coordinate-zoom pair helper type.
 
-    Alias for QPair<Coordinate, double>.
-    Used as return value in QMapLibre::coordinateZoomForBounds.
+    Alias for `QPair<` \ref Coordinate `, double>`.
+    Used as return value in Map::coordinateZoomForBounds.
 */
 
 /*!
-    \typedef QMapLibre::ProjectedMeters
+    \typedef ProjectedMeters
+    \brief Projected meters helper type.
 
-    Alias for QPair<double, double>.
+    Alias for `QPair< double, double >`.
     Representation for projected meters - northing and easting, respectively.
 */
 
 /*!
-    \typedef QMapLibre::Coordinates
+    \typedef Coordinates
+    \brief \ref Coordinate vector.
 
-    Alias for QVector<QMapLibre::Coordinate>.
-    A list of QMapLibre::Coordinate objects.
+    Alias for `QVector<` \ref Coordinate `>`.
+    A list of \ref Coordinate objects.
 */
 
 /*!
-    \typedef QMapLibre::CoordinatesCollection
+    \typedef CoordinatesCollection
+    \brief \ref Coordinates vector.
 
-    Alias for QVector<QMapLibre::Coordinates>.
-    A list of QMapLibre::Coordinates objects.
+    Alias for `QVector<` \ref Coordinates `>`.
+    A list of \ref Coordinates objects.
 */
 
 /*!
-    \typedef QMapLibre::CoordinatesCollections
+    \typedef CoordinatesCollections
+    \brief \ref CoordinatesCollection vector.
 
-    Alias for QVector<QMapLibre::CoordinatesCollection>.
-    A list of QMapLibre::CoordinatesCollection objects.
+    Alias for `QVector<` \ref CoordinatesCollection `>`.
+    A list of \ref CoordinatesCollection objects.
 */
 
 /*!
-    \class QMapLibre::Feature
+    \struct Style
+    \brief %Map style helper type.
+    \ingroup QMapLibre
 
-    \inmodule MapLibre Maps SDK for Qt
+    Represents map styles via its \a url, \a name,
+    \a description (optional), \a night (optional) and \a type (optiobal).
+*/
+
+/*!
+    \typedef Styles
+    \brief \ref Style vector.
+
+    Alias for `QVector<` \ref Style `>`.
+    A list of \ref Style objects.
+*/
+
+/*!
+    \struct Feature
+    \brief %Map feature helper type.
+    \ingroup QMapLibre
 
     Represents map features via its \a type (PointType, LineStringType or PolygonType),
     \a geometry, \a properties map and \a id (optional).
 */
 
 /*!
-    \enum QMapLibre::Feature::Type
+    \enum Feature::Type
+    \brief %Map feature type.
 
-    This enum is used as basis for geometry disambiguation in QMapLibre::Feature.
-
-    \value PointType      A point geometry type. Means a single or a collection of points.
-    \value LineStringType A line string geometry type. Means a single or a collection of line strings.
-    \value PolygonType    A polygon geometry type. Means a single or a collection of polygons.
+    This enum is used as basis for geometry disambiguation in Feature.
+*/
+/*!
+    \var Feature::PointType
+    A point geometry type. Means a single or a collection of points.
+*/
+/*!
+    \var Feature::LineStringType
+    A line string geometry type. Means a single or a collection of line strings.
+*/
+/*!
+    \var Feature::PolygonType
+    A polygon geometry type. Means a single or a collection of polygons.
 */
 
 /*!
-    \class QMapLibre::FeatureProperty
+    \struct FeatureProperty
+    \brief %Map feature property helper type.
+    \ingroup QMapLibre
 
-    \inmodule MapLibre Maps SDK for Qt
-
-    Represents map feature properties via its \a type (LayoutProperty or PaintProperty),
+    Represents map Feature properties via its \a type (\ref LayoutProperty or \ref PaintProperty),
     \a name and \a value.
 */
 
 /*!
-    \enum QMapLibre::FeatureProperty::Type
+    \enum FeatureProperty::Type
+    \brief %Map feature property type.
 
-    This enum is used as basis for property type disambiguation in QMapLibre::FeatureProperty.
-
-    \value LayoutProperty      A layout property type.
-    \value PaintProperty       A paint property type.
+    This enum is used as basis for property type disambiguation in FeatureProperty.
+*/
+/*!
+    \var FeatureProperty::LayoutProperty
+    A layout property type.
+*/
+/*!
+    \var FeatureProperty::PaintProperty
+    A paint property type.
 */
 
 /*!
-    \class QMapLibre::ShapeAnnotationGeometry
+    \typedef Annotation
+    \brief Annotation helper type.
 
-    \inmodule MapLibre Maps SDK for Qt
-
-    Represents a shape annotation geometry.
-*/
-
-/*!
-    \enum QMapLibre::ShapeAnnotationGeometry::Type
-
-    This enum is used as basis for shape annotation geometry disambiguation.
-
-    \value PolygonType         A polygon geometry type.
-    \value LineStringType      A line string geometry type.
-    \value MultiPolygonType    A polygon geometry collection type.
-    \value MultiLineStringType A line string geometry collection type.
-*/
-
-/*!
-    \class QMapLibre::SymbolAnnotation
-
-    \inmodule MapLibre Maps SDK for Qt
-
-    A symbol annotation comprises of its geometry and an icon identifier.
-*/
-
-/*!
-    \class QMapLibre::LineAnnotation
-
-    \inmodule MapLibre Maps SDK for Qt
-
-    Represents a line annotation object, along with its properties.
-
-    A line annotation comprises of its geometry and line properties such as opacity, width and color.
-*/
-
-/*!
-    \class QMapLibre::FillAnnotation
-
-    \inmodule MapLibre Maps SDK for Qt
-
-    Represents a fill annotation object, along with its properties.
-
-    A fill annotation comprises of its geometry and fill properties such as opacity, color and outline color.
-*/
-
-/*!
-    \typedef QMapLibre::Annotation
-
-    Alias for QVariant.
+    Alias for \c QVariant.
     Container that encapsulates either a symbol, a line, a fill or a style sourced annotation.
 */
 
 /*!
-    \typedef QMapLibre::AnnotationID
+    \typedef AnnotationID
+    \brief Annotation identifier helper type.
 
-    Alias for quint32 representing an annotation identifier.
+    Alias for \c quint32 representing an annotation identifier.
 */
 
 /*!
-    \typedef QMapLibre::AnnotationIDs
+    \typedef AnnotationIDs
+    \brief A vector of annotation identifiers.
 
-    Alias for QVector<quint32> representing a container of annotation identifiers.
+    Alias for `QVector< quint32 >` representing a container of annotation identifiers.
 */
 
 /*!
-    \class QMapLibre::CameraOptions
-    \inmodule MapLibre Maps SDK for Qt
+    \struct ShapeAnnotationGeometry
+    \brief Shape annotation geometry helper type.
+    \ingroup QMapLibre
 
-    QMapLibre::CameraOptions provides camera options to the renderer.
+    Represents a shape annotation geometry via its \a type and \a geometry.
 */
 
 /*!
-    \class QMapLibre::CustomLayerHostInterface
+    \enum ShapeAnnotationGeometry::Type
+    \brief Shape annotation geometry type.
+
+    This enum is used as basis for shape annotation geometry disambiguation.
+*/
+/*!
+    \var ShapeAnnotationGeometry::PolygonType
+    A polygon geometry type.
+*/
+/*!
+    \var ShapeAnnotationGeometry::LineStringType
+    A line string geometry type.
+*/
+/*!
+    \var ShapeAnnotationGeometry::MultiPolygonType
+    A polygon geometry collection type.
+*/
+/*!
+    \var ShapeAnnotationGeometry::MultiLineStringType
+    A line string geometry collection type.
+*/
+
+/*!
+    \struct SymbolAnnotation
+    \brief Symbol annotation helper type.
+    \ingroup QMapLibre
+
+    A symbol annotation comprises of its \a geometry and an \a icon identifier.
+*/
+
+/*!
+    \struct LineAnnotation
+    \brief Line annotation helper type.
+    \ingroup QMapLibre
+
+    Represents a line annotation object, along with its properties.
+
+    A line annotation comprises of its \a geometry and line properties
+    such as \a opacity, \a width and \a color.
+*/
+
+/*!
+    \struct FillAnnotation
+    \brief Fill annotation helper type.
+    \ingroup QMapLibre
+
+    Represents a fill annotation object, along with its properties.
+
+    A fill annotation comprises of its \a geometry and fill properties
+    such as \a opacity, \a color and \a outlineColor.
+*/
+
+/*!
+    \class CameraOptions
+    \brief Camera options helper type.
+    \ingroup QMapLibre
+
+    CameraOptions provides camera options to the renderer.
+*/
+
+/*!
+    \struct CustomLayerRenderParameters
+    \ingroup QMapLibre
+
+    CustomLayerRenderParameters provides the data passed on each render
+    pass for a custom layer.
+*/
+
+/*!
+    \class CustomLayerHostInterface
+    \ingroup QMapLibre
 
     Represents a host interface to be implemented for rendering custom layers.
 
     \warning This is used for delegating the rendering of a layer to the user of
     this API and is not officially supported. Use at your own risk.
-*/
-
-/*!
-    \class QMapLibre::CustomLayerRenderParameters
-    \inmodule MapLibre Maps SDK for Qt
-
-    QMapLibre::CustomLayerRenderParameters provides the data passed on each render
-    pass for a custom layer.
 */
 
 } // namespace QMapLibre

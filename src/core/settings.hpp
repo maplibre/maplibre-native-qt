@@ -54,6 +54,8 @@ public:
         MapboxProvider
     };
 
+    using ResourceTransformFunction = std::function<std::string(const std::string &)>;
+
     explicit Settings(ProviderTemplate provider = NoProvider);
     ~Settings();
     Settings(const Settings &s);
@@ -97,10 +99,10 @@ public:
     [[nodiscard]] QString clientVersion() const;
     void setClientVersion(const QString &version);
 
-    [[nodiscard]] std::function<std::string(const std::string &)> resourceTransform() const;
-    void setResourceTransform(const std::function<std::string(const std::string &)> &transform);
+    [[nodiscard]] ResourceTransformFunction resourceTransform() const;
+    void setResourceTransform(const ResourceTransformFunction &transform);
 
-    void setProviderTemplate(ProviderTemplate);
+    void setProviderTemplate(ProviderTemplate providerTemplate);
     void setStyles(const Styles &styles);
 
     [[nodiscard]] const Styles &styles() const;
