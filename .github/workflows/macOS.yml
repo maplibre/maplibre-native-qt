@@ -57,13 +57,13 @@ jobs:
             deployment_target: 11.0
             deployment_arch: x86_64
           - qt_series: 6
-            qt_version: 6.6.0
+            qt_version: 6.6.1
             qt_modules: qtlocation qtpositioning
             compiler: default
             deployment_target: 11.0
             deployment_arch: x86_64;arm64
           - qt_series: 6
-            qt_version: 6.6.0
+            qt_version: 6.6.1
             qt_modules: qtlocation qtpositioning
             compiler: llvm@17
             deployment_target: 11.0
@@ -224,7 +224,7 @@ jobs:
       contents: write
     strategy:
       matrix:
-        qt_version: [5.15.2, 6.5.3, 6.6.0]
+        qt_version: [5.15.2, 6.5.3, 6.6.1]
 
     steps:
       - name: Download artifacts
