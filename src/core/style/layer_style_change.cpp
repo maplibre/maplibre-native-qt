@@ -43,7 +43,6 @@ StyleAddLayer::StyleAddLayer(const Feature &feature, const std::vector<FeaturePr
 StyleAddLayer::StyleAddLayer(const LayerParameter *parameter, QString before)
     : m_id(parameter->styleId()),
       m_before(std::move(before)) {
-    m_params[QStringLiteral("id")] = m_id;
     m_params[QStringLiteral("type")] = parameter->type();
 
     const QList<QByteArray> propertyNames = StyleChangeUtils::allPropertyNamesList(parameter);

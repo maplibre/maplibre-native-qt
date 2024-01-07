@@ -1039,19 +1039,21 @@ void Map::addCustomLayer(const QString &id, std::unique_ptr<CustomLayerHostInter
 
     \code
         QVariantMap route;
-        route["id"] = "route";
         route["type"] = "line";
         route["source"] = "routeSource";
 
-        map->addLayer(route);
+        map->addLayer("route", route);
     \endcode
 
     /note The source must exist prior to adding a layer.
 */
 void Map::addLayer(const QString &id, const QVariantMap &params, const QString &before) {
+    QVariantMap parameters = params;
+    parameters["id"] = id;
+
     mbgl::style::conversion::Error error;
     std::optional<std::unique_ptr<mbgl::style::Layer>> layer =
-        mbgl::style::conversion::convert<std::unique_ptr<mbgl::style::Layer>>(QVariant(params), error);
+        mbgl::style::conversion::convert<std::unique_ptr<mbgl::style::Layer>>(QVariant(parameters), error);
     if (!layer) {
         qWarning() << "Unable to add layer with id" << id << ":" << error.message.c_str();
         return;
