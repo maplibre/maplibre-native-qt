@@ -4,7 +4,7 @@ set(MLN_QT_LIBRARY_ONLY ON CACHE BOOL "Build only MapLibre Native Core Qt bindin
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set(MLN_QT_WITH_INTERNAL_SQLITE ON CACHE BOOL "Build MapLibre Native Core with internal sqlite" FORCE)
 endif()
-set(MLN_CORE_PATH "${CMAKE_SOURCE_DIR}/vendor/maplibre-native" CACHE STRING "MapLibre Native Core source path" FORCE)
+set(MLN_CORE_PATH "${PROJECT_SOURCE_DIR}/vendor/maplibre-native" CACHE STRING "MapLibre Native Core source path" FORCE)
 
 # Build MapLibre Native Core
 add_subdirectory(
@@ -98,6 +98,8 @@ target_include_directories(
     Core
     PUBLIC
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/style
