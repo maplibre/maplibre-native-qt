@@ -90,7 +90,6 @@ jobs:
       - name: Setup compiler (macOS)
         if: matrix.compiler != 'default'
         run: |
-          brew install --overwrite python@3.11
           brew install "$COMPILER"
           echo "/usr/local/opt/${COMPILER}/bin" >> "$GITHUB_PATH"
           {
