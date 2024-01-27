@@ -37,9 +37,17 @@ set(Core_Headers ${MLN_QT_NAME_LOWERCASE}.hpp ${Core_Headers} ${Core_Headers_Gen
 
 # Make a Qt library
 if(COMMAND qt_add_library)
-    qt_add_library(Core)
+    if(MLN_QT_STATIC)
+        qt_add_library(Core STATIC)
+    else()
+        qt_add_library(Core)
+    endif()
 else()
-    add_library(Core SHARED)
+    if(MLN_QT_STATIC)
+        add_library(Core STATIC)
+    else()
+        add_library(Core SHARED)
+    endif()
 endif()
 add_library(${MLN_QT_NAME}::Core ALIAS Core)
 

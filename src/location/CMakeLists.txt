@@ -1,8 +1,16 @@
 # Make a Qt library
 if(COMMAND qt_add_library)
-    qt_add_library(Location)
+    if(MLN_QT_STATIC)
+        qt_add_library(Location STATIC)
+    else()
+        qt_add_library(Location)
+    endif()
 else()
-    add_library(Location SHARED)
+    if(MLN_QT_STATIC)
+        add_library(Location STATIC)
+    else()
+        add_library(Location SHARED)
+    endif()
 endif()
 add_library(${MLN_QT_NAME}::Location ALIAS Location)
 
