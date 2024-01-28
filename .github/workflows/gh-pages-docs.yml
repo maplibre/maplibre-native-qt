@@ -14,7 +14,9 @@ jobs:
           fetch-depth: 0
 
       - name: Install Doxygen
-        run: sudo apt-get install doxygen
+        uses: ssciwr/doxygen-install@v1
+        with:
+          version: "1.9.8"
 
       - name: Generate documentation
         working-directory: docs
