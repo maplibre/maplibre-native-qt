@@ -112,8 +112,8 @@ public:
     void setNorthOrientation(NorthOrientation);
 
     [[nodiscard]] Coordinate coordinate() const;
-    void setCoordinate(const Coordinate &);
-    void setCoordinateZoom(const Coordinate &, double zoom);
+    void setCoordinate(const Coordinate &coordinate);
+    void setCoordinateZoom(const Coordinate &coordinate, double zoom);
 
     void jumpTo(const CameraOptions &);
 
@@ -123,9 +123,9 @@ public:
 
     void addAnnotationIcon(const QString &name, const QImage &sprite);
 
-    AnnotationID addAnnotation(const Annotation &);
-    void updateAnnotation(AnnotationID, const Annotation &);
-    void removeAnnotation(AnnotationID);
+    AnnotationID addAnnotation(const Annotation &annotation);
+    void updateAnnotation(AnnotationID id, const Annotation &annotation);
+    void removeAnnotation(AnnotationID id);
 
     bool setLayoutProperty(const QString &layerId, const QString &propertyName, const QVariant &value);
     bool setPaintProperty(const QString &layerId, const QString &propertyName, const QVariant &value);
@@ -138,8 +138,8 @@ public:
 
     void resize(const QSize &size);
 
-    [[nodiscard]] QPointF pixelForCoordinate(const Coordinate &) const;
-    [[nodiscard]] Coordinate coordinateForPixel(const QPointF &) const;
+    [[nodiscard]] QPointF pixelForCoordinate(const Coordinate &coordinate) const;
+    [[nodiscard]] Coordinate coordinateForPixel(const QPointF &pixel) const;
 
     [[nodiscard]] CoordinateZoom coordinateZoomForBounds(const Coordinate &sw, const Coordinate &ne) const;
     [[nodiscard]] CoordinateZoom coordinateZoomForBounds(const Coordinate &sw,
@@ -177,7 +177,7 @@ public:
 
 public slots:
     void render();
-    void connectionEstablished();
+    void setConnectionEstablished();
 
     // Commit changes, load all the resources
     // and renders the map when completed.

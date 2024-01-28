@@ -1,3 +1,4 @@
 .cache
 *.user
 compile_commands.json
+docs/output

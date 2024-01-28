@@ -10,6 +10,11 @@
 #include <mbgl/util/projection.hpp>
 #include <mbgl/util/traits.hpp>
 
+/*!
+    \defgroup QMapLibre QMapLibre Core
+    \brief Core types and utilities used throughout MapLibre Qt bindings.
+*/
+
 // mbgl::NetworkStatus::Status
 static_assert(mbgl::underlying_type(QMapLibre::Online) == mbgl::underlying_type(mbgl::NetworkStatus::Status::Online),
               "error");
@@ -19,30 +24,31 @@ static_assert(mbgl::underlying_type(QMapLibre::Offline) == mbgl::underlying_type
 namespace QMapLibre {
 
 /*!
-    \enum QMapLibre::NetworkMode
+    \enum NetworkMode
 
     This enum represents whether server requests can be performed via network.
-
-    \value Online  Server network requests are accessible.
-    \value Offline Only requests to the local cache are accessible.
+*/
+/*!
+    \var Online
+    Server network requests are accessible.
+*/
+/*!
+    \var Offline
+    Only requests to the local cache are accessible.
 */
 
 /*!
-    \fn QMapLibre::NetworkMode QMapLibre::networkMode()
-
-    Returns the current QMapLibre::NetworkMode.
+    Returns the current \ref NetworkMode.
 */
 NetworkMode networkMode() {
     return static_cast<NetworkMode>(mbgl::NetworkStatus::Get());
 }
 
 /*!
-    \fn void QMapLibre::setNetworkMode(QMapLibre::NetworkMode mode)
-
     Forwards the network status \a mode to MapLibre Native engine.
 
-    File source requests uses the available network when \a mode is set to \b
-    Online, otherwise scoped to the local cache.
+    File source requests uses the available network when \a mode is set
+    to \ref Online, otherwise scoped to the local cache.
 */
 void setNetworkMode(NetworkMode mode) {
     mbgl::NetworkStatus::Set(static_cast<mbgl::NetworkStatus::Status>(mode));
@@ -56,7 +62,7 @@ double metersPerPixelAtLatitude(double latitude, double zoom) {
 }
 
 /*!
-    Return the projected meters for a given \a coordinate object.
+    Returns the projected meters for a given \a coordinate object.
 */
 ProjectedMeters projectedMetersForCoordinate(const Coordinate &coordinate) {
     auto projectedMeters = mbgl::Projection::projectedMetersForLatLng(
@@ -65,7 +71,7 @@ ProjectedMeters projectedMetersForCoordinate(const Coordinate &coordinate) {
 }
 
 /*!
-    Returns the coordinate for a given \a projectedMeters object.
+    Returns the \ref Coordinate for a given \a projectedMeters object.
 */
 Coordinate coordinateForProjectedMeters(const ProjectedMeters &projectedMeters) {
     auto latLng = mbgl::Projection::latLngForProjectedMeters(
