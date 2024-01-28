@@ -1,3 +1,6 @@
 [submodule "vendor/maplibre-native"]
 	path = vendor/maplibre-native
 	url = https://github.com/maplibre/maplibre-native.git
+[submodule "docs/doxygen-awesome-css"]
+	path = docs/doxygen-awesome-css
+	url = https://github.com/jothepro/doxygen-awesome-css.git
