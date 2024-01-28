@@ -59,8 +59,8 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"",
-"geojson_8cpp.html#a2b2c647487bf4482b1b7bb690d230b11"
+"annotated.html",
+"geojson_8cpp.html#a6042921354c704545d7d372363c1b1c3"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

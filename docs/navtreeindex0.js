@@ -1,7 +1,5 @@
 var NAVTREEINDEX0 =
 {
-"":[2,0,0,0],
-"":[2,0,0,1],
 "annotated.html":[3,0],
 "classQMapLibre_1_1CustomLayerHostInterface.html":[1,0,14],
 "classQMapLibre_1_1CustomLayerHostInterface.html#a42f6244b13ff4db9808fab2bc860d075":[1,0,14,3],
@@ -249,5 +247,7 @@ var NAVTREEINDEX0 =
 "functions_u.html":[3,3,0,17],
 "functions_v.html":[3,3,0,18],
 "functions_vars.html":[3,3,2],
-"functions_z.html":[3,3,0,19]
+"functions_z.html":[3,3,0,19],
+"geojson_8cpp.html#a2b2c647487bf4482b1b7bb690d230b11":[2,0,0,0,1],
+"geojson_8cpp.html#a46232512c54fd8a82c0f55e59018adad":[2,0,0,0,0]
 };

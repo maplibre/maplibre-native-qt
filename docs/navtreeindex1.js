@@ -1,7 +1,5 @@
 var NAVTREEINDEX1 =
 {
-"geojson_8cpp.html#a2b2c647487bf4482b1b7bb690d230b11":[2,0,0,0,1],
-"geojson_8cpp.html#a46232512c54fd8a82c0f55e59018adad":[2,0,0,0,0],
 "geojson_8cpp.html#a6042921354c704545d7d372363c1b1c3":[2,0,0,0,6],
 "geojson_8cpp.html#a6c926c5d2210686436e7ea6ec74372fd":[2,0,0,0,3],
 "geojson_8cpp.html#a932cb0111eb59ee61af80bb6931a6564":[2,0,0,0,8],
@@ -11,8 +9,8 @@ var NAVTREEINDEX1 =
 "geojson_8cpp.html#af4c41314ee2af3f885718c3e2e0fb646":[2,0,0,0,5],
 "group__QMapLibre.html":[1,0],
 "hierarchy.html":[3,2],
-"index.html":[0],
 "index.html":[],
+"index.html":[0],
 "layer__parameter_8hpp_source.html":[4,0,0,0,0,0],
 "map_8hpp_source.html":[4,0,0,0,2],
 "modules.html":[1],
@@ -127,5 +125,7 @@ var NAVTREEINDEX1 =
 "style__change__utils_8cpp.html#ad0c3ae745cbe187525fcdc90284ffded":[2,0,0,1,0],
 "style__parameter_8hpp_source.html":[4,0,0,0,0,2],
 "types_8hpp_source.html":[4,0,0,0,5],
-"utils_8hpp_source.html":[4,0,0,0,6]
+"utils_8hpp_source.html":[4,0,0,0,6],
+"":[2,0,0,0],
+"":[2,0,0,1]
 };
