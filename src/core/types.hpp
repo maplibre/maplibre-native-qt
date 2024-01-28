@@ -42,9 +42,15 @@ struct Q_MAPLIBRE_CORE_EXPORT Style {
         CustomMap = 100
     };
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+    explicit Style(QString url_, QString name_ = QString())
+        : url(std::move(url_)),
+          name(std::move(name_)) {}
+#else
     explicit Style(QString url_ = QString(), QString name_ = QString())
         : url(std::move(url_)),
           name(std::move(name_)) {}
+#endif
 
     QString url;
     QString name;
