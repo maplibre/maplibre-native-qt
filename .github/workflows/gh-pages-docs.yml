@@ -1,0 +1,28 @@
+name: gh-pages-docs
+
+on:
+  workflow_dispatch:
+
+jobs:
+  doxygen:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - name: Install Doxygen
+        run: sudo apt-get install doxygen
+
+      - name: Generate documentation
+        working-directory: docs
+        run: doxygen
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@v4.5.0
+        with:
+          branch: gh-pages
+          folder: docs/output/html
+          target-folder: docs
