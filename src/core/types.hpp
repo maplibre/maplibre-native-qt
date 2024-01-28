@@ -42,7 +42,7 @@ struct Q_MAPLIBRE_CORE_EXPORT Style {
         CustomMap = 100
     };
 
-    explicit Style(QString url_, QString name_ = QString())
+    explicit Style(QString url_ = QString(), QString name_ = QString())
         : url(std::move(url_)),
           name(std::move(name_)) {}
 
