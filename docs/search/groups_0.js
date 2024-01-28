@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['qmaplibre_20core_454',['QMapLibre Core',['../group__QMapLibre.html',1,'']]]
+  ['core_0',['QMapLibre Core',['../group__QMapLibre.html',1,'']]]
 ];

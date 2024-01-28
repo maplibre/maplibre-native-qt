@@ -1,7 +1,6 @@
 var classQMapLibre_1_1StyleParameter =
 [
     [ "StyleParameter", "classQMapLibre_1_1StyleParameter.html#ac68c4621cff7b077f5076f1177aca142", null ],
-    [ "~StyleParameter", "classQMapLibre_1_1StyleParameter.html#ae283db00280e05211e485eb529a6b9ab", null ],
     [ "hasProperty", "classQMapLibre_1_1StyleParameter.html#aa0c4a6d38f04882ef86eee3ea219dbd8", null ],
     [ "isReady", "classQMapLibre_1_1StyleParameter.html#a29f936af641f51aa3fd708899525c885", null ],
     [ "operator==", "classQMapLibre_1_1StyleParameter.html#a7ba9f88a63e061319104dcc42d992431", null ],

@@ -25,7 +25,6 @@ var classQMapLibre_1_1Settings =
       [ "FlippedYViewport", "classQMapLibre_1_1Settings.html#a31d9cd60ceb36bb0c62c6a72b3ff4584ad7c4792e7843c4e8178b10fdf7b3cfdd", null ]
     ] ],
     [ "Settings", "classQMapLibre_1_1Settings.html#aece735ff05731391032616554b22217b", null ],
-    [ "~Settings", "classQMapLibre_1_1Settings.html#a537fd730121ce89ba963645d77685037", null ],
     [ "Settings", "classQMapLibre_1_1Settings.html#ac4dfc1804bb52f95ea0ee270f29045fa", null ],
     [ "Settings", "classQMapLibre_1_1Settings.html#a91985a63ca80589045eef6da81f4abfa", null ],
     [ "apiBaseUrl", "classQMapLibre_1_1Settings.html#affd8064a8b2dae8f653a2338114f4d2a", null ],

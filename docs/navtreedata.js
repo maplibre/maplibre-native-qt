@@ -26,7 +26,7 @@ var NAVTREE =
 [
   [ "MapLibre Native for Qt", "index.html", [
     [ "Documentation", "index.html", null ],
-    [ "Modules", "modules.html", "modules" ],
+    [ "Topics", "topics.html", "topics" ],
     [ "Namespaces", "namespaces.html", [
       [ "Namespace List", "namespaces.html", "namespaces_dup" ],
       [ "Namespace Members", "namespacemembers.html", [
@@ -60,7 +60,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"geojson_8cpp.html#a6042921354c704545d7d372363c1b1c3"
+"namespaceQMapLibre.html#a3724a63b2145eb2be5884b197acfdaf4"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

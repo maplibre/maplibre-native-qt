@@ -31,7 +31,6 @@ var classQMapLibre_1_1Map =
       [ "NorthLeftwards", "classQMapLibre_1_1Map.html#a4fc247ab82864fc77807eba8af8a3b50a2074d1ccebdff88cb295ed855c8b2149", null ]
     ] ],
     [ "Map", "classQMapLibre_1_1Map.html#a0c3b4c040da009b43de8767ca6652bbb", null ],
-    [ "~Map", "classQMapLibre_1_1Map.html#a9077403b95d736be31811ecf5014ad6d", null ],
     [ "addAnnotation", "classQMapLibre_1_1Map.html#af43687ee3c8beffcf0dc1d8899672d83", null ],
     [ "addAnnotationIcon", "classQMapLibre_1_1Map.html#aba4625136759727e4e6005d96c76d9f2", null ],
     [ "addCustomLayer", "classQMapLibre_1_1Map.html#abf59c4b7e6493a2ffe4c0e1c79ce4bb9", null ],

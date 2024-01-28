@@ -1,7 +1,6 @@
 var classQMapLibre_1_1LayerParameter =
 [
     [ "LayerParameter", "classQMapLibre_1_1LayerParameter.html#af55e0ca7fe147da27b1926e38b86240e", null ],
-    [ "~LayerParameter", "classQMapLibre_1_1LayerParameter.html#a339faf5d623b12de4bbc788d0f4f25fc", null ],
     [ "layout", "classQMapLibre_1_1LayerParameter.html#ad81e68f539a5e7e373f9ac00570a1c8e", null ],
     [ "layoutUpdated", "classQMapLibre_1_1LayerParameter.html#a29f0e0f556120f5f809c30f49ed75f86", null ],
     [ "paint", "classQMapLibre_1_1LayerParameter.html#a12c4fcfbc351ecddb875599d65876676", null ],
