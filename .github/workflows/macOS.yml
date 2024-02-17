@@ -40,7 +40,7 @@ concurrency:
 jobs:
   build-and-test:
     name: Build QMapLibre for macOS (Qt${{ matrix.qt_version}}, ${{ matrix.compiler }})
-    runs-on: macos-13
+    runs-on: ${{ matrix.runs_on }}
     strategy:
       matrix:
         include:
@@ -50,24 +50,28 @@ jobs:
             compiler: default
             deployment_target: 10.13
             deployment_arch: x86_64
+            runs_on: macos-13
           - qt_series: 6
             qt_version: 6.5.3
             qt_modules: qtlocation qtpositioning
             compiler: default
             deployment_target: 11.0
             deployment_arch: x86_64
+            runs_on: macos-14
           - qt_series: 6
             qt_version: 6.6.1
             qt_modules: qtlocation qtpositioning
             compiler: default
             deployment_target: 11.0
             deployment_arch: x86_64;arm64
+            runs_on: macos-14
           - qt_series: 6
             qt_version: 6.6.1
             qt_modules: qtlocation qtpositioning
             compiler: llvm@17
             deployment_target: 11.0
-            deployment_arch: x86_64
+            deployment_arch: arm64
+            runs_on: macos-14
 
     env:
       COMPILER: ${{ matrix.compiler }}
@@ -91,12 +95,12 @@ jobs:
         if: matrix.compiler != 'default'
         run: |
           brew install "$COMPILER"
-          echo "/usr/local/opt/${COMPILER}/bin" >> "$GITHUB_PATH"
+          echo "/opt/homebrew/opt/${COMPILER}/bin" >> "$GITHUB_PATH"
           {
-            echo "CC=/usr/local/opt/${COMPILER}/bin/clang"
-            echo "CXX=/usr/local/opt/${COMPILER}/bin/clang++"
-            echo "LDFLAGS=\"-L/usr/local/opt/${COMPILER}/lib\""
-            echo "CPPFLAGS=\"-I/usr/local/opt/${COMPILER}/include\""
+            echo "CC=/opt/homebrew/opt/${COMPILER}/bin/clang"
+            echo "CXX=/opt/homebrew/opt/${COMPILER}/bin/clang++"
+            echo "LDFLAGS=\"-L/opt/homebrew/opt/${COMPILER}/lib\""
+            echo "CPPFLAGS=\"-I/opt/homebrew/opt/${COMPILER}/include\""
           } >> "$GITHUB_ENV"
 
       - name: Download Qt
@@ -106,6 +110,7 @@ jobs:
           version: ${{ matrix.qt_version }}
           target: desktop
           modules: ${{ matrix.qt_modules }}
+          extra: --base https://mirrors.ocf.berkeley.edu/qt/
 
       - name: Setup ninja
         uses: seanmiddleditch/gha-setup-ninja@v4
@@ -217,7 +222,7 @@ jobs:
   release:
     name: Release QMapLibre
     if: github.ref_type == 'tag'
-    runs-on: macos-13
+    runs-on: macos-14
     needs: build-and-test
     permissions:
       contents: write

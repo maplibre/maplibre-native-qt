@@ -71,6 +71,7 @@ jobs:
       - name: Install test dependencies
         if: matrix.compiler != 'default'
         run: |
+          sudo apt-get update
           sudo apt-get install \
             libxkbcommon-x11-0 \
             libxcb-cursor0 \
@@ -93,6 +94,7 @@ jobs:
       - name: Install lcov
         if: matrix.compiler != 'default'
         run: |
+          sudo apt-get update
           sudo apt-get install \
             libcapture-tiny-perl \
             libdatetime-perl \
@@ -121,6 +123,7 @@ jobs:
           dir: ${{ github.workspace }}
           target: desktop
           modules: ${{ matrix.qt_modules }}
+          extra: --base https://mirrors.ocf.berkeley.edu/qt/
 
       - name: Setup ninja
         if: matrix.compiler != 'default'

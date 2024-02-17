@@ -40,7 +40,7 @@ concurrency:
 jobs:
   build:
     name: Build QMapLibre for iOS (Qt${{ matrix.qt_version}})
-    runs-on: macos-13
+    runs-on: macos-14
     strategy:
       matrix:
         include:
@@ -73,6 +73,7 @@ jobs:
           target: desktop
           modules: qtlocation qtpositioning
           set-env: false
+          extra: --base https://mirrors.ocf.berkeley.edu/qt/
 
       - name: Download Qt (iOS)
         uses: jurplel/install-qt-action@v3
@@ -81,6 +82,7 @@ jobs:
           version: ${{ matrix.qt_version }}
           target: ios
           modules: qtlocation qtpositioning
+          extra: --base https://mirrors.ocf.berkeley.edu/qt/
 
       - name: Setup ninja
         uses: seanmiddleditch/gha-setup-ninja@v4
@@ -121,7 +123,7 @@ jobs:
   release:
     name: Release QMapLibre
     if: github.ref_type == 'tag'
-    runs-on: macos-13
+    runs-on: macos-14
     needs: build
     permissions:
       contents: write
