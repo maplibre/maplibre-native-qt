@@ -85,6 +85,7 @@ jobs:
           version: ${{ matrix.qt_version }}
           modules: qtlocation qtpositioning
           set-env: false
+          extra: --base https://mirrors.ocf.berkeley.edu/qt/
 
       - name: Download Qt (Android)
         id: qt-android
@@ -95,6 +96,7 @@ jobs:
           target: android
           arch: ${{ matrix.arch }}
           modules: qtlocation qtpositioning
+          extra: --base https://mirrors.ocf.berkeley.edu/qt/
 
       - name: Fix Qt release
         if: ${{ matrix.abi }} == 'armeabi-v7a'

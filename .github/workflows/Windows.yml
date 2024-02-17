@@ -92,6 +92,7 @@ jobs:
           target: desktop
           arch: ${{ matrix.qt_arch }}
           modules: ${{ matrix.qt_modules }}
+          extra: --base https://mirrors.ocf.berkeley.edu/qt/
 
       - name: Setup ninja
         uses: seanmiddleditch/gha-setup-ninja@v4
