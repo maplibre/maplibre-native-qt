@@ -222,6 +222,7 @@ jobs:
         with:
           files: build/coverage.info
           verbose: true
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   release:
     name: Release QMapLibre
