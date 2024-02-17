@@ -51,11 +51,11 @@ jobs:
             qt_modules: qtlocation qtpositioning
             compiler: default
           - qt_series: 6
-            qt_version: 6.6.1
+            qt_version: 6.6.2
             qt_modules: qtlocation qtpositioning
             compiler: default
           - qt_series: 6
-            qt_version: 6.6.1
+            qt_version: 6.6.2
             qt_modules: qtlocation qtpositioning
             compiler: gcc-13
             gcov: gcov-13
@@ -232,7 +232,7 @@ jobs:
       contents: write
     strategy:
       matrix:
-        qt_version: [5.15.2, 6.5.3, 6.6.1]
+        qt_version: [5.15.2, 6.5.3, 6.6.2]
 
     steps:
       - name: Download artifacts
