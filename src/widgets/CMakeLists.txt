@@ -46,7 +46,7 @@ set_target_properties(
         AUTOMOC ON
         OUTPUT_NAME ${MLN_QT_NAME}Widgets
         VERSION ${MLN_QT_VERSION}
-        SOVERSION ${MLN_QT_VERSION_COMPATIBILITY}
+        SOVERSION ${PROJECT_VERSION_MAJOR}
         PUBLIC_HEADER "${Widgets_Headers}"
 )
 

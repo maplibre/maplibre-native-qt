@@ -32,7 +32,7 @@ set_target_properties(
         AUTOMOC ON
         OUTPUT_NAME ${MLN_QT_NAME}Location
         VERSION ${MLN_QT_VERSION}
-        SOVERSION ${MLN_QT_VERSION_COMPATIBILITY}
+        SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
 # Qt MOC
