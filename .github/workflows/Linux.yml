@@ -37,7 +37,7 @@ concurrency:
 
 jobs:
   build-and-test:
-    name: Build QMapLibre for Linux (Qt${{ matrix.qt_version}}, ${{ matrix.compiler }})
+    name: Build (Qt${{ matrix.qt_version}}, ${{ matrix.compiler }})
     runs-on: ubuntu-22.04
     strategy:
       matrix:
@@ -45,20 +45,27 @@ jobs:
           - qt_series: 5
             qt_version: 5.15.2
             qt_modules: ""
+            preset: Linux-legacy-CI
             compiler: default
           - qt_series: 6
             qt_version: 6.5.3
             qt_modules: qtlocation qtpositioning
+            preset: Linux-CI
             compiler: default
           - qt_series: 6
             qt_version: 6.6.2
             qt_modules: qtlocation qtpositioning
+            preset: Linux-CI
             compiler: default
           - qt_series: 6
             qt_version: 6.6.2
             qt_modules: qtlocation qtpositioning
+            preset: Linux-coverage
             compiler: gcc-13
             gcov: gcov-13
+
+    env:
+      PRESET: ${{ matrix.preset }}
 
     steps:
       - name: Checkout
@@ -132,99 +139,79 @@ jobs:
       - name: Set up ccache
         uses: hendrikmuhs/ccache-action@v1
         with:
-          key: Linux_QMapLibre_${{ matrix.qt_version }}_${{ matrix.compiler }}
+          key: Linux_${{ matrix.qt_version }}_${{ matrix.compiler }}
           max-size: 200M
 
-      - name: Build QMapLibre (Qt5)
+      - name: Build (Qt5)
         if: matrix.qt_series == 5
         uses: ./source/.github/actions/qt5-build
 
-      - name: Build QMapLibre (Qt6)
+      - name: Build (Qt6)
         if: matrix.qt_series == 6 && matrix.compiler == 'default'
         uses: ./source/.github/actions/qt6-build
 
-      - name: Build QMapLibre (Qt6, custom compiler)
+      - name: Build (Qt6, custom compiler)
         if: matrix.qt_series == 6 && matrix.compiler != 'default'
         env:
           CC: ${{ steps.install_compiler.outputs.cc }}
           CXX: ${{ steps.install_compiler.outputs.cxx }}
           GCOV: ${{ matrix.gcov }}
+        working-directory: source
         run: |
-          mkdir build && cd build
-          qt-cmake ../source/ \
-            -G Ninja \
-            -DCMAKE_BUILD_TYPE="RelWithDebInfo" \
-            -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
-            -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
-            -DCMAKE_INSTALL_PREFIX="../install" \
-            -DMLN_QT_WITH_COVERAGE=ON \
-            -DGCOV_PATH="$(which ${GCOV})"
-          ninja
-          ninja install
+          export GCOV_PATH="$(which ${GCOV})"
+          cmake --workflow --preset ${PRESET}
 
       - name: Run tests
         if: matrix.qt_series == 6 && matrix.compiler != 'default'
         uses: coactions/setup-xvfb@v1
         with:
           run: ctest --output-on-failure
-          working-directory: build
+          working-directory: build/qt6-Linux
 
       - name: Run code coverage
         if: matrix.qt_series == 6 && matrix.compiler != 'default'
         uses: coactions/setup-xvfb@v1
         with:
           run: ninja coverage
-          working-directory: build
+          working-directory: build/qt6-Linux
 
-      - name: Build QtQuick Example (Qt6)
+      - name: Install
         if: matrix.qt_series == 6 && matrix.compiler != 'default'
         run: |
-          export PREFIX_PATH="$(pwd)/install"
-          mkdir build-example-quick && cd build-example-quick
-          qt-cmake ../source/examples/quick/ \
-            -G Ninja \
-            -DCMAKE_BUILD_TYPE="RelWithDebInfo" \
-            -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
-            -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
-            -DCMAKE_PREFIX_PATH="$PREFIX_PATH"
-          ninja
+          mkdir install && cd install
+          tar xf ../build/qt${{ matrix.qt_series }}-Linux/maplibre-native-qt_*.tar.bz2
+          mv maplibre-native-qt_* maplibre-native-qt
 
-      - name: Build QtWidgets Example (Qt6)
+      - name: Build QtQuick Example
         if: matrix.qt_series == 6 && matrix.compiler != 'default'
+        working-directory: source/examples/quick
         run: |
-          export PREFIX_PATH="$(pwd)/install"
-          mkdir build-example-widgets && cd build-example-widgets
-          qt-cmake ../source/examples/widgets/ \
-            -G Ninja \
-            -DCMAKE_BUILD_TYPE="RelWithDebInfo" \
-            -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
-            -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
-            -DCMAKE_PREFIX_PATH="$PREFIX_PATH"
-          ninja
+          export QMapLibre_DIR="$GITHUB_WORKSPACE/install/maplibre-native-qt"
+          cmake --workflow --preset default
 
-      - name: Compress installation
-        if: matrix.compiler == 'default'
+      - name: Build QtWidgets Example
+        if: matrix.qt_series == 6 && matrix.compiler != 'default'
+        working-directory: source/examples/widgets
         run: |
-          pushd install
-          tar cjvf ../QMapLibre_Linux.tar.bz2 *
-          popd
+          export QMapLibre_DIR="$GITHUB_WORKSPACE/install/maplibre-native-qt"
+          cmake --workflow --preset default
 
       - name: Upload installation
         if: matrix.compiler == 'default'
         uses: actions/upload-artifact@v4
         with:
-          name: QMapLibre_Linux_${{ matrix.qt_version }}
-          path: QMapLibre_Linux.tar.bz2
+          name: Linux_${{ matrix.qt_version }}
+          path: build/qt${{ matrix.qt_series }}-Linux/maplibre-native-qt_*.tar.bz2
 
       - name: Upload coverage reports to Codecov
         if: matrix.qt_series == 6 && matrix.compiler != 'default'
         uses: codecov/codecov-action@v3
         with:
-          files: build/coverage.info
+          files: build/qt${{ matrix.qt_series }}-Linux/coverage.info
           verbose: true
 
   release:
-    name: Release QMapLibre
+    name: Release
     if: github.ref_type == 'tag'
     runs-on: ubuntu-22.04
     needs: build-and-test
@@ -238,18 +225,11 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: QMapLibre_Linux_${{ matrix.qt_version }}
-
-      - name: Make tarball
-        env:
-          TAG_NAME: ${{ github.ref_name }}
-          QT_VERSION: ${{ matrix.qt_version }}
-        run: |
-          mv QMapLibre_Linux.tar.bz2 QMapLibre_${TAG_NAME}_Qt${QT_VERSION}_Linux.tar.bz2
+          name: Linux_${{ matrix.qt_version }}
 
       - name: Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: QMapLibre_${{ github.ref_name }}_Qt${{ matrix.qt_version }}_Linux.tar.bz2
+          artifacts: maplibre-native-qt_${{ github.ref_name }}_Qt${{ matrix.qt_version }}_Linux.tar.bz2
           allowUpdates: true
           draft: true

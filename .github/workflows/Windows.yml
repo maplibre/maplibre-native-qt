@@ -42,7 +42,7 @@ env:
 
 jobs:
   build-and-test:
-    name: Build QMapLibre for Windows (Qt${{ matrix.qt_version}}, ${{ matrix.arch }})
+    name: Build (Qt${{ matrix.qt_version}}, ${{ matrix.arch }})
     runs-on: windows-2022
     strategy:
       matrix:
@@ -54,6 +54,7 @@ jobs:
             arch: msvc2019_64
             compiler: x64
             compiler_version: 14.29
+            preset: Windows-legacy-ccache
           - qt_series: 6
             qt_version: 6.5.3
             qt_arch: win64_msvc2019_64
@@ -61,6 +62,7 @@ jobs:
             arch: msvc2019_64
             compiler: x64
             compiler_version: 14.29
+            preset: Windows-ccache
           - qt_series: 6
             qt_version: 6.6.2
             qt_arch: win64_msvc2019_64
@@ -68,6 +70,10 @@ jobs:
             arch: msvc2019_64
             compiler: x64
             compiler_version: 14.29
+            preset: Windows-ccache
+
+    env:
+      PRESET: ${{ matrix.preset }}
 
     steps:
       - name: Checkout
@@ -112,111 +118,54 @@ jobs:
       - name: Set up ccache
         uses: hendrikmuhs/ccache-action@v1
         with:
-          key: Windows_QMapLibre_${{ matrix.qt_version }}_${{ matrix.arch }}
+          key: Windows_${{ matrix.qt_version }}_${{ matrix.arch }}
           max-size: 200M
 
-      - name: Build QMapLibre (Qt 5)
-        if: matrix.qt_series == 5
+      - name: Build
         shell: bash
-        env:
-          COMPILER_TYPE: ${{ matrix.compiler }}
+        working-directory: source
         run: |
-          mkdir build && cd build
-          cmake.exe ../source/ \
-            -G"Ninja Multi-Config" \
-            -DCMAKE_CONFIGURATION_TYPES="Release;Debug" \
-            -DCMAKE_C_COMPILER_LAUNCHER="ccache.exe" \
-            -DCMAKE_CXX_COMPILER_LAUNCHER="ccache.exe" \
-            -DCMAKE_INSTALL_PREFIX="../install"
-          ninja.exe
-          ninja.exe test
-          ninja.exe install
+          cmake --workflow --preset ${PRESET}
 
-      - name: Build QMapLibre (Qt 6)
-        if: matrix.qt_series == 6
-        shell: bash
-        env:
-          COMPILER_TYPE: ${{ matrix.compiler }}
-        run: |
-          mkdir build && cd build
-          qt-cmake.bat ../source/ \
-            -G"Ninja Multi-Config" \
-            -DCMAKE_CONFIGURATION_TYPES="Release;Debug" \
-            -DCMAKE_C_COMPILER_LAUNCHER="ccache.exe" \
-            -DCMAKE_CXX_COMPILER_LAUNCHER="ccache.exe" \
-            -DCMAKE_INSTALL_PREFIX="../install"
-          ninja.exe
-          ninja.exe test
-          ninja.exe install
-
-      - name: Build QtQuick Example (Qt 6)
+      - name: Install
         if: matrix.qt_series == 6
         shell: bash
         run: |
-          export PREFIX_PATH="$(pwd)/install"
-          mkdir build-example-quick && cd build-example-quick
-          qt-cmake.bat ../source/examples/quick/ \
-            -G Ninja \
-            -DCMAKE_BUILD_TYPE="Release" \
-            -DCMAKE_C_COMPILER_LAUNCHER="ccache.exe" \
-            -DCMAKE_CXX_COMPILER_LAUNCHER="ccache.exe" \
-            -DCMAKE_INSTALL_PREFIX="../install-example-quick" \
-            -DCMAKE_PREFIX_PATH="$PREFIX_PATH"
-          ninja.exe
-          ninja.exe install
+          mkdir install && cd install
+          tar xf ../build/qt${{ matrix.qt_series }}-Windows/maplibre-native-qt_*.tar.bz2
+          mv maplibre-native-qt_* maplibre-native-qt
 
-      - name: Build QtWidgets Example (Qt 6)
+      - name: Build QtQuick Example
         if: matrix.qt_series == 6
         shell: bash
+        working-directory: source/examples/quick
         run: |
-          export PREFIX_PATH="$(pwd)/install"
-          mkdir build-example-widgets && cd build-example-widgets
-          qt-cmake.bat ../source/examples/widgets/ \
-            -G Ninja \
-            -DCMAKE_BUILD_TYPE="Release" \
-            -DCMAKE_C_COMPILER_LAUNCHER="ccache.exe" \
-            -DCMAKE_CXX_COMPILER_LAUNCHER="ccache.exe" \
-            -DCMAKE_INSTALL_PREFIX="../install-example-widgets" \
-            -DCMAKE_PREFIX_PATH="$PREFIX_PATH"
-          ninja.exe
-          ninja.exe install
+          export QMapLibre_DIR="$GITHUB_WORKSPACE/install/maplibre-native-qt"
+          cmake --workflow --preset default
 
-      - name: Compress installation
-        shell: bash
-        env:
-          TAG_ARCH: ${{ matrix.arch }}
-        run: |
-          pushd install
-          tar cjvf ../QMapLibre_Windows_${TAG_ARCH}.tar.bz2 *
-          popd
-
-      - name: Compress examples
+      - name: Build QtWidgets Example
         if: matrix.qt_series == 6
         shell: bash
-        env:
-          TAG_ARCH: ${{ matrix.arch }}
+        working-directory: source/examples/widgets
         run: |
-          mkdir examples && pushd examples
-          cp -a ../install-example-quick/ Quick
-          cp -a ../install-example-widgets/ Widgets
-          tar cjvf ../QMapLibre_Windows_${TAG_ARCH}_examples.tar.bz2 *
-          popd
+          export QMapLibre_DIR="$GITHUB_WORKSPACE/install/maplibre-native-qt"
+          cmake --workflow --preset default
 
       - name: Upload installation
         uses: actions/upload-artifact@v4
         with:
-          name: QMapLibre_Windows_${{ matrix.arch }}_${{ matrix.qt_version }}
-          path: QMapLibre_Windows_${{ matrix.arch }}.tar.bz2
+          name: Windows_${{ matrix.arch }}_${{ matrix.qt_version }}
+          path: build/qt${{ matrix.qt_series }}-Windows/maplibre-native-qt_*.tar.bz2
 
       - name: Upload examples
         if: matrix.qt_series == 6
         uses: actions/upload-artifact@v4
         with:
-          name: QMapLibre_Windows_${{ matrix.arch }}_${{ matrix.qt_version }}_examples
-          path: QMapLibre_Windows_${{ matrix.arch }}_examples.tar.bz2
+          name: Windows_${{ matrix.arch }}_${{ matrix.qt_version }}_examples
+          path: build/qt${{ matrix.qt_series }}-example-*/*.tar.bz2
 
   release:
-    name: Release QMapLibre
+    name: Release
     if: github.ref_type == 'tag'
     runs-on: windows-2022
     needs: build-and-test
@@ -231,19 +180,11 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: QMapLibre_Windows_${{ matrix.arch }}_${{ matrix.qt_version }}}
-
-      - name: Make tarball
-        shell: bash
-        env:
-          TAG_NAME: ${{ github.ref_name }}
-          TAG_ARCH: ${{ matrix.arch }}
-        run: |
-          mv QMapLibre_Windows_${TAG_ARCH}.tar.bz2 QMapLibre_${TAG_NAME}_Qt${QT_VERSION}_${TAG_ARCH}.tar.bz2
+          name: Windows_${{ matrix.arch }}_${{ matrix.qt_version }}}
 
       - name: Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: QMapLibre_${{ github.ref_name }}_Qt${{ matrix.qt_version }}_win64_${{ matrix.arch }}.tar.bz2
+          artifacts: maplibre-native-qt_${{ github.ref_name }}_Qt${{ matrix.qt_version }}_Windows.tar.bz2
           allowUpdates: true
           draft: true

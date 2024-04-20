@@ -1,0 +1,277 @@
+{
+  "version": 6,
+  "include": ["common.json"],
+  "configurePresets": [
+    {
+      "name": "Linux",
+      "displayName": "Linux configuration using Qt6",
+      "generator": "Ninja",
+      "binaryDir": "${sourceParentDir}/build/qt6-Linux",
+      "toolchainFile": "$penv{Qt6_DIR}/lib/cmake/Qt6/qt.toolchain.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "QT_VERSION_MAJOR": "6"
+      }
+    },
+    {
+      "name": "Linux-ccache",
+      "displayName": "Linux configuration using Qt6 and ccache",
+      "inherits": ["dev", "ccache", "Linux"]
+    },
+    {
+      "name": "Linux-coverage",
+      "displayName": "Linux configuration using Qt6, ccache and code coverage",
+      "inherits": ["Linux-ccache"],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "MLN_QT_WITH_COVERAGE": "ON",
+        "GCOV_PATH": "$penv{GCOV_PATH}"
+      }
+    },
+    {
+      "name": "Linux-legacy",
+      "displayName": "Linux configuration using Qt5",
+      "generator": "Ninja",
+      "binaryDir": "${sourceParentDir}/build/qt5-Linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "QT_VERSION_MAJOR": "5"
+      }
+    },
+    {
+      "name": "Linux-legacy-ccache",
+      "displayName": "Linux configuration using Qt5 and ccache",
+      "inherits": ["dev", "ccache", "Linux-legacy"]
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "Linux",
+      "displayName": "Linux build using Qt6",
+      "configurePreset": "Linux"
+    },
+    {
+      "name": "Linux-ccache",
+      "displayName": "Linux build using Qt6 and ccache",
+      "configurePreset": "Linux-ccache"
+    },
+    {
+      "name": "Linux-coverage",
+      "displayName": "Linux build using Qt6, ccache and code coverage",
+      "configurePreset": "Linux-coverage"
+    },
+    {
+      "name": "Linux-legacy",
+      "displayName": "Linux build using Qt5",
+      "configurePreset": "Linux-legacy"
+    },
+    {
+      "name": "Linux-legacy-ccache",
+      "displayName": "Linux build using Qt5 and ccache",
+      "configurePreset": "Linux-legacy-ccache"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "Linux",
+      "displayName": "Linux tests using Qt6",
+      "configurePreset": "Linux",
+      "inherits": ["default"]
+    },
+    {
+      "name": "Linux-ccache",
+      "displayName": "Linux tests using Qt6 and ccache",
+      "configurePreset": "Linux-ccache",
+      "inherits": ["default"]
+    },
+    {
+      "name": "Linux-coverage",
+      "displayName": "Linux tests using Qt6, ccache and code coverage",
+      "configurePreset": "Linux-coverage",
+      "inherits": ["default"]
+    },
+    {
+      "name": "Linux-legacy",
+      "displayName": "Linux tests using Qt5",
+      "configurePreset": "Linux-legacy",
+      "inherits": ["default"]
+    },
+    {
+      "name": "Linux-legacy-ccache",
+      "displayName": "Linux tests using Qt5 and ccache",
+      "configurePreset": "Linux-legacy-ccache",
+      "inherits": ["default"]
+    }
+  ],
+  "packagePresets": [
+    {
+      "name": "Linux",
+      "displayName": "Linux package using Qt6",
+      "configurePreset": "Linux"
+    },
+    {
+      "name": "Linux-ccache",
+      "displayName": "Linux package using Qt6 and ccache",
+      "configurePreset": "Linux-ccache"
+    },
+    {
+      "name": "Linux-coverage",
+      "displayName": "Linux package using Qt6, ccache and code coverage",
+      "configurePreset": "Linux-coverage"
+    },
+    {
+      "name": "Linux-legacy",
+      "displayName": "Linux package using Qt5",
+      "configurePreset": "Linux-legacy"
+    },
+    {
+      "name": "Linux-legacy-ccache",
+      "displayName": "Linux package using Qt5 and ccache",
+      "configurePreset": "Linux-legacy-ccache"
+    }
+  ],
+  "workflowPresets": [
+    {
+      "name": "Linux",
+      "displayName": "Linux workflow using Qt6",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "Linux"
+        },
+        {
+          "type": "build",
+          "name": "Linux"
+        },
+        {
+          "type": "test",
+          "name": "Linux"
+        },
+        {
+          "type": "package",
+          "name": "Linux"
+        }
+      ]
+    },
+    {
+      "name": "Linux-ccache",
+      "displayName": "Linux workflow using Qt6 and ccache",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "Linux-ccache"
+        },
+        {
+          "type": "build",
+          "name": "Linux-ccache"
+        },
+        {
+          "type": "test",
+          "name": "Linux-ccache"
+        },
+        {
+          "type": "package",
+          "name": "Linux-ccache"
+        }
+      ]
+    },
+    {
+      "name": "Linux-CI",
+      "displayName": "Linux workflow using Qt6 and ccache for CI",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "Linux-ccache"
+        },
+        {
+          "type": "build",
+          "name": "Linux-ccache"
+        },
+        {
+          "type": "package",
+          "name": "Linux-ccache"
+        }
+      ]
+    },
+    {
+      "name": "Linux-coverage",
+      "displayName": "Linux workflow using Qt6, ccache and code coverage",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "Linux-coverage"
+        },
+        {
+          "type": "build",
+          "name": "Linux-coverage"
+        },
+        {
+          "type": "package",
+          "name": "Linux-coverage"
+        }
+      ]
+    },
+    {
+      "name": "Linux-legacy",
+      "displayName": "Linux workflow using Qt5",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "Linux-legacy"
+        },
+        {
+          "type": "build",
+          "name": "Linux-legacy"
+        },
+        {
+          "type": "test",
+          "name": "Linux-legacy"
+        },
+        {
+          "type": "package",
+          "name": "Linux-legacy"
+        }
+      ]
+    },
+    {
+      "name": "Linux-legacy-ccache",
+      "displayName": "Linux workflow using Qt5 and ccache",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "Linux-legacy-ccache"
+        },
+        {
+          "type": "build",
+          "name": "Linux-legacy-ccache"
+        },
+        {
+          "type": "test",
+          "name": "Linux-legacy-ccache"
+        },
+        {
+          "type": "package",
+          "name": "Linux-legacy-ccache"
+        }
+      ]
+    },
+    {
+      "name": "Linux-legacy-CI",
+      "displayName": "Linux workflow using Qt5 and ccache for CI",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "Linux-legacy-ccache"
+        },
+        {
+          "type": "build",
+          "name": "Linux-legacy-ccache"
+        },
+        {
+          "type": "package",
+          "name": "Linux-legacy-ccache"
+        }
+      ]
+    }
+  ]
+}

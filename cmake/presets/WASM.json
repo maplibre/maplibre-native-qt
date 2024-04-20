@@ -1,0 +1,84 @@
+{
+  "version": 6,
+  "include": ["common.json"],
+  "configurePresets": [
+    {
+      "name": "WASM",
+      "displayName": "WASM configuration using Qt6",
+      "generator": "Ninja",
+      "binaryDir": "${sourceParentDir}/build/qt6-WASM",
+      "toolchainFile": "$penv{Qt6_DIR}/lib/cmake/Qt6/qt.toolchain.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "MLN_QT_WITH_LOCATION": "OFF"
+      }
+    },
+    {
+      "name": "WASM-ccache",
+      "displayName": "WASM configuration using Qt6 and ccache",
+      "inherits": ["dev", "ccache", "WASM"]
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "WASM",
+      "displayName": "WASM build using Qt6",
+      "configurePreset": "WASM"
+    },
+    {
+      "name": "WASM-ccache",
+      "displayName": "WASM build using Qt6 and ccache",
+      "configurePreset": "WASM-ccache"
+    }
+  ],
+  "packagePresets": [
+    {
+      "name": "WASM",
+      "displayName": "WASM package using Qt6",
+      "configurePreset": "WASM"
+    },
+    {
+      "name": "WASM-ccache",
+      "displayName": "WASM package using Qt6 and ccache",
+      "configurePreset": "WASM-ccache"
+    }
+  ],
+  "workflowPresets": [
+    {
+      "name": "WASM",
+      "displayName": "WASM workflow using Qt6",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "WASM"
+        },
+        {
+          "type": "build",
+          "name": "WASM"
+        },
+        {
+          "type": "package",
+          "name": "WASM"
+        }
+      ]
+    },
+    {
+      "name": "WASM-ccache",
+      "displayName": "WASM workflow using Qt6 and ccache",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "WASM-ccache"
+        },
+        {
+          "type": "build",
+          "name": "WASM-ccache"
+        },
+        {
+          "type": "package",
+          "name": "WASM-ccache"
+        }
+      ]
+    }
+  ]
+}
