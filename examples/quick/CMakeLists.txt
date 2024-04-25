@@ -49,6 +49,7 @@ install(
     TARGETS QMapLibreExampleQuick
     BUNDLE DESTINATION .
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
 qt_generate_deploy_qml_app_script(
@@ -77,3 +78,13 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Android")
 
     add_android_openssl_libraries(QMapLibreExampleQuick)
 endif()
+
+# Packaging
+set(CPACK_GENERATOR TBZ2)
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    set(CPACK_SYSTEM_NAME "macOS")
+else()
+    set(CPACK_SYSTEM_NAME "${CMAKE_SYSTEM_NAME}")
+endif()
+
+include(CPack)

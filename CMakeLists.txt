@@ -8,7 +8,7 @@ message(STATUS "Version ${MLN_QT_VERSION}")
 
 # Project definition
 project(
-    MapLibreNativeQt
+    maplibre-native-qt
     VERSION "${MLN_QT_VERSION}"
     DESCRIPTION "MapLibre Native Qt Bindings"
     LANGUAGES CXX
@@ -39,7 +39,11 @@ option(MLN_QT_WITH_COVERAGE "Build QMapLibre with code coverage collection" OFF)
 option(MLN_QT_WITH_CLANG_TIDY "Build QMapLibre with clang-tidy checks enabled" OFF)
 
 # Find Qt
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
+if("${QT_VERSION_MAJOR}" STREQUAL "")
+    find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
+else()
+    find_package(Qt${QT_VERSION_MAJOR} NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
+endif()
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Gui Network REQUIRED) # main dependencies
 if(NOT MLN_QT_WITH_INTERNAL_SQLITE)
     find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Sql REQUIRED)
@@ -85,7 +89,7 @@ endif()
 if(ANDROID)
     message(STATUS "Building for ABI: ${ANDROID_ABI}")
     set(CMAKE_STATIC_LIBRARY_SUFFIX "_${ANDROID_ABI}.a")
-elseif(CMAKE_SYSTEM_NAME STREQUAL iOS)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
     set(CMAKE_DEBUG_POSTFIX "_debug")
 elseif(MSVC OR CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set(CMAKE_DEBUG_POSTFIX "d")
@@ -116,3 +120,25 @@ if(MLN_QT_WITH_COVERAGE)
     include(cmake/coverage.cmake)
     setup_target_for_coverage(coverage ${CMAKE_CTEST_COMMAND} "${CMAKE_BINARY_DIR}/coverage" "-V")
 endif()
+
+# Packaging
+set(CPACK_GENERATOR TBZ2)
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    set(CPACK_SYSTEM_NAME "macOS")
+else()
+    set(CPACK_SYSTEM_NAME "${CMAKE_SYSTEM_NAME}")
+endif()
+set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}_${PROJECT_VERSION}_Qt${QT_VERSION}_${CPACK_SYSTEM_NAME}")
+set(CPACK_SOURCE_GENERATOR TBZ2)
+set(CPACK_SOURCE_IGNORE_FILES
+    "/docs/"
+    "/geometry-test-data/"
+    "\\\\.clang"
+    "\\\\.DS_Store"
+    "\\\\.git"
+    "\\\\.mason"
+    "\\\\.pre-commit-config.yaml"
+    "codecov.yml"
+)
+
+include(CPack)

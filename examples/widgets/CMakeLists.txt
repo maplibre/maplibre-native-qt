@@ -54,3 +54,13 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
 endif()
+
+# Packaging
+set(CPACK_GENERATOR TBZ2)
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    set(CPACK_SYSTEM_NAME "macOS")
+else()
+    set(CPACK_SYSTEM_NAME "${CMAKE_SYSTEM_NAME}")
+endif()
+
+include(CPack)

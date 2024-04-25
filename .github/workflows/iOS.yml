@@ -39,18 +39,18 @@ concurrency:
 
 jobs:
   build:
-    name: Build QMapLibre for iOS (Qt${{ matrix.qt_version}})
+    name: Build (Qt${{ matrix.qt_version}})
     runs-on: macos-14
     strategy:
       matrix:
         include:
           - qt_version: 6.5.3
-            deployment_target: 14.0
+            preset: iOS-ccache
           - qt_version: 6.6.2
-            deployment_target: 14.0
+            preset: iOS-ccache
 
     env:
-      DEPLOYMENT_TARGET: ${{ matrix.deployment_target }}
+      PRESET: ${{ matrix.preset }}
 
     steps:
       - name: Checkout
@@ -90,38 +90,23 @@ jobs:
       - name: Set up ccache
         uses: hendrikmuhs/ccache-action@v1
         with:
-          key: iOS_QMapLibre_${{ matrix.qt_version }}
+          key: iOS_${{ matrix.qt_version }}
           max-size: 200M
 
-      - name: Build QMapLibre
+      - name: Build
+        working-directory: source
         run: |
-          mkdir build && cd build
-          qt-cmake ../source/ \
-            -G"Ninja Multi-Config" \
-            -DCMAKE_CONFIGURATION_TYPES="Release;Debug" \
-            -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
-            -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
-            -DCMAKE_INSTALL_PREFIX="../install" \
-            -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
-            -DCMAKE_OSX_DEPLOYMENT_TARGET="${DEPLOYMENT_TARGET}" \
-            -DQT_HOST_PATH="$(readlink -f "$Qt6_DIR/../macos")"
-          ninja
-          ninja install
-
-      - name: Compress installation
-        run: |
-          pushd install
-          tar cjvf ../QMapLibre_iOS.tar.bz2 *
-          popd
+          export QT_HOST_PATH="$(readlink -f "$Qt6_DIR/../macos")"
+          cmake --workflow --preset ${PRESET}
 
       - name: Upload installation
         uses: actions/upload-artifact@v4
         with:
-          name: QMapLibre_iOS_${{ matrix.qt_version }}
-          path: QMapLibre_iOS.tar.bz2
+          name: iOS_${{ matrix.qt_version }}
+          path: build/qt6-iOS/maplibre-native-qt_*_iOS.tar.bz2
 
   release:
-    name: Release QMapLibre
+    name: Release
     if: github.ref_type == 'tag'
     runs-on: macos-14
     needs: build
@@ -135,18 +120,11 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: QMapLibre_iOS_${{ matrix.qt_version }}
-
-      - name: Make tarball
-        env:
-          TAG_NAME: ${{ github.ref_name }}
-          QT_VERSION: ${{ matrix.qt_version }}
-        run: |
-          mv QMapLibre_iOS.tar.bz2 QMapLibre_${TAG_NAME}_Qt${QT_VERSION}_iOS.tar.bz2
+          name: iOS_${{ matrix.qt_version }}
 
       - name: Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: QMapLibre_${{ github.ref_name }}_Qt${{ matrix.qt_version }}_iOS.tar.bz2
+          artifacts: maplibre-native-qt_${{ github.ref_name }}_Qt${{ matrix.qt_version }}_iOS.tar.bz2
           allowUpdates: true
           draft: true

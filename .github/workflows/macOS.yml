@@ -39,7 +39,7 @@ concurrency:
 
 jobs:
   build-and-test:
-    name: Build QMapLibre for macOS (Qt${{ matrix.qt_version}}, ${{ matrix.compiler }})
+    name: Build (Qt${{ matrix.qt_version}}, ${{ matrix.compiler }})
     runs-on: ${{ matrix.runs_on }}
     strategy:
       matrix:
@@ -47,36 +47,31 @@ jobs:
           - qt_series: 5
             qt_version: 5.15.2
             qt_modules: ""
+            preset: macOS-legacy-ccache
             compiler: default
-            deployment_target: 10.13
-            deployment_arch: x86_64
             runs_on: macos-13
           - qt_series: 6
             qt_version: 6.5.3
             qt_modules: qtlocation qtpositioning
+            preset: macOS-ccache
             compiler: default
-            deployment_target: 11.0
-            deployment_arch: x86_64
             runs_on: macos-14
           - qt_series: 6
             qt_version: 6.6.2
             qt_modules: qtlocation qtpositioning
+            preset: macOS-ccache
             compiler: default
-            deployment_target: 11.0
-            deployment_arch: x86_64;arm64
             runs_on: macos-14
           - qt_series: 6
             qt_version: 6.6.2
             qt_modules: qtlocation qtpositioning
+            preset: macOS-clang-tidy
             compiler: llvm@17
-            deployment_target: 11.0
-            deployment_arch: arm64
             runs_on: macos-14
 
     env:
       COMPILER: ${{ matrix.compiler }}
-      DEPLOYMENT_TARGET: ${{ matrix.deployment_target }}
-      DEPLOYMENT_ARCH: ${{ matrix.deployment_arch }}
+      PRESET: ${{ matrix.preset }}
 
     steps:
       - name: Checkout
@@ -118,109 +113,50 @@ jobs:
       - name: Set up ccache
         uses: hendrikmuhs/ccache-action@v1
         with:
-          key: macOS_QMapLibre_${{ matrix.qt_version }}_${{ matrix.compiler }}
+          key: macOS_${{ matrix.qt_version }}_${{ matrix.compiler }}
           max-size: 200M
 
-      - name: Build QMapLibre (Qt5)
-        if: matrix.qt_series == 5
+      - name: Build
+        working-directory: source
         run: |
-          mkdir build && cd build
-          cmake ../source/ \
-            -G Ninja \
-            -DCMAKE_BUILD_TYPE="RelWithDebInfo" \
-            -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
-            -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
-            -DCMAKE_INSTALL_PREFIX="../install" \
-            -DCMAKE_OSX_DEPLOYMENT_TARGET="${DEPLOYMENT_TARGET}"
-          ninja
-          ninja test
-          ninja install
+          cmake --workflow --preset ${PRESET}
 
-      - name: Build QMapLibre (Qt 6)
-        if: matrix.qt_series == 6
-        env:
-          MLN_QT_WITH_CLANG_TIDY: ${{ matrix.compiler != 'default' }}
+      - name: Install
         run: |
-          mkdir build && cd build
-          qt-cmake ../source/ \
-            -G Ninja \
-            -DCMAKE_BUILD_TYPE="RelWithDebInfo" \
-            -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
-            -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
-            -DCMAKE_INSTALL_PREFIX="../install" \
-            -DCMAKE_OSX_DEPLOYMENT_TARGET="${DEPLOYMENT_TARGET}" \
-            -DCMAKE_OSX_ARCHITECTURES="${DEPLOYMENT_ARCH}" \
-            -DMLN_QT_WITH_CLANG_TIDY="${MLN_QT_WITH_CLANG_TIDY}"
-          ninja
-          ninja test
-          ninja install
+          mkdir install && cd install
+          tar xf ../build/qt${{ matrix.qt_series }}-macOS/maplibre-native-qt_*.tar.bz2
+          mv maplibre-native-qt_* maplibre-native-qt
 
-      - name: Build QtQuick Example (Qt 6)
-        if: matrix.qt_series == 6
-        run: |
-          export PREFIX_PATH="$(pwd)/install"
-          mkdir build-example-quick && cd build-example-quick
-          qt-cmake ../source/examples/quick/ \
-            -G Ninja \
-            -DCMAKE_BUILD_TYPE="RelWithDebInfo" \
-            -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
-            -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
-            -DCMAKE_INSTALL_PREFIX="../install-example-quick" \
-            -DCMAKE_OSX_DEPLOYMENT_TARGET="${DEPLOYMENT_TARGET}" \
-            -DCMAKE_OSX_ARCHITECTURES="${DEPLOYMENT_ARCH}" \
-            -DCMAKE_PREFIX_PATH="$PREFIX_PATH"
-          ninja
-          ninja install
-
-      - name: Build QtWidgets Example (Qt 6)
-        if: matrix.qt_series == 6
-        run: |
-          export PREFIX_PATH="$(pwd)/install"
-          mkdir build-example-widgets && cd build-example-widgets
-          qt-cmake ../source/examples/widgets/ \
-            -G Ninja \
-            -DCMAKE_BUILD_TYPE="RelWithDebInfo" \
-            -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
-            -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
-            -DCMAKE_INSTALL_PREFIX="../install-example-widgets" \
-            -DCMAKE_OSX_DEPLOYMENT_TARGET="${DEPLOYMENT_TARGET}" \
-            -DCMAKE_OSX_ARCHITECTURES="${DEPLOYMENT_ARCH}" \
-            -DCMAKE_PREFIX_PATH="$PREFIX_PATH"
-          ninja
-          ninja install
-
-      - name: Compress installation
-        if: matrix.compiler == 'default'
-        run: |
-          pushd install
-          tar cjvf ../QMapLibre_macOS.tar.bz2 *
-          popd
-
-      - name: Compress examples
+      - name: Build QtQuick Example
         if: matrix.qt_series == 6 && matrix.compiler == 'default'
+        working-directory: source/examples/quick
         run: |
-          mkdir examples && pushd examples
-          cp -a ../install-example-quick/QMapLibreExampleQuick.app .
-          cp -a ../install-example-widgets/QMapLibreExampleWidgets.app .
-          tar cjvf ../QMapLibre_macOS_examples.tar.bz2 *
-          popd
+          export QMapLibre_DIR="$GITHUB_WORKSPACE/install/maplibre-native-qt"
+          cmake --workflow --preset default
+
+      - name: Build QtWidgets Example
+        if: matrix.qt_series == 6 && matrix.compiler == 'default'
+        working-directory: source/examples/widgets
+        run: |
+          export QMapLibre_DIR="$GITHUB_WORKSPACE/install/maplibre-native-qt"
+          cmake --workflow --preset default
 
       - name: Upload installation
         if: matrix.compiler == 'default'
         uses: actions/upload-artifact@v4
         with:
-          name: QMapLibre_macOS_${{ matrix.qt_version }}
-          path: QMapLibre_macOS.tar.bz2
+          name: macOS_${{ matrix.qt_version }}
+          path: build/qt${{ matrix.qt_series }}-macOS/maplibre-native-qt_*.tar.bz2
 
       - name: Upload examples
         if: matrix.qt_series == 6 && matrix.compiler == 'default'
         uses: actions/upload-artifact@v4
         with:
-          name: QMapLibre_macOS_${{ matrix.qt_version }}_examples
-          path: QMapLibre_macOS_examples.tar.bz2
+          name: macOS_${{ matrix.qt_version }}_examples
+          path: build/qt${{ matrix.qt_series }}-example-*/*.tar.bz2
 
   release:
-    name: Release QMapLibre
+    name: Release
     if: github.ref_type == 'tag'
     runs-on: macos-14
     needs: build-and-test
@@ -234,18 +170,11 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: QMapLibre_macOS_${{ matrix.qt_version }}
-
-      - name: Make tarball
-        env:
-          TAG_NAME: ${{ github.ref_name }}
-          QT_VERSION: ${{ matrix.qt_version }}
-        run: |
-          mv QMapLibre_macOS.tar.bz2 QMapLibre_${TAG_NAME}_Qt${QT_VERSION}_macOS.tar.bz2
+          name: macOS_${{ matrix.qt_version }}
 
       - name: Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: QMapLibre_${{ github.ref_name }}_Qt${{ matrix.qt_version }}_macOS.tar.bz2
+          artifacts: maplibre-native-qt_${{ github.ref_name }}_Qt${{ matrix.qt_version }}_macOS.tar.bz2
           allowUpdates: true
           draft: true

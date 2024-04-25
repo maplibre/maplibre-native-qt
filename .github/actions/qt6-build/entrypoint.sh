@@ -7,38 +7,24 @@ export CCACHE_DIR="$GITHUB_WORKSPACE/.ccache"
 export PATH="$Qt6_DIR/bin:$PATH"
 qmake --version
 
-mkdir build && cd build
-qt-cmake ../source/ \
-  -G Ninja \
-  -DCMAKE_BUILD_TYPE="Release" \
-  -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
-  -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
-  -DCMAKE_INSTALL_PREFIX="../install"
-ninja
-# ninja test
-ninja install
-cd ..
+# Main project
+pushd source
+cmake --workflow --preset Linux-CI
+popd
 
-export PREFIX_PATH="$(pwd)/install"
+mkdir install && pushd install
+tar xf ../build/qt6-Linux/maplibre-native-qt_*.tar.bz2
+mv maplibre-native-qt_* maplibre-native-qt
+popd
+
+export QMapLibre_DIR="$(pwd)/install/maplibre-native-qt"
 
 # QtQuick example
-mkdir build-example-quick && cd build-example-quick
-qt-cmake ../source/examples/quick/ \
-  -G Ninja \
-  -DCMAKE_BUILD_TYPE="Release" \
-  -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
-  -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
-  -DCMAKE_PREFIX_PATH="$PREFIX_PATH"
-ninja
-cd ..
+pushd source/examples/quick
+cmake --workflow --preset default
+popd
 
 # QtWidgets example
-mkdir build-example-widgets && cd build-example-widgets
-qt-cmake ../source/examples/widgets/ \
-  -G Ninja \
-  -DCMAKE_BUILD_TYPE="Release" \
-  -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
-  -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
-  -DCMAKE_PREFIX_PATH="$PREFIX_PATH"
-ninja
-cd ..
+pushd source/examples/widgets
+cmake --workflow --preset default
+popd

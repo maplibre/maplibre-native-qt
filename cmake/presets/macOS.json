@@ -1,0 +1,246 @@
+{
+  "version": 6,
+  "include": ["common.json"],
+  "configurePresets": [
+    {
+      "name": "macOS",
+      "displayName": "macOS configuration using Qt6",
+      "generator": "Ninja",
+      "binaryDir": "${sourceParentDir}/build/qt6-macOS",
+      "toolchainFile": "$penv{Qt6_DIR}/lib/cmake/Qt6/qt.toolchain.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_OSX_ARCHITECTURES": "x86_64;arm64",
+        "CMAKE_OSX_DEPLOYMENT_TARGET": "11.0"
+      }
+    },
+    {
+      "name": "macOS-ccache",
+      "displayName": "macOS configuration using Qt6 and ccache",
+      "inherits": ["dev", "ccache", "macOS"]
+    },
+    {
+      "name": "macOS-clang-tidy",
+      "displayName": "macOS configuration using Qt6, ccache and clang-tidy",
+      "inherits": ["macOS-ccache"],
+      "cacheVariables": {
+        "CMAKE_OSX_ARCHITECTURES": "arm64",
+        "MLN_QT_WITH_CLANG_TIDY": "ON"
+      }
+    },
+    {
+      "name": "macOS-legacy",
+      "displayName": "macOS configuration using Qt5",
+      "generator": "Ninja",
+      "binaryDir": "${sourceParentDir}/build/qt5-macOS",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_OSX_ARCHITECTURES": "x86_64",
+        "CMAKE_OSX_DEPLOYMENT_TARGET": "10.13"
+      }
+    },
+    {
+      "name": "macOS-legacy-ccache",
+      "displayName": "macOS configuration using Qt5 and ccache",
+      "inherits": ["dev", "ccache", "macOS-legacy"]
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "macOS",
+      "displayName": "macOS build using Qt6",
+      "configurePreset": "macOS"
+    },
+    {
+      "name": "macOS-ccache",
+      "displayName": "macOS build using Qt6 and ccache",
+      "configurePreset": "macOS-ccache"
+    },
+    {
+      "name": "macOS-clang-tidy",
+      "displayName": "macOS build using Qt6, ccache and clang-tidy",
+      "configurePreset": "macOS-clang-tidy"
+    },
+    {
+      "name": "macOS-legacy",
+      "displayName": "macOS build using Qt5",
+      "configurePreset": "macOS-legacy"
+    },
+    {
+      "name": "macOS-legacy-ccache",
+      "displayName": "macOS build using Qt5 and ccache",
+      "configurePreset": "macOS-legacy-ccache"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "macOS",
+      "displayName": "macOS tests using Qt6",
+      "configurePreset": "macOS",
+      "inherits": ["default"]
+    },
+    {
+      "name": "macOS-ccache",
+      "displayName": "macOS tests using Qt6 and ccache",
+      "configurePreset": "macOS-ccache",
+      "inherits": ["default"]
+    },
+    {
+      "name": "macOS-clang-tidy",
+      "displayName": "macOS tests using Qt6, ccache and clang-tidy",
+      "configurePreset": "macOS-clang-tidy",
+      "inherits": ["default"]
+    },
+    {
+      "name": "macOS-legacy",
+      "displayName": "macOS tests using Qt5",
+      "configurePreset": "macOS-legacy",
+      "inherits": ["default"]
+    },
+    {
+      "name": "macOS-legacy-ccache",
+      "displayName": "macOS tests using Qt5 and ccache",
+      "configurePreset": "macOS-legacy-ccache",
+      "inherits": ["default"]
+    }
+  ],
+  "packagePresets": [
+    {
+      "name": "macOS",
+      "displayName": "macOS package using Qt6",
+      "configurePreset": "macOS"
+    },
+    {
+      "name": "macOS-ccache",
+      "displayName": "macOS package using Qt6 and ccache",
+      "configurePreset": "macOS-ccache"
+    },
+    {
+      "name": "macOS-clang-tidy",
+      "displayName": "macOS package using Qt6, ccache and clang-tidy",
+      "configurePreset": "macOS-clang-tidy"
+    },
+    {
+      "name": "macOS-legacy",
+      "displayName": "macOS package using Qt5",
+      "configurePreset": "macOS-legacy"
+    },
+    {
+      "name": "macOS-legacy-ccache",
+      "displayName": "macOS package using Qt5 and ccache",
+      "configurePreset": "macOS-legacy-ccache"
+    }
+  ],
+  "workflowPresets": [
+    {
+      "name": "macOS",
+      "displayName": "macOS workflow using Qt6",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "macOS"
+        },
+        {
+          "type": "build",
+          "name": "macOS"
+        },
+        {
+          "type": "test",
+          "name": "macOS"
+        },
+        {
+          "type": "package",
+          "name": "macOS"
+        }
+      ]
+    },
+    {
+      "name": "macOS-ccache",
+      "displayName": "macOS workflow using Qt6 and ccache",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "macOS-ccache"
+        },
+        {
+          "type": "build",
+          "name": "macOS-ccache"
+        },
+        {
+          "type": "test",
+          "name": "macOS-ccache"
+        },
+        {
+          "type": "package",
+          "name": "macOS-ccache"
+        }
+      ]
+    },
+    {
+      "name": "macOS-clang-tidy",
+      "displayName": "macOS workflow using Qt6, ccache and clang-tidy",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "macOS-clang-tidy"
+        },
+        {
+          "type": "build",
+          "name": "macOS-clang-tidy"
+        },
+        {
+          "type": "test",
+          "name": "macOS-clang-tidy"
+        },
+        {
+          "type": "package",
+          "name": "macOS-clang-tidy"
+        }
+      ]
+    },
+    {
+      "name": "macOS-legacy",
+      "displayName": "macOS workflow using Qt5",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "macOS-legacy"
+        },
+        {
+          "type": "build",
+          "name": "macOS-legacy"
+        },
+        {
+          "type": "test",
+          "name": "macOS-legacy"
+        },
+        {
+          "type": "package",
+          "name": "macOS-legacy"
+        }
+      ]
+    },
+    {
+      "name": "macOS-legacy-ccache",
+      "displayName": "macOS workflow using Qt5 and ccache",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "macOS-legacy-ccache"
+        },
+        {
+          "type": "build",
+          "name": "macOS-legacy-ccache"
+        },
+        {
+          "type": "test",
+          "name": "macOS-legacy-ccache"
+        },
+        {
+          "type": "package",
+          "name": "macOS-legacy-ccache"
+        }
+      ]
+    }
+  ]
+}

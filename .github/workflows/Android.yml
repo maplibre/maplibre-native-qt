@@ -39,7 +39,7 @@ concurrency:
 
 jobs:
   build:
-    name: Build QMapLibre for Android (Qt${{ matrix.qt_version}}, ${{ matrix.abi }})
+    name: Build (Qt${{ matrix.qt_version}}, ${{ matrix.abi }})
     runs-on: ubuntu-22.04
     strategy:
       matrix:
@@ -104,11 +104,11 @@ jobs:
           chmod +x "$Qt6_DIR/bin/qt-cmake"
           sed -i "s/C:\/Qt\/Qt-${QT_VERSION}/\/usr\/local\/Qt-${QT_VERSION}/g" "$Qt6_DIR/lib/cmake/Qt6BuildInternals/QtBuildInternalsExtra.cmake"
 
-      - name: Set up OpenJDK 11
+      - name: Set up OpenJDK 17
         uses: actions/setup-java@v4
         with:
           distribution: adopt
-          java-version: 11
+          java-version: 17
 
       - name: Setup ninja
         uses: seanmiddleditch/gha-setup-ninja@v4
@@ -116,38 +116,25 @@ jobs:
       - name: Set up ccache
         uses: hendrikmuhs/ccache-action@v1
         with:
-          key: Android_QMapLibre_${{ matrix.qt_version }}_${{ matrix.abi }}
+          key: Android_${{ matrix.qt_version }}_${{ matrix.abi }}
           max-size: 200M
 
-      - name: Build QMapLibre
+      - name: Build
         env:
           ANDROID_ABI: ${{ matrix.abi }}
+        working-directory: source
         run: |
-          mkdir build && cd build
-          qt-cmake ../source/ \
-            -G Ninja \
-            -DCMAKE_BUILD_TYPE="RelWithDebInfo" \
-            -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
-            -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
-            -DCMAKE_INSTALL_PREFIX="../install" \
-            -DQT_HOST_PATH="$(readlink -f "$Qt6_DIR/../gcc_64")"
-          ninja
-          ninja install
-
-      - name: Compress installation
-        run: |
-          pushd install
-          tar cjvf ../QMapLibre_Android.tar.bz2 *
-          popd
+          export QT_HOST_PATH="$(readlink -f "$Qt6_DIR/../gcc_64")"
+          cmake --workflow --preset Android-ccache
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: QMapLibre_Android_${{ matrix.qt_version }}_${{ matrix.abi }}
-          path: QMapLibre_Android.tar.bz2
+          name: Android_${{ matrix.qt_version }}_${{ matrix.abi }}
+          path: build/qt6-Android/maplibre-native-qt_*_Android.tar.bz2
 
   combine:
-    name: Combine QMapLibre
+    name: Combine
     runs-on: ubuntu-22.04
     needs: build
     strategy:
@@ -158,50 +145,63 @@ jobs:
       - name: Download artifacts for x86
         uses: actions/download-artifact@v4
         with:
-          name: QMapLibre_Android_${{ matrix.qt_version}}_x86
-          path: x86
+          name: Android_${{ matrix.qt_version}}_x86
+          path: install/x86
 
       - name: Download artifacts for x86_64
         uses: actions/download-artifact@v4
         with:
-          name: QMapLibre_Android_${{ matrix.qt_version}}_x86_64
-          path: x86_64
+          name: Android_${{ matrix.qt_version}}_x86_64
+          path: install/x86_64
 
       - name: Download artifacts for armeabi-v7a
         uses: actions/download-artifact@v4
         with:
-          name: QMapLibre_Android_${{ matrix.qt_version}}_armeabi-v7a
-          path: armeabi-v7a
+          name: Android_${{ matrix.qt_version}}_armeabi-v7a
+          path: install/armeabi-v7a
 
       - name: Download artifacts for arm64-v8a
         uses: actions/download-artifact@v4
         with:
-          name: QMapLibre_Android_${{ matrix.qt_version}}_arm64-v8a
-          path: arm64-v8a
+          name: Android_${{ matrix.qt_version}}_arm64-v8a
+          path: install/arm64-v8a
 
       - name: Combine artifacts
         run: |
-          mkdir install && pushd install
-          tar xf ../x86/QMapLibre_Android.tar.bz2
-          tar xf ../x86_64/QMapLibre_Android.tar.bz2
-          tar xf ../armeabi-v7a/QMapLibre_Android.tar.bz2
-          tar xf ../arm64-v8a/QMapLibre_Android.tar.bz2
+          pushd install
+
+          tar xf x86/*.tar.bz2 -C x86/
+          mv x86/maplibre-native-qt_*/* x86/
+          rm -r x86/maplibre-native-qt_*
+
+          tar xf x86_64/*.tar.bz2 -C x86_64/
+          mv x86_64/maplibre-native-qt_*/* x86_64/
+          rm -r x86_64/maplibre-native-qt_*
+
+          tar xf armeabi-v7a/*.tar.bz2 -C armeabi-v7a/
+          mv armeabi-v7a/maplibre-native-qt_*/* armeabi-v7a/
+          rm -r armeabi-v7a/maplibre-native-qt_*
+
+          tar xf arm64-v8a/*.tar.bz2 -C arm64-v8a/
+          mv arm64-v8a/maplibre-native-qt_*/* arm64-v8a/
+          rm -r arm64-v8a/maplibre-native-qt_*
+
           popd
 
       - name: Create artifacts
         run: |
           pushd install
-          tar cjvf ../QMapLibre_Android.tar.bz2 *
+          tar cjvf ../maplibre-native-qt_Android.tar.bz2 *
           popd
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: QMapLibre_Android_${{ matrix.qt_version}}
-          path: QMapLibre_Android.tar.bz2
+          name: Android_${{ matrix.qt_version}}
+          path: maplibre-native-qt_Android.tar.bz2
 
   release:
-    name: Release QMapLibre
+    name: Release
     if: github.ref_type == 'tag'
     runs-on: ubuntu-22.04
     needs: combine
@@ -215,18 +215,18 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: QMapLibre_Android_${{ matrix.qt_version }}
+          name: Android_${{ matrix.qt_version }}
 
-      - name: Make tarball
+      - name: Rename tarball
         env:
           TAG_NAME: ${{ github.ref_name }}
           QT_VERSION: ${{ matrix.qt_version }}
         run: |
-          mv QMapLibre_Android.tar.bz2 QMapLibre_${TAG_NAME}_Qt${QT_VERSION}_Android.tar.bz2
+          mv maplibre-native-qt_Android.tar.bz2 maplibre-native-qt_${TAG_NAME}_Qt${QT_VERSION}_Android.tar.bz2
 
       - name: Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: QMapLibre_${{ github.ref_name }}_Qt${{ matrix.qt_version }}_Android.tar.bz2
+          artifacts: maplibre-native-qt_${{ github.ref_name }}_Qt${{ matrix.qt_version }}_Android.tar.bz2
           allowUpdates: true
           draft: true
