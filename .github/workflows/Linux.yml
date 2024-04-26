@@ -53,12 +53,17 @@ jobs:
             preset: Linux-CI
             compiler: default
           - qt_series: 6
-            qt_version: 6.6.2
+            qt_version: 6.6.3
             qt_modules: qtlocation qtpositioning
             preset: Linux-CI
             compiler: default
           - qt_series: 6
-            qt_version: 6.6.2
+            qt_version: 6.7.0
+            qt_modules: qtlocation qtpositioning
+            preset: Linux-CI
+            compiler: default
+          - qt_series: 6
+            qt_version: 6.7.0
             qt_modules: qtlocation qtpositioning
             preset: Linux-coverage
             compiler: gcc-13
@@ -130,7 +135,6 @@ jobs:
           dir: ${{ github.workspace }}
           target: desktop
           modules: ${{ matrix.qt_modules }}
-          extra: --base https://mirrors.ocf.berkeley.edu/qt/
 
       - name: Setup ninja
         if: matrix.compiler != 'default'
@@ -219,7 +223,7 @@ jobs:
       contents: write
     strategy:
       matrix:
-        qt_version: [5.15.2, 6.5.3, 6.6.2]
+        qt_version: [5.15.2, 6.5.3, 6.6.3, 6.7.0]
 
     steps:
       - name: Download artifacts
