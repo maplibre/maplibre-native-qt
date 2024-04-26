@@ -46,7 +46,9 @@ jobs:
         include:
           - qt_version: 6.5.3
             preset: iOS-ccache
-          - qt_version: 6.6.2
+          - qt_version: 6.6.3
+            preset: iOS-ccache
+          - qt_version: 6.7.0
             preset: iOS-ccache
 
     env:
@@ -73,7 +75,6 @@ jobs:
           target: desktop
           modules: qtlocation qtpositioning
           set-env: false
-          extra: --base https://mirrors.ocf.berkeley.edu/qt/
 
       - name: Download Qt (iOS)
         uses: jurplel/install-qt-action@v3
@@ -82,7 +83,6 @@ jobs:
           version: ${{ matrix.qt_version }}
           target: ios
           modules: qtlocation qtpositioning
-          extra: --base https://mirrors.ocf.berkeley.edu/qt/
 
       - name: Setup ninja
         uses: seanmiddleditch/gha-setup-ninja@v4
@@ -114,7 +114,7 @@ jobs:
       contents: write
     strategy:
       matrix:
-        qt_version: [6.5.3, 6.6.2]
+        qt_version: [6.5.3, 6.6.3, 6.7.0]
 
     steps:
       - name: Download artifacts

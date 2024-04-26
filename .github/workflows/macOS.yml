@@ -57,16 +57,22 @@ jobs:
             compiler: default
             runs_on: macos-14
           - qt_series: 6
-            qt_version: 6.6.2
+            qt_version: 6.6.3
             qt_modules: qtlocation qtpositioning
             preset: macOS-ccache
             compiler: default
             runs_on: macos-14
           - qt_series: 6
-            qt_version: 6.6.2
+            qt_version: 6.7.0
+            qt_modules: qtlocation qtpositioning
+            preset: macOS-ccache
+            compiler: default
+            runs_on: macos-14
+          - qt_series: 6
+            qt_version: 6.7.0
             qt_modules: qtlocation qtpositioning
             preset: macOS-clang-tidy
-            compiler: llvm@17
+            compiler: llvm
             runs_on: macos-14
 
     env:
@@ -105,7 +111,6 @@ jobs:
           version: ${{ matrix.qt_version }}
           target: desktop
           modules: ${{ matrix.qt_modules }}
-          extra: --base https://mirrors.ocf.berkeley.edu/qt/
 
       - name: Setup ninja
         uses: seanmiddleditch/gha-setup-ninja@v4
@@ -164,7 +169,7 @@ jobs:
       contents: write
     strategy:
       matrix:
-        qt_version: [5.15.2, 6.5.3, 6.6.2]
+        qt_version: [5.15.2, 6.5.3, 6.6.3, 6.7.0]
 
     steps:
       - name: Download artifacts

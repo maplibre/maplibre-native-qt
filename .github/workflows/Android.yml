@@ -56,18 +56,30 @@ jobs:
           - qt_version: 6.5.3
             abi: arm64-v8a
             arch: android_arm64_v8a
-          - qt_version: 6.6.2
+          - qt_version: 6.6.3
             abi: x86
             arch: android_x86
-          - qt_version: 6.6.2
+          - qt_version: 6.6.3
             abi: x86_64
             arch: android_x86_64
-          - qt_version: 6.6.2
+          - qt_version: 6.6.3
             abi: armeabi-v7a
             arch: android_armv7
-          - qt_version: 6.6.2
+          - qt_version: 6.6.3
             abi: arm64-v8a
             arch: android_arm64_v8a
+          # - qt_version: 6.7.0
+          #   abi: x86
+          #   arch: android_x86
+          # - qt_version: 6.7.0
+          #   abi: x86_64
+          #   arch: android_x86_64
+          # - qt_version: 6.7.0
+          #   abi: armeabi-v7a
+          #   arch: android_armv7
+          # - qt_version: 6.7.0
+          #   abi: arm64-v8a
+          #   arch: android_arm64_v8a
 
     steps:
       - name: Checkout
@@ -85,7 +97,6 @@ jobs:
           version: ${{ matrix.qt_version }}
           modules: qtlocation qtpositioning
           set-env: false
-          extra: --base https://mirrors.ocf.berkeley.edu/qt/
 
       - name: Download Qt (Android)
         id: qt-android
@@ -96,7 +107,6 @@ jobs:
           target: android
           arch: ${{ matrix.arch }}
           modules: qtlocation qtpositioning
-          extra: --base https://mirrors.ocf.berkeley.edu/qt/
 
       - name: Fix Qt release
         if: ${{ matrix.abi }} == 'armeabi-v7a'
@@ -139,7 +149,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        qt_version: [6.5.3, 6.6.2]
+        qt_version: [6.5.3, 6.6.3]
 
     steps:
       - name: Download artifacts for x86
@@ -209,7 +219,7 @@ jobs:
       contents: write
     strategy:
       matrix:
-        qt_version: [6.5.3, 6.6.2]
+        qt_version: [6.5.3, 6.6.3]
 
     steps:
       - name: Download artifacts
