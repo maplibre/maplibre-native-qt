@@ -15,7 +15,7 @@ add_subdirectory(
 
 # Public headers
 string(TOLOWER ${MLN_QT_NAME} MLN_QT_NAME_LOWERCASE)
-set(Core_Headers
+set(MLNQtCore_Headers
     export_core.hpp
     map.hpp
     settings.hpp
@@ -28,34 +28,34 @@ set(Core_Headers
 )
 # Header generation
 mln_umbrella_header_preprocess(${MLN_QT_NAME_LOWERCASE} ${MLN_QT_NAME} HeaderOut)
-list(APPEND Core_Headers_Generated ${HeaderOut})
-foreach(Header ${Core_Headers})
+list(APPEND MLNQtCore_Headers_Generated ${HeaderOut})
+foreach(Header ${MLNQtCore_Headers})
     mln_header_preprocess(${Header} ${MLN_QT_NAME} HeaderOut)
-    list(APPEND Core_Headers_Generated ${HeaderOut})
+    list(APPEND MLNQtCore_Headers_Generated ${HeaderOut})
 endforeach()
-set(Core_Headers ${MLN_QT_NAME_LOWERCASE}.hpp ${Core_Headers} ${Core_Headers_Generated})
+set(MLNQtCore_Headers ${MLN_QT_NAME_LOWERCASE}.hpp ${MLNQtCore_Headers} ${MLNQtCore_Headers_Generated})
 
 # Make a Qt library
 if(COMMAND qt_add_library)
     if(MLN_QT_STATIC)
-        qt_add_library(Core STATIC)
+        qt_add_library(MLNQtCore STATIC)
     else()
-        qt_add_library(Core)
+        qt_add_library(MLNQtCore)
     endif()
 else()
     if(MLN_QT_STATIC)
-        add_library(Core STATIC)
+        add_library(MLNQtCore STATIC)
     else()
-        add_library(Core SHARED)
+        add_library(MLNQtCore SHARED)
     endif()
 endif()
-add_library(${MLN_QT_NAME}::Core ALIAS Core)
+add_library(${MLN_QT_NAME}::Core ALIAS MLNQtCore)
 
 # Main sources
 target_sources(
-    Core
+    MLNQtCore
     PRIVATE
-        ${Core_Headers}
+        ${MLNQtCore_Headers}
         conversion_p.hpp
         geojson.cpp geojson_p.hpp
         map_observer.cpp map_observer_p.hpp
@@ -80,30 +80,31 @@ target_sources(
 
 # Linux/Mac: Set framework, version and headers
 set_target_properties(
-    Core
+    MLNQtCore
     PROPERTIES
         AUTOMOC ON
         OUTPUT_NAME ${MLN_QT_NAME}
+        EXPORT_NAME Core
         VERSION ${MLN_QT_VERSION}
         SOVERSION ${PROJECT_VERSION_MAJOR}
-        PUBLIC_HEADER "${Core_Headers}"
+        PUBLIC_HEADER "${MLNQtCore_Headers}"
 )
 
 # Qt MOC
 if(Qt6_FOUND AND COMMAND qt_enable_autogen_tool)
-    qt_enable_autogen_tool(Core "moc" ON)
+    qt_enable_autogen_tool(MLNQtCore "moc" ON)
 endif()
 
 # Common compile definitions
 target_compile_definitions(
-    Core
+    MLNQtCore
     PRIVATE
         QT_BUILD_MAPLIBRE_CORE_LIB
 )
 
 # Common include directories
 target_include_directories(
-    Core
+    MLNQtCore
     PUBLIC
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
@@ -118,7 +119,7 @@ target_include_directories(
 
 # Common link libraries
 target_link_libraries(
-    Core
+    MLNQtCore
     PUBLIC
         Qt${QT_VERSION_MAJOR}::Core
         Qt${QT_VERSION_MAJOR}::Gui
@@ -126,18 +127,18 @@ target_link_libraries(
     PRIVATE
         $<BUILD_INTERFACE:mbgl-compiler-options>
         $<BUILD_INTERFACE:mbgl-core>
-        $<BUILD_INTERFACE:CompilerOptions>
+        $<BUILD_INTERFACE:MLNQtCompilerOptions>
 )
 if(NOT MLN_QT_WITH_INTERNAL_SQLITE)
     target_link_libraries(
-        Core
+        MLNQtCore
         PUBLIC
             Qt${QT_VERSION_MAJOR}::Sql
     )
 endif()
 foreach(target ${MLN_QT_VENDOR_LIBRARIES})
     target_link_libraries(
-        Core
+        MLNQtCore
             PRIVATE
                 $<BUILD_INTERFACE:${target}>
     )
@@ -146,7 +147,7 @@ endforeach()
 # Apple specifics
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set_target_properties(
-        Core
+        MLNQtCore
         PROPERTIES
             FRAMEWORK ON
             FRAMEWORK_VERSION A
@@ -155,7 +156,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
             MACOSX_FRAMEWORK_SHORT_VERSION_STRING ${MLN_QT_VERSION}
     )
     target_include_directories(
-        Core
+        MLNQtCore
         INTERFACE
             $<INSTALL_INTERFACE:lib/${MLN_QT_NAME}.framework>
     )
@@ -163,7 +164,7 @@ endif()
 
 # Development specifics
 if(MLN_QT_WITH_CLANG_TIDY)
-    set_target_properties(Core PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
+    set_target_properties(MLNQtCore PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
 endif()
 
 # Export and installation
@@ -179,7 +180,7 @@ install(
 )
 
 install(
-    TARGETS Core
+    TARGETS MLNQtCore
     EXPORT ${MLN_QT_NAME}CoreTargets
     # Explicit set of DESTINATION is needed for older CMake versions.
     RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"

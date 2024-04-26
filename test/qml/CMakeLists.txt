@@ -29,5 +29,5 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set_tests_properties(
         test_mln_qml
         PROPERTIES
-            ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:$<TARGET_FILE_DIR:Core>;PATH=path_list_prepend:$<TARGET_FILE_DIR:Location>")
+            ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:$<TARGET_FILE_DIR:MLNQtCore>;PATH=path_list_prepend:$<TARGET_FILE_DIR:MLNQtLocation>")
 endif()

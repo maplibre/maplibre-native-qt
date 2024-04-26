@@ -25,7 +25,7 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Test REQUIRED)
 target_link_libraries(
     test_mln_core
     PRIVATE
-        Core
+        MLNQtCore
         $<$<BOOL:${Qt6_FOUND}>:Qt::OpenGLWidgets>
         Qt::Test
         $<BUILD_INTERFACE:mbgl-compiler-options>
@@ -49,5 +49,5 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set_tests_properties(
         test_mln_core
         PROPERTIES
-            ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:$<TARGET_FILE_DIR:Core>")
+            ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:$<TARGET_FILE_DIR:MLNQtCore>")
 endif()

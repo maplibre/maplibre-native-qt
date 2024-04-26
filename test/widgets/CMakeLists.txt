@@ -23,7 +23,7 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Test REQUIRED)
 target_link_libraries(
     test_mln_widgets
     PRIVATE
-        Widgets
+        MLNQtWidgets
         Qt${QT_VERSION_MAJOR}::Test
         $<BUILD_INTERFACE:mbgl-compiler-options>
 )
@@ -41,5 +41,5 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set_tests_properties(
         test_mln_widgets
         PROPERTIES
-            ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:$<TARGET_FILE_DIR:Core>;PATH=path_list_prepend:$<TARGET_FILE_DIR:Widgets>")
+            ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:$<TARGET_FILE_DIR:MLNQtCore>;PATH=path_list_prepend:$<TARGET_FILE_DIR:MLNQtWidgets>")
 endif()
