@@ -56,11 +56,11 @@ target_include_directories(
 target_link_libraries(
     ${MLN_QT_GEOSERVICES_PLUGIN}
     PRIVATE
-        Location
+        MLNQtLocation
         Qt${QT_VERSION_MAJOR}::Location
         Qt${QT_VERSION_MAJOR}::LocationPrivate
         $<BUILD_INTERFACE:mbgl-compiler-options>
-        $<BUILD_INTERFACE:CompilerOptions>
+        $<BUILD_INTERFACE:MLNQtCompilerOptions>
 )
 
 # QtLocation plugin development specifics
@@ -192,10 +192,10 @@ target_include_directories(
 target_link_libraries(
     ${MLN_QT_QML_PLUGIN}
     PRIVATE
-        Location
+        MLNQtLocation
         Qt${QT_VERSION_MAJOR}::LocationPrivate
         $<BUILD_INTERFACE:mbgl-compiler-options>
-        $<BUILD_INTERFACE:CompilerOptions>
+        $<BUILD_INTERFACE:MLNQtCompilerOptions>
 )
 
 # QtLocation QML extenstion plugin development specifics

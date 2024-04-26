@@ -1,21 +1,21 @@
 # Make a Qt library
 if(COMMAND qt_add_library)
     if(MLN_QT_STATIC)
-        qt_add_library(Location STATIC)
+        qt_add_library(MLNQtLocation STATIC)
     else()
-        qt_add_library(Location)
+        qt_add_library(MLNQtLocation)
     endif()
 else()
     if(MLN_QT_STATIC)
-        add_library(Location STATIC)
+        add_library(MLNQtLocation STATIC)
     else()
-        add_library(Location SHARED)
+        add_library(MLNQtLocation SHARED)
     endif()
 endif()
-add_library(${MLN_QT_NAME}::Location ALIAS Location)
+add_library(${MLN_QT_NAME}::Location ALIAS MLNQtLocation)
 
 target_sources(
-    Location
+    MLNQtLocation
     PRIVATE
         qgeomap.cpp qgeomap.hpp qgeomap_p.hpp
         qt_mapping_engine.cpp qt_mapping_engine.hpp
@@ -27,29 +27,30 @@ target_sources(
 
 # Linux/Mac: Set framework, version and headers
 set_target_properties(
-    Location
+    MLNQtLocation
     PROPERTIES
         AUTOMOC ON
         OUTPUT_NAME ${MLN_QT_NAME}Location
+        EXPORT_NAME Location
         VERSION ${MLN_QT_VERSION}
         SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
 # Qt MOC
 if(Qt6_FOUND AND COMMAND qt_enable_autogen_tool)
-    qt_enable_autogen_tool(Location "moc" ON)
+    qt_enable_autogen_tool(MLNQtLocation "moc" ON)
 endif()
 
 # Common compile definitions
 target_compile_definitions(
-    Location
+    MLNQtLocation
     PRIVATE
         QT_BUILD_MAPLIBRE_LOCATION_LIB
 )
 
 # Common include directories
 target_include_directories(
-    Location
+    MLNQtLocation
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_BINARY_DIR}/include
@@ -60,21 +61,21 @@ target_include_directories(
 
 # Common link libraries
 target_link_libraries(
-    Location
+    MLNQtLocation
     PUBLIC
-        Core
+        MLNQtCore
     PRIVATE
         $<$<BOOL:${Qt6_FOUND}>:Qt${QT_VERSION_MAJOR}::OpenGL>
         Qt${QT_VERSION_MAJOR}::Network
         Qt${QT_VERSION_MAJOR}::LocationPrivate
         $<BUILD_INTERFACE:mbgl-compiler-options>
-        $<BUILD_INTERFACE:CompilerOptions>
+        $<BUILD_INTERFACE:MLNQtCompilerOptions>
 )
 
 # Apple specifics
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set_target_properties(
-        Location
+        MLNQtLocation
         PROPERTIES
             FRAMEWORK ON
             FRAMEWORK_VERSION A
@@ -83,7 +84,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
             MACOSX_FRAMEWORK_SHORT_VERSION_STRING ${MLN_QT_VERSION}
     )
     target_include_directories(
-        Location
+        MLNQtLocation
         INTERFACE
             $<INSTALL_INTERFACE:lib/${MLN_QT_NAME}Location.framework>
     )
@@ -91,7 +92,7 @@ endif()
 
 # Development specifics
 if(MLN_QT_WITH_CLANG_TIDY)
-    set_target_properties(Location PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
+    set_target_properties(MLNQtLocation PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
 endif()
 
 # Export and installation
@@ -102,7 +103,7 @@ install(
 )
 
 install(
-    TARGETS Location
+    TARGETS MLNQtLocation
     EXPORT ${MLN_QT_NAME}LocationTargets
     # Explicit set of DESTINATION is needed for older CMake versions.
     RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"

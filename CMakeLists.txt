@@ -96,14 +96,14 @@ elseif(MSVC OR CMAKE_SYSTEM_NAME STREQUAL "Windows")
 endif()
 
 # Common configuration
-add_library(CompilerOptions INTERFACE)
+add_library(MLNQtCompilerOptions INTERFACE)
 target_compile_options(
-    CompilerOptions
+    MLNQtCompilerOptions
     INTERFACE
         $<$<BOOL:${MLN_QT_WITH_COVERAGE}>:--coverage>
 )
 target_link_libraries(
-    CompilerOptions
+    MLNQtCompilerOptions
     INTERFACE
         $<$<BOOL:${MLN_QT_WITH_COVERAGE}>:--coverage>
 )
