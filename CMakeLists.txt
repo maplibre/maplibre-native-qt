@@ -42,7 +42,7 @@ option(MLN_QT_WITH_CLANG_TIDY "Build QMapLibre with clang-tidy checks enabled" O
 if("${QT_VERSION_MAJOR}" STREQUAL "")
     find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
 else()
-    find_package(Qt${QT_VERSION_MAJOR} NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
+    find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
 endif()
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Gui Network REQUIRED) # main dependencies
 if(NOT MLN_QT_WITH_INTERNAL_SQLITE)
@@ -58,7 +58,12 @@ if(MLN_QT_WITH_WIDGETS)
         find_package(Qt${QT_VERSION_MAJOR} COMPONENTS OpenGL REQUIRED)
     endif()
 endif()
-message(STATUS "Using Qt${QT_VERSION_MAJOR}")
+
+if("${QT_VERSION}" STREQUAL "")
+    message(FATAL_ERROR "Qt version unknown")
+endif()
+
+message(STATUS "Using Qt${QT_VERSION_MAJOR} (${QT_VERSION})")
 
 # Debugging & ccache on Windows
 if(MSVC)
@@ -128,7 +133,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 else()
     set(CPACK_SYSTEM_NAME "${CMAKE_SYSTEM_NAME}")
 endif()
-set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}_${PROJECT_VERSION}_Qt${QT_VERSION}_${CPACK_SYSTEM_NAME}")
+set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}_v${PROJECT_VERSION}_Qt${QT_VERSION}_${CPACK_SYSTEM_NAME}")
 set(CPACK_SOURCE_GENERATOR TBZ2)
 set(CPACK_SOURCE_IGNORE_FILES
     "/docs/"
