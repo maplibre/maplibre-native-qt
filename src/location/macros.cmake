@@ -21,6 +21,9 @@ function(qmaplibre_location_setup_plugins target)
         set(_targetName ${target})
     endif()
     get_property(_targetDestination TARGET ${target} PROPERTY RUNTIME_OUTPUT_DIRECTORY)
+    if(_targetDestination)
+        set(_targetDestination "${_targetDestination}/")
+    endif()
 
     get_target_property(_targetTypeCore QMapLibre::Core TYPE)
     if(_targetTypeCore STREQUAL STATIC_LIBRARY)
@@ -46,7 +49,7 @@ function(qmaplibre_location_setup_plugins target)
     if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
         file(
             COPY "${_ImportedLocationGeoServices}"
-            DESTINATION "${_targetDestination}/${_targetName}.app/Contents/PlugIns/geoservices"
+            DESTINATION "${_targetDestination}${_targetName}.app/Contents/PlugIns/geoservices"
         )
     elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
         install(

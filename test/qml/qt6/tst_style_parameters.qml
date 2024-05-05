@@ -1,6 +1,5 @@
 // Copyright (C) 2023 MapLibre contributors
 
-
 // SPDX-License-Identifier: BSD-2-Clause
 
 import QtQuick 2.15
