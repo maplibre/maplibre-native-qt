@@ -47,11 +47,11 @@ jobs:
       matrix:
         include:
           - qt_version: 6.5.3
-            preset: iOS-ccache
+            preset: iOS
           - qt_version: 6.6.3
-            preset: iOS-ccache
+            preset: iOS
           - qt_version: 6.7.2
-            preset: iOS-ccache
+            preset: iOS
 
     env:
       PRESET: ${{ matrix.preset }}
@@ -79,12 +79,6 @@ jobs:
 
       - name: Setup ninja
         uses: seanmiddleditch/gha-setup-ninja@v5
-
-      - name: Set up ccache
-        uses: hendrikmuhs/ccache-action@v1
-        with:
-          key: iOS_${{ matrix.qt_version }}
-          max-size: 200M
 
       - name: Build
         working-directory: source
