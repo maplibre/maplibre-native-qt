@@ -99,28 +99,28 @@ if(COMMAND qt_add_qml_module)
         qt_add_qml_module(
             ${MLN_QT_QML_PLUGIN}
             STATIC
-            URI QtLocation.MapLibre
+            URI MapLibre
             VERSION ${PROJECT_VERSION}
             PLUGIN_TARGET ${MLN_QT_QML_PLUGIN}
             NO_PLUGIN_OPTIONAL
             NO_GENERATE_QMLDIR
-            CLASS_NAME QtLocationMapLibreQmlModule
+            CLASS_NAME MapLibreQmlModule
             RESOURCE_PREFIX "/"
-            OUTPUT_DIRECTORY "QtLocation/MapLibre"
+            OUTPUT_DIRECTORY "MapLibre"
             OUTPUT_TARGETS QmlPluginOutputTargets
             SOURCES ${Plugin_Sources}
         )
     else()
         qt_add_qml_module(
             ${MLN_QT_QML_PLUGIN}
-            URI QtLocation.MapLibre
+            URI MapLibre
             VERSION ${PROJECT_VERSION}
             PLUGIN_TARGET ${MLN_QT_QML_PLUGIN}
             NO_PLUGIN_OPTIONAL
             NO_GENERATE_QMLDIR
-            CLASS_NAME QtLocationMapLibreQmlModule
+            CLASS_NAME MapLibreQmlModule
             RESOURCE_PREFIX "/"
-            OUTPUT_DIRECTORY "QtLocation/MapLibre"
+            OUTPUT_DIRECTORY "MapLibre"
             OUTPUT_TARGETS QmlPluginOutputTargets
             SOURCES ${Plugin_Sources}
         )
@@ -128,12 +128,12 @@ if(COMMAND qt_add_qml_module)
     set_target_properties(
         ${MLN_QT_QML_PLUGIN}
         PROPERTIES
-            LIBRARY_OUTPUT_DIRECTORY $<1:${CMAKE_CURRENT_BINARY_DIR}/QtLocation/MapLibre>
-            RUNTIME_OUTPUT_DIRECTORY $<1:${CMAKE_CURRENT_BINARY_DIR}/QtLocation/MapLibre>
+            LIBRARY_OUTPUT_DIRECTORY $<1:${CMAKE_CURRENT_BINARY_DIR}/MapLibre>
+            RUNTIME_OUTPUT_DIRECTORY $<1:${CMAKE_CURRENT_BINARY_DIR}/MapLibre>
     )
     configure_file(
         "${CMAKE_CURRENT_SOURCE_DIR}/qmldir.in"
-        "${CMAKE_CURRENT_BINARY_DIR}/QtLocation/MapLibre/qmldir"
+        "${CMAKE_CURRENT_BINARY_DIR}/MapLibre/qmldir"
         @ONLY
     )
 else()
@@ -168,12 +168,12 @@ else()
         ${MLN_QT_QML_PLUGIN}
         PROPERTIES
             AUTOMOC ON
-            LIBRARY_OUTPUT_DIRECTORY $<1:${CMAKE_CURRENT_BINARY_DIR}/QtLocation/MapLibre>
-            RUNTIME_OUTPUT_DIRECTORY $<1:${CMAKE_CURRENT_BINARY_DIR}/QtLocation/MapLibre>
+            LIBRARY_OUTPUT_DIRECTORY $<1:${CMAKE_CURRENT_BINARY_DIR}/MapLibre>
+            RUNTIME_OUTPUT_DIRECTORY $<1:${CMAKE_CURRENT_BINARY_DIR}/MapLibre>
     )
     configure_file(
         "${CMAKE_CURRENT_SOURCE_DIR}/legacy/qmldir.in"
-        "${CMAKE_CURRENT_BINARY_DIR}/QtLocation/MapLibre/qmldir"
+        "${CMAKE_CURRENT_BINARY_DIR}/MapLibre/qmldir"
         @ONLY
     )
 endif()
@@ -212,21 +212,21 @@ install(
 install(
     TARGETS ${MLN_QT_QML_PLUGIN} ${QmlPluginOutputTargets}
     EXPORT ${MLN_QT_NAME}LocationPluginQmlTargets
-    ARCHIVE DESTINATION "qml/QtLocation/MapLibre"
-    LIBRARY DESTINATION "qml/QtLocation/MapLibre"
-    OBJECTS DESTINATION "qml/QtLocation/MapLibre"
-    RUNTIME DESTINATION "qml/QtLocation/MapLibre"
+    ARCHIVE DESTINATION "qml/MapLibre"
+    LIBRARY DESTINATION "qml/MapLibre"
+    OBJECTS DESTINATION "qml/MapLibre"
+    RUNTIME DESTINATION "qml/MapLibre"
 )
 install(
     FILES
-        "${CMAKE_CURRENT_BINARY_DIR}/QtLocation/MapLibre/qmldir"
-    DESTINATION "qml/QtLocation/MapLibre"
+        "${CMAKE_CURRENT_BINARY_DIR}/MapLibre/qmldir"
+    DESTINATION "qml/MapLibre"
 )
 
 if(COMMAND qt_add_qml_module)
     install(
         FILES
-            "${CMAKE_CURRENT_BINARY_DIR}/QtLocation/MapLibre/${MLN_QT_QML_PLUGIN}.qmltypes"
-        DESTINATION "qml/QtLocation/MapLibre"
+            "${CMAKE_CURRENT_BINARY_DIR}/MapLibre/${MLN_QT_QML_PLUGIN}.qmltypes"
+        DESTINATION "qml/MapLibre"
     )
 endif()

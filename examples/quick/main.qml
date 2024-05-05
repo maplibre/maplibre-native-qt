@@ -7,7 +7,7 @@ import QtQuick.Window 6.5
 import QtLocation 6.5
 import QtPositioning 6.5
 
-import QtLocation.MapLibre 3.0
+import MapLibre 3.0
 
 Window {
     id: window

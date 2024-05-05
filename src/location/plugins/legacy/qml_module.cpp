@@ -4,16 +4,16 @@
 
 #include <QtQml/qqmlextensionplugin.h>
 
-extern void qml_register_types_QtLocation_MapLibre();
+extern void qml_register_types_MapLibre();
 
-class QtLocationMapLibreQmlModule : public QQmlEngineExtensionPlugin {
+class MapLibreQmlModule : public QQmlEngineExtensionPlugin {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID QQmlEngineExtensionInterface_iid)
 
 public:
-    QtLocationMapLibreQmlModule(QObject *parent = nullptr)
+    MapLibreQmlModule(QObject *parent = nullptr)
         : QQmlEngineExtensionPlugin(parent) {
-        volatile auto registration = &qml_register_types_QtLocation_MapLibre;
+        volatile auto registration = &qml_register_types_MapLibre;
         Q_UNUSED(registration)
     }
 };
