@@ -187,7 +187,7 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: Windows_${{ matrix.arch }}_${{ matrix.qt_version }}}
+          name: Windows_${{ matrix.arch }}_${{ matrix.qt_version }}
 
       - name: Release
         uses: ncipollo/release-action@v1
