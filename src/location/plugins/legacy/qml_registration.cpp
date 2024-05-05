@@ -1,4 +1,4 @@
-// Copyright (C) 2023 MapLibre contributors
+// Copyright (C) 2024 MapLibre contributors
 
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -15,14 +15,14 @@
 #else
 #define Q_QMLTYPE_EXPORT
 #endif
-Q_QMLTYPE_EXPORT void qml_register_types_QtLocation_MapLibre() {
-    qmlRegisterTypesAndRevisions<MapLibreStyleAttached>("QtLocation.MapLibre", 3);
-    qmlRegisterTypesAndRevisions<MapLibreStyleProperties>("QtLocation.MapLibre", 3);
-    qmlRegisterTypesAndRevisions<QMapLibre::DeclarativeLayerParameter>("QtLocation.MapLibre", 3);
-    qmlRegisterTypesAndRevisions<QMapLibre::DeclarativeSourceParameter>("QtLocation.MapLibre", 3);
-    qmlRegisterTypesAndRevisions<QMapLibre::DeclarativeStyle>("QtLocation.MapLibre", 3);
-    qmlRegisterAnonymousType<QQuickItem>("QtLocation.MapLibre", 3);
-    qmlRegisterModule("QtLocation.MapLibre", 3, 0);
+Q_QMLTYPE_EXPORT void qml_register_types_MapLibre() {
+    qmlRegisterTypesAndRevisions<MapLibreStyleAttached>("MapLibre", 3);
+    qmlRegisterTypesAndRevisions<MapLibreStyleProperties>("MapLibre", 3);
+    qmlRegisterTypesAndRevisions<QMapLibre::DeclarativeLayerParameter>("MapLibre", 3);
+    qmlRegisterTypesAndRevisions<QMapLibre::DeclarativeSourceParameter>("MapLibre", 3);
+    qmlRegisterTypesAndRevisions<QMapLibre::DeclarativeStyle>("MapLibre", 3);
+    qmlRegisterAnonymousType<QQuickItem>("MapLibre", 3);
+    qmlRegisterModule("MapLibre", 3, 0);
 }
 
-static const QQmlModuleRegistration registration("QtLocation.MapLibre", 3, qml_register_types_QtLocation_MapLibre);
+static const QQmlModuleRegistration registration("MapLibre", 3, qml_register_types_MapLibre);

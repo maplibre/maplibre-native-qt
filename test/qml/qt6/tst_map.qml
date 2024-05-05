@@ -1,11 +1,12 @@
-// Copyright (C) 2023 MapLibre contributors
+// Copyright (C) 2024 MapLibre contributors
 
 // SPDX-License-Identifier: BSD-2-Clause
 
 import QtQuick 2.15
 import QtLocation 6.5
-import QtLocation.MapLibre 3.0
 import QtPositioning 5.15
+
+import MapLibre 3.0
 
 import QtTest 1.0
 
