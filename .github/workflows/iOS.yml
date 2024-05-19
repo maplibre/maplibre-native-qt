@@ -91,11 +91,12 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1
         with:
           key: iOS_${{ matrix.qt_version }}
-          max-size: 200M
+          max-size: 400M
 
       - name: Build
         working-directory: source
         run: |
+          export CCACHE_LOGFILE="$PWD/ccache.log"
           export QT_HOST_PATH="$(readlink -f "$Qt6_DIR/../macos")"
           cmake --workflow --preset ${PRESET}
 
@@ -104,6 +105,12 @@ jobs:
         with:
           name: iOS_${{ matrix.qt_version }}
           path: build/qt6-iOS/maplibre-native-qt_*_iOS.tar.bz2
+
+      - name: Upload ccache log
+        uses: actions/upload-artifact@v4
+        with:
+          name: iOS_${{ matrix.qt_version }}_ccache
+          path: source/ccache.log
 
   release:
     name: Release
