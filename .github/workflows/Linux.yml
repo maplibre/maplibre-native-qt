@@ -38,7 +38,7 @@ concurrency:
 jobs:
   build-and-test:
     name: Build (Qt${{ matrix.qt_version}}, ${{ matrix.compiler }})
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         include:
@@ -94,7 +94,7 @@ jobs:
             libxcb-render-util0 \
             libxcb-xinerama0 \
             libxcb-xfixes0 \
-            libegl1-mesa
+            libegl1
 
       - name: Install compiler
         id: install_compiler
@@ -118,7 +118,7 @@ jobs:
             libjpeg8 \
             libjson-perl \
             libperlio-gzip-perl \
-            libtiff5 \
+            libtiff6 \
             libwebp7
 
           git clone https://github.com/linux-test-project/lcov.git -b v2.0
