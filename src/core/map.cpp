@@ -1259,7 +1259,7 @@ void Map::removeSource(const QString &id) {
 void Map::addCustomLayer(const QString &id, std::unique_ptr<CustomLayerHostInterface> host, const QString &before) {
     class HostWrapper final : public mbgl::style::CustomLayerHost {
     public:
-        std::unique_ptr<CustomLayerHostInterface> ptr{};
+        std::unique_ptr<CustomLayerHostInterface> ptr;
         explicit HostWrapper(std::unique_ptr<CustomLayerHostInterface> p)
             : ptr(std::move(p)) {}
 
