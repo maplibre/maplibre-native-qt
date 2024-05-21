@@ -7,7 +7,7 @@
       "displayName": "iOS configuration using Qt6",
       "generator": "Ninja Multi-Config",
       "binaryDir": "${sourceParentDir}/build/qt6-iOS",
-      "toolchainFile": "$penv{Qt6_DIR}/lib/cmake/Qt6/qt.toolchain.cmake",
+      "toolchainFile": "$penv{QT_ROOT_DIR}/lib/cmake/Qt6/qt.toolchain.cmake",
       "cacheVariables": {
         "CMAKE_CONFIGURATION_TYPES": "Release;Debug",
         "CMAKE_OSX_ARCHITECTURES": "arm64;x86_64",

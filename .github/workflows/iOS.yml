@@ -67,17 +67,8 @@ jobs:
         with:
           xcode-version: latest-stable
 
-      - name: Download Qt (desktop)
-        uses: jurplel/install-qt-action@v3
-        with:
-          aqtversion: ==3.1.*
-          version: ${{ matrix.qt_version }}
-          target: desktop
-          modules: qtlocation qtpositioning
-          set-env: false
-
-      - name: Download Qt (iOS)
-        uses: jurplel/install-qt-action@v3
+      - name: Download Qt
+        uses: jurplel/install-qt-action@v4
         with:
           aqtversion: ==3.1.*
           version: ${{ matrix.qt_version }}
@@ -96,7 +87,7 @@ jobs:
       - name: Build
         working-directory: source
         run: |
-          export QT_HOST_PATH="$(readlink -f "$Qt6_DIR/../macos")"
+          export QT_HOST_PATH="$(readlink -f "$QT_ROOT_DIR/../macos")"
           cmake --workflow --preset ${PRESET}
 
       - name: Upload installation

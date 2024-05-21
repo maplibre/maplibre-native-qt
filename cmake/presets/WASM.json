@@ -7,7 +7,7 @@
       "displayName": "WASM configuration using Qt6",
       "generator": "Ninja",
       "binaryDir": "${sourceParentDir}/build/qt6-WASM",
-      "toolchainFile": "$penv{Qt6_DIR}/lib/cmake/Qt6/qt.toolchain.cmake",
+      "toolchainFile": "$penv{QT_ROOT_DIR}/lib/cmake/Qt6/qt.toolchain.cmake",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "RelWithDebInfo",
         "MLN_QT_WITH_LOCATION": "OFF"

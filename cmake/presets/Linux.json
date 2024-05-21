@@ -7,7 +7,7 @@
       "displayName": "Linux configuration using Qt6",
       "generator": "Ninja",
       "binaryDir": "${sourceParentDir}/build/qt6-Linux",
-      "toolchainFile": "$penv{Qt6_DIR}/lib/cmake/Qt6/qt.toolchain.cmake",
+      "toolchainFile": "$penv{QT_ROOT_DIR}/lib/cmake/Qt6/qt.toolchain.cmake",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "QT_VERSION_MAJOR": "6"

@@ -89,18 +89,9 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
-      - name: Download Qt (desktop)
-        id: qt-desktop
-        uses: jurplel/install-qt-action@v3
-        with:
-          aqtversion: ==3.1.*
-          version: ${{ matrix.qt_version }}
-          modules: qtlocation qtpositioning
-          set-env: false
-
-      - name: Download Qt (Android)
+      - name: Download Qt
         id: qt-android
-        uses: jurplel/install-qt-action@v3
+        uses: jurplel/install-qt-action@v4
         with:
           aqtversion: ==3.1.*
           version: ${{ matrix.qt_version }}
@@ -111,8 +102,8 @@ jobs:
       - name: Fix Qt release
         if: ${{ matrix.abi }} == 'armeabi-v7a'
         run: |
-          chmod +x "$Qt6_DIR/bin/qt-cmake"
-          sed -i "s/C:\/Qt\/Qt-${QT_VERSION}/\/usr\/local\/Qt-${QT_VERSION}/g" "$Qt6_DIR/lib/cmake/Qt6BuildInternals/QtBuildInternalsExtra.cmake"
+          chmod +x "$QT_ROOT_DIR/bin/qt-cmake"
+          sed -i "s/C:\/Qt\/Qt-${QT_VERSION}/\/usr\/local\/Qt-${QT_VERSION}/g" "$QT_ROOT_DIR/lib/cmake/Qt6BuildInternals/QtBuildInternalsExtra.cmake"
 
       - name: Set up OpenJDK 17
         uses: actions/setup-java@v4
@@ -134,7 +125,7 @@ jobs:
           ANDROID_ABI: ${{ matrix.abi }}
         working-directory: source
         run: |
-          export QT_HOST_PATH="$(readlink -f "$Qt6_DIR/../gcc_64")"
+          export QT_HOST_PATH="$(readlink -f "$QT_ROOT_DIR/../gcc_64")"
           cmake --workflow --preset Android-ccache
 
       - name: Upload artifacts
