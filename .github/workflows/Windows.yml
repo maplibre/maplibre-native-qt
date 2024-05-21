@@ -72,7 +72,7 @@ jobs:
             compiler_version: 14.29
             preset: Windows-ccache
           - qt_series: 6
-            qt_version: 6.7.0
+            qt_version: 6.7.1
             qt_arch: win64_msvc2019_64
             qt_modules: qtlocation qtpositioning
             arch: msvc2019_64
@@ -180,7 +180,7 @@ jobs:
       contents: write
     strategy:
       matrix:
-        qt_version: [5.15.2, 6.5.3, 6.6.3, 6.7.0]
+        qt_version: [5.15.2, 6.5.3, 6.6.3, 6.7.1]
         arch: [msvc2019_64]
 
     steps:
