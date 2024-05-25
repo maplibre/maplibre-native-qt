@@ -7,7 +7,7 @@
       "displayName": "macOS configuration using Qt6",
       "generator": "Ninja",
       "binaryDir": "${sourceParentDir}/build/qt6-macOS",
-      "toolchainFile": "$penv{Qt6_DIR}/lib/cmake/Qt6/qt.toolchain.cmake",
+      "toolchainFile": "$penv{QT_ROOT_DIR}/lib/cmake/Qt6/qt.toolchain.cmake",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "RelWithDebInfo",
         "CMAKE_OSX_ARCHITECTURES": "x86_64;arm64",

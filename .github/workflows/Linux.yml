@@ -58,12 +58,12 @@ jobs:
             preset: Linux-CI
             compiler: default
           - qt_series: 6
-            qt_version: 6.7.0
+            qt_version: 6.7.1
             qt_modules: qtlocation qtpositioning
             preset: Linux-CI
             compiler: default
           - qt_series: 6
-            qt_version: 6.7.0
+            qt_version: 6.7.1
             qt_modules: qtlocation qtpositioning
             preset: Linux-coverage
             compiler: gcc-13
@@ -128,7 +128,7 @@ jobs:
           rm -rf lcov
 
       - name: Download Qt
-        uses: jurplel/install-qt-action@v3
+        uses: jurplel/install-qt-action@v4
         with:
           aqtversion: ==3.1.*
           version: ${{ matrix.qt_version }}
@@ -223,7 +223,7 @@ jobs:
       contents: write
     strategy:
       matrix:
-        qt_version: [5.15.2, 6.5.3, 6.6.3, 6.7.0]
+        qt_version: [5.15.2, 6.5.3, 6.6.3, 6.7.1]
 
     steps:
       - name: Download artifacts

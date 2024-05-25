@@ -11,7 +11,7 @@
       "displayName": "MapLibre Qt Quick example configuration",
       "generator": "Ninja",
       "binaryDir": "${sourceParentDir}/../../build/qt6-example-quick",
-      "toolchainFile": "$penv{Qt6_DIR}/lib/cmake/Qt6/qt.toolchain.cmake",
+      "toolchainFile": "$penv{QT_ROOT_DIR}/lib/cmake/Qt6/qt.toolchain.cmake",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_C_COMPILER_LAUNCHER": "ccache",
