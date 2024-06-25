@@ -63,13 +63,18 @@ jobs:
             compiler: default
             runs_on: macos-14
           - qt_series: 6
-            qt_version: 6.7.1
+            qt_version: 6.7.2
             qt_modules: qtlocation qtpositioning
             preset: macOS-ccache
             compiler: default
             runs_on: macos-14
           - qt_series: 6
-            qt_version: 6.7.1
+            qt_version: 6.7.2
+            preset: macOS-ccache
+            compiler: static
+            runs_on: macos-14
+          - qt_series: 6
+            qt_version: 6.7.2
             qt_modules: qtlocation qtpositioning
             preset: macOS-clang-tidy
             compiler: llvm
@@ -78,6 +83,7 @@ jobs:
     env:
       COMPILER: ${{ matrix.compiler }}
       PRESET: ${{ matrix.preset }}
+      QT_VERSION: ${{ matrix.qt_version }}
 
     steps:
       - name: Checkout
@@ -93,7 +99,7 @@ jobs:
           xcode-version: latest-stable
 
       - name: Setup compiler (macOS)
-        if: matrix.compiler != 'default'
+        if: matrix.compiler != 'default' && matrix.compiler != 'static'
         run: |
           brew install "$COMPILER"
           echo "/opt/homebrew/opt/${COMPILER}/bin" >> "$GITHUB_PATH"
@@ -105,12 +111,23 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: Download Qt
+        if: matrix.compiler != 'static'
         uses: jurplel/install-qt-action@v4
         with:
           aqtversion: ==3.1.*
           version: ${{ matrix.qt_version }}
           target: desktop
           modules: ${{ matrix.qt_modules }}
+
+      - name: Download Static Qt
+        if: matrix.compiler == 'static'
+        run: |
+          cd ..
+          wget https://github.com/ntadej/qt-build/releases/download/v${QT_VERSION}.0/Qt_macOS_static.tar.bz2
+          tar xvf Qt_macOS_static.tar.bz2
+          echo "QT_ROOT_DIR=$PWD/Qt/$QT_VERSION/macos_static" >> $GITHUB_ENV
+          echo "$PWD/Qt/$QT_VERSION/macos_static/bin" >> $GITHUB_PATH
+          cd $GITHUB_WORKSPACE
 
       - name: Setup ninja
         uses: seanmiddleditch/gha-setup-ninja@v5
@@ -147,10 +164,10 @@ jobs:
           cmake --workflow --preset default
 
       - name: Upload installation
-        if: matrix.compiler == 'default'
+        if: matrix.compiler == 'default' || matrix.compiler == 'static'
         uses: actions/upload-artifact@v4
         with:
-          name: macOS_${{ matrix.qt_version }}
+          name: macOS_${{ matrix.qt_version }}_${{ matrix.compiler }}
           path: build/qt${{ matrix.qt_series }}-macOS/maplibre-native-qt_*.tar.bz2
 
       - name: Upload examples
@@ -169,17 +186,41 @@ jobs:
       contents: write
     strategy:
       matrix:
-        qt_version: [5.15.2, 6.5.3, 6.6.3, 6.7.1]
+        include:
+          - qt_version: 5.15.2
+            compiler: default
+            suffix: ""
+          - qt_version: 6.5.3
+            compiler: default
+            suffix: ""
+          - qt_version: 6.6.3
+            compiler: default
+            suffix: ""
+          - qt_version: 6.7.2
+            compiler: default
+            suffix: ""
+          - qt_version: 6.7.2
+            compiler: static
+            suffix: "_static"
 
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: macOS_${{ matrix.qt_version }}
+          name: macOS_${{ matrix.qt_version }}_${{ matrix.compiler }}
+
+      - name: Rename artifacts
+        if: matrix.compiler != 'default'
+        env:
+          QT_VERSION: ${{ matrix.qt_version }}
+          TAG_NAME: ${{ github.ref_name }}
+          PLATFORM_SUFFIX: ${{ matrix.suffix }}
+        run: |
+          mv maplibre-native-qt_${TAG_NAME}_Qt${QT_VERSION}_macOS.tar.bz2 maplibre-native-qt_${TAG_NAME}_Qt${QT_VERSION}_macOS${PLATFORM_SUFFIX}.tar.bz2
 
       - name: Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: maplibre-native-qt_${{ github.ref_name }}_Qt${{ matrix.qt_version }}_macOS.tar.bz2
+          artifacts: maplibre-native-qt_${{ github.ref_name }}_Qt${{ matrix.qt_version }}_macOS${{ matrix.suffix }}.tar.bz2
           allowUpdates: true
           draft: true
