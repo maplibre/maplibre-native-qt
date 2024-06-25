@@ -138,7 +138,7 @@ jobs:
 
       - name: Setup ninja
         if: matrix.compiler != 'default'
-        uses: seanmiddleditch/gha-setup-ninja@v4
+        uses: seanmiddleditch/gha-setup-ninja@v5
 
       - name: Set up ccache
         uses: hendrikmuhs/ccache-action@v1
