@@ -82,6 +82,19 @@ Item {
             radarSourceParam.url = "https://maplibre.org/maplibre-gl-js/docs/assets/radar4.gif"
             compare(radarSourceParam.url, "https://maplibre.org/maplibre-gl-js/docs/assets/radar4.gif")
             wait(250)
+            radarSourceParam.coordinates = [
+                [-85.425, 46.437],
+                [-76.516, 46.437],
+                [-76.516, 37.936],
+                [-85.425, 37.936]
+            ]
+            compare(radarSourceParam.coordinates, [
+                [-85.425, 46.437],
+                [-76.516, 46.437],
+                [-76.516, 37.936],
+                [-85.425, 37.936]
+            ])
+            wait(250)
         }
 
         function test_style_2_paint_change() {
