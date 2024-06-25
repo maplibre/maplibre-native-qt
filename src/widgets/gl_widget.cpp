@@ -25,10 +25,36 @@ Map *GLWidget::map() {
 }
 
 void GLWidget::mousePressEvent(QMouseEvent *event) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    const QPointF &position = event->position();
+#else
+    const QPointF &position = event->localPos();
+#endif
+    emit onMousePressEvent(d_ptr->m_map->coordinateForPixel(position));
+    if (event->type() == QEvent::MouseButtonDblClick) {
+        emit onMouseDoubleClickEvent(d_ptr->m_map->coordinateForPixel(position));
+    }
+
     d_ptr->handleMousePressEvent(event);
 }
 
+void GLWidget::mouseReleaseEvent(QMouseEvent *event) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    const QPointF &position = event->position();
+#else
+    const QPointF &position = event->localPos();
+#endif
+    emit onMouseReleaseEvent(d_ptr->m_map->coordinateForPixel(position));
+}
+
 void GLWidget::mouseMoveEvent(QMouseEvent *event) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    const QPointF &position = event->position();
+#else
+    const QPointF &position = event->localPos();
+#endif
+    emit onMouseMoveEvent(d_ptr->m_map->coordinateForPixel(position));
+
     d_ptr->handleMouseMoveEvent(event);
 }
 
