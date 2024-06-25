@@ -108,7 +108,7 @@ jobs:
           modules: ${{ matrix.qt_modules }}
 
       - name: Setup ninja
-        uses: seanmiddleditch/gha-setup-ninja@v4
+        uses: seanmiddleditch/gha-setup-ninja@v5
 
       - name: Setup MSVC
         if: matrix.qt_arch == 'win64_msvc2019_64'
