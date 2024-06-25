@@ -140,7 +140,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        qt_version: [6.5.3, 6.6.3]
+        qt_version: [6.5.3, 6.6.3, 6.7.2]
 
     steps:
       - name: Download artifacts for x86
