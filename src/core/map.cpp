@@ -25,6 +25,7 @@
 #include <mbgl/storage/network_status.hpp>
 #include <mbgl/storage/online_file_source.hpp>
 #include <mbgl/storage/resource_options.hpp>
+#include <mbgl/style/conversion/coordinate.hpp>
 #include <mbgl/style/conversion/filter.hpp>
 #include <mbgl/style/conversion/geojson.hpp>
 #include <mbgl/style/conversion/layer.hpp>
@@ -1219,8 +1220,22 @@ void Map::updateSource(const QString &id, const QVariantMap &params) {
         return;
     }
 
-    if (sourceImage != nullptr && params.contains("url")) {
-        sourceImage->setURL(params["url"].toString().toStdString());
+    if (sourceImage != nullptr) {
+        if (params.contains("url")) {
+            sourceImage->setURL(params["url"].toString().toStdString());
+        }
+        if (params.contains("coordinates") && params["coordinates"].toList().size() == 4) {
+            mbgl::style::conversion::Error error;
+            std::array<mbgl::LatLng, 4> coordinates;
+            for (std::size_t i = 0; i < 4; i++) {
+                auto latLng = mbgl::style::conversion::convert<mbgl::LatLng>(
+                    params["coordinates"].toList()[static_cast<int>(i)], error);
+                if (latLng) {
+                    coordinates[i] = *latLng; // NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
+                }
+            }
+            sourceImage->setCoordinates(coordinates);
+        }
     } else if (sourceGeoJSON != nullptr && params.contains("data")) {
         mbgl::style::conversion::Error error;
         auto result = mbgl::style::conversion::convert<mbgl::GeoJSON>(params["data"], error);
