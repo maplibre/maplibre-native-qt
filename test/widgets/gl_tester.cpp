@@ -21,6 +21,18 @@ void GLTester::initializeAnimation() {
 
     connect(m_zoomAnimation.get(), &QPropertyAnimation::finished, this, &GLTester::animationFinished);
     connect(m_zoomAnimation.get(), &QPropertyAnimation::valueChanged, this, &GLTester::animationValueChanged);
+
+    connect(this, &GLTester::onMousePressEvent, [](Coordinate coordinate) {
+        qDebug() << "onMousePressEvent" << coordinate;
+    });
+    connect(this, &GLTester::onMouseReleaseEvent, [](Coordinate coordinate) {
+        qDebug() << "onMouseReleaseEvent" << coordinate;
+    });
+    connect(this, &GLTester::onMouseDoubleClickEvent, [](Coordinate coordinate) {
+        qDebug() << "onMouseDoubleClickEvent" << coordinate;
+    });
+    connect(
+        this, &GLTester::onMouseMoveEvent, [](Coordinate coordinate) { qDebug() << "onMouseMoveEvent" << coordinate; });
 }
 
 int GLTester::selfTest() {

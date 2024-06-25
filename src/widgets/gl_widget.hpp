@@ -35,9 +35,16 @@ public:
 
     Map *map();
 
+signals:
+    void onMouseDoubleClickEvent(QMapLibre::Coordinate coordinate);
+    void onMousePressEvent(QMapLibre::Coordinate coordinate);
+    void onMouseReleaseEvent(QMapLibre::Coordinate coordinate);
+    void onMouseMoveEvent(QMapLibre::Coordinate coordinate);
+
 protected:
     // QWidget implementation.
     void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
 
