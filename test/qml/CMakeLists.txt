@@ -12,6 +12,16 @@ target_link_libraries(
         $<BUILD_INTERFACE:mbgl-compiler-options>
 )
 
+get_target_property(MLNQtLocationTargetType MLNQtLocation TYPE)
+if (MLNQtLocationTargetType STREQUAL STATIC_LIBRARY)
+    target_link_libraries(
+        test_mln_qml
+        PRIVATE
+            ${MLN_QT_GEOSERVICES_PLUGIN}
+            ${MLN_QT_QML_PLUGIN}
+    )
+endif()
+
 if(MLN_QT_WITH_CLANG_TIDY)
     set_target_properties(test_mln_qml PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
 endif()

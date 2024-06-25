@@ -83,6 +83,7 @@ jobs:
     env:
       COMPILER: ${{ matrix.compiler }}
       PRESET: ${{ matrix.preset }}
+      QT_VERSION: ${{ matrix.qt_version }}
 
     steps:
       - name: Checkout
