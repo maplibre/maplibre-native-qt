@@ -25,16 +25,6 @@ function(qmaplibre_location_setup_plugins target)
         set(_targetDestination "${_targetDestination}/")
     endif()
 
-    get_target_property(_targetTypeCore QMapLibre::Core TYPE)
-    if(_targetTypeCore STREQUAL STATIC_LIBRARY)
-        target_link_libraries(
-            ${target}
-            PRIVATE
-                QMapLibre::PluginGeoServices
-                QMapLibre::PluginQml
-        )
-    endif()
-
     set_target_properties(
         ${target}
         PROPERTIES
@@ -45,6 +35,17 @@ function(qmaplibre_location_setup_plugins target)
     list(APPEND _importPathCache "${_ImportedLocationPathQml}")
     list(REMOVE_DUPLICATES _importPathCache)
     set(QML_IMPORT_PATH ${_importPathCache} CACHE STRING "QML import path for QtCreator" FORCE)
+
+    get_target_property(_targetTypeCore QMapLibre::Core TYPE)
+    if(_targetTypeCore STREQUAL STATIC_LIBRARY)
+        target_link_libraries(
+            ${target}
+            PRIVATE
+                QMapLibre::PluginGeoServices
+                QMapLibre::PluginQml
+        )
+        return()
+    endif()
 
     if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
         file(
