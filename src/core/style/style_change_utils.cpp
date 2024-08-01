@@ -7,6 +7,8 @@
 #include <QtCore/QMetaProperty>
 #include <QtCore/QRegularExpression>
 
+/*! \cond PRIVATE */
+
 namespace QMapLibre::StyleChangeUtils {
 
 QList<QByteArray> allPropertyNamesList(const QObject *object) {
@@ -29,3 +31,5 @@ QByteArray formatPropertyName(const QByteArray &name) {
 }
 
 } // namespace QMapLibre::StyleChangeUtils
+
+/*! \endcond */

@@ -13,6 +13,8 @@
 
 namespace QMapLibre {
 
+/*! \cond PRIVATE */
+
 MapObserver::MapObserver(MapPrivate *ptr)
     : d_ptrRef(ptr) {}
 
@@ -109,5 +111,7 @@ void MapObserver::onSourceChanged(mbgl::style::Source & /* source */) {
     emit copyrightsChanged(QString::fromStdString(attribution));
     emit mapChanged(Map::MapChangeSourceDidChange);
 }
+
+/*! \endcond */
 
 } // namespace QMapLibre

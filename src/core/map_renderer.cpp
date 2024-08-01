@@ -37,6 +37,8 @@ auto *getScheduler() {
 
 namespace QMapLibre {
 
+/*! \cond PRIVATE */
+
 MapRenderer::MapRenderer(qreal pixelRatio, Settings::GLContextMode mode, const QString &localFontFamily)
     : m_backend(static_cast<mbgl::gfx::ContextMode>(mode)),
       m_renderer(std::make_unique<mbgl::Renderer>(
@@ -102,5 +104,7 @@ void MapRenderer::render() {
 void MapRenderer::setObserver(mbgl::RendererObserver *observer) {
     m_renderer->setObserver(observer);
 }
+
+/*! \endcond */
 
 } // namespace QMapLibre

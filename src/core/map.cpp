@@ -1615,6 +1615,8 @@ void Map::setConnectionEstablished() {
     have changed. This can be caused by a style change or adding a new source.
 */
 
+/*! \cond PRIVATE */
+
 MapPrivate::MapPrivate(Map *map, const Settings &settings, const QSize &size, qreal pixelRatio_)
     : QObject(map),
       m_mode(settings.contextMode()),
@@ -1781,5 +1783,7 @@ bool MapPrivate::setProperty(const PropertySetter &setter,
 
     return true;
 }
+
+/*! \endcond */
 
 } // namespace QMapLibre

@@ -11,6 +11,8 @@
 
 namespace QMapLibre {
 
+/*! \cond PRIVATE */
+
 // StyleAddLayer
 StyleAddLayer::StyleAddLayer(const Feature &feature, const std::vector<FeatureProperty> &properties, QString before)
     : m_id(feature.id.toString()),
@@ -153,5 +155,7 @@ void StyleSetFilter::apply(Map *map) {
 
     map->setFilter(m_layerId, m_expression);
 }
+
+/*! \endcond */
 
 } // namespace QMapLibre

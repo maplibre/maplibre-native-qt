@@ -13,6 +13,8 @@
 
 namespace QMapLibre {
 
+/*! \cond PRIVATE */
+
 // StyleAddSource
 StyleAddSource::StyleAddSource(const Feature &feature)
     : m_id(feature.id.toString()) {
@@ -93,5 +95,7 @@ void StyleRemoveSource::apply(Map *map) {
 
     map->removeSource(m_id);
 }
+
+/*! \endcond */
 
 } // namespace QMapLibre
