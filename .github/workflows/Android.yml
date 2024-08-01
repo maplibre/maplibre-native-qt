@@ -172,8 +172,9 @@ jobs:
           pushd install
 
           tar xf x86/*.tar.bz2 -C x86/
+          rm x86/*.tar.bz2
           mv x86/maplibre-native-qt_*/* x86/
-          rm -r x86/maplibre-native-qt_*
+          mv x86/maplibre-native-qt_*/ .
 
           tar xf x86_64/*.tar.bz2 -C x86_64/
           mv x86_64/maplibre-native-qt_*/* x86_64/
@@ -186,6 +187,8 @@ jobs:
           tar xf arm64-v8a/*.tar.bz2 -C arm64-v8a/
           mv arm64-v8a/maplibre-native-qt_*/* arm64-v8a/
           rm -r arm64-v8a/maplibre-native-qt_*
+
+          mv x86 x86_64 armeabi-v7a arm64-v8a maplibre-native-qt_*
 
           popd
 
