@@ -79,6 +79,8 @@ namespace QMapLibre {
     \brief %Map style helper type.
     \ingroup QMapLibre
 
+    \headerfile types.hpp <QMapLibre/Types>
+
     Represents map styles via its \a url, \a name,
     \a description (optional), \a night (optional) and \a type (optional).
 
@@ -119,6 +121,8 @@ namespace QMapLibre {
     \brief %Map feature helper type.
     \ingroup QMapLibre
 
+    \headerfile types.hpp <QMapLibre/Types>
+
     Represents map features via its \a type (PointType, LineStringType or PolygonType),
     \a geometry, \a properties map and \a id (optional).
 
@@ -153,6 +157,8 @@ namespace QMapLibre {
     \struct FeatureProperty
     \brief %Map feature property helper type.
     \ingroup QMapLibre
+
+    \headerfile types.hpp <QMapLibre/Types>
 
     Represents map Feature properties via its \a type (\ref LayoutProperty or \ref PaintProperty),
     \a name and \a value.
@@ -205,6 +211,8 @@ namespace QMapLibre {
     \brief Shape annotation geometry helper type.
     \ingroup QMapLibre
 
+    \headerfile types.hpp <QMapLibre/Types>
+
     Represents a shape annotation geometry via its \a type and \a geometry.
 
     \enum ShapeAnnotationGeometry::Type
@@ -236,6 +244,8 @@ namespace QMapLibre {
     \brief Symbol annotation helper type.
     \ingroup QMapLibre
 
+    \headerfile types.hpp <QMapLibre/Types>
+
     A symbol annotation comprises of its \a geometry and an \a icon identifier.
 
     \var SymbolAnnotation::geometry
@@ -249,6 +259,8 @@ namespace QMapLibre {
     \struct LineAnnotation
     \brief Line annotation helper type.
     \ingroup QMapLibre
+
+    \headerfile types.hpp <QMapLibre/Types>
 
     Represents a line annotation object, along with its properties.
 
@@ -273,6 +285,8 @@ namespace QMapLibre {
     \brief Fill annotation helper type.
     \ingroup QMapLibre
 
+    \headerfile types.hpp <QMapLibre/Types>
+
     Represents a fill annotation object, along with its properties.
 
     A fill annotation comprises of its \a geometry and fill properties
@@ -296,6 +310,8 @@ namespace QMapLibre {
     \brief Camera options helper type.
     \ingroup QMapLibre
 
+    \headerfile types.hpp <QMapLibre/Types>
+
     CameraOptions provides camera options to the renderer.
 
     \var CameraOptions::center
@@ -317,6 +333,8 @@ namespace QMapLibre {
 /*!
     \struct CustomLayerRenderParameters
     \ingroup QMapLibre
+
+    \headerfile types.hpp <QMapLibre/Types>
 
     CustomLayerRenderParameters provides the data passed on each render
     pass for a custom layer.
@@ -349,6 +367,8 @@ namespace QMapLibre {
 /*!
     \class CustomLayerHostInterface
     \ingroup QMapLibre
+
+    \headerfile types.hpp <QMapLibre/Types>
 
     Represents a host interface to be implemented for rendering custom layers.
 

@@ -11,6 +11,8 @@ namespace QMapLibre {
     \brief A helper utility to create an additional map data source in the Map
     \ingroup QMapLibre
 
+    \headerfile source_parameter.hpp <QMapLibre/SourceParameter>
+
     Needs to have a \ref type set to one of the supported types.
     Other properties are set dynamically, depending on the type.
 */

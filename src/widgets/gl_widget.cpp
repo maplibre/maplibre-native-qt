@@ -20,6 +20,8 @@ namespace QMapLibre {
     \brief A simple OpenGL widget that displays a \ref QMapLibre::Map.
     \ingroup QMapLibreWidgets
 
+    \headerfile gl_widget.hpp <QMapLibreWidgets/GLWidget>
+
     The widget is intended as a standalone map viewer in a Qt Widgets application.
     It owns its own instance of \ref QMapLibre::Map that is rendered to the widget.
 
