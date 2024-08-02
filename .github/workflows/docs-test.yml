@@ -33,6 +33,9 @@ jobs:
         with:
           version: "1.10.0"
 
+      - name: Install doxyqml
+        run: pip install doxyqml
+
       - name: Generate documentation
         working-directory: docs
         run: doxygen
