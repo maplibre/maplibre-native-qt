@@ -631,6 +631,8 @@ const mbgl::TileServerOptions &Settings::tileServerOptions() const {
     return d_ptr->m_tileServerOptions;
 }
 
+/*! \cond PRIVATE */
+
 // Private implementation
 SettingsPrivate::SettingsPrivate()
     : m_cacheMaximumSize(mbgl::util::DEFAULT_MAX_CACHE_SIZE),
@@ -664,5 +666,7 @@ void SettingsPrivate::setProviderApiBaseUrl(const QString &url) {
 
     m_tileServerOptions = std::move(m_tileServerOptions.withBaseURL(url.toStdString()));
 }
+
+/*! \endcond */
 
 } // namespace QMapLibre

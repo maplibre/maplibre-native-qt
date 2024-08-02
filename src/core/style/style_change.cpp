@@ -8,6 +8,8 @@
 
 #include <QMapLibre/Map>
 
+/*! \cond PRIVATE */
+
 namespace QMapLibre {
 
 // StyleChange
@@ -67,5 +69,7 @@ std::vector<std::unique_ptr<StyleChange>> StyleChange::removeParameter(const Sty
 
     return changes;
 }
+
+/*! \endcond */
 
 } // namespace QMapLibre

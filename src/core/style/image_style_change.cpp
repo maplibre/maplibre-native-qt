@@ -8,6 +8,8 @@
 
 namespace QMapLibre {
 
+/*! \cond PRIVATE */
+
 // StyleAddImage
 StyleAddImage::StyleAddImage(const StyleParameter *parameter)
     : m_id(parameter->property("id").toString()),
@@ -35,5 +37,7 @@ void StyleRemoveImage::apply(Map *map) {
 
     map->removeImage(m_id);
 }
+
+/*! \endcond */
 
 } // namespace QMapLibre
