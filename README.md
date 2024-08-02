@@ -14,38 +14,9 @@ This library fully supports Qt 6.5 and newer.
 Qt 5.15 is fully supported only on desktop platforms, previous Qt 5 versions
 down to 5.6 only support widgets but not Qt Location.
 
-## How to build?
+## Documentation
 
-Both plugin and MapLibre build in one step. `ninja` and `ccache` are recommended.
-For Qt 6 using the `qt-cmake` wrapper is recommended.
-
-```shell
-mkdir build && cd build
-cmake ../maplibre-native-qt -GNinja \
-  -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
-  -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
-  -DCMAKE_INSTALL_PREFIX="../install"
-ninja
-ninja install
-```
-
-### Linux
-
-Note that when using the system ICU library standalone Qt installation using
-installer is ignored. If you want to use that you need to make sure that your
-system ICU is not too new as it may prevent your app from running on older
-versions of Linux. Alternatively you can use internally bundled ICU with the
-`-DMLN_QT_WITH_INTERNAL_ICU=ON` CMake option.
-
-### macOS
-
-Add the following arguments to the CMake call:
-`-GNinja -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64"`
-
-### iOS
-
-Add the following arguments to the CMake call:
-`-G"Ninja Multi-Config" -DCMAKE_CONFIGURATION_TYPES="Release;Debug"`
+- [How to build](docs/Building.md)
 
 ## How to use?
 
