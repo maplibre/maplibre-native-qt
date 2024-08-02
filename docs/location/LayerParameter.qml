@@ -1,3 +1,7 @@
+// Copyright (C) 2024 MapLibre contributors
+
+// SPDX-License-Identifier: BSD-2-Clause
+
 /*!
     \class LayerParameter
     \brief A QML type for setting parameters of a layer. Generated from \ref QMapLibre::LayerParameter and should be nested in a \ref Style.

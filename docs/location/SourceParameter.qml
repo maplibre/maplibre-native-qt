@@ -1,3 +1,7 @@
+// Copyright (C) 2024 MapLibre contributors
+
+// SPDX-License-Identifier: BSD-2-Clause
+
 /*!
     \class SourceParameter
     \brief A QML type for setting parameters of a source. Generated from \ref QMapLibre::SourceParameter and should be nested in a \ref Style.

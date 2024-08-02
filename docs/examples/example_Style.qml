@@ -1,7 +1,3 @@
-// Copyright (C) 2023 MapLibre contributors
-
-// SPDX-License-Identifier: BSD-2-Clause
-
 import QtQuick 2.15
 import QtLocation 6.5
 import QtPositioning 6.5
@@ -30,7 +26,6 @@ Item {
         map.zoomLevel: 5
         map.center: QtPositioning.coordinate(41.874, -75.789)
 
-        //! [Attaching a Style]
         MapLibre.style: Style {
             id: style
 
@@ -58,6 +53,5 @@ Item {
                 }
             }
         }
-        //! [Attaching a Style]
     }
 }

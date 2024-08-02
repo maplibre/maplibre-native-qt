@@ -1,3 +1,7 @@
+// Copyright (C) 2024 MapLibre contributors
+
+// SPDX-License-Identifier: BSD-2-Clause
+
 /*!
     \class Style
     \brief A QML helper item to be attached to a \c MapView using \c MapLibre.style property.
@@ -6,7 +10,7 @@
     This item does not have any properties and expect to have \ref StyleParameter
     implementations as children. See also \ref SourceParameter and \ref LayerParameter.
 
-    \snippet{trimleft} example_Style.qml Attaching a Style
+    \snippet{trimleft} snippets_Style.qml Attaching a Style
 
     Parameters can also be manipulated programatically using \ref addParameter,
     \ref removeParameter and \ref clearParameters functions.
