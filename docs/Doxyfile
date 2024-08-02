@@ -951,6 +951,7 @@ WARN_LOGFILE           =
 
 INPUT                  = \
   ../src/core \
+  ../src/widgets \
   Documentation.md \
   Building.md \
   Usage.md
