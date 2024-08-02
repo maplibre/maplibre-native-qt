@@ -1,6 +1,6 @@
 var classQMapLibre_1_1Settings =
 [
-    [ "ResourceTransformFunction", "classQMapLibre_1_1Settings.html#a0713eab755e53ced3960709addb5dd5e", null ],
+    [ "ResourceTransformFunction", "classQMapLibre_1_1Settings.html#af46918882807c1115c69e1128a289583", null ],
     [ "ConstrainMode", "classQMapLibre_1_1Settings.html#a1c6539969534a1d3bfed1909bb54eca7", [
       [ "NoConstrain", "classQMapLibre_1_1Settings.html#a1c6539969534a1d3bfed1909bb54eca7a0acc766588f4ee033a600fa122891732", null ],
       [ "ConstrainHeightOnly", "classQMapLibre_1_1Settings.html#a1c6539969534a1d3bfed1909bb54eca7abd65cfb70de048ca8accf8a13add84d2", null ],

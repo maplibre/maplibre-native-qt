@@ -26,6 +26,22 @@ var NAVTREE =
 [
   [ "MapLibre Native for Qt", "index.html", [
     [ "Documentation", "index.html", null ],
+    [ "How to build", "md_docs_2Building.html", [
+      [ "Qt prerequisites", "md_docs_2Building.html#qt-prerequisites", null ],
+      [ "Build basics", "md_docs_2Building.html#build-basics", [
+        [ "Linux", "md_docs_2Building.html#linux", null ],
+        [ "macOS", "md_docs_2Building.html#macos", null ],
+        [ "Windows", "md_docs_2Building.html#windows", null ],
+        [ "iOS", "md_docs_2Building.html#ios", null ],
+        [ "Android", "md_docs_2Building.html#android", null ],
+        [ "WebAssembly (WASM)", "md_docs_2Building.html#webassembly-wasm", null ]
+      ] ],
+      [ "Using CMake workflows", "md_docs_2Building.html#using-cmake-workflows", [
+        [ "Supported release workflows", "md_docs_2Building.html#supported-release-workflows", null ],
+        [ "Special workflows", "md_docs_2Building.html#special-workflows", null ]
+      ] ]
+    ] ],
+    [ "Usage", "md_docs_2Usage.html", null ],
     [ "Topics", "topics.html", "topics" ],
     [ "Namespaces", "namespaces.html", [
       [ "Namespace List", "namespaces.html", "namespaces_dup" ],
@@ -60,7 +76,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"namespaceQMapLibre.html#a3724a63b2145eb2be5884b197acfdaf4"
+"md_docs_2Building.html#android"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

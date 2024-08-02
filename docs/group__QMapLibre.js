@@ -113,7 +113,7 @@ var group__QMapLibre =
       [ "zoom", "classQMapLibre_1_1Map.html#a4349d15ab1890f09036ede6d8302ee1e", null ]
     ] ],
     [ "QMapLibre::Settings", "classQMapLibre_1_1Settings.html", [
-      [ "ResourceTransformFunction", "classQMapLibre_1_1Settings.html#a0713eab755e53ced3960709addb5dd5e", null ],
+      [ "ResourceTransformFunction", "classQMapLibre_1_1Settings.html#af46918882807c1115c69e1128a289583", null ],
       [ "ConstrainMode", "classQMapLibre_1_1Settings.html#a1c6539969534a1d3bfed1909bb54eca7", [
         [ "NoConstrain", "classQMapLibre_1_1Settings.html#a1c6539969534a1d3bfed1909bb54eca7a0acc766588f4ee033a600fa122891732", null ],
         [ "ConstrainHeightOnly", "classQMapLibre_1_1Settings.html#a1c6539969534a1d3bfed1909bb54eca7abd65cfb70de048ca8accf8a13add84d2", null ],
@@ -217,21 +217,49 @@ var group__QMapLibre =
       [ "m_ready", "classQMapLibre_1_1StyleParameter.html#afedda5d72e20bc68fd2e806cab4d169f", null ],
       [ "m_styleId", "classQMapLibre_1_1StyleParameter.html#a13b41533766bedd8be1dbc519e0dc80e", null ]
     ] ],
-    [ "QMapLibre::Style", "structQMapLibre_1_1Style.html", null ],
+    [ "QMapLibre::Style", "structQMapLibre_1_1Style.html", [
+      [ "Type", "structQMapLibre_1_1Style.html#a6b57899174965b8a86947c38894a865a", [
+        [ "NoMap", "structQMapLibre_1_1Style.html#a6b57899174965b8a86947c38894a865aaa908bc58e6ef32a70af162d789aadbba", null ],
+        [ "StreetMap", "structQMapLibre_1_1Style.html#a6b57899174965b8a86947c38894a865aa9359edd1ab9885bb6b29079957ae35e8", null ],
+        [ "SatelliteMapDay", "structQMapLibre_1_1Style.html#a6b57899174965b8a86947c38894a865aab89a6b4f27df58fed248a1d33aa509e2", null ],
+        [ "SatelliteMapNight", "structQMapLibre_1_1Style.html#a6b57899174965b8a86947c38894a865aa51882f74411061535a4f3d0ad3169f53", null ],
+        [ "TerrainMap", "structQMapLibre_1_1Style.html#a6b57899174965b8a86947c38894a865aa96de48d5a8b0091be1b73ee45b442108", null ],
+        [ "HybridMap", "structQMapLibre_1_1Style.html#a6b57899174965b8a86947c38894a865aa108eaddb37108e0d20ac69412ac1de69", null ],
+        [ "TransitMap", "structQMapLibre_1_1Style.html#a6b57899174965b8a86947c38894a865aa4a90a714ace775ceeef6a34e829f47fe", null ],
+        [ "GrayStreetMap", "structQMapLibre_1_1Style.html#a6b57899174965b8a86947c38894a865aadb616a994f933e8b86f49829da8c22f8", null ],
+        [ "PedestrianMap", "structQMapLibre_1_1Style.html#a6b57899174965b8a86947c38894a865aad9f285040c62664201dac1e3f4f2bc8a", null ],
+        [ "CarNavigationMap", "structQMapLibre_1_1Style.html#a6b57899174965b8a86947c38894a865aaf52c64e6aea251bcdd68add5263dd785", null ],
+        [ "CycleMap", "structQMapLibre_1_1Style.html#a6b57899174965b8a86947c38894a865aad8e1f9310e253db9bad1ec346c913841", null ],
+        [ "CustomMap", "structQMapLibre_1_1Style.html#a6b57899174965b8a86947c38894a865aae977e4efe7243ab13581d9b30f6cd9e2", null ]
+      ] ],
+      [ "Style", "structQMapLibre_1_1Style.html#ae609dcb99fe5331d585c1b882c32e535", null ],
+      [ "description", "structQMapLibre_1_1Style.html#a781876b76a24f48cecbac3df9b6613aa", null ],
+      [ "name", "structQMapLibre_1_1Style.html#a383c73f09eadc1d47b4aeab151956a2b", null ],
+      [ "night", "structQMapLibre_1_1Style.html#a79c82f4f9ac2b01a72f835e6c4d71e35", null ],
+      [ "type", "structQMapLibre_1_1Style.html#a35525d76ab200aca1e9323acaffa0b19", null ],
+      [ "url", "structQMapLibre_1_1Style.html#aa822fbfb1e55499be0addc5562cc72fc", null ]
+    ] ],
     [ "QMapLibre::Feature", "structQMapLibre_1_1Feature.html", [
       [ "Type", "structQMapLibre_1_1Feature.html#a0ba123c0252ab6116b6cb24d61ea119e", [
         [ "PointType", "structQMapLibre_1_1Feature.html#a0ba123c0252ab6116b6cb24d61ea119eaf190873721cc07f3b583baf13a8376fd", null ],
         [ "LineStringType", "structQMapLibre_1_1Feature.html#a0ba123c0252ab6116b6cb24d61ea119eaa6992aa03b52772d502d2f6d0e772925", null ],
         [ "PolygonType", "structQMapLibre_1_1Feature.html#a0ba123c0252ab6116b6cb24d61ea119eaac72476d453a53421bb16e51aaa2559f", null ]
       ] ],
-      [ "Feature", "structQMapLibre_1_1Feature.html#aa3ea9a4546364f56dd50f56079e4490e", null ]
+      [ "Feature", "structQMapLibre_1_1Feature.html#aa3ea9a4546364f56dd50f56079e4490e", null ],
+      [ "geometry", "structQMapLibre_1_1Feature.html#ac773ba27fcab1817c311f0079dcf894c", null ],
+      [ "id", "structQMapLibre_1_1Feature.html#a030847c39d992413f52a67556f30561c", null ],
+      [ "properties", "structQMapLibre_1_1Feature.html#a1cba51774b7239d183c709401bf67c25", null ],
+      [ "type", "structQMapLibre_1_1Feature.html#adc95db753ce5a7d575ddce3422ea01ec", null ]
     ] ],
     [ "QMapLibre::FeatureProperty", "structQMapLibre_1_1FeatureProperty.html", [
       [ "Type", "structQMapLibre_1_1FeatureProperty.html#ab990c3c8236d4a5499e093c5267f272d", [
         [ "LayoutProperty", "structQMapLibre_1_1FeatureProperty.html#ab990c3c8236d4a5499e093c5267f272da6abed2a334c9e3a74b6946b3a5e79067", null ],
         [ "PaintProperty", "structQMapLibre_1_1FeatureProperty.html#ab990c3c8236d4a5499e093c5267f272da34184002e2c35db47a1bddbca337568a", null ]
       ] ],
-      [ "FeatureProperty", "structQMapLibre_1_1FeatureProperty.html#a3564654f9e0a26f686e23ebefd2e2da2", null ]
+      [ "FeatureProperty", "structQMapLibre_1_1FeatureProperty.html#a3564654f9e0a26f686e23ebefd2e2da2", null ],
+      [ "name", "structQMapLibre_1_1FeatureProperty.html#abfb90da423c1b539dfcee6ca027bd158", null ],
+      [ "type", "structQMapLibre_1_1FeatureProperty.html#a70a5814e18be3fd6b7ed1dd0b6a0d684", null ],
+      [ "value", "structQMapLibre_1_1FeatureProperty.html#a26eb76124573cf95538637352c6be66b", null ]
     ] ],
     [ "QMapLibre::ShapeAnnotationGeometry", "structQMapLibre_1_1ShapeAnnotationGeometry.html", [
       [ "Type", "structQMapLibre_1_1ShapeAnnotationGeometry.html#a9c5ed85d18db46017e26a71c226edc08", [
@@ -240,16 +268,48 @@ var group__QMapLibre =
         [ "MultiLineStringType", "structQMapLibre_1_1ShapeAnnotationGeometry.html#a9c5ed85d18db46017e26a71c226edc08a499a6716ff3b567db614426963b2ae4a", null ],
         [ "MultiPolygonType", "structQMapLibre_1_1ShapeAnnotationGeometry.html#a9c5ed85d18db46017e26a71c226edc08a171f3d6b1a6ace9f1da1b0becb31cf64", null ]
       ] ],
-      [ "ShapeAnnotationGeometry", "structQMapLibre_1_1ShapeAnnotationGeometry.html#a1cf48043bd8d507fc6b38d77ea5daaea", null ]
+      [ "ShapeAnnotationGeometry", "structQMapLibre_1_1ShapeAnnotationGeometry.html#a1cf48043bd8d507fc6b38d77ea5daaea", null ],
+      [ "geometry", "structQMapLibre_1_1ShapeAnnotationGeometry.html#a6f56cef94c9b848a8e458a0dc9729ca0", null ],
+      [ "type", "structQMapLibre_1_1ShapeAnnotationGeometry.html#af1dfa607abb88203fb4bb17c6f21c57d", null ]
     ] ],
-    [ "QMapLibre::SymbolAnnotation", "structQMapLibre_1_1SymbolAnnotation.html", null ],
+    [ "QMapLibre::SymbolAnnotation", "structQMapLibre_1_1SymbolAnnotation.html", [
+      [ "geometry", "structQMapLibre_1_1SymbolAnnotation.html#ac3382a3e1ec369e488604217b77b9c0f", null ],
+      [ "icon", "structQMapLibre_1_1SymbolAnnotation.html#a31ca21e57da87f5d2289b46e892e38fe", null ]
+    ] ],
     [ "QMapLibre::LineAnnotation", "structQMapLibre_1_1LineAnnotation.html", [
-      [ "LineAnnotation", "structQMapLibre_1_1LineAnnotation.html#ade6df65aface4fd6f0b0820727c298d5", null ]
+      [ "LineAnnotation", "structQMapLibre_1_1LineAnnotation.html#ade6df65aface4fd6f0b0820727c298d5", null ],
+      [ "color", "structQMapLibre_1_1LineAnnotation.html#aec8b89f9676e6bfd02b1a5d0ed1bd28a", null ],
+      [ "geometry", "structQMapLibre_1_1LineAnnotation.html#ac14a0f75a1586cdd560ec5b6fca53f11", null ],
+      [ "opacity", "structQMapLibre_1_1LineAnnotation.html#ac339bc27313329236d8d47389c920fcf", null ],
+      [ "width", "structQMapLibre_1_1LineAnnotation.html#ac592e1ab87479bd4ed26290e8b864e7c", null ]
     ] ],
     [ "QMapLibre::FillAnnotation", "structQMapLibre_1_1FillAnnotation.html", [
-      [ "FillAnnotation", "structQMapLibre_1_1FillAnnotation.html#ab39628065f9d61b9ae0a1973984b212a", null ]
+      [ "FillAnnotation", "structQMapLibre_1_1FillAnnotation.html#ab39628065f9d61b9ae0a1973984b212a", null ],
+      [ "color", "structQMapLibre_1_1FillAnnotation.html#abe450bb40c159fb69fa36b781912f7ce", null ],
+      [ "geometry", "structQMapLibre_1_1FillAnnotation.html#a5b7014a3b99f966863e489b59bd8ba6d", null ],
+      [ "opacity", "structQMapLibre_1_1FillAnnotation.html#a8031a8cb05d24aa450cd0313d93b268d", null ],
+      [ "outlineColor", "structQMapLibre_1_1FillAnnotation.html#ace3f562deb816067470d1a9313575c99", null ]
     ] ],
-    [ "QMapLibre::CameraOptions", "structQMapLibre_1_1CameraOptions.html", null ],
-    [ "QMapLibre::CustomLayerRenderParameters", "structQMapLibre_1_1CustomLayerRenderParameters.html", null ],
-    [ "QMapLibre::CustomLayerHostInterface", "classQMapLibre_1_1CustomLayerHostInterface.html", null ]
+    [ "QMapLibre::CameraOptions", "structQMapLibre_1_1CameraOptions.html", [
+      [ "anchor", "structQMapLibre_1_1CameraOptions.html#a85476337873282855fb310f8059d0f81", null ],
+      [ "bearing", "structQMapLibre_1_1CameraOptions.html#a75e01f97fdbddafa65bfaec60131dfcc", null ],
+      [ "center", "structQMapLibre_1_1CameraOptions.html#aab9567d1f745132f65b4508aabb3fa61", null ],
+      [ "pitch", "structQMapLibre_1_1CameraOptions.html#a8a628d8710176e66341b1fe9a225f2a1", null ],
+      [ "zoom", "structQMapLibre_1_1CameraOptions.html#aa814a548a02eafbfb2ba3859de4fdab5", null ]
+    ] ],
+    [ "QMapLibre::CustomLayerRenderParameters", "structQMapLibre_1_1CustomLayerRenderParameters.html", [
+      [ "bearing", "structQMapLibre_1_1CustomLayerRenderParameters.html#a48a0e027e33447a5ad8050489d18b4a9", null ],
+      [ "fieldOfView", "structQMapLibre_1_1CustomLayerRenderParameters.html#a93e8966ff21172788ca36eee2e16b6d8", null ],
+      [ "height", "structQMapLibre_1_1CustomLayerRenderParameters.html#a7b9ab5f5516420139a3f58f3d3822f26", null ],
+      [ "latitude", "structQMapLibre_1_1CustomLayerRenderParameters.html#a90c5e48acf2a46ca483a4f9a629fde91", null ],
+      [ "longitude", "structQMapLibre_1_1CustomLayerRenderParameters.html#aa6154d6969dbbca11194095e04f8b7b5", null ],
+      [ "pitch", "structQMapLibre_1_1CustomLayerRenderParameters.html#a6dd9d7e653b03f4321f6576444ad901c", null ],
+      [ "width", "structQMapLibre_1_1CustomLayerRenderParameters.html#a32ad062fffb906fcac639d217406f26b", null ],
+      [ "zoom", "structQMapLibre_1_1CustomLayerRenderParameters.html#a31c4bc1b8918c5eb41b4c0d5c19e0d09", null ]
+    ] ],
+    [ "QMapLibre::CustomLayerHostInterface", "classQMapLibre_1_1CustomLayerHostInterface.html", [
+      [ "deinitialize", "classQMapLibre_1_1CustomLayerHostInterface.html#a0efac1db5e02311ac112cb45a9353ca5", null ],
+      [ "initialize", "classQMapLibre_1_1CustomLayerHostInterface.html#a9adac863ef9617966aaeafce6179c61c", null ],
+      [ "render", "classQMapLibre_1_1CustomLayerHostInterface.html#a9c4e4f3107ea67654ca99dfeae2089fd", null ]
+    ] ]
 ];

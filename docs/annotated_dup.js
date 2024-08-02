@@ -1,9 +1,9 @@
 var annotated_dup =
 [
     [ "QMapLibre", "namespaceQMapLibre.html", [
-      [ "CameraOptions", "structQMapLibre_1_1CameraOptions.html", null ],
-      [ "CustomLayerHostInterface", "classQMapLibre_1_1CustomLayerHostInterface.html", null ],
-      [ "CustomLayerRenderParameters", "structQMapLibre_1_1CustomLayerRenderParameters.html", null ],
+      [ "CameraOptions", "structQMapLibre_1_1CameraOptions.html", "structQMapLibre_1_1CameraOptions" ],
+      [ "CustomLayerHostInterface", "classQMapLibre_1_1CustomLayerHostInterface.html", "classQMapLibre_1_1CustomLayerHostInterface" ],
+      [ "CustomLayerRenderParameters", "structQMapLibre_1_1CustomLayerRenderParameters.html", "structQMapLibre_1_1CustomLayerRenderParameters" ],
       [ "Feature", "structQMapLibre_1_1Feature.html", "structQMapLibre_1_1Feature" ],
       [ "FeatureProperty", "structQMapLibre_1_1FeatureProperty.html", "structQMapLibre_1_1FeatureProperty" ],
       [ "FillAnnotation", "structQMapLibre_1_1FillAnnotation.html", "structQMapLibre_1_1FillAnnotation" ],
@@ -13,8 +13,8 @@ var annotated_dup =
       [ "Settings", "classQMapLibre_1_1Settings.html", "classQMapLibre_1_1Settings" ],
       [ "ShapeAnnotationGeometry", "structQMapLibre_1_1ShapeAnnotationGeometry.html", "structQMapLibre_1_1ShapeAnnotationGeometry" ],
       [ "SourceParameter", "classQMapLibre_1_1SourceParameter.html", "classQMapLibre_1_1SourceParameter" ],
-      [ "Style", "structQMapLibre_1_1Style.html", null ],
+      [ "Style", "structQMapLibre_1_1Style.html", "structQMapLibre_1_1Style" ],
       [ "StyleParameter", "classQMapLibre_1_1StyleParameter.html", "classQMapLibre_1_1StyleParameter" ],
-      [ "SymbolAnnotation", "structQMapLibre_1_1SymbolAnnotation.html", null ]
+      [ "SymbolAnnotation", "structQMapLibre_1_1SymbolAnnotation.html", "structQMapLibre_1_1SymbolAnnotation" ]
     ] ]
 ];
