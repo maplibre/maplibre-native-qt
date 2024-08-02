@@ -10,6 +10,7 @@ on:
     paths-ignore:
       - ".gitignore"
       - "README.md"
+      - "docs/**"
       # ignore CI for other platforms
       - ".github/FUNDING.yml"
       - ".github/workflows/Android.yml"
@@ -23,6 +24,7 @@ on:
     paths-ignore:
       - ".gitignore"
       - "README.md"
+      - "docs/**"
       # ignore CI for other platforms
       - ".github/FUNDING.yml"
       - ".github/workflows/Android.yml"

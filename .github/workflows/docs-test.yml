@@ -1,0 +1,38 @@
+name: Docs Test
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    tags:
+      - "**"
+    paths:
+      - "src/**"
+      - "docs/**"
+
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "src/**"
+      - "docs/**"
+
+jobs:
+  doxygen:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - name: Install Doxygen
+        uses: ssciwr/doxygen-install@v1
+        with:
+          version: "1.10.0"
+
+      - name: Generate documentation
+        working-directory: docs
+        run: doxygen

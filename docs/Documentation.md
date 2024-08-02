@@ -6,3 +6,11 @@ If you are interested in the internals of MapLibre Native you can also look at
 [Core C++ API](https://maplibre.org/maplibre-native/cpp/api/).
 
 The source code can be found [on GitHub](https://github.com/maplibre/maplibre-native-qt).
+
+<div class="section_buttons">
+
+|                        Next |
+|----------------------------:|
+| [How to build](Building.md) |
+
+</div>
