@@ -12,6 +12,8 @@ namespace QMapLibre {
     \brief A helper utility to create and configure map layers in the Map
     \ingroup QMapLibre
 
+    \headerfile layer_parameter.hpp <QMapLibre/LayerParameter>
+
     Needs to have a \ref type set to one of the supported types.
     Other properties are set dynamically, depending on the type.
 */

@@ -64,6 +64,8 @@ namespace QMapLibre {
     \brief The Settings class stores the initial configuration for Map.
     \ingroup QMapLibre
 
+    \headerfile settings.hpp <QMapLibre/Settings>
+
     Settings is used to configure Map at the moment of its creation.
     Once created, the Settings of a Map can no longer be changed.
 

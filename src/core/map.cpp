@@ -253,6 +253,8 @@ namespace QMapLibre {
     \brief The Map class is a Qt wrapper for the MapLibre Native engine.
     \ingroup QMapLibre
 
+    \headerfile map.hpp <QMapLibre/Map>
+
     Map is a Qt friendly version the MapLibre Native engine using Qt types
     and deep integration with Qt event loop. Map relies as much as possible
     on Qt, trying to minimize the external dependencies. For instance it will

@@ -10,6 +10,35 @@
 
 namespace QMapLibre {
 
+/*!
+    \defgroup QMapLibreWidgets QMapLibre Widgets
+    \brief Qt Widgets for MapLibre.
+*/
+
+/*!
+    \class GLWidget
+    \brief A simple OpenGL widget that displays a \ref QMapLibre::Map.
+    \ingroup QMapLibreWidgets
+
+    \headerfile gl_widget.hpp <QMapLibreWidgets/GLWidget>
+
+    The widget is intended as a standalone map viewer in a Qt Widgets application.
+    It owns its own instance of \ref QMapLibre::Map that is rendered to the widget.
+
+    \fn GLWidget::onMouseDoubleClickEvent
+    \brief Emitted when the user double-clicks the mouse.
+
+    \fn GLWidget::onMouseMoveEvent
+    \brief Emitted when the user moves the mouse.
+
+    \fn GLWidget::onMousePressEvent
+    \brief Emitted when the user presses the mouse.
+
+    \fn GLWidget::onMouseReleaseEvent
+    \brief Emitted when the user releases the mouse.
+*/
+
+/*! Default constructor */
 GLWidget::GLWidget(const Settings &settings)
     : d_ptr(std::make_unique<GLWidgetPrivate>(this, settings)) {}
 
@@ -20,10 +49,16 @@ GLWidget::~GLWidget() {
     d_ptr.reset();
 }
 
+/*!
+    \brief Get the QMapLibre::Map instance.
+*/
 Map *GLWidget::map() {
     return d_ptr->m_map.get();
 }
 
+/*!
+    \brief Mouse press event handler.
+*/
 void GLWidget::mousePressEvent(QMouseEvent *event) {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     const QPointF &position = event->position();
@@ -38,6 +73,9 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
     d_ptr->handleMousePressEvent(event);
 }
 
+/*!
+    \brief Mouse release event handler.
+*/
 void GLWidget::mouseReleaseEvent(QMouseEvent *event) {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     const QPointF &position = event->position();
@@ -47,6 +85,9 @@ void GLWidget::mouseReleaseEvent(QMouseEvent *event) {
     emit onMouseReleaseEvent(d_ptr->m_map->coordinateForPixel(position));
 }
 
+/*!
+    \brief Mouse move event handler.
+*/
 void GLWidget::mouseMoveEvent(QMouseEvent *event) {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     const QPointF &position = event->position();
@@ -58,10 +99,18 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
     d_ptr->handleMouseMoveEvent(event);
 }
 
+/*!
+    \brief Mouse wheel event handler.
+*/
 void GLWidget::wheelEvent(QWheelEvent *event) {
     d_ptr->handleWheelEvent(event);
 }
 
+/*!
+    \brief Initializes the map and sets up default settings.
+
+    This function is called internally by Qt when the widget is initialized.
+*/
 void GLWidget::initializeGL() {
     d_ptr->m_map = std::make_unique<Map>(nullptr, d_ptr->m_settings, size(), devicePixelRatioF());
     connect(d_ptr->m_map.get(), SIGNAL(needsRendering()), this, SLOT(update()));
@@ -77,14 +126,20 @@ void GLWidget::initializeGL() {
     }
 }
 
+/*!
+    \brief Renders the map.
+
+    This function is called internally by Qt when the widget needs to be redrawn.
+*/
 void GLWidget::paintGL() {
     d_ptr->m_map->resize(size());
     d_ptr->m_map->setFramebufferObject(defaultFramebufferObject(), size() * devicePixelRatioF());
     d_ptr->m_map->render();
 }
 
-// GLWidgetPrivate
+/*! \cond PRIVATE */
 
+// GLWidgetPrivate
 GLWidgetPrivate::GLWidgetPrivate(QObject *parent, Settings settings)
     : QObject(parent),
       m_settings(std::move(settings)) {}
@@ -153,5 +208,7 @@ void GLWidgetPrivate::handleWheelEvent(QWheelEvent *event) const {
 #endif
     event->accept();
 }
+
+/*! \endcond */
 
 } // namespace QMapLibre

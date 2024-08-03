@@ -7,11 +7,14 @@ of MapLibre Native Qt Bindings using [Doxygen](https://www.doxygen.nl).
 is used as a theme and is included as a submodule.
 To update, simply check out a new version of the submodule.
 
-The `[Documentation.md](./Documentation.md)` file contains the contents of
+The [`Documentation.md`](./Documentation.md) file contains the contents of
 the first page you see when you open the documentation website,
-while `[config/header.html](./config/header.html)` and
-`[config/footer.html](./config/footer.html)`contain the contents of
+while [`config/header.html`](./config/header.html) and
+[`config/footer.html`](./config/footer.html) contain the contents of
 the header and the footer, respectively.
+
+Standalone documentation is available at [`location`](./location/) with
+examples provided in the [`examples`](./examples/) directory.
 
 To generate the documentation, run
 

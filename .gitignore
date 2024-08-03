@@ -2,3 +2,4 @@
 *.user
 compile_commands.json
 docs/output
+.venv
