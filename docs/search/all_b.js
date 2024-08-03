@@ -1,10 +1,10 @@
 var searchData=
 [
-  ['name_0',['name',['../structQMapLibre_1_1Style.html#a383c73f09eadc1d47b4aeab151956a2b',1,'QMapLibre::Style::name'],['../structQMapLibre_1_1FeatureProperty.html#abfb90da423c1b539dfcee6ca027bd158',1,'QMapLibre::FeatureProperty::name']]],
+  ['name_0',['name',['../structQMapLibre_1_1Style.html#a7eca3f9e1924c12b6b37912ff82389d5',1,'QMapLibre::Style::name'],['../structQMapLibre_1_1FeatureProperty.html#abfb90da423c1b539dfcee6ca027bd158',1,'QMapLibre::FeatureProperty::name']]],
   ['needsrendering_1',['needsRendering',['../classQMapLibre_1_1Map.html#ae9b3f86873e87d9ae54013b1c4e1a3c3',1,'QMapLibre::Map']]],
   ['networkmode_2',['NetworkMode',['../namespaceQMapLibre.html#a5316aadcde32db8e7531f5c4ea6d52d8',1,'QMapLibre']]],
   ['networkmode_3',['networkMode',['../namespaceQMapLibre.html#ae50d9c2ef2b6a0e137ce84ee2268ef04',1,'QMapLibre']]],
-  ['night_4',['night',['../structQMapLibre_1_1Style.html#a79c82f4f9ac2b01a72f835e6c4d71e35',1,'QMapLibre::Style']]],
+  ['night_4',['night',['../structQMapLibre_1_1Style.html#af9a5e9a643b183bc7a644e1dcabb0edf',1,'QMapLibre::Style']]],
   ['noconstrain_5',['NoConstrain',['../classQMapLibre_1_1Settings.html#a1c6539969534a1d3bfed1909bb54eca7a0acc766588f4ee033a600fa122891732',1,'QMapLibre::Settings']]],
   ['noprovider_6',['NoProvider',['../classQMapLibre_1_1Settings.html#a13134cad1ff81ee83f08d8c4ccc5f13ba2247454ec4dfa6e2da2c227ea45a1a80',1,'QMapLibre::Settings']]],
   ['northdownwards_7',['NorthDownwards',['../classQMapLibre_1_1Map.html#a4fc247ab82864fc77807eba8af8a3b50a84f70b15cd01b72660e8d9db4092b166',1,'QMapLibre::Map']]],

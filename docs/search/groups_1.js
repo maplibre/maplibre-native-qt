@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['qmaplibre_20core_0',['QMapLibre Core',['../group__QMapLibre.html',1,'']]]
+  ['location_0',['QMapLibre Location',['../group__QMapLibreLocation.html',1,'']]]
 ];

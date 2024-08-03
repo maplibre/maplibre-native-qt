@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['zoom_0',['zoom',['../classQMapLibre_1_1Map.html#a4349d15ab1890f09036ede6d8302ee1e',1,'QMapLibre::Map']]]
+  ['type_0',['type',['../classLayerParameter.html#a30b0014705ffb08d7c6ae25397bb2a4d',1,'LayerParameter']]]
 ];

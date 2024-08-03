@@ -69,14 +69,15 @@ var NAVTREE =
     ] ],
     [ "Files", "files.html", [
       [ "File List", "files.html", "files_dup" ]
-    ] ]
+    ] ],
+    [ "Examples", "examples.html", "examples" ]
   ] ]
 ];
 
 var NAVTREEINDEX =
 [
 "annotated.html",
-"md_docs_2Building.html#android"
+"functions_eval.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

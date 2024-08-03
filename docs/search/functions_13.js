@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['zoom_0',['zoom',['../classQMapLibre_1_1Map.html#a2165b55d2a11d6c39b001c191e04b3a2',1,'QMapLibre::Map']]]
+  ['wheelevent_0',['wheelEvent',['../classQMapLibre_1_1GLWidget.html#a38135c8259fb2ce961938ab598b24fd5',1,'QMapLibre::GLWidget']]]
 ];

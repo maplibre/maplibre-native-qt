@@ -14,10 +14,10 @@ var structQMapLibre_1_1Style =
       [ "CycleMap", "structQMapLibre_1_1Style.html#a6b57899174965b8a86947c38894a865aad8e1f9310e253db9bad1ec346c913841", null ],
       [ "CustomMap", "structQMapLibre_1_1Style.html#a6b57899174965b8a86947c38894a865aae977e4efe7243ab13581d9b30f6cd9e2", null ]
     ] ],
-    [ "Style", "structQMapLibre_1_1Style.html#ae609dcb99fe5331d585c1b882c32e535", null ],
-    [ "description", "structQMapLibre_1_1Style.html#a781876b76a24f48cecbac3df9b6613aa", null ],
-    [ "name", "structQMapLibre_1_1Style.html#a383c73f09eadc1d47b4aeab151956a2b", null ],
-    [ "night", "structQMapLibre_1_1Style.html#a79c82f4f9ac2b01a72f835e6c4d71e35", null ],
-    [ "type", "structQMapLibre_1_1Style.html#a35525d76ab200aca1e9323acaffa0b19", null ],
-    [ "url", "structQMapLibre_1_1Style.html#aa822fbfb1e55499be0addc5562cc72fc", null ]
+    [ "Style", "structQMapLibre_1_1Style.html#a241a52caab4b5ec1c974316a3e7a9870", null ],
+    [ "description", "structQMapLibre_1_1Style.html#afc7c694343c5324fcf39e8ca31c850e1", null ],
+    [ "name", "structQMapLibre_1_1Style.html#a7eca3f9e1924c12b6b37912ff82389d5", null ],
+    [ "night", "structQMapLibre_1_1Style.html#af9a5e9a643b183bc7a644e1dcabb0edf", null ],
+    [ "type", "structQMapLibre_1_1Style.html#aa8d17089ac2918ff1f56ec6b84f6de8e", null ],
+    [ "url", "structQMapLibre_1_1Style.html#af8f6c56ea3bb40667b23e0ab54f49527", null ]
 ];
