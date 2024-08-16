@@ -14,9 +14,17 @@ This library fully supports Qt 6.5 and newer.
 Qt 5.15 is fully supported only on desktop platforms, previous Qt 5 versions
 down to 5.6 only support widgets but not Qt Location.
 
-## Documentation
+## Get and build
 
-- [How to build](docs/Building.md)
+The project uses submodules, so you need to clone it with the following commands:
+
+```shell
+git clone https://github.com/maplibre/maplibre-native-qt.git
+cd maplibre-native-qt
+git submodule update --init --recursive
+```
+
+For more details on building the project, see [How to build](docs/Building.md).
 
 ## How to use?
 
@@ -27,6 +35,13 @@ Two example projects based on Qt 6 are available in the
 To build an example, run the following commands:
 
 ```shell
+export QMapLibre_DIR="<absolute-path-to-install>"
+cmake --workflow --preset default
+```
+
+or alternatively
+
+```shell
 mkdir build-example && cd build-example
 qt-cmake ../maplibre-native-qt/examples/<example> -GNinja \
   -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
@@ -35,7 +50,7 @@ qt-cmake ../maplibre-native-qt/examples/<example> -GNinja \
 ninja
 ```
 
-For macOS a deployment target `deploy` is provided for convenience.
+For more details on using the library, see [Usage](docs/Usage.md).
 
 ## Copyright
 
