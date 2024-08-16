@@ -1,0 +1,97 @@
+name: Source Tarball
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    tags:
+      - "**"
+    paths-ignore:
+      - ".gitignore"
+      - "README.md"
+      - "docs/**"
+      # ignore CI for other platforms
+      - ".github/FUNDING.yml"
+      - ".github/actions/**"
+      - ".github/workflows/Android.yml"
+      - ".github/workflows/iOS.yml"
+      - ".github/workflows/Linux.yml"
+      - ".github/workflows/macOS.yml"
+      - ".github/workflows/Windows.yml"
+
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - ".gitignore"
+      - "README.md"
+      - "docs/**"
+      # ignore CI for other platforms
+      - ".github/FUNDING.yml"
+      - ".github/actions/**"
+      - ".github/workflows/Android.yml"
+      - ".github/workflows/iOS.yml"
+      - ".github/workflows/Linux.yml"
+      - ".github/workflows/macOS.yml"
+      - ".github/workflows/Windows.yml"
+
+concurrency:
+  # cancel jobs on PRs only
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  build:
+    name: Build Source Tarball
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: source
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Download Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          aqtversion: ==3.1.*
+          version: 6.7.2
+          dir: ${{ github.workspace }}
+          target: desktop
+          modules: qtlocation qtpositioning
+
+      - name: Build
+        run: |
+          mkdir build && cd build
+          cmake -S ../source -B . -DCMAKE_BUILD_TYPE=Release
+          cmake --build . --target package_source
+
+      - name: Upload tarball
+        uses: actions/upload-artifact@v4
+        with:
+          name: Source
+          path: build/maplibre-native-qt_*.tar.bz2
+
+  release:
+    name: Release
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-22.04
+    needs: build
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: Source
+
+      - name: Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: maplibre-native-qt_${{ github.ref_name }}_Source.tar.bz2
+          allowUpdates: true
+          draft: true
