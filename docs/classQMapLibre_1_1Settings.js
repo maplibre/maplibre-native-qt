@@ -1,28 +1,28 @@
 var classQMapLibre_1_1Settings =
 [
-    [ "ResourceTransformFunction", "classQMapLibre_1_1Settings.html#af46918882807c1115c69e1128a289583", null ],
+    [ "ResourceTransformFunction", "classQMapLibre_1_1Settings.html#a26d342505f85c281c6901cfd686db9b2", null ],
     [ "ConstrainMode", "classQMapLibre_1_1Settings.html#a1c6539969534a1d3bfed1909bb54eca7", [
-      [ "NoConstrain", "classQMapLibre_1_1Settings.html#a1c6539969534a1d3bfed1909bb54eca7a0acc766588f4ee033a600fa122891732", null ],
-      [ "ConstrainHeightOnly", "classQMapLibre_1_1Settings.html#a1c6539969534a1d3bfed1909bb54eca7abd65cfb70de048ca8accf8a13add84d2", null ],
-      [ "ConstrainWidthAndHeight", "classQMapLibre_1_1Settings.html#a1c6539969534a1d3bfed1909bb54eca7a97caf68786dcef1bc8bacbcf56706565", null ]
+      [ "NoConstrain", "classQMapLibre_1_1Settings.html#a1c6539969534a1d3bfed1909bb54eca7acafe31221e30cc4f352442f211f2709a", null ],
+      [ "ConstrainHeightOnly", "classQMapLibre_1_1Settings.html#a1c6539969534a1d3bfed1909bb54eca7aabdf76fb0f4b5ddd39c3cf993bf82a5e", null ],
+      [ "ConstrainWidthAndHeight", "classQMapLibre_1_1Settings.html#a1c6539969534a1d3bfed1909bb54eca7a3626fe263d75784f93da5d1db43e33fd", null ]
     ] ],
     [ "GLContextMode", "classQMapLibre_1_1Settings.html#ac2dfb09e03fa0a6c9659e728fcf07fcf", [
-      [ "UniqueGLContext", "classQMapLibre_1_1Settings.html#ac2dfb09e03fa0a6c9659e728fcf07fcfa47fddc38cc6c7bf8efec097a48efe26d", null ],
-      [ "SharedGLContext", "classQMapLibre_1_1Settings.html#ac2dfb09e03fa0a6c9659e728fcf07fcfa98a45cd7ef422b32967f5d4bde3906ec", null ]
+      [ "UniqueGLContext", "classQMapLibre_1_1Settings.html#ac2dfb09e03fa0a6c9659e728fcf07fcfabfefe9d43d070195dea5c19f1221a8c7", null ],
+      [ "SharedGLContext", "classQMapLibre_1_1Settings.html#ac2dfb09e03fa0a6c9659e728fcf07fcfac4a469040a6fdeef90fceefd5f719072", null ]
     ] ],
     [ "MapMode", "classQMapLibre_1_1Settings.html#acd2f39cc1c548ce4bfb35aa7380bd448", [
-      [ "Continuous", "classQMapLibre_1_1Settings.html#acd2f39cc1c548ce4bfb35aa7380bd448afeef675113dce8f9595b298661bad368", null ],
-      [ "Static", "classQMapLibre_1_1Settings.html#acd2f39cc1c548ce4bfb35aa7380bd448ac1087f934425dc628e6cd4b76618c0f6", null ]
+      [ "Continuous", "classQMapLibre_1_1Settings.html#acd2f39cc1c548ce4bfb35aa7380bd448a98d63bb1d4fa4eacd38082e56c1602d2", null ],
+      [ "Static", "classQMapLibre_1_1Settings.html#acd2f39cc1c548ce4bfb35aa7380bd448a290c59bfec46e70c88c4d7e8dba1c2c9", null ]
     ] ],
     [ "ProviderTemplate", "classQMapLibre_1_1Settings.html#a13134cad1ff81ee83f08d8c4ccc5f13b", [
-      [ "NoProvider", "classQMapLibre_1_1Settings.html#a13134cad1ff81ee83f08d8c4ccc5f13ba2247454ec4dfa6e2da2c227ea45a1a80", null ],
-      [ "MapLibreProvider", "classQMapLibre_1_1Settings.html#a13134cad1ff81ee83f08d8c4ccc5f13ba6e8fe5265b07a1a9011a8e9845556c71", null ],
-      [ "MapTilerProvider", "classQMapLibre_1_1Settings.html#a13134cad1ff81ee83f08d8c4ccc5f13ba5e67c3ebb39b29c86a03e24d13d47fc6", null ],
-      [ "MapboxProvider", "classQMapLibre_1_1Settings.html#a13134cad1ff81ee83f08d8c4ccc5f13ba967354fe82a18af245340db8f486609b", null ]
+      [ "NoProvider", "classQMapLibre_1_1Settings.html#a13134cad1ff81ee83f08d8c4ccc5f13ba016fad61e93dc70d9a732f39392525a2", null ],
+      [ "MapLibreProvider", "classQMapLibre_1_1Settings.html#a13134cad1ff81ee83f08d8c4ccc5f13badfe1146f3fd810160e65f4613d22bcbf", null ],
+      [ "MapTilerProvider", "classQMapLibre_1_1Settings.html#a13134cad1ff81ee83f08d8c4ccc5f13badbfc4e2c86f3d287603ce3f763a38056", null ],
+      [ "MapboxProvider", "classQMapLibre_1_1Settings.html#a13134cad1ff81ee83f08d8c4ccc5f13ba14a678e8c7ea3a5e8b5e82681c9d1fc6", null ]
     ] ],
     [ "ViewportMode", "classQMapLibre_1_1Settings.html#a31d9cd60ceb36bb0c62c6a72b3ff4584", [
-      [ "DefaultViewport", "classQMapLibre_1_1Settings.html#a31d9cd60ceb36bb0c62c6a72b3ff4584a09c5b5dbe4acad6f7a41d78ce5421a87", null ],
-      [ "FlippedYViewport", "classQMapLibre_1_1Settings.html#a31d9cd60ceb36bb0c62c6a72b3ff4584ad7c4792e7843c4e8178b10fdf7b3cfdd", null ]
+      [ "DefaultViewport", "classQMapLibre_1_1Settings.html#a31d9cd60ceb36bb0c62c6a72b3ff4584abc9781ad0904f8580d1c9f24c9a11021", null ],
+      [ "FlippedYViewport", "classQMapLibre_1_1Settings.html#a31d9cd60ceb36bb0c62c6a72b3ff4584ae966bb7e32f9cc7f003b7e01c73a87ba", null ]
     ] ],
     [ "Settings", "classQMapLibre_1_1Settings.html#aece735ff05731391032616554b22217b", null ],
     [ "Settings", "classQMapLibre_1_1Settings.html#ac4dfc1804bb52f95ea0ee270f29045fa", null ],

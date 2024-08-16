@@ -1,8 +1,8 @@
 var searchData=
 [
-  ['coordinate_0',['Coordinate',['../namespaceQMapLibre.html#aaef56393273cab3c8f742426596c92b7',1,'QMapLibre']]],
-  ['coordinates_1',['Coordinates',['../namespaceQMapLibre.html#a862a091b5f4f9ffba84ccdcbaed7fa79',1,'QMapLibre']]],
-  ['coordinatescollection_2',['CoordinatesCollection',['../namespaceQMapLibre.html#a9fb10d545365eb4d8cdd52efa08ee02f',1,'QMapLibre']]],
-  ['coordinatescollections_3',['CoordinatesCollections',['../namespaceQMapLibre.html#ac18d2f4fb0137761fe34d48a26bab74c',1,'QMapLibre']]],
-  ['coordinatezoom_4',['CoordinateZoom',['../namespaceQMapLibre.html#a51c9e7f72dad6bef194d602e19318293',1,'QMapLibre']]]
+  ['coordinate_0',['Coordinate',['../namespaceQMapLibre.html#aa78c13d9ca3225e2dac70a4f975c07c4',1,'QMapLibre']]],
+  ['coordinates_1',['Coordinates',['../namespaceQMapLibre.html#ae696e14a2209d2b3179d23926d44f5df',1,'QMapLibre']]],
+  ['coordinatescollection_2',['CoordinatesCollection',['../namespaceQMapLibre.html#aab8d8fd504a04388dcfd20ef1d038ccb',1,'QMapLibre']]],
+  ['coordinatescollections_3',['CoordinatesCollections',['../namespaceQMapLibre.html#a643af03d69c4eae951060d35017f06e8',1,'QMapLibre']]],
+  ['coordinatezoom_4',['CoordinateZoom',['../namespaceQMapLibre.html#a5749e64e43978663deb8f5cf646ee5cc',1,'QMapLibre']]]
 ];

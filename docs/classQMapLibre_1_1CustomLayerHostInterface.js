@@ -1,6 +1,6 @@
 var classQMapLibre_1_1CustomLayerHostInterface =
 [
-    [ "deinitialize", "classQMapLibre_1_1CustomLayerHostInterface.html#a0efac1db5e02311ac112cb45a9353ca5", null ],
-    [ "initialize", "classQMapLibre_1_1CustomLayerHostInterface.html#a9adac863ef9617966aaeafce6179c61c", null ],
-    [ "render", "classQMapLibre_1_1CustomLayerHostInterface.html#a9c4e4f3107ea67654ca99dfeae2089fd", null ]
+    [ "deinitialize", "classQMapLibre_1_1CustomLayerHostInterface.html#a53cb6eaa416c9d0aca0cee7682632b56", null ],
+    [ "initialize", "classQMapLibre_1_1CustomLayerHostInterface.html#adfecf44e617a2e06ffe913012d40f67a", null ],
+    [ "render", "classQMapLibre_1_1CustomLayerHostInterface.html#a42f6244b13ff4db9808fab2bc860d075", null ]
 ];

@@ -1,13 +1,8 @@
 var searchData=
 [
-  ['uniqueglcontext_0',['UniqueGLContext',['../classQMapLibre_1_1Settings.html#ac2dfb09e03fa0a6c9659e728fcf07fcfa47fddc38cc6c7bf8efec097a48efe26d',1,'QMapLibre::Settings']]],
-  ['unknownfailure_1',['UnknownFailure',['../classQMapLibre_1_1Map.html#acba6cab0389289df4d0900278c019090a4cb6e53e183427b79c8c15180b0711fd',1,'QMapLibre::Map']]],
-  ['updateannotation_2',['updateAnnotation',['../classQMapLibre_1_1Map.html#ad367b1dfd04aa05eaa080c2dd8da10d0',1,'QMapLibre::Map']]],
-  ['updated_3',['updated',['../classQMapLibre_1_1StyleParameter.html#a82d0ad0472c9aeddd6c16e441cb40068',1,'QMapLibre::StyleParameter']]],
-  ['updatenotify_4',['updateNotify',['../classQMapLibre_1_1StyleParameter.html#a8789b65fda10b16ebddf3e0f815d8571',1,'QMapLibre::StyleParameter']]],
-  ['updateproperty_5',['updateProperty',['../classQMapLibre_1_1StyleParameter.html#a33f53d8ebfde4cdd76b18ec156366739',1,'QMapLibre::StyleParameter']]],
-  ['updatesource_6',['updateSource',['../classQMapLibre_1_1Map.html#a98bd1e4ec1c3b4e2cf5f0f42d2e3d533',1,'QMapLibre::Map']]],
-  ['url_7',['url',['../structQMapLibre_1_1Style.html#af8f6c56ea3bb40667b23e0ab54f49527',1,'QMapLibre::Style']]],
-  ['usage_8',['Usage',['../md_docs_2Usage.html',1,'']]],
-  ['using_20cmake_20workflows_9',['Using CMake workflows',['../md_docs_2Building.html#using-cmake-workflows',1,'']]]
+  ['tileserveroptions_0',['tileServerOptions',['../classQMapLibre_1_1Settings.html#aca567f88331f27463ace1cec376eee91',1,'QMapLibre::Settings']]],
+  ['to_20build_1',['How to build',['../md_docs_2Building.html',1,'']]],
+  ['tovariantmap_2',['toVariantMap',['../classQMapLibre_1_1StyleParameter.html#af612ecbb3703125a9a0ddf4fcc5a2956',1,'QMapLibre::StyleParameter']]],
+  ['type_3',['Type',['../structQMapLibre_1_1Style.html#a6b57899174965b8a86947c38894a865a',1,'QMapLibre::Style::Type'],['../structQMapLibre_1_1Feature.html#a0ba123c0252ab6116b6cb24d61ea119e',1,'QMapLibre::Feature::Type'],['../structQMapLibre_1_1FeatureProperty.html#ab990c3c8236d4a5499e093c5267f272d',1,'QMapLibre::FeatureProperty::Type'],['../structQMapLibre_1_1ShapeAnnotationGeometry.html#a9c5ed85d18db46017e26a71c226edc08',1,'QMapLibre::ShapeAnnotationGeometry::Type']]],
+  ['type_4',['type',['../structQMapLibre_1_1Style.html#a2bd257cd152d81ca28cae15ee8e5f07a',1,'QMapLibre::Style::type'],['../structQMapLibre_1_1Feature.html#a5854657c81f9e3f2f4b8983ee8ec397d',1,'QMapLibre::Feature::type'],['../structQMapLibre_1_1FeatureProperty.html#a53474cf10a53a0cf64b23b577777341d',1,'QMapLibre::FeatureProperty::type'],['../structQMapLibre_1_1ShapeAnnotationGeometry.html#a6c4dab59d01aceeaf9240b108c74c94e',1,'QMapLibre::ShapeAnnotationGeometry::type'],['../classLayerParameter.html#a30b0014705ffb08d7c6ae25397bb2a4d',1,'LayerParameter::type'],['../classQMapLibre_1_1LayerParameter.html#a027e8efdc0641e48ffba5f889f8c033a',1,'QMapLibre::LayerParameter::type()'],['../classQMapLibre_1_1SourceParameter.html#ab970789f79282dcc29df0e0b1010bb7e',1,'QMapLibre::SourceParameter::type()']]]
 ];

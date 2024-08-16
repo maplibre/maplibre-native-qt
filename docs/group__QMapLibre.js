@@ -2,34 +2,34 @@ var group__QMapLibre =
 [
     [ "QMapLibre::Map", "classQMapLibre_1_1Map.html", [
       [ "MapChange", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09", [
-        [ "MapChangeRegionWillChange", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a680b1d21c5f7a15903d1d05c0e3aa21c", null ],
-        [ "MapChangeRegionWillChangeAnimated", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a7fe7f7920c0234c8b56eb22c50d770da", null ],
-        [ "MapChangeRegionIsChanging", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09aef006307af87227cbd5889c068aff5fc", null ],
-        [ "MapChangeRegionDidChange", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a0967a07c3de610e9999f0b1f172d0f51", null ],
-        [ "MapChangeRegionDidChangeAnimated", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a8482e20903417264e07ed10c3330bcbb", null ],
-        [ "MapChangeWillStartLoadingMap", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a773278883af504baf43668233da7f390", null ],
-        [ "MapChangeDidFinishLoadingMap", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09adb1fe41569e78158a8957e0d56e638db", null ],
-        [ "MapChangeDidFailLoadingMap", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09addfb0d439654b40c9ddd57cff8cdaffc", null ],
-        [ "MapChangeWillStartRenderingFrame", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09ab91d53ece7f2059cd26ca11fb201654f", null ],
-        [ "MapChangeDidFinishRenderingFrame", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09ae65720cb527ebad1c6140cce79bb5ad9", null ],
-        [ "MapChangeDidFinishRenderingFrameFullyRendered", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a7aee1ecfeddd44c7ee6d58e6c77c0ce1", null ],
-        [ "MapChangeWillStartRenderingMap", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a3c48b6e1a71d27b172b2ac5a809fc4cd", null ],
-        [ "MapChangeDidFinishRenderingMap", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a7731fe9039b1f0efe5664f707ad198f2", null ],
-        [ "MapChangeDidFinishRenderingMapFullyRendered", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09ae687c3cf1a9afa38cbd30da475c3e035", null ],
-        [ "MapChangeDidFinishLoadingStyle", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09adc50a1d4942cc7c364ecd18ed8d26930", null ],
-        [ "MapChangeSourceDidChange", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a6d45300864b2ac68d639a3950cf32558", null ]
+        [ "MapChangeRegionWillChange", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a470d77322a33c37c235e4b55a6034cef", null ],
+        [ "MapChangeRegionWillChangeAnimated", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09ad42b439f754d4a523d170b7d690da723", null ],
+        [ "MapChangeRegionIsChanging", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a0cfa99595dcb7e3bf8bf30f3d51eda71", null ],
+        [ "MapChangeRegionDidChange", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09add21a50c2c00dbe625d86b1338e3b59b", null ],
+        [ "MapChangeRegionDidChangeAnimated", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a7f95f6c1d15986d1a3fe9f615037e357", null ],
+        [ "MapChangeWillStartLoadingMap", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a9ca9bdc249a800291ea20be155128632", null ],
+        [ "MapChangeDidFinishLoadingMap", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09add6dd9091753608767f86d25c9d96ae1", null ],
+        [ "MapChangeDidFailLoadingMap", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a48e6b89a9c789afddfa8ca943f2ef9eb", null ],
+        [ "MapChangeWillStartRenderingFrame", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a6d2653ae3c01875c8626e6f1555494d6", null ],
+        [ "MapChangeDidFinishRenderingFrame", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a59d1056e81b50c2be5ecef76170ac4ee", null ],
+        [ "MapChangeDidFinishRenderingFrameFullyRendered", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a428da82f21f520511e51fc350acd638e", null ],
+        [ "MapChangeWillStartRenderingMap", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09ac4af797699e1a70a04d3031abfd6e4b4", null ],
+        [ "MapChangeDidFinishRenderingMap", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a612e2a3782593d206741407d75494149", null ],
+        [ "MapChangeDidFinishRenderingMapFullyRendered", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09aa0592b0dd92c7a09e0f37ab7e67e05c4", null ],
+        [ "MapChangeDidFinishLoadingStyle", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09af7865639e6d7ab553220915c4d90067a", null ],
+        [ "MapChangeSourceDidChange", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09af802ce77d9caac57114b4bcbf0b1958f", null ]
       ] ],
       [ "MapLoadingFailure", "classQMapLibre_1_1Map.html#acba6cab0389289df4d0900278c019090", [
-        [ "StyleParseFailure", "classQMapLibre_1_1Map.html#acba6cab0389289df4d0900278c019090ae96ad2c04385bf91d8327771d13a473c", null ],
-        [ "StyleLoadFailure", "classQMapLibre_1_1Map.html#acba6cab0389289df4d0900278c019090ad4bfd8082b3573a93be7d5d3ac246c31", null ],
-        [ "NotFoundFailure", "classQMapLibre_1_1Map.html#acba6cab0389289df4d0900278c019090a3ab2ed6d7b35c21e2d72d6d66c45dfc8", null ],
-        [ "UnknownFailure", "classQMapLibre_1_1Map.html#acba6cab0389289df4d0900278c019090a4cb6e53e183427b79c8c15180b0711fd", null ]
+        [ "StyleParseFailure", "classQMapLibre_1_1Map.html#acba6cab0389289df4d0900278c019090a20720ff37ff25133f62c31ccce26ee2c", null ],
+        [ "StyleLoadFailure", "classQMapLibre_1_1Map.html#acba6cab0389289df4d0900278c019090a85059756770fc3e5ec999544109ed34f", null ],
+        [ "NotFoundFailure", "classQMapLibre_1_1Map.html#acba6cab0389289df4d0900278c019090ac71e8996796e5999a8a958de027df7a7", null ],
+        [ "UnknownFailure", "classQMapLibre_1_1Map.html#acba6cab0389289df4d0900278c019090a025b77c5c89c20b53e0afd7c651efb5a", null ]
       ] ],
       [ "NorthOrientation", "classQMapLibre_1_1Map.html#a4fc247ab82864fc77807eba8af8a3b50", [
-        [ "NorthUpwards", "classQMapLibre_1_1Map.html#a4fc247ab82864fc77807eba8af8a3b50a73f6251b58e14fe9966487a8b034092a", null ],
-        [ "NorthRightwards", "classQMapLibre_1_1Map.html#a4fc247ab82864fc77807eba8af8a3b50a1e0197be6e1f53a0a2ed9034e06fbf33", null ],
-        [ "NorthDownwards", "classQMapLibre_1_1Map.html#a4fc247ab82864fc77807eba8af8a3b50a84f70b15cd01b72660e8d9db4092b166", null ],
-        [ "NorthLeftwards", "classQMapLibre_1_1Map.html#a4fc247ab82864fc77807eba8af8a3b50a2074d1ccebdff88cb295ed855c8b2149", null ]
+        [ "NorthUpwards", "classQMapLibre_1_1Map.html#a4fc247ab82864fc77807eba8af8a3b50aa58e02e99b23ae9537ab788b3a24dc27", null ],
+        [ "NorthRightwards", "classQMapLibre_1_1Map.html#a4fc247ab82864fc77807eba8af8a3b50a1e30ca2d2b6188509606fb1c04eb2849", null ],
+        [ "NorthDownwards", "classQMapLibre_1_1Map.html#a4fc247ab82864fc77807eba8af8a3b50acc863a93e0fd52bdda49338e74869e8e", null ],
+        [ "NorthLeftwards", "classQMapLibre_1_1Map.html#a4fc247ab82864fc77807eba8af8a3b50a84f762677682bac9eecce526db8a7ef5", null ]
       ] ],
       [ "Map", "classQMapLibre_1_1Map.html#a0c3b4c040da009b43de8767ca6652bbb", null ],
       [ "addAnnotation", "classQMapLibre_1_1Map.html#af43687ee3c8beffcf0dc1d8899672d83", null ],
@@ -101,41 +101,41 @@ var group__QMapLibre =
       [ "updateAnnotation", "classQMapLibre_1_1Map.html#ad367b1dfd04aa05eaa080c2dd8da10d0", null ],
       [ "updateSource", "classQMapLibre_1_1Map.html#a98bd1e4ec1c3b4e2cf5f0f42d2e3d533", null ],
       [ "zoom", "classQMapLibre_1_1Map.html#a2165b55d2a11d6c39b001c191e04b3a2", null ],
-      [ "bearing", "classQMapLibre_1_1Map.html#a1959f3a479c6aa48c5e55bcbeef37d2d", null ],
-      [ "coordinate", "classQMapLibre_1_1Map.html#a3d0570456646116b75455eb82b420322", null ],
-      [ "latitude", "classQMapLibre_1_1Map.html#a289de0693038c0323461bf31d2ccdbc9", null ],
-      [ "longitude", "classQMapLibre_1_1Map.html#ac4481a070fbe98329fd46a9ca5eacf50", null ],
-      [ "margins", "classQMapLibre_1_1Map.html#a371c99c739fefca3e476e0d1fe2e6fc4", null ],
-      [ "pitch", "classQMapLibre_1_1Map.html#aec632bf76081cbb6589fe87664215614", null ],
-      [ "scale", "classQMapLibre_1_1Map.html#a5ebc7129a5be8b9096103063ce1840ee", null ],
-      [ "styleJson", "classQMapLibre_1_1Map.html#aeb5d0ef75738a15c5ee0d1a4cd37b85f", null ],
-      [ "styleUrl", "classQMapLibre_1_1Map.html#aa72d858c4356ab3e8ff5f5d220575d18", null ],
-      [ "zoom", "classQMapLibre_1_1Map.html#a4349d15ab1890f09036ede6d8302ee1e", null ]
+      [ "bearing", "classQMapLibre_1_1Map.html#aa9efb170990ebe3dbbfe2451c48f15da", null ],
+      [ "coordinate", "classQMapLibre_1_1Map.html#a7721572d65b188fdcd2f295fe9cae673", null ],
+      [ "latitude", "classQMapLibre_1_1Map.html#a890d0845066fb5c8c0e208efa099f4d9", null ],
+      [ "longitude", "classQMapLibre_1_1Map.html#ae6fbfb295a8c613b01c990e2c1abbe63", null ],
+      [ "margins", "classQMapLibre_1_1Map.html#a2845f6209194308ae0c2fb2acfafec52", null ],
+      [ "pitch", "classQMapLibre_1_1Map.html#a4c149057f59a0e8af764d5af34373360", null ],
+      [ "scale", "classQMapLibre_1_1Map.html#ad3b324c8f390d9975f9d2ec3e409cb50", null ],
+      [ "styleJson", "classQMapLibre_1_1Map.html#a3d5bbeb3fc93946363b3676355e437ed", null ],
+      [ "styleUrl", "classQMapLibre_1_1Map.html#adde2d49c69ef71bcc87448006935b1cc", null ],
+      [ "zoom", "classQMapLibre_1_1Map.html#ae3e8f7503789990d04d4a73e284feed3", null ]
     ] ],
     [ "QMapLibre::Settings", "classQMapLibre_1_1Settings.html", [
-      [ "ResourceTransformFunction", "classQMapLibre_1_1Settings.html#af46918882807c1115c69e1128a289583", null ],
+      [ "ResourceTransformFunction", "classQMapLibre_1_1Settings.html#a26d342505f85c281c6901cfd686db9b2", null ],
       [ "ConstrainMode", "classQMapLibre_1_1Settings.html#a1c6539969534a1d3bfed1909bb54eca7", [
-        [ "NoConstrain", "classQMapLibre_1_1Settings.html#a1c6539969534a1d3bfed1909bb54eca7a0acc766588f4ee033a600fa122891732", null ],
-        [ "ConstrainHeightOnly", "classQMapLibre_1_1Settings.html#a1c6539969534a1d3bfed1909bb54eca7abd65cfb70de048ca8accf8a13add84d2", null ],
-        [ "ConstrainWidthAndHeight", "classQMapLibre_1_1Settings.html#a1c6539969534a1d3bfed1909bb54eca7a97caf68786dcef1bc8bacbcf56706565", null ]
+        [ "NoConstrain", "classQMapLibre_1_1Settings.html#a1c6539969534a1d3bfed1909bb54eca7acafe31221e30cc4f352442f211f2709a", null ],
+        [ "ConstrainHeightOnly", "classQMapLibre_1_1Settings.html#a1c6539969534a1d3bfed1909bb54eca7aabdf76fb0f4b5ddd39c3cf993bf82a5e", null ],
+        [ "ConstrainWidthAndHeight", "classQMapLibre_1_1Settings.html#a1c6539969534a1d3bfed1909bb54eca7a3626fe263d75784f93da5d1db43e33fd", null ]
       ] ],
       [ "GLContextMode", "classQMapLibre_1_1Settings.html#ac2dfb09e03fa0a6c9659e728fcf07fcf", [
-        [ "UniqueGLContext", "classQMapLibre_1_1Settings.html#ac2dfb09e03fa0a6c9659e728fcf07fcfa47fddc38cc6c7bf8efec097a48efe26d", null ],
-        [ "SharedGLContext", "classQMapLibre_1_1Settings.html#ac2dfb09e03fa0a6c9659e728fcf07fcfa98a45cd7ef422b32967f5d4bde3906ec", null ]
+        [ "UniqueGLContext", "classQMapLibre_1_1Settings.html#ac2dfb09e03fa0a6c9659e728fcf07fcfabfefe9d43d070195dea5c19f1221a8c7", null ],
+        [ "SharedGLContext", "classQMapLibre_1_1Settings.html#ac2dfb09e03fa0a6c9659e728fcf07fcfac4a469040a6fdeef90fceefd5f719072", null ]
       ] ],
       [ "MapMode", "classQMapLibre_1_1Settings.html#acd2f39cc1c548ce4bfb35aa7380bd448", [
-        [ "Continuous", "classQMapLibre_1_1Settings.html#acd2f39cc1c548ce4bfb35aa7380bd448afeef675113dce8f9595b298661bad368", null ],
-        [ "Static", "classQMapLibre_1_1Settings.html#acd2f39cc1c548ce4bfb35aa7380bd448ac1087f934425dc628e6cd4b76618c0f6", null ]
+        [ "Continuous", "classQMapLibre_1_1Settings.html#acd2f39cc1c548ce4bfb35aa7380bd448a98d63bb1d4fa4eacd38082e56c1602d2", null ],
+        [ "Static", "classQMapLibre_1_1Settings.html#acd2f39cc1c548ce4bfb35aa7380bd448a290c59bfec46e70c88c4d7e8dba1c2c9", null ]
       ] ],
       [ "ProviderTemplate", "classQMapLibre_1_1Settings.html#a13134cad1ff81ee83f08d8c4ccc5f13b", [
-        [ "NoProvider", "classQMapLibre_1_1Settings.html#a13134cad1ff81ee83f08d8c4ccc5f13ba2247454ec4dfa6e2da2c227ea45a1a80", null ],
-        [ "MapLibreProvider", "classQMapLibre_1_1Settings.html#a13134cad1ff81ee83f08d8c4ccc5f13ba6e8fe5265b07a1a9011a8e9845556c71", null ],
-        [ "MapTilerProvider", "classQMapLibre_1_1Settings.html#a13134cad1ff81ee83f08d8c4ccc5f13ba5e67c3ebb39b29c86a03e24d13d47fc6", null ],
-        [ "MapboxProvider", "classQMapLibre_1_1Settings.html#a13134cad1ff81ee83f08d8c4ccc5f13ba967354fe82a18af245340db8f486609b", null ]
+        [ "NoProvider", "classQMapLibre_1_1Settings.html#a13134cad1ff81ee83f08d8c4ccc5f13ba016fad61e93dc70d9a732f39392525a2", null ],
+        [ "MapLibreProvider", "classQMapLibre_1_1Settings.html#a13134cad1ff81ee83f08d8c4ccc5f13badfe1146f3fd810160e65f4613d22bcbf", null ],
+        [ "MapTilerProvider", "classQMapLibre_1_1Settings.html#a13134cad1ff81ee83f08d8c4ccc5f13badbfc4e2c86f3d287603ce3f763a38056", null ],
+        [ "MapboxProvider", "classQMapLibre_1_1Settings.html#a13134cad1ff81ee83f08d8c4ccc5f13ba14a678e8c7ea3a5e8b5e82681c9d1fc6", null ]
       ] ],
       [ "ViewportMode", "classQMapLibre_1_1Settings.html#a31d9cd60ceb36bb0c62c6a72b3ff4584", [
-        [ "DefaultViewport", "classQMapLibre_1_1Settings.html#a31d9cd60ceb36bb0c62c6a72b3ff4584a09c5b5dbe4acad6f7a41d78ce5421a87", null ],
-        [ "FlippedYViewport", "classQMapLibre_1_1Settings.html#a31d9cd60ceb36bb0c62c6a72b3ff4584ad7c4792e7843c4e8178b10fdf7b3cfdd", null ]
+        [ "DefaultViewport", "classQMapLibre_1_1Settings.html#a31d9cd60ceb36bb0c62c6a72b3ff4584abc9781ad0904f8580d1c9f24c9a11021", null ],
+        [ "FlippedYViewport", "classQMapLibre_1_1Settings.html#a31d9cd60ceb36bb0c62c6a72b3ff4584ae966bb7e32f9cc7f003b7e01c73a87ba", null ]
       ] ],
       [ "Settings", "classQMapLibre_1_1Settings.html#aece735ff05731391032616554b22217b", null ],
       [ "Settings", "classQMapLibre_1_1Settings.html#ac4dfc1804bb52f95ea0ee270f29045fa", null ],
@@ -180,42 +180,42 @@ var group__QMapLibre =
       [ "viewportMode", "classQMapLibre_1_1Settings.html#a1cd18f6fb20735d23164f98f580b1ff0", null ]
     ] ],
     [ "QMapLibre::LayerParameter", "classQMapLibre_1_1LayerParameter.html", [
-      [ "LayerParameter", "classQMapLibre_1_1LayerParameter.html#aeabb1baaf14b46970628df8392e84a37", null ],
-      [ "layout", "classQMapLibre_1_1LayerParameter.html#ad4315e8055dca49ead8455f5819d26ee", null ],
-      [ "layoutUpdated", "classQMapLibre_1_1LayerParameter.html#af0568a996fc2fd2cede46cc2a9720d0e", null ],
-      [ "paint", "classQMapLibre_1_1LayerParameter.html#ae55bce66c5d1cd9babd00271ee90020e", null ],
-      [ "paintUpdated", "classQMapLibre_1_1LayerParameter.html#a09220b8bd88658a9a0885bc857283089", null ],
-      [ "setLayout", "classQMapLibre_1_1LayerParameter.html#a610700db5030a118775830fd5aa4708f", null ],
-      [ "setLayoutProperty", "classQMapLibre_1_1LayerParameter.html#a41d1fe162fdb79d2190676a4ed331c3b", null ],
-      [ "setPaint", "classQMapLibre_1_1LayerParameter.html#a8e710417cdaed9660fe646e12a55290c", null ],
-      [ "setPaintProperty", "classQMapLibre_1_1LayerParameter.html#a7b763e85cbe8197aeb3243509c496811", null ],
-      [ "setType", "classQMapLibre_1_1LayerParameter.html#a22d786b0025098c3429084ceb0959d1d", null ],
-      [ "type", "classQMapLibre_1_1LayerParameter.html#a9f1752cc375bc63c1a3092029800532f", null ],
-      [ "m_layout", "classQMapLibre_1_1LayerParameter.html#ae659146c020261f83a02546e6e46a930", null ],
-      [ "m_paint", "classQMapLibre_1_1LayerParameter.html#a2955a9e45d0c723fb00f17c5eda5559a", null ],
-      [ "m_type", "classQMapLibre_1_1LayerParameter.html#aca5098abd2b3ae93b50c28b5f4917b2a", null ]
+      [ "LayerParameter", "classQMapLibre_1_1LayerParameter.html#af55e0ca7fe147da27b1926e38b86240e", null ],
+      [ "layout", "classQMapLibre_1_1LayerParameter.html#ad81e68f539a5e7e373f9ac00570a1c8e", null ],
+      [ "layoutUpdated", "classQMapLibre_1_1LayerParameter.html#a29f0e0f556120f5f809c30f49ed75f86", null ],
+      [ "paint", "classQMapLibre_1_1LayerParameter.html#a12c4fcfbc351ecddb875599d65876676", null ],
+      [ "paintUpdated", "classQMapLibre_1_1LayerParameter.html#adec639f645eb02c8c8602c73eced831e", null ],
+      [ "setLayout", "classQMapLibre_1_1LayerParameter.html#a2549c479d421896b7ed84cae10f082c8", null ],
+      [ "setLayoutProperty", "classQMapLibre_1_1LayerParameter.html#aa29e86e288638ad10e84ed09e3291dac", null ],
+      [ "setPaint", "classQMapLibre_1_1LayerParameter.html#a6671a5e82d0357d359615166d28f4078", null ],
+      [ "setPaintProperty", "classQMapLibre_1_1LayerParameter.html#a9ee6bc40196bee27eceb0dccf65c7f66", null ],
+      [ "setType", "classQMapLibre_1_1LayerParameter.html#ab4034a829b1a7106ab9c890d08a3c32f", null ],
+      [ "type", "classQMapLibre_1_1LayerParameter.html#a027e8efdc0641e48ffba5f889f8c033a", null ],
+      [ "m_layout", "classQMapLibre_1_1LayerParameter.html#ab388d1de6ebd50d2f2c845d4a4f04431", null ],
+      [ "m_paint", "classQMapLibre_1_1LayerParameter.html#a249d0b16865239c68bc89db07e611958", null ],
+      [ "m_type", "classQMapLibre_1_1LayerParameter.html#aead0749c04e700a183c3bf1c2e33dd39", null ]
     ] ],
     [ "QMapLibre::SourceParameter", "classQMapLibre_1_1SourceParameter.html", [
-      [ "SourceParameter", "classQMapLibre_1_1SourceParameter.html#a9bbf4eaec097074f2da0ec7f71ddeec0", null ],
-      [ "setType", "classQMapLibre_1_1SourceParameter.html#abe39bf3a63cf1047df9018a47010003e", null ],
-      [ "type", "classQMapLibre_1_1SourceParameter.html#a834b773d2a8f5a42a7d6e96a066d08e9", null ],
-      [ "m_type", "classQMapLibre_1_1SourceParameter.html#a746a0913482937de8b6b138e7911aa89", null ]
+      [ "SourceParameter", "classQMapLibre_1_1SourceParameter.html#a3971010dde984e37267c3586080568d4", null ],
+      [ "setType", "classQMapLibre_1_1SourceParameter.html#aab0170a35845e511735f56857d01d33b", null ],
+      [ "type", "classQMapLibre_1_1SourceParameter.html#ab970789f79282dcc29df0e0b1010bb7e", null ],
+      [ "m_type", "classQMapLibre_1_1SourceParameter.html#afc158c0696281d6df595b70f26082e10", null ]
     ] ],
     [ "QMapLibre::StyleParameter", "classQMapLibre_1_1StyleParameter.html", [
-      [ "StyleParameter", "classQMapLibre_1_1StyleParameter.html#a72212de5abc1e6355ae4f3c451f75d78", null ],
-      [ "hasProperty", "classQMapLibre_1_1StyleParameter.html#af2cbb2bc1f0cdbf26d250863096849cb", null ],
-      [ "isReady", "classQMapLibre_1_1StyleParameter.html#af4fe5b6835da68903ef0fe85250569d9", null ],
-      [ "operator==", "classQMapLibre_1_1StyleParameter.html#ade82ba15e666dc3b9b5dc700b7dd116f", null ],
-      [ "ready", "classQMapLibre_1_1StyleParameter.html#afbf355779514001b5a5c27f0c9a80865", null ],
-      [ "setStyleId", "classQMapLibre_1_1StyleParameter.html#a579df3feaa71f9d9643983e590d09540", null ],
-      [ "styleId", "classQMapLibre_1_1StyleParameter.html#aecaa96adecdb71e8032163b5c0886d19", null ],
-      [ "toVariantMap", "classQMapLibre_1_1StyleParameter.html#ae5db76b40789c0839c26e7207cdd8a2f", null ],
-      [ "updated", "classQMapLibre_1_1StyleParameter.html#a82d0ad0472c9aeddd6c16e441cb40068", null ],
-      [ "updateNotify", "classQMapLibre_1_1StyleParameter.html#a8789b65fda10b16ebddf3e0f815d8571", null ],
-      [ "updateProperty", "classQMapLibre_1_1StyleParameter.html#a33f53d8ebfde4cdd76b18ec156366739", null ],
-      [ "m_initialPropertyCount", "classQMapLibre_1_1StyleParameter.html#a02a4d978e9e80a23a0ee2aaedd9c5fb4", null ],
-      [ "m_ready", "classQMapLibre_1_1StyleParameter.html#ac351a9892a9e36beaa97e91b674463bf", null ],
-      [ "m_styleId", "classQMapLibre_1_1StyleParameter.html#acc19e8d15e43d9c29698a963c37a0f45", null ]
+      [ "StyleParameter", "classQMapLibre_1_1StyleParameter.html#ac68c4621cff7b077f5076f1177aca142", null ],
+      [ "hasProperty", "classQMapLibre_1_1StyleParameter.html#aa0c4a6d38f04882ef86eee3ea219dbd8", null ],
+      [ "isReady", "classQMapLibre_1_1StyleParameter.html#a29f936af641f51aa3fd708899525c885", null ],
+      [ "operator==", "classQMapLibre_1_1StyleParameter.html#a7ba9f88a63e061319104dcc42d992431", null ],
+      [ "ready", "classQMapLibre_1_1StyleParameter.html#a86f6bd9ca11c7bffbf712bd12e58e06b", null ],
+      [ "setStyleId", "classQMapLibre_1_1StyleParameter.html#abf241d236415a2424bbc6c8effb7b9d8", null ],
+      [ "styleId", "classQMapLibre_1_1StyleParameter.html#ab476423349f7b2fb69ef2232707bda7b", null ],
+      [ "toVariantMap", "classQMapLibre_1_1StyleParameter.html#af612ecbb3703125a9a0ddf4fcc5a2956", null ],
+      [ "updated", "classQMapLibre_1_1StyleParameter.html#af122ec58a533e182624be21f04a4937e", null ],
+      [ "updateNotify", "classQMapLibre_1_1StyleParameter.html#a45f7016e3146e1ca73e81939f9be5c87", null ],
+      [ "updateProperty", "classQMapLibre_1_1StyleParameter.html#a35213a9fcb1bc25bc22529ac4942eb8a", null ],
+      [ "m_initialPropertyCount", "classQMapLibre_1_1StyleParameter.html#a4099cd78a9aeacc0e35ab75a6d9f7a37", null ],
+      [ "m_ready", "classQMapLibre_1_1StyleParameter.html#a725c1ca553bfe3ec206e3fd1d70ce269", null ],
+      [ "m_styleId", "classQMapLibre_1_1StyleParameter.html#abf83943594d10de68e74e704e851e15d", null ]
     ] ],
     [ "QMapLibre::Style", "structQMapLibre_1_1Style.html", [
       [ "Type", "structQMapLibre_1_1Style.html#a6b57899174965b8a86947c38894a865a", [
@@ -232,84 +232,84 @@ var group__QMapLibre =
         [ "CycleMap", "structQMapLibre_1_1Style.html#a6b57899174965b8a86947c38894a865aad8e1f9310e253db9bad1ec346c913841", null ],
         [ "CustomMap", "structQMapLibre_1_1Style.html#a6b57899174965b8a86947c38894a865aae977e4efe7243ab13581d9b30f6cd9e2", null ]
       ] ],
-      [ "Style", "structQMapLibre_1_1Style.html#a241a52caab4b5ec1c974316a3e7a9870", null ],
-      [ "description", "structQMapLibre_1_1Style.html#afc7c694343c5324fcf39e8ca31c850e1", null ],
-      [ "name", "structQMapLibre_1_1Style.html#a7eca3f9e1924c12b6b37912ff82389d5", null ],
-      [ "night", "structQMapLibre_1_1Style.html#af9a5e9a643b183bc7a644e1dcabb0edf", null ],
-      [ "type", "structQMapLibre_1_1Style.html#aa8d17089ac2918ff1f56ec6b84f6de8e", null ],
-      [ "url", "structQMapLibre_1_1Style.html#af8f6c56ea3bb40667b23e0ab54f49527", null ]
+      [ "Style", "structQMapLibre_1_1Style.html#ae609dcb99fe5331d585c1b882c32e535", null ],
+      [ "description", "structQMapLibre_1_1Style.html#a7c6ebc035bae89f7c00db1d4d740da48", null ],
+      [ "name", "structQMapLibre_1_1Style.html#a918089e6cd45e32969b24168fcfc1ee9", null ],
+      [ "night", "structQMapLibre_1_1Style.html#a49f8e0c5289a39e59f1e5e3088f9390e", null ],
+      [ "type", "structQMapLibre_1_1Style.html#a2bd257cd152d81ca28cae15ee8e5f07a", null ],
+      [ "url", "structQMapLibre_1_1Style.html#ac3f4a15b65db1c43de5971e06f0f8c02", null ]
     ] ],
     [ "QMapLibre::Feature", "structQMapLibre_1_1Feature.html", [
       [ "Type", "structQMapLibre_1_1Feature.html#a0ba123c0252ab6116b6cb24d61ea119e", [
-        [ "PointType", "structQMapLibre_1_1Feature.html#a0ba123c0252ab6116b6cb24d61ea119eaf190873721cc07f3b583baf13a8376fd", null ],
-        [ "LineStringType", "structQMapLibre_1_1Feature.html#a0ba123c0252ab6116b6cb24d61ea119eaa6992aa03b52772d502d2f6d0e772925", null ],
-        [ "PolygonType", "structQMapLibre_1_1Feature.html#a0ba123c0252ab6116b6cb24d61ea119eaac72476d453a53421bb16e51aaa2559f", null ]
+        [ "PointType", "structQMapLibre_1_1Feature.html#a0ba123c0252ab6116b6cb24d61ea119ea211dcae6ffc3ac69f657de9a234154e4", null ],
+        [ "LineStringType", "structQMapLibre_1_1Feature.html#a0ba123c0252ab6116b6cb24d61ea119ea91125d646018d87bbd088ab6034cbda1", null ],
+        [ "PolygonType", "structQMapLibre_1_1Feature.html#a0ba123c0252ab6116b6cb24d61ea119eaf600d535d6a13dbcb6395add2ba97d19", null ]
       ] ],
       [ "Feature", "structQMapLibre_1_1Feature.html#aa3ea9a4546364f56dd50f56079e4490e", null ],
-      [ "geometry", "structQMapLibre_1_1Feature.html#ac773ba27fcab1817c311f0079dcf894c", null ],
-      [ "id", "structQMapLibre_1_1Feature.html#a030847c39d992413f52a67556f30561c", null ],
-      [ "properties", "structQMapLibre_1_1Feature.html#a1cba51774b7239d183c709401bf67c25", null ],
-      [ "type", "structQMapLibre_1_1Feature.html#adc95db753ce5a7d575ddce3422ea01ec", null ]
+      [ "geometry", "structQMapLibre_1_1Feature.html#aee800f3e8d2e6c9d1212f5baa281b956", null ],
+      [ "id", "structQMapLibre_1_1Feature.html#a98d45eb3c4e74af214dbb97786c0fafb", null ],
+      [ "properties", "structQMapLibre_1_1Feature.html#a0fb4445f67f40266242a515c518588b6", null ],
+      [ "type", "structQMapLibre_1_1Feature.html#a5854657c81f9e3f2f4b8983ee8ec397d", null ]
     ] ],
     [ "QMapLibre::FeatureProperty", "structQMapLibre_1_1FeatureProperty.html", [
       [ "Type", "structQMapLibre_1_1FeatureProperty.html#ab990c3c8236d4a5499e093c5267f272d", [
-        [ "LayoutProperty", "structQMapLibre_1_1FeatureProperty.html#ab990c3c8236d4a5499e093c5267f272da6abed2a334c9e3a74b6946b3a5e79067", null ],
-        [ "PaintProperty", "structQMapLibre_1_1FeatureProperty.html#ab990c3c8236d4a5499e093c5267f272da34184002e2c35db47a1bddbca337568a", null ]
+        [ "LayoutProperty", "structQMapLibre_1_1FeatureProperty.html#ab990c3c8236d4a5499e093c5267f272dad015f8f7b009bbfb1810ece935c780f5", null ],
+        [ "PaintProperty", "structQMapLibre_1_1FeatureProperty.html#ab990c3c8236d4a5499e093c5267f272da2684a45a00ffd6abb43bb383a083597a", null ]
       ] ],
       [ "FeatureProperty", "structQMapLibre_1_1FeatureProperty.html#a3564654f9e0a26f686e23ebefd2e2da2", null ],
-      [ "name", "structQMapLibre_1_1FeatureProperty.html#abfb90da423c1b539dfcee6ca027bd158", null ],
-      [ "type", "structQMapLibre_1_1FeatureProperty.html#a70a5814e18be3fd6b7ed1dd0b6a0d684", null ],
-      [ "value", "structQMapLibre_1_1FeatureProperty.html#a26eb76124573cf95538637352c6be66b", null ]
+      [ "name", "structQMapLibre_1_1FeatureProperty.html#a7d8cc4f84115acf68f3ce0ebedf26d11", null ],
+      [ "type", "structQMapLibre_1_1FeatureProperty.html#a53474cf10a53a0cf64b23b577777341d", null ],
+      [ "value", "structQMapLibre_1_1FeatureProperty.html#a2f3995db6a11a5b5c8e3c7c25e76c9fb", null ]
     ] ],
     [ "QMapLibre::ShapeAnnotationGeometry", "structQMapLibre_1_1ShapeAnnotationGeometry.html", [
       [ "Type", "structQMapLibre_1_1ShapeAnnotationGeometry.html#a9c5ed85d18db46017e26a71c226edc08", [
-        [ "LineStringType", "structQMapLibre_1_1ShapeAnnotationGeometry.html#a9c5ed85d18db46017e26a71c226edc08a432423983b97342fc198907fb2d61ee0", null ],
-        [ "PolygonType", "structQMapLibre_1_1ShapeAnnotationGeometry.html#a9c5ed85d18db46017e26a71c226edc08a14a317c35a9a1a85fb1c55eea49dfe8c", null ],
-        [ "MultiLineStringType", "structQMapLibre_1_1ShapeAnnotationGeometry.html#a9c5ed85d18db46017e26a71c226edc08a499a6716ff3b567db614426963b2ae4a", null ],
-        [ "MultiPolygonType", "structQMapLibre_1_1ShapeAnnotationGeometry.html#a9c5ed85d18db46017e26a71c226edc08a171f3d6b1a6ace9f1da1b0becb31cf64", null ]
+        [ "LineStringType", "structQMapLibre_1_1ShapeAnnotationGeometry.html#a9c5ed85d18db46017e26a71c226edc08a93a07caf6ba42c5ffe41ad6b0d2a3c66", null ],
+        [ "PolygonType", "structQMapLibre_1_1ShapeAnnotationGeometry.html#a9c5ed85d18db46017e26a71c226edc08aa6af67c60b84252430f32dec9fc9d798", null ],
+        [ "MultiLineStringType", "structQMapLibre_1_1ShapeAnnotationGeometry.html#a9c5ed85d18db46017e26a71c226edc08ac6074a1813cf040f74c736b2e9eb7cfd", null ],
+        [ "MultiPolygonType", "structQMapLibre_1_1ShapeAnnotationGeometry.html#a9c5ed85d18db46017e26a71c226edc08a6ee316b9467d59565c45be13d3d7dca9", null ]
       ] ],
       [ "ShapeAnnotationGeometry", "structQMapLibre_1_1ShapeAnnotationGeometry.html#a1cf48043bd8d507fc6b38d77ea5daaea", null ],
-      [ "geometry", "structQMapLibre_1_1ShapeAnnotationGeometry.html#a6f56cef94c9b848a8e458a0dc9729ca0", null ],
-      [ "type", "structQMapLibre_1_1ShapeAnnotationGeometry.html#af1dfa607abb88203fb4bb17c6f21c57d", null ]
+      [ "geometry", "structQMapLibre_1_1ShapeAnnotationGeometry.html#ad71fa5b9870f3fc073b0a1395f2a5076", null ],
+      [ "type", "structQMapLibre_1_1ShapeAnnotationGeometry.html#a6c4dab59d01aceeaf9240b108c74c94e", null ]
     ] ],
     [ "QMapLibre::SymbolAnnotation", "structQMapLibre_1_1SymbolAnnotation.html", [
-      [ "geometry", "structQMapLibre_1_1SymbolAnnotation.html#ac3382a3e1ec369e488604217b77b9c0f", null ],
-      [ "icon", "structQMapLibre_1_1SymbolAnnotation.html#a31ca21e57da87f5d2289b46e892e38fe", null ]
+      [ "geometry", "structQMapLibre_1_1SymbolAnnotation.html#a02be49b55f2ff1b3ea59baeeaf218026", null ],
+      [ "icon", "structQMapLibre_1_1SymbolAnnotation.html#a0374e1e1f749aac623b3ed6fbdfcae53", null ]
     ] ],
     [ "QMapLibre::LineAnnotation", "structQMapLibre_1_1LineAnnotation.html", [
       [ "LineAnnotation", "structQMapLibre_1_1LineAnnotation.html#ade6df65aface4fd6f0b0820727c298d5", null ],
-      [ "color", "structQMapLibre_1_1LineAnnotation.html#aec8b89f9676e6bfd02b1a5d0ed1bd28a", null ],
-      [ "geometry", "structQMapLibre_1_1LineAnnotation.html#ac14a0f75a1586cdd560ec5b6fca53f11", null ],
-      [ "opacity", "structQMapLibre_1_1LineAnnotation.html#ac339bc27313329236d8d47389c920fcf", null ],
-      [ "width", "structQMapLibre_1_1LineAnnotation.html#ac592e1ab87479bd4ed26290e8b864e7c", null ]
+      [ "color", "structQMapLibre_1_1LineAnnotation.html#ada5ff0acdb16881c2feb98869c6a5267", null ],
+      [ "geometry", "structQMapLibre_1_1LineAnnotation.html#a4c3d5c2aa6d9ab508346cf56b649ac81", null ],
+      [ "opacity", "structQMapLibre_1_1LineAnnotation.html#aa1be056c0ce802c789b92cddcc34b013", null ],
+      [ "width", "structQMapLibre_1_1LineAnnotation.html#a8fcdfe9a106bde57c5589c34a921aa46", null ]
     ] ],
     [ "QMapLibre::FillAnnotation", "structQMapLibre_1_1FillAnnotation.html", [
       [ "FillAnnotation", "structQMapLibre_1_1FillAnnotation.html#ab39628065f9d61b9ae0a1973984b212a", null ],
-      [ "color", "structQMapLibre_1_1FillAnnotation.html#abe450bb40c159fb69fa36b781912f7ce", null ],
-      [ "geometry", "structQMapLibre_1_1FillAnnotation.html#a5b7014a3b99f966863e489b59bd8ba6d", null ],
-      [ "opacity", "structQMapLibre_1_1FillAnnotation.html#a8031a8cb05d24aa450cd0313d93b268d", null ],
-      [ "outlineColor", "structQMapLibre_1_1FillAnnotation.html#ace3f562deb816067470d1a9313575c99", null ]
+      [ "color", "structQMapLibre_1_1FillAnnotation.html#a769274494bef0a4b4ac5275abd327faf", null ],
+      [ "geometry", "structQMapLibre_1_1FillAnnotation.html#a9b855e884c26dc45ba46f6811393d608", null ],
+      [ "opacity", "structQMapLibre_1_1FillAnnotation.html#a0792382622631beab05da11b1a1c37a0", null ],
+      [ "outlineColor", "structQMapLibre_1_1FillAnnotation.html#ab7a52b21871ed32b0b798fc4c8b8b6d5", null ]
     ] ],
     [ "QMapLibre::CameraOptions", "structQMapLibre_1_1CameraOptions.html", [
-      [ "anchor", "structQMapLibre_1_1CameraOptions.html#a85476337873282855fb310f8059d0f81", null ],
-      [ "bearing", "structQMapLibre_1_1CameraOptions.html#a75e01f97fdbddafa65bfaec60131dfcc", null ],
-      [ "center", "structQMapLibre_1_1CameraOptions.html#aab9567d1f745132f65b4508aabb3fa61", null ],
-      [ "pitch", "structQMapLibre_1_1CameraOptions.html#a8a628d8710176e66341b1fe9a225f2a1", null ],
-      [ "zoom", "structQMapLibre_1_1CameraOptions.html#aa814a548a02eafbfb2ba3859de4fdab5", null ]
+      [ "anchor", "structQMapLibre_1_1CameraOptions.html#a915c75aa84255fe0139633b7c5c10630", null ],
+      [ "bearing", "structQMapLibre_1_1CameraOptions.html#a47705621fdea3a4f1a25510ed40bfe71", null ],
+      [ "center", "structQMapLibre_1_1CameraOptions.html#a8e39d3392babbbb2c0b8ae75ea1ef7cc", null ],
+      [ "pitch", "structQMapLibre_1_1CameraOptions.html#af934acb315bd441689de1073c7a6a445", null ],
+      [ "zoom", "structQMapLibre_1_1CameraOptions.html#a20ff676b7cb9f8078a9640fc9393a472", null ]
     ] ],
     [ "QMapLibre::CustomLayerRenderParameters", "structQMapLibre_1_1CustomLayerRenderParameters.html", [
-      [ "bearing", "structQMapLibre_1_1CustomLayerRenderParameters.html#a48a0e027e33447a5ad8050489d18b4a9", null ],
-      [ "fieldOfView", "structQMapLibre_1_1CustomLayerRenderParameters.html#a93e8966ff21172788ca36eee2e16b6d8", null ],
-      [ "height", "structQMapLibre_1_1CustomLayerRenderParameters.html#a7b9ab5f5516420139a3f58f3d3822f26", null ],
-      [ "latitude", "structQMapLibre_1_1CustomLayerRenderParameters.html#a90c5e48acf2a46ca483a4f9a629fde91", null ],
-      [ "longitude", "structQMapLibre_1_1CustomLayerRenderParameters.html#aa6154d6969dbbca11194095e04f8b7b5", null ],
-      [ "pitch", "structQMapLibre_1_1CustomLayerRenderParameters.html#a6dd9d7e653b03f4321f6576444ad901c", null ],
-      [ "width", "structQMapLibre_1_1CustomLayerRenderParameters.html#a32ad062fffb906fcac639d217406f26b", null ],
-      [ "zoom", "structQMapLibre_1_1CustomLayerRenderParameters.html#a31c4bc1b8918c5eb41b4c0d5c19e0d09", null ]
+      [ "bearing", "structQMapLibre_1_1CustomLayerRenderParameters.html#ad787952e6d017435fedd750004451ee5", null ],
+      [ "fieldOfView", "structQMapLibre_1_1CustomLayerRenderParameters.html#a1ce30b0991f8c06a0e10bf9454b06850", null ],
+      [ "height", "structQMapLibre_1_1CustomLayerRenderParameters.html#ad441adc078224b36afdc3c14ed5074b1", null ],
+      [ "latitude", "structQMapLibre_1_1CustomLayerRenderParameters.html#a00466348a4ab524a08fdaef5eb49d6a4", null ],
+      [ "longitude", "structQMapLibre_1_1CustomLayerRenderParameters.html#ad0a64d054b053da250e02eca3113cf34", null ],
+      [ "pitch", "structQMapLibre_1_1CustomLayerRenderParameters.html#aa55510f86c45c07da8242c17b758b8c7", null ],
+      [ "width", "structQMapLibre_1_1CustomLayerRenderParameters.html#a6d46311e37b57a688b3b48019b71a0a8", null ],
+      [ "zoom", "structQMapLibre_1_1CustomLayerRenderParameters.html#ae81fd80076e642b06c8c94ca2d3db460", null ]
     ] ],
     [ "QMapLibre::CustomLayerHostInterface", "classQMapLibre_1_1CustomLayerHostInterface.html", [
-      [ "deinitialize", "classQMapLibre_1_1CustomLayerHostInterface.html#a0efac1db5e02311ac112cb45a9353ca5", null ],
-      [ "initialize", "classQMapLibre_1_1CustomLayerHostInterface.html#a9adac863ef9617966aaeafce6179c61c", null ],
-      [ "render", "classQMapLibre_1_1CustomLayerHostInterface.html#a9c4e4f3107ea67654ca99dfeae2089fd", null ]
+      [ "deinitialize", "classQMapLibre_1_1CustomLayerHostInterface.html#a53cb6eaa416c9d0aca0cee7682632b56", null ],
+      [ "initialize", "classQMapLibre_1_1CustomLayerHostInterface.html#adfecf44e617a2e06ffe913012d40f67a", null ],
+      [ "render", "classQMapLibre_1_1CustomLayerHostInterface.html#a42f6244b13ff4db9808fab2bc860d075", null ]
     ] ]
 ];

@@ -1,18 +1,13 @@
 var searchData=
 [
-  ['paint_0',['paint',['../classLayerParameter.html#a6c189498d0735211b9207a126c3db042',1,'LayerParameter::paint'],['../classQMapLibre_1_1LayerParameter.html#ae55bce66c5d1cd9babd00271ee90020e',1,'QMapLibre::LayerParameter::paint()']]],
-  ['paintgl_1',['paintGL',['../classQMapLibre_1_1GLWidget.html#a704db0f14e03dd6084c46baa8c9fc07b',1,'QMapLibre::GLWidget']]],
-  ['paintproperty_2',['PaintProperty',['../structQMapLibre_1_1FeatureProperty.html#ab990c3c8236d4a5499e093c5267f272da34184002e2c35db47a1bddbca337568a',1,'QMapLibre::FeatureProperty']]],
-  ['paintupdated_3',['paintUpdated',['../classQMapLibre_1_1LayerParameter.html#a09220b8bd88658a9a0885bc857283089',1,'QMapLibre::LayerParameter']]],
-  ['pitch_4',['pitch',['../classQMapLibre_1_1Map.html#aec632bf76081cbb6589fe87664215614',1,'QMapLibre::Map::pitch'],['../structQMapLibre_1_1CameraOptions.html#a8a628d8710176e66341b1fe9a225f2a1',1,'QMapLibre::CameraOptions::pitch'],['../structQMapLibre_1_1CustomLayerRenderParameters.html#a6dd9d7e653b03f4321f6576444ad901c',1,'QMapLibre::CustomLayerRenderParameters::pitch'],['../classQMapLibre_1_1Map.html#a97073ca52d1a33d6662daf70c2f6258d',1,'QMapLibre::Map::pitch() const']]],
-  ['pitchby_5',['pitchBy',['../classQMapLibre_1_1Map.html#a87098faed7e24aac7234513b3fbf851b',1,'QMapLibre::Map']]],
-  ['pixelforcoordinate_6',['pixelForCoordinate',['../classQMapLibre_1_1Map.html#a8fda44c9516ecf731baffd5395ec10ed',1,'QMapLibre::Map']]],
-  ['pointtype_7',['PointType',['../structQMapLibre_1_1Feature.html#a0ba123c0252ab6116b6cb24d61ea119eaf190873721cc07f3b583baf13a8376fd',1,'QMapLibre::Feature']]],
-  ['polygontype_8',['PolygonType',['../structQMapLibre_1_1Feature.html#a0ba123c0252ab6116b6cb24d61ea119eaac72476d453a53421bb16e51aaa2559f',1,'QMapLibre::Feature::PolygonType'],['../structQMapLibre_1_1ShapeAnnotationGeometry.html#a9c5ed85d18db46017e26a71c226edc08a14a317c35a9a1a85fb1c55eea49dfe8c',1,'QMapLibre::ShapeAnnotationGeometry::PolygonType']]],
-  ['prerequisites_9',['Qt prerequisites',['../md_docs_2Building.html#qt-prerequisites',1,'']]],
-  ['projectedmeters_10',['ProjectedMeters',['../namespaceQMapLibre.html#ab9ed8576ca043361750efd10aa311b0b',1,'QMapLibre']]],
-  ['projectedmetersforcoordinate_11',['projectedMetersForCoordinate',['../namespaceQMapLibre.html#ae8ab227468f52956fb045c080962978d',1,'QMapLibre']]],
-  ['properties_12',['properties',['../structQMapLibre_1_1Feature.html#a1cba51774b7239d183c709401bf67c25',1,'QMapLibre::Feature']]],
-  ['providerstyles_13',['providerStyles',['../classQMapLibre_1_1Settings.html#a81fd52356b795ff9d8d282a684a58084',1,'QMapLibre::Settings']]],
-  ['providertemplate_14',['ProviderTemplate',['../classQMapLibre_1_1Settings.html#a13134cad1ff81ee83f08d8c4ccc5f13b',1,'QMapLibre::Settings']]]
+  ['offline_0',['Offline',['../namespaceQMapLibre.html#a5316aadcde32db8e7531f5c4ea6d52d8a48f4f8707885a70ea8e5316c8676740b',1,'QMapLibre']]],
+  ['online_1',['Online',['../namespaceQMapLibre.html#a5316aadcde32db8e7531f5c4ea6d52d8ac1715e5e9bd53be2d64bb16f2bdb92da',1,'QMapLibre']]],
+  ['onmousedoubleclickevent_2',['onMouseDoubleClickEvent',['../classQMapLibre_1_1GLWidget.html#a8ee2ac2654244b0d972d703eeeaa562d',1,'QMapLibre::GLWidget']]],
+  ['onmousemoveevent_3',['onMouseMoveEvent',['../classQMapLibre_1_1GLWidget.html#a57fb486d40bbaadc2766760a5095ff16',1,'QMapLibre::GLWidget']]],
+  ['onmousepressevent_4',['onMousePressEvent',['../classQMapLibre_1_1GLWidget.html#aee2f305477bb2508154efd0662d778bc',1,'QMapLibre::GLWidget']]],
+  ['onmousereleaseevent_5',['onMouseReleaseEvent',['../classQMapLibre_1_1GLWidget.html#a91087cdd0f234c1b33920e7016e28bb9',1,'QMapLibre::GLWidget']]],
+  ['opacity_6',['opacity',['../structQMapLibre_1_1LineAnnotation.html#aa1be056c0ce802c789b92cddcc34b013',1,'QMapLibre::LineAnnotation::opacity'],['../structQMapLibre_1_1FillAnnotation.html#a0792382622631beab05da11b1a1c37a0',1,'QMapLibre::FillAnnotation::opacity']]],
+  ['operator_3d_7',['operator=',['../classQMapLibre_1_1Settings.html#a1eae6b13600dc13f07f11b9af0af1d58',1,'QMapLibre::Settings::operator=(const Settings &amp;s)'],['../classQMapLibre_1_1Settings.html#a3651ec550c396018f2e921b06323ff18',1,'QMapLibre::Settings::operator=(Settings &amp;&amp;s) noexcept']]],
+  ['operator_3d_3d_8',['operator==',['../classQMapLibre_1_1StyleParameter.html#a7ba9f88a63e061319104dcc42d992431',1,'QMapLibre::StyleParameter']]],
+  ['outlinecolor_9',['outlineColor',['../structQMapLibre_1_1FillAnnotation.html#ab7a52b21871ed32b0b798fc4c8b8b6d5',1,'QMapLibre::FillAnnotation']]]
 ];

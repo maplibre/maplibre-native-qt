@@ -41,7 +41,16 @@ var NAVTREE =
         [ "Special workflows", "md_docs_2Building.html#special-workflows", null ]
       ] ]
     ] ],
-    [ "Usage", "md_docs_2Usage.html", null ],
+    [ "Usage", "md_docs_2Usage.html", [
+      [ "Examples", "md_docs_2Usage.html#examples", null ],
+      [ "Basic CMake setup", "md_docs_2Usage.html#basic-cmake-setup", null ],
+      [ "Widgets setup", "md_docs_2Usage.html#widgets-setup", null ],
+      [ "QML setup", "md_docs_2Usage.html#qml-setup", null ],
+      [ "Development specifics", "md_docs_2Usage.html#development-specifics", null ],
+      [ "Platform specifics", "md_docs_2Usage.html#platform-specifics", [
+        [ "Android", "md_docs_2Usage.html#android-1", null ]
+      ] ]
+    ] ],
     [ "Topics", "topics.html", "topics" ],
     [ "Namespaces", "namespaces.html", [
       [ "Namespace List", "namespaces.html", "namespaces_dup" ],

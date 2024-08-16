@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['bearing_0',['bearing',['../structQMapLibre_1_1CameraOptions.html#a75e01f97fdbddafa65bfaec60131dfcc',1,'QMapLibre::CameraOptions::bearing'],['../structQMapLibre_1_1CustomLayerRenderParameters.html#a48a0e027e33447a5ad8050489d18b4a9',1,'QMapLibre::CustomLayerRenderParameters::bearing']]]
+  ['bearing_0',['bearing',['../structQMapLibre_1_1CameraOptions.html#a47705621fdea3a4f1a25510ed40bfe71',1,'QMapLibre::CameraOptions::bearing'],['../structQMapLibre_1_1CustomLayerRenderParameters.html#ad787952e6d017435fedd750004451ee5',1,'QMapLibre::CustomLayerRenderParameters::bearing']]]
 ];

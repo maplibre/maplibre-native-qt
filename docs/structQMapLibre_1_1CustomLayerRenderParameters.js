@@ -1,11 +1,11 @@
 var structQMapLibre_1_1CustomLayerRenderParameters =
 [
-    [ "bearing", "structQMapLibre_1_1CustomLayerRenderParameters.html#a48a0e027e33447a5ad8050489d18b4a9", null ],
-    [ "fieldOfView", "structQMapLibre_1_1CustomLayerRenderParameters.html#a93e8966ff21172788ca36eee2e16b6d8", null ],
-    [ "height", "structQMapLibre_1_1CustomLayerRenderParameters.html#a7b9ab5f5516420139a3f58f3d3822f26", null ],
-    [ "latitude", "structQMapLibre_1_1CustomLayerRenderParameters.html#a90c5e48acf2a46ca483a4f9a629fde91", null ],
-    [ "longitude", "structQMapLibre_1_1CustomLayerRenderParameters.html#aa6154d6969dbbca11194095e04f8b7b5", null ],
-    [ "pitch", "structQMapLibre_1_1CustomLayerRenderParameters.html#a6dd9d7e653b03f4321f6576444ad901c", null ],
-    [ "width", "structQMapLibre_1_1CustomLayerRenderParameters.html#a32ad062fffb906fcac639d217406f26b", null ],
-    [ "zoom", "structQMapLibre_1_1CustomLayerRenderParameters.html#a31c4bc1b8918c5eb41b4c0d5c19e0d09", null ]
+    [ "bearing", "structQMapLibre_1_1CustomLayerRenderParameters.html#ad787952e6d017435fedd750004451ee5", null ],
+    [ "fieldOfView", "structQMapLibre_1_1CustomLayerRenderParameters.html#a1ce30b0991f8c06a0e10bf9454b06850", null ],
+    [ "height", "structQMapLibre_1_1CustomLayerRenderParameters.html#ad441adc078224b36afdc3c14ed5074b1", null ],
+    [ "latitude", "structQMapLibre_1_1CustomLayerRenderParameters.html#a00466348a4ab524a08fdaef5eb49d6a4", null ],
+    [ "longitude", "structQMapLibre_1_1CustomLayerRenderParameters.html#ad0a64d054b053da250e02eca3113cf34", null ],
+    [ "pitch", "structQMapLibre_1_1CustomLayerRenderParameters.html#aa55510f86c45c07da8242c17b758b8c7", null ],
+    [ "width", "structQMapLibre_1_1CustomLayerRenderParameters.html#a6d46311e37b57a688b3b48019b71a0a8", null ],
+    [ "zoom", "structQMapLibre_1_1CustomLayerRenderParameters.html#ae81fd80076e642b06c8c94ca2d3db460", null ]
 ];

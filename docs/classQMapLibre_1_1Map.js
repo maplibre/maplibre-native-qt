@@ -1,34 +1,34 @@
 var classQMapLibre_1_1Map =
 [
     [ "MapChange", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09", [
-      [ "MapChangeRegionWillChange", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a680b1d21c5f7a15903d1d05c0e3aa21c", null ],
-      [ "MapChangeRegionWillChangeAnimated", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a7fe7f7920c0234c8b56eb22c50d770da", null ],
-      [ "MapChangeRegionIsChanging", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09aef006307af87227cbd5889c068aff5fc", null ],
-      [ "MapChangeRegionDidChange", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a0967a07c3de610e9999f0b1f172d0f51", null ],
-      [ "MapChangeRegionDidChangeAnimated", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a8482e20903417264e07ed10c3330bcbb", null ],
-      [ "MapChangeWillStartLoadingMap", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a773278883af504baf43668233da7f390", null ],
-      [ "MapChangeDidFinishLoadingMap", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09adb1fe41569e78158a8957e0d56e638db", null ],
-      [ "MapChangeDidFailLoadingMap", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09addfb0d439654b40c9ddd57cff8cdaffc", null ],
-      [ "MapChangeWillStartRenderingFrame", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09ab91d53ece7f2059cd26ca11fb201654f", null ],
-      [ "MapChangeDidFinishRenderingFrame", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09ae65720cb527ebad1c6140cce79bb5ad9", null ],
-      [ "MapChangeDidFinishRenderingFrameFullyRendered", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a7aee1ecfeddd44c7ee6d58e6c77c0ce1", null ],
-      [ "MapChangeWillStartRenderingMap", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a3c48b6e1a71d27b172b2ac5a809fc4cd", null ],
-      [ "MapChangeDidFinishRenderingMap", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a7731fe9039b1f0efe5664f707ad198f2", null ],
-      [ "MapChangeDidFinishRenderingMapFullyRendered", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09ae687c3cf1a9afa38cbd30da475c3e035", null ],
-      [ "MapChangeDidFinishLoadingStyle", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09adc50a1d4942cc7c364ecd18ed8d26930", null ],
-      [ "MapChangeSourceDidChange", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a6d45300864b2ac68d639a3950cf32558", null ]
+      [ "MapChangeRegionWillChange", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a470d77322a33c37c235e4b55a6034cef", null ],
+      [ "MapChangeRegionWillChangeAnimated", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09ad42b439f754d4a523d170b7d690da723", null ],
+      [ "MapChangeRegionIsChanging", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a0cfa99595dcb7e3bf8bf30f3d51eda71", null ],
+      [ "MapChangeRegionDidChange", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09add21a50c2c00dbe625d86b1338e3b59b", null ],
+      [ "MapChangeRegionDidChangeAnimated", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a7f95f6c1d15986d1a3fe9f615037e357", null ],
+      [ "MapChangeWillStartLoadingMap", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a9ca9bdc249a800291ea20be155128632", null ],
+      [ "MapChangeDidFinishLoadingMap", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09add6dd9091753608767f86d25c9d96ae1", null ],
+      [ "MapChangeDidFailLoadingMap", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a48e6b89a9c789afddfa8ca943f2ef9eb", null ],
+      [ "MapChangeWillStartRenderingFrame", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a6d2653ae3c01875c8626e6f1555494d6", null ],
+      [ "MapChangeDidFinishRenderingFrame", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a59d1056e81b50c2be5ecef76170ac4ee", null ],
+      [ "MapChangeDidFinishRenderingFrameFullyRendered", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a428da82f21f520511e51fc350acd638e", null ],
+      [ "MapChangeWillStartRenderingMap", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09ac4af797699e1a70a04d3031abfd6e4b4", null ],
+      [ "MapChangeDidFinishRenderingMap", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09a612e2a3782593d206741407d75494149", null ],
+      [ "MapChangeDidFinishRenderingMapFullyRendered", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09aa0592b0dd92c7a09e0f37ab7e67e05c4", null ],
+      [ "MapChangeDidFinishLoadingStyle", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09af7865639e6d7ab553220915c4d90067a", null ],
+      [ "MapChangeSourceDidChange", "classQMapLibre_1_1Map.html#a6e8bf1eccb0fd60c634db00341bbeb09af802ce77d9caac57114b4bcbf0b1958f", null ]
     ] ],
     [ "MapLoadingFailure", "classQMapLibre_1_1Map.html#acba6cab0389289df4d0900278c019090", [
-      [ "StyleParseFailure", "classQMapLibre_1_1Map.html#acba6cab0389289df4d0900278c019090ae96ad2c04385bf91d8327771d13a473c", null ],
-      [ "StyleLoadFailure", "classQMapLibre_1_1Map.html#acba6cab0389289df4d0900278c019090ad4bfd8082b3573a93be7d5d3ac246c31", null ],
-      [ "NotFoundFailure", "classQMapLibre_1_1Map.html#acba6cab0389289df4d0900278c019090a3ab2ed6d7b35c21e2d72d6d66c45dfc8", null ],
-      [ "UnknownFailure", "classQMapLibre_1_1Map.html#acba6cab0389289df4d0900278c019090a4cb6e53e183427b79c8c15180b0711fd", null ]
+      [ "StyleParseFailure", "classQMapLibre_1_1Map.html#acba6cab0389289df4d0900278c019090a20720ff37ff25133f62c31ccce26ee2c", null ],
+      [ "StyleLoadFailure", "classQMapLibre_1_1Map.html#acba6cab0389289df4d0900278c019090a85059756770fc3e5ec999544109ed34f", null ],
+      [ "NotFoundFailure", "classQMapLibre_1_1Map.html#acba6cab0389289df4d0900278c019090ac71e8996796e5999a8a958de027df7a7", null ],
+      [ "UnknownFailure", "classQMapLibre_1_1Map.html#acba6cab0389289df4d0900278c019090a025b77c5c89c20b53e0afd7c651efb5a", null ]
     ] ],
     [ "NorthOrientation", "classQMapLibre_1_1Map.html#a4fc247ab82864fc77807eba8af8a3b50", [
-      [ "NorthUpwards", "classQMapLibre_1_1Map.html#a4fc247ab82864fc77807eba8af8a3b50a73f6251b58e14fe9966487a8b034092a", null ],
-      [ "NorthRightwards", "classQMapLibre_1_1Map.html#a4fc247ab82864fc77807eba8af8a3b50a1e0197be6e1f53a0a2ed9034e06fbf33", null ],
-      [ "NorthDownwards", "classQMapLibre_1_1Map.html#a4fc247ab82864fc77807eba8af8a3b50a84f70b15cd01b72660e8d9db4092b166", null ],
-      [ "NorthLeftwards", "classQMapLibre_1_1Map.html#a4fc247ab82864fc77807eba8af8a3b50a2074d1ccebdff88cb295ed855c8b2149", null ]
+      [ "NorthUpwards", "classQMapLibre_1_1Map.html#a4fc247ab82864fc77807eba8af8a3b50aa58e02e99b23ae9537ab788b3a24dc27", null ],
+      [ "NorthRightwards", "classQMapLibre_1_1Map.html#a4fc247ab82864fc77807eba8af8a3b50a1e30ca2d2b6188509606fb1c04eb2849", null ],
+      [ "NorthDownwards", "classQMapLibre_1_1Map.html#a4fc247ab82864fc77807eba8af8a3b50acc863a93e0fd52bdda49338e74869e8e", null ],
+      [ "NorthLeftwards", "classQMapLibre_1_1Map.html#a4fc247ab82864fc77807eba8af8a3b50a84f762677682bac9eecce526db8a7ef5", null ]
     ] ],
     [ "Map", "classQMapLibre_1_1Map.html#a0c3b4c040da009b43de8767ca6652bbb", null ],
     [ "addAnnotation", "classQMapLibre_1_1Map.html#af43687ee3c8beffcf0dc1d8899672d83", null ],
@@ -100,14 +100,14 @@ var classQMapLibre_1_1Map =
     [ "updateAnnotation", "classQMapLibre_1_1Map.html#ad367b1dfd04aa05eaa080c2dd8da10d0", null ],
     [ "updateSource", "classQMapLibre_1_1Map.html#a98bd1e4ec1c3b4e2cf5f0f42d2e3d533", null ],
     [ "zoom", "classQMapLibre_1_1Map.html#a2165b55d2a11d6c39b001c191e04b3a2", null ],
-    [ "bearing", "classQMapLibre_1_1Map.html#a1959f3a479c6aa48c5e55bcbeef37d2d", null ],
-    [ "coordinate", "classQMapLibre_1_1Map.html#a3d0570456646116b75455eb82b420322", null ],
-    [ "latitude", "classQMapLibre_1_1Map.html#a289de0693038c0323461bf31d2ccdbc9", null ],
-    [ "longitude", "classQMapLibre_1_1Map.html#ac4481a070fbe98329fd46a9ca5eacf50", null ],
-    [ "margins", "classQMapLibre_1_1Map.html#a371c99c739fefca3e476e0d1fe2e6fc4", null ],
-    [ "pitch", "classQMapLibre_1_1Map.html#aec632bf76081cbb6589fe87664215614", null ],
-    [ "scale", "classQMapLibre_1_1Map.html#a5ebc7129a5be8b9096103063ce1840ee", null ],
-    [ "styleJson", "classQMapLibre_1_1Map.html#aeb5d0ef75738a15c5ee0d1a4cd37b85f", null ],
-    [ "styleUrl", "classQMapLibre_1_1Map.html#aa72d858c4356ab3e8ff5f5d220575d18", null ],
-    [ "zoom", "classQMapLibre_1_1Map.html#a4349d15ab1890f09036ede6d8302ee1e", null ]
+    [ "bearing", "classQMapLibre_1_1Map.html#aa9efb170990ebe3dbbfe2451c48f15da", null ],
+    [ "coordinate", "classQMapLibre_1_1Map.html#a7721572d65b188fdcd2f295fe9cae673", null ],
+    [ "latitude", "classQMapLibre_1_1Map.html#a890d0845066fb5c8c0e208efa099f4d9", null ],
+    [ "longitude", "classQMapLibre_1_1Map.html#ae6fbfb295a8c613b01c990e2c1abbe63", null ],
+    [ "margins", "classQMapLibre_1_1Map.html#a2845f6209194308ae0c2fb2acfafec52", null ],
+    [ "pitch", "classQMapLibre_1_1Map.html#a4c149057f59a0e8af764d5af34373360", null ],
+    [ "scale", "classQMapLibre_1_1Map.html#ad3b324c8f390d9975f9d2ec3e409cb50", null ],
+    [ "styleJson", "classQMapLibre_1_1Map.html#a3d5bbeb3fc93946363b3676355e437ed", null ],
+    [ "styleUrl", "classQMapLibre_1_1Map.html#adde2d49c69ef71bcc87448006935b1cc", null ],
+    [ "zoom", "classQMapLibre_1_1Map.html#ae3e8f7503789990d04d4a73e284feed3", null ]
 ];
