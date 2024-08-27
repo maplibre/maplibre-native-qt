@@ -19,6 +19,23 @@
       "inherits": ["dev", "ccache", "Linux"]
     },
     {
+      "name": "Linux-internal-icu",
+      "displayName": "Linux configuration using Qt6 and internal ICU",
+      "generator": "Ninja",
+      "binaryDir": "${sourceParentDir}/build/qt6-Linux-internal-icu",
+      "toolchainFile": "$penv{QT_ROOT_DIR}/lib/cmake/Qt6/qt.toolchain.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "QT_VERSION_MAJOR": "6",
+        "MLN_QT_WITH_INTERNAL_ICU": "ON"
+      }
+    },
+    {
+      "name": "Linux-internal-icu-ccache",
+      "displayName": "Linux configuration using Qt6, internal ICU and ccache",
+      "inherits": ["dev", "ccache", "Linux-internal-icu"]
+    },
+    {
       "name": "Linux-coverage",
       "displayName": "Linux configuration using Qt6, ccache and code coverage",
       "inherits": ["Linux-ccache"],
@@ -56,6 +73,16 @@
       "configurePreset": "Linux-ccache"
     },
     {
+      "name": "Linux-internal-icu",
+      "displayName": "Linux build using Qt6 and internal ICU",
+      "configurePreset": "Linux-internal-icu"
+    },
+    {
+      "name": "Linux-internal-icu-ccache",
+      "displayName": "Linux build using Qt6, internal ICU and ccache",
+      "configurePreset": "Linux-internal-icu-ccache"
+    },
+    {
       "name": "Linux-coverage",
       "displayName": "Linux build using Qt6, ccache and code coverage",
       "configurePreset": "Linux-coverage"
@@ -82,6 +109,18 @@
       "name": "Linux-ccache",
       "displayName": "Linux tests using Qt6 and ccache",
       "configurePreset": "Linux-ccache",
+      "inherits": ["default"]
+    },
+    {
+      "name": "Linux-internal-icu",
+      "displayName": "Linux tests using Qt6 and internal ICU",
+      "configurePreset": "Linux-internal-icu",
+      "inherits": ["default"]
+    },
+    {
+      "name": "Linux-internal-icu-ccache",
+      "displayName": "Linux tests using Qt6, internal ICU and ccache",
+      "configurePreset": "Linux-internal-icu-ccache",
       "inherits": ["default"]
     },
     {
@@ -113,6 +152,16 @@
       "name": "Linux-ccache",
       "displayName": "Linux package using Qt6 and ccache",
       "configurePreset": "Linux-ccache"
+    },
+    {
+      "name": "Linux-internal-icu",
+      "displayName": "Linux package using Qt6 and internal ICU",
+      "configurePreset": "Linux-internal-icu"
+    },
+    {
+      "name": "Linux-internal-icu-ccache",
+      "displayName": "Linux package using Qt6, internal ICU and ccache",
+      "configurePreset": "Linux-internal-icu-ccache"
     },
     {
       "name": "Linux-coverage",
@@ -172,6 +221,50 @@
         {
           "type": "package",
           "name": "Linux-ccache"
+        }
+      ]
+    },
+    {
+      "name": "Linux-internal-icu",
+      "displayName": "Linux workflow using Qt6 and internal ICU",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "Linux-internal-icu"
+        },
+        {
+          "type": "build",
+          "name": "Linux-internal-icu"
+        },
+        {
+          "type": "test",
+          "name": "Linux-internal-icu"
+        },
+        {
+          "type": "package",
+          "name": "Linux-internal-icu"
+        }
+      ]
+    },
+    {
+      "name": "Linux-internal-icu-ccache",
+      "displayName": "Linux workflow using Qt6, internal ICU and ccache",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "Linux-internal-icu-ccache"
+        },
+        {
+          "type": "build",
+          "name": "Linux-internal-icu-ccache"
+        },
+        {
+          "type": "test",
+          "name": "Linux-internal-icu-ccache"
+        },
+        {
+          "type": "package",
+          "name": "Linux-internal-icu-ccache"
         }
       ]
     },

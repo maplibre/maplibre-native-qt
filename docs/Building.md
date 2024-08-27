@@ -15,6 +15,9 @@ bindings build in the same step. To speed-up the build, `ninja` and `ccache`
 are recommended. For Qt 6 using the `qt-cmake` wrapper instead of plain `cmake`
 makes building non-desktop platforms easier.
 
+@note To make sure a correct version of Qt 6 is used, use the provided toolchain file
+with `-DCMAKE_TOOLCHAIN_FILE="<path-to-qt>/lib/cmake/Qt6/qt.toolchain.cmake"`
+
 A minimal example command is:
 
 ```bash
@@ -42,6 +45,19 @@ is not too new as it may prevent your app from running on older
 versions of Linux. Alternatively you can use internally bundled ICU with the
 `-DMLN_QT_WITH_INTERNAL_ICU=ON` CMake option.
 
+To replicate run:
+
+```shell
+mkdir build && cd build
+cmake ../maplibre-native-qt -G Ninja \
+  -DCMAKE_BUILD_TYPE="Release" \
+  -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
+  -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
+  -DCMAKE_INSTALL_PREFIX="../install"
+ninja
+ninja install
+```
+
 ### macOS
 
 Release binaries contain debug symbols.
@@ -51,6 +67,7 @@ OS deployment target version is set to 11.0 for Qt 6 and 10.13 for Qt 5.
 To replicate run:
 
 ```shell
+mkdir build && cd build
 cmake ../maplibre-native-qt -G Ninja \
   -DCMAKE_BUILD_TYPE="RelWithDebInfo" \
   -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
@@ -58,6 +75,8 @@ cmake ../maplibre-native-qt -G Ninja \
   -DCMAKE_INSTALL_PREFIX="../install" \
   -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" \
   -DCMAKE_OSX_DEPLOYMENT_TARGET="11.0"
+ninja
+ninja install
 ```
 
 ### Windows
@@ -68,11 +87,14 @@ with debug build. To achieve that `Ninja Multi-Config` generator is used.
 To replicate, run:
 
 ```shell
+mkdir build && cd build
 cmake ../maplibre-native-qt -G "Ninja Multi-Config" \
   -DCMAKE_CONFIGURATION_TYPES="Release;Debug" \
   -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
   -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
   -DCMAKE_INSTALL_PREFIX="../install"
+ninja
+ninja install
 ```
 
 ### iOS
@@ -85,6 +107,7 @@ OS deployment target version is set to 14.0.
 To replicate, run:
 
 ```shell
+mkdir build && cd build
 cmake ../maplibre-native-qt -G "Ninja Multi-Config" \
   -DCMAKE_CONFIGURATION_TYPES="Release;Debug" \
   -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
@@ -92,6 +115,8 @@ cmake ../maplibre-native-qt -G "Ninja Multi-Config" \
   -DCMAKE_INSTALL_PREFIX="../install" \
   -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
   -DCMAKE_OSX_DEPLOYMENT_TARGET="14.0"
+ninja
+ninja install
 ```
 
 ### Android
@@ -101,12 +126,15 @@ Release binaries contain debug symbols. Each ABI is built separately.
 To replicate, run:
 
 ```shell
+mkdir build && cd build
 cmake ../maplibre-native-qt -G Ninja \
   -DCMAKE_BUILD_TYPE="RelWithDebInfo" \
   -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
   -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
   -DCMAKE_INSTALL_PREFIX="../install" \
   -DANDROID_ABI="arm64-v8a"
+ninja
+ninja install
 ```
 
 ### WebAssembly (WASM)
@@ -118,12 +146,15 @@ The Qt Location module has to be disabled as it is not supported.
 To replicate, run:
 
 ```shell
+mkdir build && cd build
 cmake ../maplibre-native-qt -G Ninja \
   -DCMAKE_BUILD_TYPE="RelWithDebInfo" \
   -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
   -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
   -DCMAKE_INSTALL_PREFIX="../install" \
   -DMLN_QT_LOCATION=OFF
+ninja
+ninja install
 ```
 
 ## Using CMake workflows
@@ -162,10 +193,11 @@ For Android, `ANDROID_ABI` environment variable should be set.
 
 ### Special workflows
 
-| Platform | Workflow           | Description                                      |
-|----------|--------------------|--------------------------------------------------|
-| Linux    | `Linux-coverage`   | Linux build with Qt6, `ccache` and code coverage |
-| macOS    | `macOS-clang-tidy` | macOS build with Qt6, `ccache` and `clang-tidy`  |
+| Platform | Workflow             | Description                                                         |
+|----------|----------------------|---------------------------------------------------------------------|
+| Linux    | `Linux-coverage`     | Linux build with Qt6, `ccache` and code coverage                    |
+| Linux    | `Linux-internal-icu` | Linux build with Qt6 and internal ICU library (also with `-ccache`) |
+| macOS    | `macOS-clang-tidy`   | macOS build with Qt6, `ccache` and `clang-tidy`                     |
 
 <div class="section_buttons">
 

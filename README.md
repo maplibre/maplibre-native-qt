@@ -4,9 +4,9 @@
 
 MapLibre Native Qt bindings and Qt Location MapLibre Plugin
 
-**Important notice:** Repository is being reorganised for Qt 6.5 support.
-Some features will go away temporarily and API will change also for older
-releases in the upcoming version 3.0 of the Qt bindings and Qt Location plugin.
+**Important notice:** the repository and code have been reorganised for Qt 6.5 support.
+Version 3.0 is a major release that includes a lot of build-related changes
+and improvements and is not backwards compatible.
 
 ## Qt support
 
@@ -23,6 +23,9 @@ git clone https://github.com/maplibre/maplibre-native-qt.git
 cd maplibre-native-qt
 git submodule update --init --recursive
 ```
+
+(On some file systems, the submodule update may yield a `Filename too long` error
+which can be ignored.)
 
 For more details on building the project, see [How to build](docs/Building.md).
 
