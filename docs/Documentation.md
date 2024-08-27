@@ -13,6 +13,10 @@ cd maplibre-native-qt
 git submodule update --init --recursive
 ```
 
+@note On some file systems, the submodule update may yield `Filename too long`
+error. It can be ignored as only some dependencies test data will be missing.
+
+
 <div class="section_buttons">
 
 |                        Next |
