@@ -173,7 +173,7 @@ public:
     // should be called on the render thread.
     void createRenderer();
     void destroyRenderer();
-    void setFramebufferObject(quint32 fbo, const QSize &size);
+    void setOpenGLFramebufferObject(quint32 fbo, const QSize &size);
 
 public slots:
     void render();
