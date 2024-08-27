@@ -15,8 +15,8 @@ bindings build in the same step. To speed-up the build, `ninja` and `ccache`
 are recommended. For Qt 6 using the `qt-cmake` wrapper instead of plain `cmake`
 makes building non-desktop platforms easier.
 
-@note To make sure correct Qt 6 version is used, use the provided toolchain file
-using `-DCMAKE_TOOLCHAIN_FILE="<path-to-qt>/lib/cmake/Qt6/qt.toolchain.cmake"`
+@note To make sure a correct version of Qt 6 is used, use the provided toolchain file
+with `-DCMAKE_TOOLCHAIN_FILE="<path-to-qt>/lib/cmake/Qt6/qt.toolchain.cmake"`
 
 A minimal example command is:
 
