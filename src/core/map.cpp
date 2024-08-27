@@ -1541,9 +1541,9 @@ void Map::render() {
 }
 
 /*!
-    \brief Set the framebuffer object.
-    \param fbo The framebuffer object ID.
-    \param size The framebuffer size.
+    \brief Set the OpenGL framebuffer object.
+    \param fbo The OpenGL framebuffer object ID.
+    \param size The OpenGL framebuffer size.
 
     If MapLibre Native needs to rebind the default \a fbo, it will use the
     ID supplied here. \a size is the size of the framebuffer, which
@@ -1551,8 +1551,8 @@ void Map::render() {
 
     Must be called on the render thread.
 */
-void Map::setFramebufferObject(quint32 fbo, const QSize &size) {
-    d_ptr->setFramebufferObject(fbo, size);
+void Map::setOpenGLFramebufferObject(quint32 fbo, const QSize &size) {
+    d_ptr->setOpenGLFramebufferObject(fbo, size);
 }
 
 /*!
@@ -1729,7 +1729,7 @@ void MapPrivate::render() {
     m_mapRenderer->render();
 }
 
-void MapPrivate::setFramebufferObject(quint32 fbo, const QSize &size) {
+void MapPrivate::setOpenGLFramebufferObject(quint32 fbo, const QSize &size) {
     const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
 
     if (m_mapRenderer == nullptr) {
