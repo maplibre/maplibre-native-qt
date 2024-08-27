@@ -387,9 +387,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a9718e678ef5af07299372d00be5bbd82" id="r_a9718e678ef5af07299372d00be5bbd82"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9718e678ef5af07299372d00be5bbd82">destroyRenderer</a> ()</td></tr>
 <tr class="memdesc:a9718e678ef5af07299372d00be5bbd82"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destroy the renderer.  <br /></td></tr>
 <tr class="separator:a9718e678ef5af07299372d00be5bbd82"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a934eaa6442d68d49b775942b777d866b" id="r_a934eaa6442d68d49b775942b777d866b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a934eaa6442d68d49b775942b777d866b">setFramebufferObject</a> (quint32 fbo, const QSize &amp;size)</td></tr>
-<tr class="memdesc:a934eaa6442d68d49b775942b777d866b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the framebuffer object.  <br /></td></tr>
-<tr class="separator:a934eaa6442d68d49b775942b777d866b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa87ce2c9347ad91c94be075d719d6d87" id="r_aa87ce2c9347ad91c94be075d719d6d87"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa87ce2c9347ad91c94be075d719d6d87">setOpenGLFramebufferObject</a> (quint32 fbo, const QSize &amp;size)</td></tr>
+<tr class="memdesc:aa87ce2c9347ad91c94be075d719d6d87"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the OpenGL framebuffer object.  <br /></td></tr>
+<tr class="separator:aa87ce2c9347ad91c94be075d719d6d87"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="properties" name="properties"></a>
 Properties</h2></td></tr>
@@ -2035,38 +2035,6 @@ Properties</h2></td></tr>
 </div><!-- fragment --> 
 </div>
 </div>
-<a id="a934eaa6442d68d49b775942b777d866b" name="a934eaa6442d68d49b775942b777d866b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a934eaa6442d68d49b775942b777d866b">&#9670;&#160;</a></span>setFramebufferObject()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void QMapLibre::Map::setFramebufferObject </td>
-          <td>(</td>
-          <td class="paramtype">quint32</td>          <td class="paramname"><span class="paramname"><em>fbo</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const QSize &amp;</td>          <td class="paramname"><span class="paramname"><em>size</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Set the framebuffer object. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">fbo</td><td>The framebuffer object ID. </td></tr>
-    <tr><td class="paramname">size</td><td>The framebuffer size.</td></tr>
-  </table>
-  </dd>
-</dl>
-<p>If MapLibre Native needs to rebind the default <em>fbo</em>, it will use the ID supplied here. <em>size</em> is the size of the framebuffer, which on high DPI screens is usually bigger than the map size.</p>
-<p>Must be called on the render thread. </p>
-
-</div>
-</div>
 <a id="a92807a8ea5f3a12a2f8439870c7dab90" name="a92807a8ea5f3a12a2f8439870c7dab90"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a92807a8ea5f3a12a2f8439870c7dab90">&#9670;&#160;</a></span>setGestureInProgress()</h2>
 
@@ -2249,6 +2217,38 @@ Properties</h2></td></tr>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="aa87ce2c9347ad91c94be075d719d6d87" name="aa87ce2c9347ad91c94be075d719d6d87"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa87ce2c9347ad91c94be075d719d6d87">&#9670;&#160;</a></span>setOpenGLFramebufferObject()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void QMapLibre::Map::setOpenGLFramebufferObject </td>
+          <td>(</td>
+          <td class="paramtype">quint32</td>          <td class="paramname"><span class="paramname"><em>fbo</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const QSize &amp;</td>          <td class="paramname"><span class="paramname"><em>size</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set the OpenGL framebuffer object. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">fbo</td><td>The OpenGL framebuffer object ID. </td></tr>
+    <tr><td class="paramname">size</td><td>The OpenGL framebuffer size.</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>If MapLibre Native needs to rebind the default <em>fbo</em>, it will use the ID supplied here. <em>size</em> is the size of the framebuffer, which on high DPI screens is usually bigger than the map size.</p>
+<p>Must be called on the render thread. </p>
 
 </div>
 </div>

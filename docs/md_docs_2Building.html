@@ -163,6 +163,7 @@ Qt prerequisites</h1>
 <h1><a class="anchor" id="build-basics"></a>
 Build basics</h1>
 <p>MapLibre Native for Qt uses CMake as its build system. Both the core and the bindings build in the same step. To speed-up the build, <code>ninja</code> and <code>ccache</code> are recommended. For Qt 6 using the <code>qt-cmake</code> wrapper instead of plain <code>cmake</code> makes building non-desktop platforms easier.</p>
+<dl class="section note"><dt>Note</dt><dd>To make sure a correct version of Qt 6 is used, use the provided toolchain file with <code>-DCMAKE_TOOLCHAIN_FILE="&lt;path-to-qt&gt;/lib/cmake/Qt6/qt.toolchain.cmake"</code></dd></dl>
 <p>A minimal example command is:</p>
 <div class="fragment"><div class="line">mkdir build &amp;&amp; cd build</div>
 <div class="line">cmake ../maplibre-native-qt -G Ninja \</div>
@@ -177,57 +178,81 @@ Build basics</h1>
 Linux</h2>
 <p>Release binaries are build with <code>-DCMAKE_BUILD_TYPE="Release"</code>.</p>
 <p>Note that when using the standalone Qt installation the system version of the ICU library is still used. You should make sure that the system ICU is not too new as it may prevent your app from running on older versions of Linux. Alternatively you can use internally bundled ICU with the <code>-DMLN_QT_WITH_INTERNAL_ICU=ON</code> CMake option.</p>
-<h2><a class="anchor" id="macos"></a>
+<p>To replicate run:</p>
+<div class="fragment"><div class="line">mkdir build &amp;&amp; cd build</div>
+<div class="line">cmake ../maplibre-native-qt -G Ninja \</div>
+<div class="line">  -DCMAKE_BUILD_TYPE=&quot;Release&quot; \</div>
+<div class="line">  -DCMAKE_C_COMPILER_LAUNCHER=&quot;ccache&quot; \</div>
+<div class="line">  -DCMAKE_CXX_COMPILER_LAUNCHER=&quot;ccache&quot; \</div>
+<div class="line">  -DCMAKE_INSTALL_PREFIX=&quot;../install&quot;</div>
+<div class="line">ninja</div>
+<div class="line">ninja install</div>
+</div><!-- fragment --><h2><a class="anchor" id="macos"></a>
 macOS</h2>
 <p>Release binaries contain debug symbols. Additionally both Intel and ARM versions are supported and included. OS deployment target version is set to 11.0 for Qt 6 and 10.13 for Qt 5.</p>
 <p>To replicate run:</p>
-<div class="fragment"><div class="line">cmake ../maplibre-native-qt -G Ninja \</div>
+<div class="fragment"><div class="line">mkdir build &amp;&amp; cd build</div>
+<div class="line">cmake ../maplibre-native-qt -G Ninja \</div>
 <div class="line">  -DCMAKE_BUILD_TYPE=&quot;RelWithDebInfo&quot; \</div>
 <div class="line">  -DCMAKE_C_COMPILER_LAUNCHER=&quot;ccache&quot; \</div>
 <div class="line">  -DCMAKE_CXX_COMPILER_LAUNCHER=&quot;ccache&quot; \</div>
 <div class="line">  -DCMAKE_INSTALL_PREFIX=&quot;../install&quot; \</div>
 <div class="line">  -DCMAKE_OSX_ARCHITECTURES=&quot;x86_64;arm64&quot; \</div>
 <div class="line">  -DCMAKE_OSX_DEPLOYMENT_TARGET=&quot;11.0&quot;</div>
+<div class="line">ninja</div>
+<div class="line">ninja install</div>
 </div><!-- fragment --><h2><a class="anchor" id="windows"></a>
 Windows</h2>
 <p>Two separate release binaries are provided, one with release build and one with debug build. To achieve that <code>Ninja Multi-Config</code> generator is used.</p>
 <p>To replicate, run:</p>
-<div class="fragment"><div class="line">cmake ../maplibre-native-qt -G &quot;Ninja Multi-Config&quot; \</div>
+<div class="fragment"><div class="line">mkdir build &amp;&amp; cd build</div>
+<div class="line">cmake ../maplibre-native-qt -G &quot;Ninja Multi-Config&quot; \</div>
 <div class="line">  -DCMAKE_CONFIGURATION_TYPES=&quot;Release;Debug&quot; \</div>
 <div class="line">  -DCMAKE_C_COMPILER_LAUNCHER=&quot;ccache&quot; \</div>
 <div class="line">  -DCMAKE_CXX_COMPILER_LAUNCHER=&quot;ccache&quot; \</div>
 <div class="line">  -DCMAKE_INSTALL_PREFIX=&quot;../install&quot;</div>
+<div class="line">ninja</div>
+<div class="line">ninja install</div>
 </div><!-- fragment --><h2><a class="anchor" id="ios"></a>
 iOS</h2>
 <p>Two separate release binaries are provided, one with release build and one with debug build. To achieve that <code>Ninja Multi-Config</code> generator is used. Both device and simulator builds are supported. OS deployment target version is set to 14.0.</p>
 <p>To replicate, run:</p>
-<div class="fragment"><div class="line">cmake ../maplibre-native-qt -G &quot;Ninja Multi-Config&quot; \</div>
+<div class="fragment"><div class="line">mkdir build &amp;&amp; cd build</div>
+<div class="line">cmake ../maplibre-native-qt -G &quot;Ninja Multi-Config&quot; \</div>
 <div class="line">  -DCMAKE_CONFIGURATION_TYPES=&quot;Release;Debug&quot; \</div>
 <div class="line">  -DCMAKE_C_COMPILER_LAUNCHER=&quot;ccache&quot; \</div>
 <div class="line">  -DCMAKE_CXX_COMPILER_LAUNCHER=&quot;ccache&quot; \</div>
 <div class="line">  -DCMAKE_INSTALL_PREFIX=&quot;../install&quot; \</div>
 <div class="line">  -DCMAKE_OSX_ARCHITECTURES=&quot;arm64;x86_64&quot; \</div>
 <div class="line">  -DCMAKE_OSX_DEPLOYMENT_TARGET=&quot;14.0&quot;</div>
+<div class="line">ninja</div>
+<div class="line">ninja install</div>
 </div><!-- fragment --><h2><a class="anchor" id="android"></a>
 Android</h2>
 <p>Release binaries contain debug symbols. Each ABI is built separately.</p>
 <p>To replicate, run:</p>
-<div class="fragment"><div class="line">cmake ../maplibre-native-qt -G Ninja \</div>
+<div class="fragment"><div class="line">mkdir build &amp;&amp; cd build</div>
+<div class="line">cmake ../maplibre-native-qt -G Ninja \</div>
 <div class="line">  -DCMAKE_BUILD_TYPE=&quot;RelWithDebInfo&quot; \</div>
 <div class="line">  -DCMAKE_C_COMPILER_LAUNCHER=&quot;ccache&quot; \</div>
 <div class="line">  -DCMAKE_CXX_COMPILER_LAUNCHER=&quot;ccache&quot; \</div>
 <div class="line">  -DCMAKE_INSTALL_PREFIX=&quot;../install&quot; \</div>
 <div class="line">  -DANDROID_ABI=&quot;arm64-v8a&quot;</div>
+<div class="line">ninja</div>
+<div class="line">ninja install</div>
 </div><!-- fragment --><h2><a class="anchor" id="webassembly-wasm"></a>
 WebAssembly (WASM)</h2>
 <p>No official binaries are provided for WebAssembly. You can build it yourself using the Emscripten toolchain. The Qt Location module has to be disabled as it is not supported.</p>
 <p>To replicate, run:</p>
-<div class="fragment"><div class="line">cmake ../maplibre-native-qt -G Ninja \</div>
+<div class="fragment"><div class="line">mkdir build &amp;&amp; cd build</div>
+<div class="line">cmake ../maplibre-native-qt -G Ninja \</div>
 <div class="line">  -DCMAKE_BUILD_TYPE=&quot;RelWithDebInfo&quot; \</div>
 <div class="line">  -DCMAKE_C_COMPILER_LAUNCHER=&quot;ccache&quot; \</div>
 <div class="line">  -DCMAKE_CXX_COMPILER_LAUNCHER=&quot;ccache&quot; \</div>
 <div class="line">  -DCMAKE_INSTALL_PREFIX=&quot;../install&quot; \</div>
 <div class="line">  -DMLN_QT_LOCATION=OFF</div>
+<div class="line">ninja</div>
+<div class="line">ninja install</div>
 </div><!-- fragment --><h1><a class="anchor" id="using-cmake-workflows"></a>
 Using CMake workflows</h1>
 <p>CMake workflow presets are provided for all supported platforms. They can be simply used by running in the root directory of the repository:</p>
@@ -263,6 +288,8 @@ Special workflows</h2>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">Linux   </td><td class="markdownTableBodyNone"><code>Linux-coverage</code>   </td><td class="markdownTableBodyNone">Linux build with Qt6, <code>ccache</code> and code coverage    </td></tr>
 <tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">Linux   </td><td class="markdownTableBodyNone"><code>Linux-internal-icu</code>   </td><td class="markdownTableBodyNone">Linux build with Qt6 and internal ICU library (also with <code>-ccache</code>)    </td></tr>
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">macOS   </td><td class="markdownTableBodyNone"><code>macOS-clang-tidy</code>   </td><td class="markdownTableBodyNone">macOS build with Qt6, <code>ccache</code> and <code>clang-tidy</code>   </td></tr>
 </table>
 <div class="section_buttons"></div><div class="section_buttons"><table class="markdownTable">
