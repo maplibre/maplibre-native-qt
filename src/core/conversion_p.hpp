@@ -27,6 +27,9 @@ public:
 
     static bool isArray(const QVariant &value) {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        if (value.metaType() == QMetaType(QMetaType::QString)) {
+            return false;
+        }
         return QMetaType::canConvert(value.metaType(), QMetaType(QMetaType::QVariantList));
 #else
         return value.canConvert(QVariant::List);

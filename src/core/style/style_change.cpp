@@ -49,6 +49,12 @@ std::vector<std::unique_ptr<StyleChange>> StyleChange::addParameter(const StyleP
         return changes;
     }
 
+    const auto *filterParameter = qobject_cast<const FilterParameter *>(parameter);
+    if (filterParameter != nullptr) {
+        changes.emplace_back(std::make_unique<StyleSetFilter>(filterParameter));
+        return changes;
+    }
+
     return changes;
 }
 
@@ -64,6 +70,12 @@ std::vector<std::unique_ptr<StyleChange>> StyleChange::removeParameter(const Sty
     const auto *layerParameter = qobject_cast<const LayerParameter *>(parameter);
     if (layerParameter != nullptr) {
         changes.emplace_back(std::make_unique<StyleRemoveLayer>(layerParameter));
+        return changes;
+    }
+
+    const auto *filterParameter = qobject_cast<const FilterParameter *>(parameter);
+    if (filterParameter != nullptr) {
+        changes.emplace_back(std::make_unique<StyleSetFilter>(filterParameter->styleId(), QVariantList()));
         return changes;
     }
 
