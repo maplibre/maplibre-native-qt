@@ -1443,6 +1443,11 @@ void Map::setFilter(const QString &layerId, const QVariant &filter) {
         return;
     }
 
+    if (filter.isNull() || filter.toList().isEmpty()) {
+        layer->setFilter(mbgl::style::Filter());
+        return;
+    }
+
     mbgl::style::conversion::Error error;
     std::optional<mbgl::style::Filter> converted = mbgl::style::conversion::convert<mbgl::style::Filter>(filter, error);
     if (!converted) {

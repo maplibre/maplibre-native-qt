@@ -58,6 +58,12 @@ Item {
                     "raster-opacity": 0.9
                 }
             }
+
+            FilterParameter {
+                id: filterParam
+                styleId: "countries-fill"
+                expression: ["==", "ADM0_A3", "NLD"]
+            }
         }
     }
 
@@ -72,7 +78,22 @@ Item {
             compare(radarSourceParam.url, "https://maplibre.org/maplibre-gl-js/docs/assets/radar1.gif")
         }
 
-        function test_style_1_image_change() {
+        function test_style_1_filter_change() {
+            // Test graceful handling of invalid filter
+            filterParam.expression = [123, "ADM0_A3", 123]
+            compare(filterParam.expression, [123, "ADM0_A3", 123])
+            // Test updating of the filter
+            filterParam.expression = ["==", "ADM0_A3", "USA"]
+            compare(filterParam.expression, ["==", "ADM0_A3", "USA"])
+            wait(500)
+        }
+
+        function test_style_2_filter_remove() {
+            style.removeParameter(filterParam)
+            wait(500)
+        }
+
+        function test_style_3_image_change() {
             radarSourceParam.url = "https://maplibre.org/maplibre-gl-js/docs/assets/radar2.gif"
             compare(radarSourceParam.url, "https://maplibre.org/maplibre-gl-js/docs/assets/radar2.gif")
             wait(250)
@@ -97,7 +118,7 @@ Item {
             wait(250)
         }
 
-        function test_style_2_paint_change() {
+        function test_style_4_paint_change() {
             radarLayerParam.paint = {"raster-opacity": 0.8}
             wait(250)
             radarLayerParam.paint = {"raster-opacity": 0.6}
@@ -110,7 +131,7 @@ Item {
             wait(500)
         }
 
-        function test_style_3_paint_set() {
+        function test_style_5_paint_set() {
             radarLayerParam.setPaintProperty("raster-opacity", 0.8)
             wait(250)
             radarLayerParam.setPaintProperty("raster-opacity", 0.6)
@@ -123,13 +144,13 @@ Item {
             wait(500)
         }
 
-        function test_style_4_remove_image() {
+        function test_style_6_remove_image() {
             style.removeParameter(radarLayerParam)
             style.removeParameter(radarSourceParam)
             wait(500)
         }
 
-        function test_style_5_tiles() {
+        function test_style_7_tiles() {
             let url = "https://s2maps-tiles.eu/wms?service=wms&bbox={bbox-epsg-3857}&format=image/png&service=WMS&version=1.1.1&request=GetMap&srs=EPSG:900913&width=256&height=256&layers=s2cloudless-2021_3857"
 
             let sourceParam = Qt.createQmlObject(`

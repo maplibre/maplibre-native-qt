@@ -5,6 +5,7 @@
 #pragma once
 
 #include "export_core.hpp"
+#include "filter_parameter.hpp"
 #include "layer_parameter.hpp"
 #include "style_change_p.hpp"
 #include "types.hpp"
@@ -72,13 +73,14 @@ private:
 
 class Q_MAPLIBRE_CORE_EXPORT StyleSetFilter : public StyleChange {
 public:
-    explicit StyleSetFilter(QString layerId, QVariant expression);
+    explicit StyleSetFilter(QString layerId, QVariantList expression);
+    explicit StyleSetFilter(const FilterParameter *parameter);
 
     void apply(Map *map) override;
 
 private:
     QString m_layerId;
-    QVariant m_expression;
+    QVariantList m_expression;
 };
 
 } // namespace QMapLibre

@@ -2,6 +2,7 @@
 
 // SPDX-License-Identifier: BSD-2-Clause
 
+#include "filter_parameter.hpp"
 #include "layer_parameter.hpp"
 #include "layer_style_change_p.hpp"
 #include "style_change_utils_p.hpp"
@@ -53,8 +54,8 @@ StyleAddLayer::StyleAddLayer(const LayerParameter *parameter, QString before)
         m_params[StyleChangeUtils::formatPropertyName(propertyName)] = value;
     }
 
-    m_propertyChanges.emplace_back(std::make_unique<StyleSetLayoutProperties>(parameter));
-    m_propertyChanges.emplace_back(std::make_unique<StyleSetPaintProperties>(parameter));
+    m_propertyChanges.push_back(std::make_unique<StyleSetLayoutProperties>(parameter));
+    m_propertyChanges.push_back(std::make_unique<StyleSetPaintProperties>(parameter));
 }
 
 void StyleAddLayer::apply(Map *map) {
@@ -144,9 +145,13 @@ void StyleSetPaintProperties::apply(Map *map) {
 }
 
 // StyleSetFilter
-StyleSetFilter::StyleSetFilter(QString layerId, QVariant expression)
+StyleSetFilter::StyleSetFilter(QString layerId, QVariantList expression)
     : m_layerId(std::move(layerId)),
       m_expression(std::move(expression)) {}
+
+StyleSetFilter::StyleSetFilter(const FilterParameter *parameter)
+    : m_layerId(parameter->styleId()),
+      m_expression(parameter->expression()) {}
 
 void StyleSetFilter::apply(Map *map) {
     if (map == nullptr) {

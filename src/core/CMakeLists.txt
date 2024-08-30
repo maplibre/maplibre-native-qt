@@ -23,6 +23,7 @@ set(MLNQtCore_Headers
     utils.hpp
 
     style/style_parameter.hpp
+    style/filter_parameter.hpp
     style/layer_parameter.hpp
     style/source_parameter.hpp
 )
@@ -66,6 +67,7 @@ target_sources(
         utils.cpp
 
         style/style_parameter.cpp
+        style/filter_parameter.cpp
         style/layer_parameter.cpp
         style/source_parameter.cpp
 

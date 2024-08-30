@@ -514,7 +514,7 @@ void QGeoMapMapLibre::onMapItemGeometryChanged() {
     Q_D(QGeoMapMapLibre);
 
     auto *item = static_cast<QDeclarativeGeoMapItemBase *>(sender());
-    d->m_styleChanges.emplace_back(std::make_unique<StyleAddSource>(StyleChangeUtils::featureFromMapItem(item)));
+    d->m_styleChanges.push_back(std::make_unique<StyleAddSource>(StyleChangeUtils::featureFromMapItem(item)));
 
     emit sgNodeChanged();
 }
