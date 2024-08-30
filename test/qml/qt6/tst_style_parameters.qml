@@ -79,9 +79,13 @@ Item {
         }
 
         function test_style_1_filter_change() {
-           filterParam.expression = ["==", "ADM0_A3", "USA"]
-           compare(filterParam.expression, ["==", "ADM0_A3", "USA"])
-           wait(500)
+            // Test graceful handling of invalid filter
+            filterParam.expression = [123, "ADM0_A3", 123]
+            compare(filterParam.expression, [123, "ADM0_A3", 123])
+            // Test updating of the filter
+            filterParam.expression = ["==", "ADM0_A3", "USA"]
+            compare(filterParam.expression, ["==", "ADM0_A3", "USA"])
+            wait(500)
         }
 
         function test_style_2_filter_remove() {
