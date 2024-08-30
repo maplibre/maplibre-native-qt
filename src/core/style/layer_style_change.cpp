@@ -54,8 +54,8 @@ StyleAddLayer::StyleAddLayer(const LayerParameter *parameter, QString before)
         m_params[StyleChangeUtils::formatPropertyName(propertyName)] = value;
     }
 
-    m_propertyChanges.emplace_back(std::make_unique<StyleSetLayoutProperties>(parameter));
-    m_propertyChanges.emplace_back(std::make_unique<StyleSetPaintProperties>(parameter));
+    m_propertyChanges.push_back(std::make_unique<StyleSetLayoutProperties>(parameter));
+    m_propertyChanges.push_back(std::make_unique<StyleSetPaintProperties>(parameter));
 }
 
 void StyleAddLayer::apply(Map *map) {
