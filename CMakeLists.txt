@@ -37,6 +37,18 @@ option(MLN_QT_WITH_WIDGETS "Build QMapLibreWidgets" ON)
 option(MLN_QT_STATIC "Build QMapLibre staticaly (force static build with Qt6)" OFF)
 option(MLN_QT_WITH_COVERAGE "Build QMapLibre with code coverage collection" OFF)
 option(MLN_QT_WITH_CLANG_TIDY "Build QMapLibre with clang-tidy checks enabled" OFF)
+option(MLN_QT_WITH_LTO "Build QMapLibre with Link-Time Optimization" OFF)
+
+if(MLN_QT_WITH_LTO)
+    include(CheckIPOSupported)
+    check_ipo_supported(RESULT ipo_result OUTPUT ipo_output)
+    if(ipo_result)
+        message(STATUS "Building with LTO/IPO enabled")
+        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+    else()
+        message(WARNING "LTO/IPO is not supported: ${ipo_output}")
+    endif()
+endif()
 
 # Find Qt
 if("${QT_VERSION_MAJOR}" STREQUAL "")
