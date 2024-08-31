@@ -64,6 +64,20 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
+      - name: Recover disk space
+        run: |
+          df -h
+          ls /Applications
+          brew uninstall google-chrome
+          sudo rm -rf /Users/runner/Library/Android
+          sudo rm -rf /Applications/Xcode_14*
+          sudo rm -rf /Applications/Xcode_15.0*
+          sudo rm -rf /Applications/Xcode_15.1*
+          sudo rm -rf /Applications/Xcode_15.2*
+          sudo rm -rf /Applications/Xcode_15.3*
+          ls /Applications
+          df -h
+
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
