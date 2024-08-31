@@ -2,6 +2,7 @@
 
 // SPDX-License-Identifier: BSD-2-Clause
 
+#include "image_style_change_p.hpp"
 #include "layer_style_change_p.hpp"
 #include "source_style_change_p.hpp"
 #include "style_change_p.hpp"
@@ -49,6 +50,12 @@ std::vector<std::unique_ptr<StyleChange>> StyleChange::addParameter(const StyleP
         return changes;
     }
 
+    const auto *imageParameter = qobject_cast<const ImageParameter *>(parameter);
+    if (imageParameter != nullptr) {
+        changes.push_back(std::make_unique<StyleAddImage>(imageParameter));
+        return changes;
+    }
+
     const auto *filterParameter = qobject_cast<const FilterParameter *>(parameter);
     if (filterParameter != nullptr) {
         changes.push_back(std::make_unique<StyleSetFilter>(filterParameter));
@@ -70,6 +77,12 @@ std::vector<std::unique_ptr<StyleChange>> StyleChange::removeParameter(const Sty
     const auto *layerParameter = qobject_cast<const LayerParameter *>(parameter);
     if (layerParameter != nullptr) {
         changes.push_back(std::make_unique<StyleRemoveLayer>(layerParameter));
+        return changes;
+    }
+
+    const auto *imageParameter = qobject_cast<const ImageParameter *>(parameter);
+    if (imageParameter != nullptr) {
+        changes.push_back(std::make_unique<StyleRemoveImage>(imageParameter));
         return changes;
     }
 

@@ -15,7 +15,8 @@ namespace QMapLibre {
     \ingroup QMapLibre
 
     Should usually not be used directly, but rather through one of its subclasses
-    such as \ref SourceParameter or \ref LayerParameter.
+    such as \ref SourceParameter, \ref LayerParameter, \ref ImageParameter
+    or \ref FilterParameter.
 */
 
 /*!
@@ -50,6 +51,18 @@ bool StyleParameter::operator==(const StyleParameter &other) const {
     \brief Check if the style parameter is ready.
     \return \c true if the style parameter is ready, \c false otherwise.
 */
+
+/*!
+    \brief Get the property value
+    \param propertyName Name of the property to get.
+    \return Property value as \c QVariant or invalid \c QVariant if the property does not exist.
+
+    By default this directly reads the property value from the object.
+    It can be reimplemented from subclasses to provide custom parsing.
+*/
+QVariant StyleParameter::parsedProperty(const char *propertyName) const {
+    return property(propertyName);
+}
 
 /*!
     \brief Check for property existence.

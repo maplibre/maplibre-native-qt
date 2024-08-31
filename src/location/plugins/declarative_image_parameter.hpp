@@ -6,33 +6,31 @@
 
 #include "declarative_style_parameter.hpp"
 
-#include <QMapLibre/SourceParameter>
+#include <QMapLibre/ImageParameter>
 
 #include <QtQml/QQmlEngine>
 #include <QtQml/QQmlParserStatus>
 
 namespace QMapLibre {
 
-class DeclarativeSourceParameter : public SourceParameter, public QQmlParserStatus {
+class DeclarativeImageParameter : public ImageParameter, public QQmlParserStatus {
     Q_OBJECT
-    QML_NAMED_ELEMENT(SourceParameter)
+    QML_NAMED_ELEMENT(ImageParameter)
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     QML_ADDED_IN_VERSION(3, 0)
 #endif
     Q_INTERFACES(QQmlParserStatus)
     // from base class
     Q_PROPERTY(QString styleId READ styleId WRITE setStyleId)
-    Q_PROPERTY(QString type READ type WRITE setType)
+    Q_PROPERTY(QString source READ source WRITE setSource NOTIFY sourceUpdated)
     // this type must not declare any additional properties
 public:
-    explicit DeclarativeSourceParameter(QObject *parent = nullptr);
-    ~DeclarativeSourceParameter() override = default;
-
-    [[nodiscard]] QVariant parsedProperty(const char *propertyName) const override;
+    explicit DeclarativeImageParameter(QObject *parent = nullptr);
+    ~DeclarativeImageParameter() override = default;
 
 private:
     // QQmlParserStatus implementation
-    MLN_DECLARATIVE_PARSER(DeclarativeSourceParameter)
+    MLN_DECLARATIVE_PARSER(DeclarativeImageParameter)
 };
 
 } // namespace QMapLibre

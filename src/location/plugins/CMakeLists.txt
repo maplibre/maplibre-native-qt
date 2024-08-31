@@ -89,6 +89,7 @@ set(Plugin_Sources
     declarative_style.cpp declarative_style.hpp
     declarative_style_parameter.hpp
     declarative_filter_parameter.cpp declarative_filter_parameter.hpp
+    declarative_image_parameter.cpp declarative_image_parameter.hpp
     declarative_layer_parameter.cpp declarative_layer_parameter.hpp
     declarative_source_parameter.cpp declarative_source_parameter.hpp
 

@@ -164,7 +164,7 @@ Item {
                 }
                 `,
                 style,
-                "sourceParamSnipper"
+                "sourceParamSnippet"
             )
             style.addParameter(sourceParam)
 
@@ -185,6 +185,70 @@ Item {
 
             style.removeParameter(layerParam)
             style.removeParameter(sourceParam)
+            wait(1000)
+        }
+
+        function test_style_8_image() {
+            let imageParam = Qt.createQmlObject(`
+                import MapLibre 3.0
+
+                ImageParameter {
+                    styleId: "locationImage"
+                    source: ":/1x.png"
+                }
+                `,
+                style,
+                "imageParamSnippet")
+            style.addParameter(imageParam)
+
+            let sourceParam = Qt.createQmlObject(`
+                import MapLibre 3.0
+
+                SourceParameter {
+                    styleId: "pointSource"
+                    type: "geojson"
+                    property var data: {
+                        "type": "FeatureCollection",
+                        "features": [
+                            {
+                                "type": "Feature",
+                                "geometry": {
+                                    "type": "Point",
+                                    "coordinates": [-80, 45]
+                                }
+                            }
+                        ]
+                    }
+                }
+                `,
+                style,
+                "sourceParamSnippet"
+            )
+            style.addParameter(sourceParam)
+
+            let layerParam = Qt.createQmlObject(`
+                import MapLibre 3.0
+
+                LayerParameter {
+                    styleId: "pointLayer"
+                    type: "symbol"
+                    property string source: "pointSource"
+
+                    layout: {
+                        "icon-image": "locationImage",
+                        "icon-size": 2.5
+                    }
+                }
+                `,
+                style,
+                "layerParamSnippet")
+            style.addParameter(layerParam)
+
+            wait(1000)
+
+            style.removeParameter(layerParam)
+            style.removeParameter(sourceParam)
+            style.removeParameter(imageParam)
             wait(1000)
         }
     }
