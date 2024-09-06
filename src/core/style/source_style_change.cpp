@@ -4,7 +4,6 @@
 
 #include "source_style_change_p.hpp"
 #include "style/source_parameter.hpp"
-#include "style/style_parameter.hpp"
 
 #include <QMapLibre/Map>
 
@@ -50,7 +49,7 @@ StyleAddSource::StyleAddSource(const SourceParameter *parameter)
             }
             break;
         case 3: { // geojson
-            const QString data = parameter->property("data").toString();
+            const QString data = parameter->parsedProperty("data").toString();
             if (data.startsWith(':')) {
                 QFile geojson(data);
                 geojson.open(QIODevice::ReadOnly);

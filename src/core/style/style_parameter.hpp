@@ -23,6 +23,7 @@ public:
 
     [[nodiscard]] inline bool isReady() const { return m_ready; };
 
+    [[nodiscard]] virtual QVariant parsedProperty(const char *propertyName) const;
     bool hasProperty(const char *propertyName) const;
     void updateProperty(const char *propertyName, const QVariant &value);
 

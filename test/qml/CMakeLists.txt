@@ -1,5 +1,11 @@
 if(COMMAND qt_add_executable)
     qt_add_executable(test_mln_qml test_qml.cpp)
+
+    qt_add_resources(test_mln_qml test_fixtures
+        PREFIX "/"
+        BASE "../../vendor/maplibre-native/metrics/integration/sprites"
+        FILES "../../vendor/maplibre-native/metrics/integration/sprites/1x.png"
+    )
 else()
     add_executable(test_mln_qml test_qml.cpp)
 endif()

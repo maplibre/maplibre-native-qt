@@ -5,8 +5,8 @@
 #pragma once
 
 #include "export_core.hpp"
+#include "image_parameter.hpp"
 #include "style_change_p.hpp"
-#include "style_parameter.hpp"
 
 #include <QtGui/QImage>
 
@@ -16,7 +16,9 @@ class Map;
 
 class Q_MAPLIBRE_CORE_EXPORT StyleAddImage : public StyleChange {
 public:
-    explicit StyleAddImage(const StyleParameter *parameter);
+    explicit StyleAddImage(QString id, const QString &spriteUrl);
+    explicit StyleAddImage(QString id, QImage sprite);
+    explicit StyleAddImage(const ImageParameter *parameter);
 
     void apply(Map *map) override;
 
@@ -28,7 +30,7 @@ private:
 class Q_MAPLIBRE_CORE_EXPORT StyleRemoveImage : public StyleChange {
 public:
     explicit StyleRemoveImage(QString id);
-    explicit StyleRemoveImage(const StyleParameter *parameter);
+    explicit StyleRemoveImage(const ImageParameter *parameter);
 
     void apply(Map *map) override;
 

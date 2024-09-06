@@ -11,9 +11,17 @@ namespace QMapLibre {
 /*! \cond PRIVATE */
 
 // StyleAddImage
-StyleAddImage::StyleAddImage(const StyleParameter *parameter)
-    : m_id(parameter->property("id").toString()),
-      m_sprite(QImage(parameter->property("sprite").toString())) {}
+StyleAddImage::StyleAddImage(QString id, const QString &spriteUrl)
+    : m_id(std::move(id)),
+      m_sprite(QImage(spriteUrl)) {}
+
+StyleAddImage::StyleAddImage(QString id, QImage sprite)
+    : m_id(std::move(id)),
+      m_sprite(std::move(sprite)) {}
+
+StyleAddImage::StyleAddImage(const ImageParameter *parameter)
+    : m_id(parameter->styleId()),
+      m_sprite(QImage(parameter->source())) {}
 
 void StyleAddImage::apply(Map *map) {
     if (map == nullptr) {
@@ -27,8 +35,8 @@ void StyleAddImage::apply(Map *map) {
 StyleRemoveImage::StyleRemoveImage(QString id)
     : m_id(std::move(id)) {}
 
-StyleRemoveImage::StyleRemoveImage(const StyleParameter *parameter)
-    : m_id(parameter->property("id").toString()) {}
+StyleRemoveImage::StyleRemoveImage(const ImageParameter *parameter)
+    : m_id(parameter->styleId()) {}
 
 void StyleRemoveImage::apply(Map *map) {
     if (map == nullptr) {
