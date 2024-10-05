@@ -50,7 +50,7 @@ jobs:
             preset: iOS
           - qt_version: 6.6.3
             preset: iOS
-          - qt_version: 6.7.2
+          - qt_version: 6.7.3
             preset: iOS
 
     env:
@@ -115,7 +115,7 @@ jobs:
       contents: write
     strategy:
       matrix:
-        qt_version: [6.5.3, 6.6.3, 6.7.2]
+        qt_version: [6.5.3, 6.6.3, 6.7.3]
 
     steps:
       - name: Download artifacts

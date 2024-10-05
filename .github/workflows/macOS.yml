@@ -65,18 +65,18 @@ jobs:
             compiler: default
             runs_on: macos-14
           - qt_series: 6
-            qt_version: 6.7.2
+            qt_version: 6.7.3
             qt_modules: qtlocation qtpositioning
             preset: macOS-ccache
             compiler: default
             runs_on: macos-14
           - qt_series: 6
-            qt_version: 6.7.2
+            qt_version: 6.7.3
             preset: macOS-ccache
             compiler: static
             runs_on: macos-14
           - qt_series: 6
-            qt_version: 6.7.2
+            qt_version: 6.7.3
             qt_modules: qtlocation qtpositioning
             preset: macOS-clang-tidy
             compiler: llvm
@@ -198,10 +198,10 @@ jobs:
           - qt_version: 6.6.3
             compiler: default
             suffix: ""
-          - qt_version: 6.7.2
+          - qt_version: 6.7.3
             compiler: default
             suffix: ""
-          - qt_version: 6.7.2
+          - qt_version: 6.7.3
             compiler: static
             suffix: "_static"
 
