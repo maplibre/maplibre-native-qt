@@ -58,7 +58,7 @@ jobs:
         uses: jurplel/install-qt-action@v4
         with:
           aqtversion: ==3.1.*
-          version: 6.7.2
+          version: 6.7.3
           dir: ${{ github.workspace }}
           target: desktop
           modules: qtlocation qtpositioning
