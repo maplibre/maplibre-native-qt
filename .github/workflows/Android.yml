@@ -42,7 +42,7 @@ concurrency:
 jobs:
   build:
     name: Build (Qt${{ matrix.qt_version}}, ${{ matrix.abi }})
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         include:
@@ -138,7 +138,7 @@ jobs:
 
   combine:
     name: Combine
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: build
     strategy:
       matrix:
@@ -209,7 +209,7 @@ jobs:
   release:
     name: Release
     if: github.ref_type == 'tag'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: combine
     permissions:
       contents: write
