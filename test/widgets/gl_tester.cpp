@@ -38,7 +38,7 @@ void GLTester::initializeAnimation() {
 int GLTester::selfTest() {
     if (m_bearingAnimation) {
         m_bearingAnimation->setDuration(kAnimationDuration);
-        m_bearingAnimation->setEndValue(map()->bearing() + 360 * 4);
+        m_bearingAnimation->setEndValue(map()->bearing() + (360 * 4));
         m_bearingAnimation->start();
     }
 
