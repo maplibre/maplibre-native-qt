@@ -11,9 +11,9 @@
 - Built with Qt 6.5, 6.6 and 6.7 for all platforms and also Qt 5.15.2 for
   macOS, Linux and Windows.
 - QML configuration cleaned up, styles are now set with `maplibre.map.styles`.
-- QML style parameters are made also available in C++.
+- QML style parameters are also made available in C++.
   Now imported using `import MapLibre 3.0`.
-- QML plugins can be installed using CMake helper function
+- QML plugins can be installed using a CMake helper function
   `qmaplibre_location_setup_plugins`.
 - Add ability to build as static libraries (#98).
 - Add CMake presets for easier usage (#112).

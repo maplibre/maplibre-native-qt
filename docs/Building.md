@@ -38,7 +38,7 @@ are always up-to-date and cover all supported platforms.
 ## Using CMake workflows
 
 CMake workflow presets are provided for all supported platforms.
-They can be simply used by running in the root directory of the repository:
+Run the following command in the root directory to use a preset:
 
 ```shell
 cmake --workflow --preset <preset>
@@ -56,7 +56,7 @@ It is recommended to set `QT_ROOT_DIR` environment variable as the path
 to the Qt installation to be used, mainly for mobile platforms to use
 the correct Qt version.
 
-For Android, `ANDROID_ABI` environment variable should be set.
+For Android, the `ANDROID_ABI` environment variable should be set.
 
 ### Supported release workflows
 
