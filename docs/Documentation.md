@@ -5,6 +5,9 @@ You would normally use this API in a Qt-based application.
 If you are interested in the internals of MapLibre Native you can also look at
 [Core C++ API](https://maplibre.org/maplibre-native/cpp/api/).
 
+If not explicitly specified, all classes and functions are available
+as of version 3.0 of the library.
+
 The source code can be found [on GitHub](https://github.com/maplibre/maplibre-native-qt):
 
 ```shell

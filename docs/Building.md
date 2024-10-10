@@ -30,10 +30,54 @@ ninja
 ninja install
 ```
 
-See below for platform-specific instructions.
+See [below](#platform-specific-build-instructions) for platform-specific instructions.
 
 @note It is recommended to use [CMake workflows](#using-cmake-workflows) as they
 are always up-to-date and cover all supported platforms.
+
+## Using CMake workflows
+
+CMake workflow presets are provided for all supported platforms.
+They can be simply used by running in the root directory of the repository:
+
+```shell
+cmake --workflow --preset <preset>
+```
+
+for example
+
+```shell
+cmake --workflow --preset macOS-ccache
+```
+
+will run the macOS build with `ccache` enabled.
+
+It is recommended to set `QT_ROOT_DIR` environment variable as the path
+to the Qt installation to be used, mainly for mobile platforms to use
+the correct Qt version.
+
+For Android, `ANDROID_ABI` environment variable should be set.
+
+### Supported release workflows
+
+| Platform | Qt6       | Qt6 with ccache  | Qt5              | Qt5 with ccache         |
+|----------|-----------|------------------|------------------|-------------------------|
+| Linux    | `Linux`   | `Linux-ccache`   | `Linux-legacy`   | `Linux-legacy-ccache`   |
+| macOS    | `macOS`   | `macOS-ccache`   | `macOS-legacy`   | `macOS-legacy-ccache`   |
+| Windows  | `Windows` | `Windows-ccache` | `Windows-legacy` | `Windows-legacy-ccache` |
+| iOS      | `iOS`     | `iOS-ccache`     |                  |                         |
+| Android  | `Android` | `Android-ccache` |                  |                         |
+| WASM     | `WASM`    | `WASM-ccache`    |                  |                         |
+
+### Special workflows
+
+| Platform | Workflow             | Description                                                         |
+|----------|----------------------|---------------------------------------------------------------------|
+| Linux    | `Linux-coverage`     | Linux build with Qt6, `ccache` and code coverage                    |
+| Linux    | `Linux-internal-icu` | Linux build with Qt6 and internal ICU library (also with `-ccache`) |
+| macOS    | `macOS-clang-tidy`   | macOS build with Qt6, `ccache` and `clang-tidy`                     |
+
+## Platform specific build instructions
 
 ### Linux
 
@@ -92,6 +136,7 @@ cmake ../maplibre-native-qt -G "Ninja Multi-Config" \
   -DCMAKE_CONFIGURATION_TYPES="Release;Debug" \
   -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
   -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
+  -DCMAKE_DEFAULT_CONFIGS="all" \
   -DCMAKE_INSTALL_PREFIX="../install"
 ninja
 ninja install
@@ -112,6 +157,7 @@ cmake ../maplibre-native-qt -G "Ninja Multi-Config" \
   -DCMAKE_CONFIGURATION_TYPES="Release;Debug" \
   -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
   -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
+  -DCMAKE_DEFAULT_CONFIGS="all" \
   -DCMAKE_INSTALL_PREFIX="../install" \
   -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
   -DCMAKE_OSX_DEPLOYMENT_TARGET="14.0"
@@ -156,48 +202,6 @@ cmake ../maplibre-native-qt -G Ninja \
 ninja
 ninja install
 ```
-
-## Using CMake workflows
-
-CMake workflow presets are provided for all supported platforms.
-They can be simply used by running in the root directory of the repository:
-
-```shell
-cmake --workflow --preset <preset>
-```
-
-for example
-
-```shell
-cmake --workflow --preset macOS-ccache
-```
-
-will run the macOS build with `ccache` enabled.
-
-It is recommended to set `QT_ROOT_DIR` environment variable as the path
-to the Qt installation to be used, mainly for mobile platforms to use
-the correct Qt version.
-
-For Android, `ANDROID_ABI` environment variable should be set.
-
-### Supported release workflows
-
-| Platform | Qt6       | Qt6 with ccache  | Qt5              | Qt5 with ccache         |
-|----------|-----------|------------------|------------------|-------------------------|
-| Linux    | `Linux`   | `Linux-ccache`   | `Linux-legacy`   | `Linux-legacy-ccache`   |
-| macOS    | `macOS`   | `macOS-ccache`   | `macOS-legacy`   | `macOS-legacy-ccache`   |
-| Windows  | `Windows` | `Windows-ccache` | `Windows-legacy` | `Windows-legacy-ccache` |
-| iOS      | `iOS`     | `iOS-ccache`     |                  |                         |
-| Android  | `Android` | `Android-ccache` |                  |                         |
-| WASM     | `WASM`    | `WASM-ccache`    |                  |                         |
-
-### Special workflows
-
-| Platform | Workflow             | Description                                                         |
-|----------|----------------------|---------------------------------------------------------------------|
-| Linux    | `Linux-coverage`     | Linux build with Qt6, `ccache` and code coverage                    |
-| Linux    | `Linux-internal-icu` | Linux build with Qt6 and internal ICU library (also with `-ccache`) |
-| macOS    | `macOS-clang-tidy`   | macOS build with Qt6, `ccache` and `clang-tidy`                     |
 
 <div class="section_buttons">
 
