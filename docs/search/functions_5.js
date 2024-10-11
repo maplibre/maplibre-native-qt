@@ -1,5 +1,7 @@
 var searchData=
 [
-  ['getfilter_0',['getFilter',['../classQMapLibre_1_1Map.html#a1312daf304ccf1c15a31a6180b719e19',1,'QMapLibre::Map']]],
-  ['glwidget_1',['GLWidget',['../classQMapLibre_1_1GLWidget.html#a3e6fbde6a89150840bff524d8b6993cd',1,'QMapLibre::GLWidget']]]
+  ['feature_0',['Feature',['../structQMapLibre_1_1Feature.html#aa3ea9a4546364f56dd50f56079e4490e',1,'QMapLibre::Feature']]],
+  ['featureproperty_1',['FeatureProperty',['../structQMapLibre_1_1FeatureProperty.html#a3564654f9e0a26f686e23ebefd2e2da2',1,'QMapLibre::FeatureProperty']]],
+  ['fillannotation_2',['FillAnnotation',['../structQMapLibre_1_1FillAnnotation.html#ab39628065f9d61b9ae0a1973984b212a',1,'QMapLibre::FillAnnotation']]],
+  ['filterparameter_3',['FilterParameter',['../classQMapLibre_1_1FilterParameter.html#a2fc8b6ffb15f9d391c2758da39ccba3e',1,'QMapLibre::FilterParameter']]]
 ];

@@ -122,6 +122,20 @@ $(function(){initNavTree('md_docs_2Building.html',''); initResizable(true); });
   </li>
   <li class="level1">
     <a href="#build-basics">Build basics</a>
+  </li>
+  <li class="level1">
+    <a href="#using-cmake-workflows">Using CMake workflows</a>
+    <ul>
+      <li class="level2">
+        <a href="#supported-release-workflows">Supported release workflows</a>
+      </li>
+      <li class="level2">
+        <a href="#special-workflows">Special workflows</a>
+      </li>
+    </ul>
+  </li>
+  <li class="level1">
+    <a href="#platform-specific-build-instructions">Platform specific build instructions</a>
     <ul>
       <li class="level2">
         <a href="#linux">Linux</a>
@@ -143,17 +157,6 @@ $(function(){initNavTree('md_docs_2Building.html',''); initResizable(true); });
       </li>
     </ul>
   </li>
-  <li class="level1">
-    <a href="#using-cmake-workflows">Using CMake workflows</a>
-    <ul>
-      <li class="level2">
-        <a href="#supported-release-workflows">Supported release workflows</a>
-      </li>
-      <li class="level2">
-        <a href="#special-workflows">Special workflows</a>
-      </li>
-    </ul>
-  </li>
 </ul>
 </div>
 <div class="textblock"><p><a class="anchor" id="how-to-build"></a></p>
@@ -172,8 +175,49 @@ Build basics</h1>
 <div class="line">  -DCMAKE_INSTALL_PREFIX=&quot;../install&quot;</div>
 <div class="line">ninja</div>
 <div class="line">ninja install</div>
-</div><!-- fragment --><p>See below for platform-specific instructions.</p>
+</div><!-- fragment --><p>See <a class="el" href="#platform-specific-build-instructions">below</a> for platform-specific instructions.</p>
 <dl class="section note"><dt>Note</dt><dd>It is recommended to use <a class="el" href="#using-cmake-workflows">CMake workflows</a> as they are always up-to-date and cover all supported platforms.</dd></dl>
+<h1><a class="anchor" id="using-cmake-workflows"></a>
+Using CMake workflows</h1>
+<p>CMake workflow presets are provided for all supported platforms. Run the following command in the root directory to use a preset:</p>
+<div class="fragment"><div class="line">cmake --workflow --preset &lt;preset&gt;</div>
+</div><!-- fragment --><p>for example</p>
+<div class="fragment"><div class="line">cmake --workflow --preset macOS-ccache</div>
+</div><!-- fragment --><p>will run the macOS build with <code>ccache</code> enabled.</p>
+<p>It is recommended to set <code>QT_ROOT_DIR</code> environment variable as the path to the Qt installation to be used, mainly for mobile platforms to use the correct Qt version.</p>
+<p>For Android, the <code>ANDROID_ABI</code> environment variable should be set.</p>
+<h2><a class="anchor" id="supported-release-workflows"></a>
+Supported release workflows</h2>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Platform   </th><th class="markdownTableHeadNone">Qt6   </th><th class="markdownTableHeadNone">Qt6 with ccache   </th><th class="markdownTableHeadNone">Qt5   </th><th class="markdownTableHeadNone">Qt5 with ccache    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">Linux   </td><td class="markdownTableBodyNone"><code>Linux</code>   </td><td class="markdownTableBodyNone"><code>Linux-ccache</code>   </td><td class="markdownTableBodyNone"><code>Linux-legacy</code>   </td><td class="markdownTableBodyNone"><code>Linux-legacy-ccache</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">macOS   </td><td class="markdownTableBodyNone"><code>macOS</code>   </td><td class="markdownTableBodyNone"><code>macOS-ccache</code>   </td><td class="markdownTableBodyNone"><code>macOS-legacy</code>   </td><td class="markdownTableBodyNone"><code>macOS-legacy-ccache</code>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">Windows   </td><td class="markdownTableBodyNone"><code>Windows</code>   </td><td class="markdownTableBodyNone"><code>Windows-ccache</code>   </td><td class="markdownTableBodyNone"><code>Windows-legacy</code>   </td><td class="markdownTableBodyNone"><code>Windows-legacy-ccache</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">iOS   </td><td class="markdownTableBodyNone"><code>iOS</code>   </td><td class="markdownTableBodyNone"><code>iOS-ccache</code>   </td><td class="markdownTableBodyNone"></td><td class="markdownTableBodyNone"></td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">Android   </td><td class="markdownTableBodyNone"><code>Android</code>   </td><td class="markdownTableBodyNone"><code>Android-ccache</code>   </td><td class="markdownTableBodyNone"></td><td class="markdownTableBodyNone"></td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">WASM   </td><td class="markdownTableBodyNone"><code>WASM</code>   </td><td class="markdownTableBodyNone"><code>WASM-ccache</code>   </td><td class="markdownTableBodyNone"></td><td class="markdownTableBodyNone"></td></tr>
+</table>
+<h2><a class="anchor" id="special-workflows"></a>
+Special workflows</h2>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Platform   </th><th class="markdownTableHeadNone">Workflow   </th><th class="markdownTableHeadNone">Description    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">Linux   </td><td class="markdownTableBodyNone"><code>Linux-coverage</code>   </td><td class="markdownTableBodyNone">Linux build with Qt6, <code>ccache</code> and code coverage    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">Linux   </td><td class="markdownTableBodyNone"><code>Linux-internal-icu</code>   </td><td class="markdownTableBodyNone">Linux build with Qt6 and internal ICU library (also with <code>-ccache</code>)    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">macOS   </td><td class="markdownTableBodyNone"><code>macOS-clang-tidy</code>   </td><td class="markdownTableBodyNone">macOS build with Qt6, <code>ccache</code> and <code>clang-tidy</code>   </td></tr>
+</table>
+<h1><a class="anchor" id="platform-specific-build-instructions"></a>
+Platform specific build instructions</h1>
 <h2><a class="anchor" id="linux"></a>
 Linux</h2>
 <p>Release binaries are build with <code>-DCMAKE_BUILD_TYPE="Release"</code>.</p>
@@ -210,6 +254,7 @@ Windows</h2>
 <div class="line">  -DCMAKE_CONFIGURATION_TYPES=&quot;Release;Debug&quot; \</div>
 <div class="line">  -DCMAKE_C_COMPILER_LAUNCHER=&quot;ccache&quot; \</div>
 <div class="line">  -DCMAKE_CXX_COMPILER_LAUNCHER=&quot;ccache&quot; \</div>
+<div class="line">  -DCMAKE_DEFAULT_CONFIGS=&quot;all&quot; \</div>
 <div class="line">  -DCMAKE_INSTALL_PREFIX=&quot;../install&quot;</div>
 <div class="line">ninja</div>
 <div class="line">ninja install</div>
@@ -222,6 +267,7 @@ iOS</h2>
 <div class="line">  -DCMAKE_CONFIGURATION_TYPES=&quot;Release;Debug&quot; \</div>
 <div class="line">  -DCMAKE_C_COMPILER_LAUNCHER=&quot;ccache&quot; \</div>
 <div class="line">  -DCMAKE_CXX_COMPILER_LAUNCHER=&quot;ccache&quot; \</div>
+<div class="line">  -DCMAKE_DEFAULT_CONFIGS=&quot;all&quot; \</div>
 <div class="line">  -DCMAKE_INSTALL_PREFIX=&quot;../install&quot; \</div>
 <div class="line">  -DCMAKE_OSX_ARCHITECTURES=&quot;arm64;x86_64&quot; \</div>
 <div class="line">  -DCMAKE_OSX_DEPLOYMENT_TARGET=&quot;14.0&quot;</div>
@@ -253,46 +299,7 @@ WebAssembly (WASM)</h2>
 <div class="line">  -DMLN_QT_LOCATION=OFF</div>
 <div class="line">ninja</div>
 <div class="line">ninja install</div>
-</div><!-- fragment --><h1><a class="anchor" id="using-cmake-workflows"></a>
-Using CMake workflows</h1>
-<p>CMake workflow presets are provided for all supported platforms. They can be simply used by running in the root directory of the repository:</p>
-<div class="fragment"><div class="line">cmake --workflow --preset &lt;preset&gt;</div>
-</div><!-- fragment --><p>for example</p>
-<div class="fragment"><div class="line">cmake --workflow --preset macOS-ccache</div>
-</div><!-- fragment --><p>will run the macOS build with <code>ccache</code> enabled.</p>
-<p>It is recommended to set <code>QT_ROOT_DIR</code> environment variable as the path to the Qt installation to be used, mainly for mobile platforms to use the correct Qt version.</p>
-<p>For Android, <code>ANDROID_ABI</code> environment variable should be set.</p>
-<h2><a class="anchor" id="supported-release-workflows"></a>
-Supported release workflows</h2>
-<table class="markdownTable">
-<tr class="markdownTableHead">
-<th class="markdownTableHeadNone">Platform   </th><th class="markdownTableHeadNone">Qt6   </th><th class="markdownTableHeadNone">Qt6 with ccache   </th><th class="markdownTableHeadNone">Qt5   </th><th class="markdownTableHeadNone">Qt5 with ccache    </th></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">Linux   </td><td class="markdownTableBodyNone"><code>Linux</code>   </td><td class="markdownTableBodyNone"><code>Linux-ccache</code>   </td><td class="markdownTableBodyNone"><code>Linux-legacy</code>   </td><td class="markdownTableBodyNone"><code>Linux-legacy-ccache</code>    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">macOS   </td><td class="markdownTableBodyNone"><code>macOS</code>   </td><td class="markdownTableBodyNone"><code>macOS-ccache</code>   </td><td class="markdownTableBodyNone"><code>macOS-legacy</code>   </td><td class="markdownTableBodyNone"><code>macOS-legacy-ccache</code>    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">Windows   </td><td class="markdownTableBodyNone"><code>Windows</code>   </td><td class="markdownTableBodyNone"><code>Windows-ccache</code>   </td><td class="markdownTableBodyNone"><code>Windows-legacy</code>   </td><td class="markdownTableBodyNone"><code>Windows-legacy-ccache</code>    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">iOS   </td><td class="markdownTableBodyNone"><code>iOS</code>   </td><td class="markdownTableBodyNone"><code>iOS-ccache</code>   </td><td class="markdownTableBodyNone"></td><td class="markdownTableBodyNone"></td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">Android   </td><td class="markdownTableBodyNone"><code>Android</code>   </td><td class="markdownTableBodyNone"><code>Android-ccache</code>   </td><td class="markdownTableBodyNone"></td><td class="markdownTableBodyNone"></td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">WASM   </td><td class="markdownTableBodyNone"><code>WASM</code>   </td><td class="markdownTableBodyNone"><code>WASM-ccache</code>   </td><td class="markdownTableBodyNone"></td><td class="markdownTableBodyNone"></td></tr>
-</table>
-<h2><a class="anchor" id="special-workflows"></a>
-Special workflows</h2>
-<table class="markdownTable">
-<tr class="markdownTableHead">
-<th class="markdownTableHeadNone">Platform   </th><th class="markdownTableHeadNone">Workflow   </th><th class="markdownTableHeadNone">Description    </th></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">Linux   </td><td class="markdownTableBodyNone"><code>Linux-coverage</code>   </td><td class="markdownTableBodyNone">Linux build with Qt6, <code>ccache</code> and code coverage    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">Linux   </td><td class="markdownTableBodyNone"><code>Linux-internal-icu</code>   </td><td class="markdownTableBodyNone">Linux build with Qt6 and internal ICU library (also with <code>-ccache</code>)    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">macOS   </td><td class="markdownTableBodyNone"><code>macOS-clang-tidy</code>   </td><td class="markdownTableBodyNone">macOS build with Qt6, <code>ccache</code> and <code>clang-tidy</code>   </td></tr>
-</table>
-<div class="section_buttons"></div><div class="section_buttons"><table class="markdownTable">
+</div><!-- fragment --><div class="section_buttons"></div><div class="section_buttons"><table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadLeft">Previous   </th><th class="markdownTableHeadRight">Next    </th></tr>
 <tr class="markdownTableRowOdd">

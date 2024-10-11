@@ -26,19 +26,39 @@ var NAVTREE =
 [
   [ "MapLibre Native for Qt", "index.html", [
     [ "Documentation", "index.html", null ],
+    [ "Changelog", "md_CHANGELOG.html", [
+      [ "v3.0.0", "md_CHANGELOG.html#v300", [
+        [ "✨ New features", "md_CHANGELOG.html#autotoc_md-new-features", null ],
+        [ "🐞 Bug fixes", "md_CHANGELOG.html#autotoc_md-bug-fixes", null ]
+      ] ],
+      [ "v2.1.0", "md_CHANGELOG.html#v210", [
+        [ "✨ New features", "md_CHANGELOG.html#autotoc_md-new-features-1", null ],
+        [ "🐞 Bug fixes", "md_CHANGELOG.html#autotoc_md-bug-fixes-1", null ]
+      ] ],
+      [ "v2.0.2", "md_CHANGELOG.html#v202", [
+        [ "🐞 Bug fixes", "md_CHANGELOG.html#autotoc_md-bug-fixes-2", null ]
+      ] ],
+      [ "v2.0.1", "md_CHANGELOG.html#v201", [
+        [ "🐞 Bug fixes", "md_CHANGELOG.html#autotoc_md-bug-fixes-3", null ]
+      ] ],
+      [ "v2.0", "md_CHANGELOG.html#v20", [
+        [ "✨ New features", "md_CHANGELOG.html#autotoc_md-new-features-2", null ]
+      ] ]
+    ] ],
     [ "How to build", "md_docs_2Building.html", [
       [ "Qt prerequisites", "md_docs_2Building.html#qt-prerequisites", null ],
-      [ "Build basics", "md_docs_2Building.html#build-basics", [
+      [ "Build basics", "md_docs_2Building.html#build-basics", null ],
+      [ "Using CMake workflows", "md_docs_2Building.html#using-cmake-workflows", [
+        [ "Supported release workflows", "md_docs_2Building.html#supported-release-workflows", null ],
+        [ "Special workflows", "md_docs_2Building.html#special-workflows", null ]
+      ] ],
+      [ "Platform specific build instructions", "md_docs_2Building.html#platform-specific-build-instructions", [
         [ "Linux", "md_docs_2Building.html#linux", null ],
         [ "macOS", "md_docs_2Building.html#macos", null ],
         [ "Windows", "md_docs_2Building.html#windows", null ],
         [ "iOS", "md_docs_2Building.html#ios", null ],
         [ "Android", "md_docs_2Building.html#android", null ],
         [ "WebAssembly (WASM)", "md_docs_2Building.html#webassembly-wasm", null ]
-      ] ],
-      [ "Using CMake workflows", "md_docs_2Building.html#using-cmake-workflows", [
-        [ "Supported release workflows", "md_docs_2Building.html#supported-release-workflows", null ],
-        [ "Special workflows", "md_docs_2Building.html#special-workflows", null ]
       ] ]
     ] ],
     [ "Usage", "md_docs_2Usage.html", [
@@ -86,7 +106,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"functions_eval.html"
+"dir_68267d1309a1af8e8297ef4c3efbcdba.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

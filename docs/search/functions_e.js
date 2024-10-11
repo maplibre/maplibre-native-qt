@@ -1,13 +1,12 @@
 var searchData=
 [
-  ['ready_0',['ready',['../classQMapLibre_1_1StyleParameter.html#a86f6bd9ca11c7bffbf712bd12e58e06b',1,'QMapLibre::StyleParameter']]],
-  ['removeannotation_1',['removeAnnotation',['../classQMapLibre_1_1Map.html#a06d199dbc8a3d5247ad2d5256279538e',1,'QMapLibre::Map']]],
-  ['removeimage_2',['removeImage',['../classQMapLibre_1_1Map.html#aa2c86860ec75149e9db1f0c5a18f309f',1,'QMapLibre::Map']]],
-  ['removelayer_3',['removeLayer',['../classQMapLibre_1_1Map.html#a79405aa44800eb5ef98090e75991a42a',1,'QMapLibre::Map']]],
-  ['removeparameter_4',['removeParameter',['../classStyle.html#a0ca933b811d1e6e73d29d3cb0fa864c5',1,'Style']]],
-  ['removesource_5',['removeSource',['../classQMapLibre_1_1Map.html#a0befa1d835545332ab9639488f2f2e94',1,'QMapLibre::Map']]],
-  ['render_6',['render',['../classQMapLibre_1_1Map.html#a8b061933e576a4034adf9e20d6b213f0',1,'QMapLibre::Map::render()'],['../classQMapLibre_1_1CustomLayerHostInterface.html#a42f6244b13ff4db9808fab2bc860d075',1,'QMapLibre::CustomLayerHostInterface::render()']]],
-  ['resize_7',['resize',['../classQMapLibre_1_1Map.html#ae0db8b6336b12991c7f75032554e409f',1,'QMapLibre::Map']]],
-  ['resourcetransform_8',['resourceTransform',['../classQMapLibre_1_1Settings.html#a34012c021fb6258c5ab1f2695dfa15f7',1,'QMapLibre::Settings']]],
-  ['rotateby_9',['rotateBy',['../classQMapLibre_1_1Map.html#ac9e1bc5e14000812d17288e874c04353',1,'QMapLibre::Map']]]
+  ['paint_0',['paint',['../classQMapLibre_1_1LayerParameter.html#a12c4fcfbc351ecddb875599d65876676',1,'QMapLibre::LayerParameter']]],
+  ['paintgl_1',['paintGL',['../classQMapLibre_1_1GLWidget.html#a704db0f14e03dd6084c46baa8c9fc07b',1,'QMapLibre::GLWidget']]],
+  ['paintupdated_2',['paintUpdated',['../classQMapLibre_1_1LayerParameter.html#adec639f645eb02c8c8602c73eced831e',1,'QMapLibre::LayerParameter']]],
+  ['parsedproperty_3',['parsedProperty',['../classQMapLibre_1_1StyleParameter.html#a9b7efd5c2475cf653c76ed9af89aa2ac',1,'QMapLibre::StyleParameter']]],
+  ['pitch_4',['pitch',['../classQMapLibre_1_1Map.html#a97073ca52d1a33d6662daf70c2f6258d',1,'QMapLibre::Map']]],
+  ['pitchby_5',['pitchBy',['../classQMapLibre_1_1Map.html#a87098faed7e24aac7234513b3fbf851b',1,'QMapLibre::Map']]],
+  ['pixelforcoordinate_6',['pixelForCoordinate',['../classQMapLibre_1_1Map.html#a8fda44c9516ecf731baffd5395ec10ed',1,'QMapLibre::Map']]],
+  ['projectedmetersforcoordinate_7',['projectedMetersForCoordinate',['../namespaceQMapLibre.html#ae8ab227468f52956fb045c080962978d',1,'QMapLibre']]],
+  ['providerstyles_8',['providerStyles',['../classQMapLibre_1_1Settings.html#a81fd52356b795ff9d8d282a684a58084',1,'QMapLibre::Settings']]]
 ];

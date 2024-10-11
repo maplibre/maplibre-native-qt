@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['wheelevent_0',['wheelEvent',['../classQMapLibre_1_1GLWidget.html#a38135c8259fb2ce961938ab598b24fd5',1,'QMapLibre::GLWidget']]]
+  ['viewportmode_0',['viewportMode',['../classQMapLibre_1_1Settings.html#a1cd18f6fb20735d23164f98f580b1ff0',1,'QMapLibre::Settings']]]
 ];

@@ -141,38 +141,39 @@ $(function(){initNavTree('style__parameter_8hpp_source.html',''); initResizable(
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span> </div>
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno"><a class="line" href="classQMapLibre_1_1StyleParameter.html#a29f936af641f51aa3fd708899525c885">   24</a></span>    [[nodiscard]] <span class="keyword">inline</span> <span class="keywordtype">bool</span> <a class="code hl_function" href="classQMapLibre_1_1StyleParameter.html#a29f936af641f51aa3fd708899525c885">isReady</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> m_ready; };</div>
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span> </div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>    <span class="keywordtype">bool</span> hasProperty(<span class="keyword">const</span> <span class="keywordtype">char</span> *propertyName) <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>    <span class="keywordtype">void</span> updateProperty(<span class="keyword">const</span> <span class="keywordtype">char</span> *propertyName, <span class="keyword">const</span> QVariant &amp;value);</div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span> </div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>    [[nodiscard]] QVariantMap toVariantMap() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span> </div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>    [[nodiscard]] QString styleId() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>    <span class="keywordtype">void</span> setStyleId(<span class="keyword">const</span> QString &amp;<span class="keywordtype">id</span>);</div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span> </div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span><span class="keyword">public</span> Q_SLOTS:</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    <span class="keywordtype">void</span> updateNotify();</div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span> </div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>Q_SIGNALS:</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno"><a class="line" href="classQMapLibre_1_1StyleParameter.html#a86f6bd9ca11c7bffbf712bd12e58e06b">   38</a></span>    <span class="keywordtype">void</span> <a class="code hl_signal" href="classQMapLibre_1_1StyleParameter.html#a86f6bd9ca11c7bffbf712bd12e58e06b">ready</a>(<a class="code hl_class" href="classQMapLibre_1_1StyleParameter.html">StyleParameter</a> *parameter);</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno"><a class="line" href="classQMapLibre_1_1StyleParameter.html#af122ec58a533e182624be21f04a4937e">   39</a></span>    <span class="keywordtype">void</span> <a class="code hl_signal" href="classQMapLibre_1_1StyleParameter.html#af122ec58a533e182624be21f04a4937e">updated</a>(<a class="code hl_class" href="classQMapLibre_1_1StyleParameter.html">StyleParameter</a> *parameter);</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span> </div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span><span class="keyword">protected</span>:</div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno"><a class="line" href="classQMapLibre_1_1StyleParameter.html#a4099cd78a9aeacc0e35ab75a6d9f7a37">   42</a></span>    <span class="keyword">const</span> <span class="keywordtype">int</span> m_initialPropertyCount = staticMetaObject.propertyCount();</div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno"><a class="line" href="classQMapLibre_1_1StyleParameter.html#a725c1ca553bfe3ec206e3fd1d70ce269">   43</a></span>    <span class="keywordtype">bool</span> m_ready{};</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span> </div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno"><a class="line" href="classQMapLibre_1_1StyleParameter.html#abf83943594d10de68e74e704e851e15d">   45</a></span>    QString <a class="code hl_variable" href="classQMapLibre_1_1StyleParameter.html#abf83943594d10de68e74e704e851e15d">m_styleId</a>;</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span> </div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    Q_DISABLE_COPY(<a class="code hl_class" href="classQMapLibre_1_1StyleParameter.html">StyleParameter</a>)</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>};</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>    [[nodiscard]] <span class="keyword">virtual</span> QVariant parsedProperty(<span class="keyword">const</span> <span class="keywordtype">char</span> *propertyName) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>    <span class="keywordtype">bool</span> hasProperty(<span class="keyword">const</span> <span class="keywordtype">char</span> *propertyName) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>    <span class="keywordtype">void</span> updateProperty(<span class="keyword">const</span> <span class="keywordtype">char</span> *propertyName, <span class="keyword">const</span> QVariant &amp;value);</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span> </div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>    [[nodiscard]] QVariantMap toVariantMap() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span> </div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>    [[nodiscard]] QString styleId() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>    <span class="keywordtype">void</span> setStyleId(<span class="keyword">const</span> QString &amp;<span class="keywordtype">id</span>);</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span> </div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span><span class="keyword">public</span> Q_SLOTS:</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    <span class="keywordtype">void</span> updateNotify();</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span> </div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>Q_SIGNALS:</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno"><a class="line" href="classQMapLibre_1_1StyleParameter.html#a86f6bd9ca11c7bffbf712bd12e58e06b">   39</a></span>    <span class="keywordtype">void</span> <a class="code hl_signal" href="classQMapLibre_1_1StyleParameter.html#a86f6bd9ca11c7bffbf712bd12e58e06b">ready</a>(<a class="code hl_class" href="classQMapLibre_1_1StyleParameter.html">StyleParameter</a> *parameter);</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno"><a class="line" href="classQMapLibre_1_1StyleParameter.html#af122ec58a533e182624be21f04a4937e">   40</a></span>    <span class="keywordtype">void</span> <a class="code hl_signal" href="classQMapLibre_1_1StyleParameter.html#af122ec58a533e182624be21f04a4937e">updated</a>(<a class="code hl_class" href="classQMapLibre_1_1StyleParameter.html">StyleParameter</a> *parameter);</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="keyword">protected</span>:</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno"><a class="line" href="classQMapLibre_1_1StyleParameter.html#a4099cd78a9aeacc0e35ab75a6d9f7a37">   43</a></span>    <span class="keyword">const</span> <span class="keywordtype">int</span> m_initialPropertyCount = staticMetaObject.propertyCount();</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno"><a class="line" href="classQMapLibre_1_1StyleParameter.html#a725c1ca553bfe3ec206e3fd1d70ce269">   44</a></span>    <span class="keywordtype">bool</span> m_ready{};</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span> </div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno"><a class="line" href="classQMapLibre_1_1StyleParameter.html#abf83943594d10de68e74e704e851e15d">   46</a></span>    QString <a class="code hl_variable" href="classQMapLibre_1_1StyleParameter.html#abf83943594d10de68e74e704e851e15d">m_styleId</a>;</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span> </div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    Q_DISABLE_COPY(<a class="code hl_class" href="classQMapLibre_1_1StyleParameter.html">StyleParameter</a>)</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>};</div>
 </div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span> </div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>} <span class="comment">// namespace QMapLibre</span></div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span> </div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span><span class="preprocessor">#endif </span><span class="comment">// QMAPLIBRE_STYLE_PARAMETER_H</span></div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>} <span class="comment">// namespace QMapLibre</span></div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span><span class="preprocessor">#endif </span><span class="comment">// QMAPLIBRE_STYLE_PARAMETER_H</span></div>
 <div class="ttc" id="aclassQMapLibre_1_1StyleParameter_html"><div class="ttname"><a href="classQMapLibre_1_1StyleParameter.html">QMapLibre::StyleParameter</a></div><div class="ttdoc">A base class to pass style parameters to Map.</div><div class="ttdef"><b>Definition</b> style_parameter.hpp:16</div></div>
 <div class="ttc" id="aclassQMapLibre_1_1StyleParameter_html_a29f936af641f51aa3fd708899525c885"><div class="ttname"><a href="classQMapLibre_1_1StyleParameter.html#a29f936af641f51aa3fd708899525c885">QMapLibre::StyleParameter::isReady</a></div><div class="ttdeci">bool isReady() const</div><div class="ttdoc">Check if the style parameter is ready.</div><div class="ttdef"><b>Definition</b> style_parameter.hpp:24</div></div>
 <div class="ttc" id="aclassQMapLibre_1_1StyleParameter_html_a86f6bd9ca11c7bffbf712bd12e58e06b"><div class="ttname"><a href="classQMapLibre_1_1StyleParameter.html#a86f6bd9ca11c7bffbf712bd12e58e06b">QMapLibre::StyleParameter::ready</a></div><div class="ttdeci">void ready(StyleParameter *parameter)</div><div class="ttdoc">Signal emitted when the style parameter is ready.</div></div>
-<div class="ttc" id="aclassQMapLibre_1_1StyleParameter_html_abf83943594d10de68e74e704e851e15d"><div class="ttname"><a href="classQMapLibre_1_1StyleParameter.html#abf83943594d10de68e74e704e851e15d">QMapLibre::StyleParameter::m_styleId</a></div><div class="ttdeci">QString m_styleId</div><div class="ttdoc">Style identifier of the parameter.</div><div class="ttdef"><b>Definition</b> style_parameter.hpp:45</div></div>
+<div class="ttc" id="aclassQMapLibre_1_1StyleParameter_html_abf83943594d10de68e74e704e851e15d"><div class="ttname"><a href="classQMapLibre_1_1StyleParameter.html#abf83943594d10de68e74e704e851e15d">QMapLibre::StyleParameter::m_styleId</a></div><div class="ttdeci">QString m_styleId</div><div class="ttdoc">Style identifier of the parameter.</div><div class="ttdef"><b>Definition</b> style_parameter.hpp:46</div></div>
 <div class="ttc" id="aclassQMapLibre_1_1StyleParameter_html_af122ec58a533e182624be21f04a4937e"><div class="ttname"><a href="classQMapLibre_1_1StyleParameter.html#af122ec58a533e182624be21f04a4937e">QMapLibre::StyleParameter::updated</a></div><div class="ttdeci">void updated(StyleParameter *parameter)</div><div class="ttdoc">Signal emitted when the style parameter is updated.</div></div>
 <div class="ttc" id="anamespaceQMapLibre_html"><div class="ttname"><a href="namespaceQMapLibre.html">QMapLibre</a></div><div class="ttdef"><b>Definition</b> geojson.cpp:10</div></div>
 </div><!-- fragment --></div><!-- contents -->

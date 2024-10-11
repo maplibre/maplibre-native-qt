@@ -1,16 +1,12 @@
 var searchData=
 [
-  ['map_0',['Map',['../classQMapLibre_1_1Map.html#a0c3b4c040da009b43de8767ca6652bbb',1,'QMapLibre::Map']]],
-  ['map_1',['map',['../classQMapLibre_1_1GLWidget.html#af988ae9db4cfe932b0eeee083c69ddf8',1,'QMapLibre::GLWidget']]],
-  ['mapchanged_2',['mapChanged',['../classQMapLibre_1_1Map.html#ab3f426685c20a3c6c33c008982577d2b',1,'QMapLibre::Map']]],
-  ['maploadingfailed_3',['mapLoadingFailed',['../classQMapLibre_1_1Map.html#ad17ddfe8c5181adc44f2235890d4124d',1,'QMapLibre::Map']]],
-  ['mapmode_4',['mapMode',['../classQMapLibre_1_1Settings.html#adf2b3c8c5e21eda27ad6212f391de742',1,'QMapLibre::Settings']]],
-  ['margins_5',['margins',['../classQMapLibre_1_1Map.html#af05ce913ecac4f91b7b35c9feb3b305d',1,'QMapLibre::Map']]],
-  ['maximumzoom_6',['maximumZoom',['../classQMapLibre_1_1Map.html#a059540a281c019e2210e2e16083fabe3',1,'QMapLibre::Map']]],
-  ['metersperpixelatlatitude_7',['metersPerPixelAtLatitude',['../namespaceQMapLibre.html#a1714f285442ef3f2eb3c1663824f4728',1,'QMapLibre']]],
-  ['minimumzoom_8',['minimumZoom',['../classQMapLibre_1_1Map.html#ac0d6c9cadef263062cbba92a5f1751df',1,'QMapLibre::Map']]],
-  ['mousemoveevent_9',['mouseMoveEvent',['../classQMapLibre_1_1GLWidget.html#aeb6865e5bb7ce8232befc5f673176837',1,'QMapLibre::GLWidget']]],
-  ['mousepressevent_10',['mousePressEvent',['../classQMapLibre_1_1GLWidget.html#a8a93fb57d69352fac9b42222a618e95f',1,'QMapLibre::GLWidget']]],
-  ['mousereleaseevent_11',['mouseReleaseEvent',['../classQMapLibre_1_1GLWidget.html#a9d687bc771fc81f124e402449f66382b',1,'QMapLibre::GLWidget']]],
-  ['moveby_12',['moveBy',['../classQMapLibre_1_1Map.html#aa474c1817f5fed9105626811b17f7ea5',1,'QMapLibre::Map']]]
+  ['latitude_0',['latitude',['../classQMapLibre_1_1Map.html#a471425ffd36c99e8dd065597a55d0da9',1,'QMapLibre::Map']]],
+  ['layerexists_1',['layerExists',['../classQMapLibre_1_1Map.html#a8e639d2a85eaa1fb94a6fc4874cb204c',1,'QMapLibre::Map']]],
+  ['layerids_2',['layerIds',['../classQMapLibre_1_1Map.html#a920ba623c25e10c456e725edb246a77a',1,'QMapLibre::Map']]],
+  ['layerparameter_3',['LayerParameter',['../classQMapLibre_1_1LayerParameter.html#af55e0ca7fe147da27b1926e38b86240e',1,'QMapLibre::LayerParameter']]],
+  ['layout_4',['layout',['../classQMapLibre_1_1LayerParameter.html#ad81e68f539a5e7e373f9ac00570a1c8e',1,'QMapLibre::LayerParameter']]],
+  ['layoutupdated_5',['layoutUpdated',['../classQMapLibre_1_1LayerParameter.html#a29f0e0f556120f5f809c30f49ed75f86',1,'QMapLibre::LayerParameter']]],
+  ['lineannotation_6',['LineAnnotation',['../structQMapLibre_1_1LineAnnotation.html#ade6df65aface4fd6f0b0820727c298d5',1,'QMapLibre::LineAnnotation']]],
+  ['localfontfamily_7',['localFontFamily',['../classQMapLibre_1_1Settings.html#a48af70ee34e7506a9e15fb5b9c3d7494',1,'QMapLibre::Settings']]],
+  ['longitude_8',['longitude',['../classQMapLibre_1_1Map.html#a7eff8824b9f1040e6b161d4a2e04c9e5',1,'QMapLibre::Map']]]
 ];

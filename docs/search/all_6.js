@@ -1,7 +1,11 @@
 var searchData=
 [
-  ['geometry_0',['geometry',['../structQMapLibre_1_1Feature.html#aee800f3e8d2e6c9d1212f5baa281b956',1,'QMapLibre::Feature::geometry'],['../structQMapLibre_1_1ShapeAnnotationGeometry.html#ad71fa5b9870f3fc073b0a1395f2a5076',1,'QMapLibre::ShapeAnnotationGeometry::geometry'],['../structQMapLibre_1_1SymbolAnnotation.html#a02be49b55f2ff1b3ea59baeeaf218026',1,'QMapLibre::SymbolAnnotation::geometry'],['../structQMapLibre_1_1LineAnnotation.html#a4c3d5c2aa6d9ab508346cf56b649ac81',1,'QMapLibre::LineAnnotation::geometry'],['../structQMapLibre_1_1FillAnnotation.html#a9b855e884c26dc45ba46f6811393d608',1,'QMapLibre::FillAnnotation::geometry']]],
-  ['getfilter_1',['getFilter',['../classQMapLibre_1_1Map.html#a1312daf304ccf1c15a31a6180b719e19',1,'QMapLibre::Map']]],
-  ['glcontextmode_2',['GLContextMode',['../classQMapLibre_1_1Settings.html#ac2dfb09e03fa0a6c9659e728fcf07fcf',1,'QMapLibre::Settings']]],
-  ['glwidget_3',['GLWidget',['../classQMapLibre_1_1GLWidget.html',1,'QMapLibre::GLWidget'],['../classQMapLibre_1_1GLWidget.html#a3e6fbde6a89150840bff524d8b6993cd',1,'QMapLibre::GLWidget::GLWidget()']]]
+  ['defaultcoordinate_0',['defaultCoordinate',['../classQMapLibre_1_1Settings.html#add28a5801e32d651739c6c75aaaf6cf4',1,'QMapLibre::Settings']]],
+  ['defaultviewport_1',['DefaultViewport',['../classQMapLibre_1_1Settings.html#a31d9cd60ceb36bb0c62c6a72b3ff4584abc9781ad0904f8580d1c9f24c9a11021',1,'QMapLibre::Settings']]],
+  ['defaultzoom_2',['defaultZoom',['../classQMapLibre_1_1Settings.html#a62de5aebaaf11f1c94e9276427646696',1,'QMapLibre::Settings']]],
+  ['deinitialize_3',['deinitialize',['../classQMapLibre_1_1CustomLayerHostInterface.html#a53cb6eaa416c9d0aca0cee7682632b56',1,'QMapLibre::CustomLayerHostInterface']]],
+  ['description_4',['description',['../structQMapLibre_1_1Style.html#a7c6ebc035bae89f7c00db1d4d740da48',1,'QMapLibre::Style']]],
+  ['destroyrenderer_5',['destroyRenderer',['../classQMapLibre_1_1Map.html#a9718e678ef5af07299372d00be5bbd82',1,'QMapLibre::Map']]],
+  ['development_20specifics_6',['Development specifics',['../md_docs_2Usage.html#development-specifics',1,'']]],
+  ['documentation_7',['Documentation',['../index.html',1,'']]]
 ];

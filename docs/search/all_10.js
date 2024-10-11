@@ -1,15 +1,13 @@
 var searchData=
 [
-  ['ready_0',['ready',['../classQMapLibre_1_1StyleParameter.html#a86f6bd9ca11c7bffbf712bd12e58e06b',1,'QMapLibre::StyleParameter']]],
-  ['release_20workflows_1',['Supported release workflows',['../md_docs_2Building.html#supported-release-workflows',1,'']]],
-  ['removeannotation_2',['removeAnnotation',['../classQMapLibre_1_1Map.html#a06d199dbc8a3d5247ad2d5256279538e',1,'QMapLibre::Map']]],
-  ['removeimage_3',['removeImage',['../classQMapLibre_1_1Map.html#aa2c86860ec75149e9db1f0c5a18f309f',1,'QMapLibre::Map']]],
-  ['removelayer_4',['removeLayer',['../classQMapLibre_1_1Map.html#a79405aa44800eb5ef98090e75991a42a',1,'QMapLibre::Map']]],
-  ['removeparameter_5',['removeParameter',['../classStyle.html#a0ca933b811d1e6e73d29d3cb0fa864c5',1,'Style']]],
-  ['removesource_6',['removeSource',['../classQMapLibre_1_1Map.html#a0befa1d835545332ab9639488f2f2e94',1,'QMapLibre::Map']]],
-  ['render_7',['render',['../classQMapLibre_1_1Map.html#a8b061933e576a4034adf9e20d6b213f0',1,'QMapLibre::Map::render()'],['../classQMapLibre_1_1CustomLayerHostInterface.html#a42f6244b13ff4db9808fab2bc860d075',1,'QMapLibre::CustomLayerHostInterface::render()']]],
-  ['resize_8',['resize',['../classQMapLibre_1_1Map.html#ae0db8b6336b12991c7f75032554e409f',1,'QMapLibre::Map']]],
-  ['resourcetransform_9',['resourceTransform',['../classQMapLibre_1_1Settings.html#a34012c021fb6258c5ab1f2695dfa15f7',1,'QMapLibre::Settings']]],
-  ['resourcetransformfunction_10',['ResourceTransformFunction',['../classQMapLibre_1_1Settings.html#a26d342505f85c281c6901cfd686db9b2',1,'QMapLibre::Settings']]],
-  ['rotateby_11',['rotateBy',['../classQMapLibre_1_1Map.html#ac9e1bc5e14000812d17288e874c04353',1,'QMapLibre::Map']]]
+  ['offline_0',['Offline',['../namespaceQMapLibre.html#a5316aadcde32db8e7531f5c4ea6d52d8a48f4f8707885a70ea8e5316c8676740b',1,'QMapLibre']]],
+  ['online_1',['Online',['../namespaceQMapLibre.html#a5316aadcde32db8e7531f5c4ea6d52d8ac1715e5e9bd53be2d64bb16f2bdb92da',1,'QMapLibre']]],
+  ['onmousedoubleclickevent_2',['onMouseDoubleClickEvent',['../classQMapLibre_1_1GLWidget.html#a8ee2ac2654244b0d972d703eeeaa562d',1,'QMapLibre::GLWidget']]],
+  ['onmousemoveevent_3',['onMouseMoveEvent',['../classQMapLibre_1_1GLWidget.html#a57fb486d40bbaadc2766760a5095ff16',1,'QMapLibre::GLWidget']]],
+  ['onmousepressevent_4',['onMousePressEvent',['../classQMapLibre_1_1GLWidget.html#aee2f305477bb2508154efd0662d778bc',1,'QMapLibre::GLWidget']]],
+  ['onmousereleaseevent_5',['onMouseReleaseEvent',['../classQMapLibre_1_1GLWidget.html#a91087cdd0f234c1b33920e7016e28bb9',1,'QMapLibre::GLWidget']]],
+  ['opacity_6',['opacity',['../structQMapLibre_1_1LineAnnotation.html#aa1be056c0ce802c789b92cddcc34b013',1,'QMapLibre::LineAnnotation::opacity'],['../structQMapLibre_1_1FillAnnotation.html#a0792382622631beab05da11b1a1c37a0',1,'QMapLibre::FillAnnotation::opacity']]],
+  ['operator_3d_7',['operator=',['../classQMapLibre_1_1Settings.html#a1eae6b13600dc13f07f11b9af0af1d58',1,'QMapLibre::Settings::operator=(const Settings &amp;s)'],['../classQMapLibre_1_1Settings.html#a3651ec550c396018f2e921b06323ff18',1,'QMapLibre::Settings::operator=(Settings &amp;&amp;s) noexcept']]],
+  ['operator_3d_3d_8',['operator==',['../classQMapLibre_1_1StyleParameter.html#a7ba9f88a63e061319104dcc42d992431',1,'QMapLibre::StyleParameter']]],
+  ['outlinecolor_9',['outlineColor',['../structQMapLibre_1_1FillAnnotation.html#ab7a52b21871ed32b0b798fc4c8b8b6d5',1,'QMapLibre::FillAnnotation']]]
 ];

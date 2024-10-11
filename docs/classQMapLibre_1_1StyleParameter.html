@@ -130,8 +130,10 @@ Inheritance diagram for QMapLibre::StyleParameter:</div>
  <div class="center">
   <img src="classQMapLibre_1_1StyleParameter.png" usemap="#QMapLibre::StyleParameter_map" alt=""/>
   <map id="QMapLibre::StyleParameter_map" name="QMapLibre::StyleParameter_map">
-<area href="classQMapLibre_1_1LayerParameter.html" title="A helper utility to create and configure map layers in the Map." alt="QMapLibre::LayerParameter" shape="rect" coords="0,112,181,136"/>
-<area href="classQMapLibre_1_1SourceParameter.html" title="A helper utility to create an additional map data source in the Map." alt="QMapLibre::SourceParameter" shape="rect" coords="191,112,372,136"/>
+<area href="classQMapLibre_1_1FilterParameter.html" title="A helper utility to manage filter parameters for a layer." alt="QMapLibre::FilterParameter" shape="rect" coords="0,112,181,136"/>
+<area href="classQMapLibre_1_1ImageParameter.html" title="A helper utility to manage image sources." alt="QMapLibre::ImageParameter" shape="rect" coords="191,112,372,136"/>
+<area href="classQMapLibre_1_1LayerParameter.html" title="A helper utility to create and configure map layers in the Map." alt="QMapLibre::LayerParameter" shape="rect" coords="382,112,563,136"/>
+<area href="classQMapLibre_1_1SourceParameter.html" title="A helper utility to create an additional map data source in the Map." alt="QMapLibre::SourceParameter" shape="rect" coords="573,112,754,136"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -164,6 +166,9 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator==</b> (const
 <tr class="memitem:a29f936af641f51aa3fd708899525c885" id="r_a29f936af641f51aa3fd708899525c885"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a29f936af641f51aa3fd708899525c885">isReady</a> () const</td></tr>
 <tr class="memdesc:a29f936af641f51aa3fd708899525c885"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the style parameter is ready.  <br /></td></tr>
 <tr class="separator:a29f936af641f51aa3fd708899525c885"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9b7efd5c2475cf653c76ed9af89aa2ac" id="r_a9b7efd5c2475cf653c76ed9af89aa2ac"><td class="memItemLeft" align="right" valign="top">virtual QVariant&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9b7efd5c2475cf653c76ed9af89aa2ac">parsedProperty</a> (const char *propertyName) const</td></tr>
+<tr class="memdesc:a9b7efd5c2475cf653c76ed9af89aa2ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the property value.  <br /></td></tr>
+<tr class="separator:a9b7efd5c2475cf653c76ed9af89aa2ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa0c4a6d38f04882ef86eee3ea219dbd8" id="r_aa0c4a6d38f04882ef86eee3ea219dbd8"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa0c4a6d38f04882ef86eee3ea219dbd8">hasProperty</a> (const char *propertyName) const</td></tr>
 <tr class="memdesc:aa0c4a6d38f04882ef86eee3ea219dbd8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check for property existence.  <br /></td></tr>
 <tr class="separator:aa0c4a6d38f04882ef86eee3ea219dbd8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -197,7 +202,7 @@ QString&#160;</td><td class="memItemRight" valign="bottom"><b>m_styleId</b></td>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A base class to pass style parameters to <a class="el" href="classQMapLibre_1_1Map.html" title="The Map class is a Qt wrapper for the MapLibre Native engine.">Map</a>. </p>
-<p>Should usually not be used directly, but rather through one of its subclasses such as <a class="el" href="classSourceParameter.html">SourceParameter</a> or <a class="el" href="classLayerParameter.html">LayerParameter</a>. </p>
+<p>Should usually not be used directly, but rather through one of its subclasses such as <a class="el" href="classSourceParameter.html">SourceParameter</a>, <a class="el" href="classLayerParameter.html">LayerParameter</a>, <a class="el" href="classQMapLibre_1_1ImageParameter.html">ImageParameter</a> or <a class="el" href="classQMapLibre_1_1FilterParameter.html">FilterParameter</a>. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="aa0c4a6d38f04882ef86eee3ea219dbd8" name="aa0c4a6d38f04882ef86eee3ea219dbd8"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aa0c4a6d38f04882ef86eee3ea219dbd8">&#9670;&#160;</a></span>hasProperty()</h2>
@@ -250,6 +255,41 @@ QString&#160;</td><td class="memItemRight" valign="bottom"><b>m_styleId</b></td>
 
 <p>Check if the style parameter is ready. </p>
 <dl class="section return"><dt>Returns</dt><dd><code>true</code> if the style parameter is ready, <code>false</code> otherwise. </dd></dl>
+
+</div>
+</div>
+<a id="a9b7efd5c2475cf653c76ed9af89aa2ac" name="a9b7efd5c2475cf653c76ed9af89aa2ac"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9b7efd5c2475cf653c76ed9af89aa2ac">&#9670;&#160;</a></span>parsedProperty()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">QVariant QMapLibre::StyleParameter::parsedProperty </td>
+          <td>(</td>
+          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>propertyName</em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">nodiscard</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get the property value. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">propertyName</td><td>Name of the property to get. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Property value as <code>QVariant</code> or invalid <code>QVariant</code> if the property does not exist.</dd></dl>
+<p>By default this directly reads the property value from the object. It can be reimplemented from subclasses to provide custom parsing. </p>
 
 </div>
 </div>

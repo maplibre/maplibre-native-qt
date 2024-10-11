@@ -1,11 +1,8 @@
 var searchData=
 [
-  ['wasm_0',['WebAssembly (WASM)',['../md_docs_2Building.html#webassembly-wasm',1,'']]],
-  ['webassembly_20wasm_1',['WebAssembly (WASM)',['../md_docs_2Building.html#webassembly-wasm',1,'']]],
-  ['wheelevent_2',['wheelEvent',['../classQMapLibre_1_1GLWidget.html#a38135c8259fb2ce961938ab598b24fd5',1,'QMapLibre::GLWidget']]],
-  ['widgets_3',['QMapLibre Widgets',['../group__QMapLibreWidgets.html',1,'']]],
-  ['widgets_20setup_4',['Widgets setup',['../md_docs_2Usage.html#widgets-setup',1,'']]],
-  ['width_5',['width',['../structQMapLibre_1_1LineAnnotation.html#a8fcdfe9a106bde57c5589c34a921aa46',1,'QMapLibre::LineAnnotation::width'],['../structQMapLibre_1_1CustomLayerRenderParameters.html#a6d46311e37b57a688b3b48019b71a0a8',1,'QMapLibre::CustomLayerRenderParameters::width']]],
-  ['windows_6',['Windows',['../md_docs_2Building.html#windows',1,'']]],
-  ['workflows_7',['workflows',['../md_docs_2Building.html#special-workflows',1,'Special workflows'],['../md_docs_2Building.html#supported-release-workflows',1,'Supported release workflows'],['../md_docs_2Building.html#using-cmake-workflows',1,'Using CMake workflows']]]
+  ['tileserveroptions_0',['tileServerOptions',['../classQMapLibre_1_1Settings.html#aca567f88331f27463ace1cec376eee91',1,'QMapLibre::Settings']]],
+  ['to_20build_1',['How to build',['../md_docs_2Building.html',1,'']]],
+  ['tovariantmap_2',['toVariantMap',['../classQMapLibre_1_1StyleParameter.html#af612ecbb3703125a9a0ddf4fcc5a2956',1,'QMapLibre::StyleParameter']]],
+  ['type_3',['Type',['../structQMapLibre_1_1Style.html#a6b57899174965b8a86947c38894a865a',1,'QMapLibre::Style::Type'],['../structQMapLibre_1_1Feature.html#a0ba123c0252ab6116b6cb24d61ea119e',1,'QMapLibre::Feature::Type'],['../structQMapLibre_1_1FeatureProperty.html#ab990c3c8236d4a5499e093c5267f272d',1,'QMapLibre::FeatureProperty::Type'],['../structQMapLibre_1_1ShapeAnnotationGeometry.html#a9c5ed85d18db46017e26a71c226edc08',1,'QMapLibre::ShapeAnnotationGeometry::Type']]],
+  ['type_4',['type',['../structQMapLibre_1_1Style.html#a2bd257cd152d81ca28cae15ee8e5f07a',1,'QMapLibre::Style::type'],['../structQMapLibre_1_1Feature.html#a5854657c81f9e3f2f4b8983ee8ec397d',1,'QMapLibre::Feature::type'],['../structQMapLibre_1_1FeatureProperty.html#a53474cf10a53a0cf64b23b577777341d',1,'QMapLibre::FeatureProperty::type'],['../structQMapLibre_1_1ShapeAnnotationGeometry.html#a6c4dab59d01aceeaf9240b108c74c94e',1,'QMapLibre::ShapeAnnotationGeometry::type'],['../classLayerParameter.html#a30b0014705ffb08d7c6ae25397bb2a4d',1,'LayerParameter::type'],['../classQMapLibre_1_1LayerParameter.html#a027e8efdc0641e48ffba5f889f8c033a',1,'QMapLibre::LayerParameter::type()'],['../classQMapLibre_1_1SourceParameter.html#ab970789f79282dcc29df0e0b1010bb7e',1,'QMapLibre::SourceParameter::type()']]]
 ];

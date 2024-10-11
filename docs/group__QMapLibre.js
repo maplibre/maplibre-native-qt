@@ -179,6 +179,20 @@ var group__QMapLibre =
       [ "tileServerOptions", "classQMapLibre_1_1Settings.html#aca567f88331f27463ace1cec376eee91", null ],
       [ "viewportMode", "classQMapLibre_1_1Settings.html#a1cd18f6fb20735d23164f98f580b1ff0", null ]
     ] ],
+    [ "QMapLibre::FilterParameter", "classQMapLibre_1_1FilterParameter.html", [
+      [ "FilterParameter", "classQMapLibre_1_1FilterParameter.html#a2fc8b6ffb15f9d391c2758da39ccba3e", null ],
+      [ "expression", "classQMapLibre_1_1FilterParameter.html#a4d30f63aefd6987344944c104c9330f2", null ],
+      [ "expressionUpdated", "classQMapLibre_1_1FilterParameter.html#aad554fbb7c1e7ba75d34c7a478d7ade2", null ],
+      [ "setExpression", "classQMapLibre_1_1FilterParameter.html#a869950467e1051705510fc421b8eefc2", null ],
+      [ "m_expression", "classQMapLibre_1_1FilterParameter.html#ac0a24820b7df49cf0e3f6fc63bf0a213", null ]
+    ] ],
+    [ "QMapLibre::ImageParameter", "classQMapLibre_1_1ImageParameter.html", [
+      [ "ImageParameter", "classQMapLibre_1_1ImageParameter.html#aa12c2b838f6844cb7a4aab770fe1d7e5", null ],
+      [ "setSource", "classQMapLibre_1_1ImageParameter.html#aa02462bb94beb1b60fed89e23e9c04ee", null ],
+      [ "source", "classQMapLibre_1_1ImageParameter.html#a9b38df8a29871debf8ffe9bd886d4a52", null ],
+      [ "sourceUpdated", "classQMapLibre_1_1ImageParameter.html#aedfba7da401563e6945b9bebcc435ca7", null ],
+      [ "m_source", "classQMapLibre_1_1ImageParameter.html#ae3fed6adbbb6c14ecac2d6bdaad1e224", null ]
+    ] ],
     [ "QMapLibre::LayerParameter", "classQMapLibre_1_1LayerParameter.html", [
       [ "LayerParameter", "classQMapLibre_1_1LayerParameter.html#af55e0ca7fe147da27b1926e38b86240e", null ],
       [ "layout", "classQMapLibre_1_1LayerParameter.html#ad81e68f539a5e7e373f9ac00570a1c8e", null ],
@@ -206,6 +220,7 @@ var group__QMapLibre =
       [ "hasProperty", "classQMapLibre_1_1StyleParameter.html#aa0c4a6d38f04882ef86eee3ea219dbd8", null ],
       [ "isReady", "classQMapLibre_1_1StyleParameter.html#a29f936af641f51aa3fd708899525c885", null ],
       [ "operator==", "classQMapLibre_1_1StyleParameter.html#a7ba9f88a63e061319104dcc42d992431", null ],
+      [ "parsedProperty", "classQMapLibre_1_1StyleParameter.html#a9b7efd5c2475cf653c76ed9af89aa2ac", null ],
       [ "ready", "classQMapLibre_1_1StyleParameter.html#a86f6bd9ca11c7bffbf712bd12e58e06b", null ],
       [ "setStyleId", "classQMapLibre_1_1StyleParameter.html#abf241d236415a2424bbc6c8effb7b9d8", null ],
       [ "styleId", "classQMapLibre_1_1StyleParameter.html#ab476423349f7b2fb69ef2232707bda7b", null ],

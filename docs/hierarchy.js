@@ -17,6 +17,8 @@ var hierarchy =
     [ "QObject", null, [
       [ "QMapLibre::Map", "classQMapLibre_1_1Map.html", null ],
       [ "QMapLibre::StyleParameter", "classQMapLibre_1_1StyleParameter.html", [
+        [ "QMapLibre::FilterParameter", "classQMapLibre_1_1FilterParameter.html", null ],
+        [ "QMapLibre::ImageParameter", "classQMapLibre_1_1ImageParameter.html", null ],
         [ "QMapLibre::LayerParameter", "classQMapLibre_1_1LayerParameter.html", null ],
         [ "QMapLibre::SourceParameter", "classQMapLibre_1_1SourceParameter.html", null ]
       ] ]

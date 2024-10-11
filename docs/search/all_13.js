@@ -1,13 +1,15 @@
 var searchData=
 [
-  ['uniqueglcontext_0',['UniqueGLContext',['../classQMapLibre_1_1Settings.html#ac2dfb09e03fa0a6c9659e728fcf07fcfabfefe9d43d070195dea5c19f1221a8c7',1,'QMapLibre::Settings']]],
-  ['unknownfailure_1',['UnknownFailure',['../classQMapLibre_1_1Map.html#acba6cab0389289df4d0900278c019090a025b77c5c89c20b53e0afd7c651efb5a',1,'QMapLibre::Map']]],
-  ['updateannotation_2',['updateAnnotation',['../classQMapLibre_1_1Map.html#ad367b1dfd04aa05eaa080c2dd8da10d0',1,'QMapLibre::Map']]],
-  ['updated_3',['updated',['../classQMapLibre_1_1StyleParameter.html#af122ec58a533e182624be21f04a4937e',1,'QMapLibre::StyleParameter']]],
-  ['updatenotify_4',['updateNotify',['../classQMapLibre_1_1StyleParameter.html#a45f7016e3146e1ca73e81939f9be5c87',1,'QMapLibre::StyleParameter']]],
-  ['updateproperty_5',['updateProperty',['../classQMapLibre_1_1StyleParameter.html#a35213a9fcb1bc25bc22529ac4942eb8a',1,'QMapLibre::StyleParameter']]],
-  ['updatesource_6',['updateSource',['../classQMapLibre_1_1Map.html#a98bd1e4ec1c3b4e2cf5f0f42d2e3d533',1,'QMapLibre::Map']]],
-  ['url_7',['url',['../structQMapLibre_1_1Style.html#ac3f4a15b65db1c43de5971e06f0f8c02',1,'QMapLibre::Style']]],
-  ['usage_8',['Usage',['../md_docs_2Usage.html',1,'']]],
-  ['using_20cmake_20workflows_9',['Using CMake workflows',['../md_docs_2Building.html#using-cmake-workflows',1,'']]]
+  ['ready_0',['ready',['../classQMapLibre_1_1StyleParameter.html#a86f6bd9ca11c7bffbf712bd12e58e06b',1,'QMapLibre::StyleParameter']]],
+  ['release_20workflows_1',['Supported release workflows',['../md_docs_2Building.html#supported-release-workflows',1,'']]],
+  ['removeannotation_2',['removeAnnotation',['../classQMapLibre_1_1Map.html#a06d199dbc8a3d5247ad2d5256279538e',1,'QMapLibre::Map']]],
+  ['removeimage_3',['removeImage',['../classQMapLibre_1_1Map.html#aa2c86860ec75149e9db1f0c5a18f309f',1,'QMapLibre::Map']]],
+  ['removelayer_4',['removeLayer',['../classQMapLibre_1_1Map.html#a79405aa44800eb5ef98090e75991a42a',1,'QMapLibre::Map']]],
+  ['removeparameter_5',['removeParameter',['../classStyle.html#a0ca933b811d1e6e73d29d3cb0fa864c5',1,'Style']]],
+  ['removesource_6',['removeSource',['../classQMapLibre_1_1Map.html#a0befa1d835545332ab9639488f2f2e94',1,'QMapLibre::Map']]],
+  ['render_7',['render',['../classQMapLibre_1_1Map.html#a8b061933e576a4034adf9e20d6b213f0',1,'QMapLibre::Map::render()'],['../classQMapLibre_1_1CustomLayerHostInterface.html#a42f6244b13ff4db9808fab2bc860d075',1,'QMapLibre::CustomLayerHostInterface::render()']]],
+  ['resize_8',['resize',['../classQMapLibre_1_1Map.html#ae0db8b6336b12991c7f75032554e409f',1,'QMapLibre::Map']]],
+  ['resourcetransform_9',['resourceTransform',['../classQMapLibre_1_1Settings.html#a34012c021fb6258c5ab1f2695dfa15f7',1,'QMapLibre::Settings']]],
+  ['resourcetransformfunction_10',['ResourceTransformFunction',['../classQMapLibre_1_1Settings.html#a26d342505f85c281c6901cfd686db9b2',1,'QMapLibre::Settings']]],
+  ['rotateby_11',['rotateBy',['../classQMapLibre_1_1Map.html#ac9e1bc5e14000812d17288e874c04353',1,'QMapLibre::Map']]]
 ];
