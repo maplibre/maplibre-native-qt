@@ -58,10 +58,15 @@ jobs:
         uses: jurplel/install-qt-action@v4
         with:
           aqtversion: ==3.1.*
-          version: 6.7.3
+          version: 6.8.1
           dir: ${{ github.workspace }}
           target: desktop
           modules: qtlocation qtpositioning
+
+      - name: Setup CMake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: 3.30.x
 
       - name: Build
         run: |

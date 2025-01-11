@@ -52,6 +52,8 @@ jobs:
             preset: iOS
           - qt_version: 6.7.3
             preset: iOS
+          - qt_version: 6.8.1
+            preset: iOS
 
     env:
       PRESET: ${{ matrix.preset }}
@@ -71,12 +73,14 @@ jobs:
           brew uninstall google-chrome
           sudo rm -rf /Users/runner/Library/Android
           sudo rm -rf /Applications/Xcode_14*
-          sudo rm -rf /Applications/Xcode_15.0*
-          sudo rm -rf /Applications/Xcode_15.1*
-          sudo rm -rf /Applications/Xcode_15.2*
-          sudo rm -rf /Applications/Xcode_15.3*
+          sudo rm -rf /Applications/Xcode_15*
           ls /Applications
           df -h
+
+      - name: Setup CMake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: 3.30.x
 
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
@@ -115,7 +119,7 @@ jobs:
       contents: write
     strategy:
       matrix:
-        qt_version: [6.5.3, 6.6.3, 6.7.3]
+        qt_version: [6.5.3, 6.6.3, 6.7.3, 6.8.1]
 
     steps:
       - name: Download artifacts

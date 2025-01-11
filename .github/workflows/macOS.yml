@@ -76,7 +76,13 @@ jobs:
             compiler: static
             runs_on: macos-14
           - qt_series: 6
-            qt_version: 6.7.3
+            qt_version: 6.8.1
+            qt_modules: qtlocation qtpositioning
+            preset: macOS-ccache
+            compiler: default
+            runs_on: macos-14
+          - qt_series: 6
+            qt_version: 6.8.1
             qt_modules: qtlocation qtpositioning
             preset: macOS-clang-tidy
             compiler: llvm
@@ -130,6 +136,11 @@ jobs:
           echo "QT_ROOT_DIR=$PWD/Qt/$QT_VERSION/macos_static" >> $GITHUB_ENV
           echo "$PWD/Qt/$QT_VERSION/macos_static/bin" >> $GITHUB_PATH
           cd $GITHUB_WORKSPACE
+
+      - name: Setup CMake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: 3.30.x
 
       - name: Setup ninja
         uses: seanmiddleditch/gha-setup-ninja@v5
@@ -204,6 +215,9 @@ jobs:
           - qt_version: 6.7.3
             compiler: static
             suffix: "_static"
+          - qt_version: 6.8.1
+            compiler: default
+            suffix: ""
 
     steps:
       - name: Download artifacts

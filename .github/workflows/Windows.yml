@@ -45,7 +45,7 @@ env:
 jobs:
   build-and-test:
     name: Build (Qt${{ matrix.qt_version}}, ${{ matrix.arch }})
-    runs-on: windows-2022
+    runs-on: ${{ matrix.platform }}
     strategy:
       matrix:
         include:
@@ -53,33 +53,41 @@ jobs:
             qt_version: 5.15.2
             qt_arch: win64_msvc2019_64
             qt_modules: ""
+            platform: windows-2019
             arch: msvc2019_64
             compiler: x64
-            compiler_version: 14.29
             preset: Windows-legacy-ccache
           - qt_series: 6
             qt_version: 6.5.3
             qt_arch: win64_msvc2019_64
             qt_modules: qtlocation qtpositioning
+            platform: windows-2019
             arch: msvc2019_64
             compiler: x64
-            compiler_version: 14.29
             preset: Windows-ccache
           - qt_series: 6
             qt_version: 6.6.3
             qt_arch: win64_msvc2019_64
             qt_modules: qtlocation qtpositioning
+            platform: windows-2019
             arch: msvc2019_64
             compiler: x64
-            compiler_version: 14.29
             preset: Windows-ccache
           - qt_series: 6
             qt_version: 6.7.3
             qt_arch: win64_msvc2019_64
             qt_modules: qtlocation qtpositioning
+            platform: windows-2019
             arch: msvc2019_64
             compiler: x64
-            compiler_version: 14.29
+            preset: Windows-ccache
+          - qt_series: 6
+            qt_version: 6.8.1
+            qt_arch: win64_msvc2022_64
+            qt_modules: qtlocation qtpositioning
+            platform: windows-2022
+            arch: msvc2022_64
+            compiler: x64
             preset: Windows-ccache
 
     env:
@@ -109,15 +117,18 @@ jobs:
           arch: ${{ matrix.qt_arch }}
           modules: ${{ matrix.qt_modules }}
 
+      - name: Setup CMake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: 3.30.x
+
       - name: Setup ninja
         uses: seanmiddleditch/gha-setup-ninja@v5
 
       - name: Setup MSVC
-        if: matrix.qt_arch == 'win64_msvc2019_64'
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: ${{ matrix.compiler }}
-          toolset: ${{ matrix.compiler_version }}
 
       - name: Update ccache
         run: |
@@ -182,8 +193,17 @@ jobs:
       contents: write
     strategy:
       matrix:
-        qt_version: [5.15.2, 6.5.3, 6.6.3, 6.7.3]
-        arch: [msvc2019_64]
+        include:
+          - qt_version: 5.15.2
+            arch: msvc2019_64
+          - qt_version: 6.5.3
+            arch: msvc2019_64
+          - qt_version: 6.6.3
+            arch: msvc2019_64
+          - qt_version: 6.7.3
+            arch: msvc2019_64
+          - qt_version: 6.8.1
+            arch: msvc2022_64
 
     steps:
       - name: Download artifacts
