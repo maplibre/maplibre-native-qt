@@ -65,7 +65,12 @@ jobs:
             preset: Linux-CI
             compiler: default
           - qt_series: 6
-            qt_version: 6.7.3
+            qt_version: 6.8.1
+            qt_modules: qtlocation qtpositioning
+            preset: Linux-CI
+            compiler: default
+          - qt_series: 6
+            qt_version: 6.8.1
             qt_modules: qtlocation qtpositioning
             preset: Linux-coverage
             compiler: gcc-13
@@ -138,6 +143,12 @@ jobs:
           target: desktop
           modules: ${{ matrix.qt_modules }}
 
+      - name: Setup CMake
+        if: matrix.compiler != 'default'
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: 3.30.x
+
       - name: Setup ninja
         if: matrix.compiler != 'default'
         uses: seanmiddleditch/gha-setup-ninja@v5
@@ -152,8 +163,12 @@ jobs:
         if: matrix.qt_series == 5
         uses: ./source/.github/actions/qt5-build
 
-      - name: Build (Qt6)
-        if: matrix.qt_series == 6 && matrix.compiler == 'default'
+      - name: Build (Qt6, GCC8)
+        if: matrix.qt_series == 6 && matrix.compiler == 'default' && matrix.qt_version != '6.8.1'
+        uses: ./source/.github/actions/qt6-build-legacy
+
+      - name: Build (Qt6, GCC11)
+        if: matrix.qt_series == 6 && matrix.compiler == 'default' && matrix.qt_version == '6.8.1'
         uses: ./source/.github/actions/qt6-build
 
       - name: Build (Qt6, custom compiler)
@@ -225,7 +240,7 @@ jobs:
       contents: write
     strategy:
       matrix:
-        qt_version: [5.15.2, 6.5.3, 6.6.3, 6.7.3]
+        qt_version: [5.15.2, 6.5.3, 6.6.3, 6.7.3, 6.8.1]
 
     steps:
       - name: Download artifacts

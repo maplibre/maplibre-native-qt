@@ -82,6 +82,18 @@ jobs:
           - qt_version: 6.7.3
             abi: arm64-v8a
             arch: android_arm64_v8a
+          - qt_version: 6.8.1
+            abi: x86
+            arch: android_x86
+          - qt_version: 6.8.1
+            abi: x86_64
+            arch: android_x86_64
+          - qt_version: 6.8.1
+            abi: armeabi-v7a
+            arch: android_armv7
+          - qt_version: 6.8.1
+            abi: arm64-v8a
+            arch: android_arm64_v8a
 
     steps:
       - name: Checkout
@@ -106,6 +118,11 @@ jobs:
         run: |
           chmod +x "$QT_ROOT_DIR/bin/qt-cmake"
           sed -i "s/C:\/Qt\/Qt-${QT_VERSION}/\/usr\/local\/Qt-${QT_VERSION}/g" "$QT_ROOT_DIR/lib/cmake/Qt6BuildInternals/QtBuildInternalsExtra.cmake"
+
+      - name: Setup CMake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: 3.30.x
 
       - name: Set up OpenJDK 17
         uses: actions/setup-java@v4
@@ -142,7 +159,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        qt_version: [6.5.3, 6.6.3, 6.7.3]
+        qt_version: [6.5.3, 6.6.3, 6.7.3, 6.8.1]
 
     steps:
       - name: Download artifacts for x86
@@ -215,7 +232,7 @@ jobs:
       contents: write
     strategy:
       matrix:
-        qt_version: [6.5.3, 6.6.3, 6.7.3]
+        qt_version: [6.5.3, 6.6.3, 6.7.3, 6.8.1]
 
     steps:
       - name: Download artifacts

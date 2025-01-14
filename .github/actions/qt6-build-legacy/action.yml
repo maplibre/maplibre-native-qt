@@ -1,0 +1,8 @@
+# action.yml
+name: "Qt6 Linux Builder (Legacy)"
+description: "Helper action to build in a specific Docker container"
+runs:
+  using: "docker"
+  image: "Dockerfile"
+  args:
+    - ${{ inputs.build-type }}
