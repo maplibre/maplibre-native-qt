@@ -10,6 +10,7 @@
       "toolchainFile": "$penv{QT_ROOT_DIR}/lib/cmake/Qt6/qt.toolchain.cmake",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_POLICY_VERSION_MINIMUM": "3.19",
         "QT_VERSION_MAJOR": "6"
       }
     },
@@ -26,6 +27,7 @@
       "toolchainFile": "$penv{QT_ROOT_DIR}/lib/cmake/Qt6/qt.toolchain.cmake",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_POLICY_VERSION_MINIMUM": "3.19",
         "QT_VERSION_MAJOR": "6",
         "MLN_QT_WITH_INTERNAL_ICU": "ON"
       }

@@ -9,7 +9,8 @@
       "binaryDir": "${sourceParentDir}/build/qt6-Windows",
       "toolchainFile": "$penv{QT_ROOT_DIR}/lib/cmake/Qt6/qt.toolchain.cmake",
       "cacheVariables": {
-        "CMAKE_CONFIGURATION_TYPES": "Release;Debug"
+        "CMAKE_CONFIGURATION_TYPES": "Release;Debug",
+        "CMAKE_POLICY_VERSION_MINIMUM": "3.19"
       }
     },
     {
@@ -23,7 +24,8 @@
       "generator": "Ninja Multi-Config",
       "binaryDir": "${sourceParentDir}/build/qt5-Windows",
       "cacheVariables": {
-        "CMAKE_CONFIGURATION_TYPES": "Release;Debug"
+        "CMAKE_CONFIGURATION_TYPES": "Release;Debug",
+        "CMAKE_POLICY_VERSION_MINIMUM": "3.19"
       }
     },
     {
