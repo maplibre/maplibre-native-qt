@@ -108,7 +108,7 @@ ninja install
 
 Release binaries contain debug symbols.
 Additionally both Intel and ARM versions are supported and included.
-OS deployment target version is set to 11.0 for Qt 6 and 10.13 for Qt 5.
+OS deployment target version is set to 12.0 for Qt 6 and 10.13 for Qt 5.
 
 To replicate run:
 
@@ -120,7 +120,7 @@ cmake ../maplibre-native-qt -G Ninja \
   -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
   -DCMAKE_INSTALL_PREFIX="../install" \
   -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" \
-  -DCMAKE_OSX_DEPLOYMENT_TARGET="11.0"
+  -DCMAKE_OSX_DEPLOYMENT_TARGET="12.0"
 ninja
 ninja install
 ```
@@ -149,7 +149,7 @@ ninja install
 Two separate release binaries are provided, one with release build and one
 with debug build. To achieve that `Ninja Multi-Config` generator is used.
 Both device and simulator builds are supported.
-OS deployment target version is set to 14.0.
+OS deployment target version is set to 16.0.
 
 To replicate, run:
 
@@ -162,7 +162,7 @@ cmake ../maplibre-native-qt -G "Ninja Multi-Config" \
   -DCMAKE_DEFAULT_CONFIGS="all" \
   -DCMAKE_INSTALL_PREFIX="../install" \
   -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
-  -DCMAKE_OSX_DEPLOYMENT_TARGET="14.0"
+  -DCMAKE_OSX_DEPLOYMENT_TARGET="16.0"
 ninja
 ninja install
 ```

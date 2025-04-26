@@ -15,9 +15,13 @@ on:
       - ".github/FUNDING.yml"
       - ".github/actions/**"
       - ".github/workflows/Android.yml"
+      - ".github/workflows/CI-cache-cleanup.yml"
+      - ".github/workflows/docs-test.yml"
+      - ".github/workflows/gh-pages-docs.yml"
       - ".github/workflows/iOS.yml"
       - ".github/workflows/Linux.yml"
       - ".github/workflows/macOS.yml"
+      - ".github/workflows/source-tarball.yml"
 
   pull_request:
     branches:
@@ -30,9 +34,13 @@ on:
       - ".github/FUNDING.yml"
       - ".github/actions/**"
       - ".github/workflows/Android.yml"
+      - ".github/workflows/CI-cache-cleanup.yml"
+      - ".github/workflows/docs-test.yml"
+      - ".github/workflows/gh-pages-docs.yml"
       - ".github/workflows/iOS.yml"
       - ".github/workflows/Linux.yml"
       - ".github/workflows/macOS.yml"
+      - ".github/workflows/source-tarball.yml"
 
 concurrency:
   # cancel jobs on PRs only
@@ -58,31 +66,15 @@ jobs:
             compiler: x64
             preset: Windows-legacy-ccache
           - qt_series: 6
-            qt_version: 6.5.3
-            qt_arch: win64_msvc2019_64
+            qt_version: 6.8.3
+            qt_arch: win64_msvc2022_64
             qt_modules: qtlocation qtpositioning
-            platform: windows-2019
-            arch: msvc2019_64
+            platform: windows-2022
+            arch: msvc2022_64
             compiler: x64
             preset: Windows-ccache
           - qt_series: 6
-            qt_version: 6.6.3
-            qt_arch: win64_msvc2019_64
-            qt_modules: qtlocation qtpositioning
-            platform: windows-2019
-            arch: msvc2019_64
-            compiler: x64
-            preset: Windows-ccache
-          - qt_series: 6
-            qt_version: 6.7.3
-            qt_arch: win64_msvc2019_64
-            qt_modules: qtlocation qtpositioning
-            platform: windows-2019
-            arch: msvc2019_64
-            compiler: x64
-            preset: Windows-ccache
-          - qt_series: 6
-            qt_version: 6.8.1
+            qt_version: 6.9.0
             qt_arch: win64_msvc2022_64
             qt_modules: qtlocation qtpositioning
             platform: windows-2022
@@ -196,13 +188,9 @@ jobs:
         include:
           - qt_version: 5.15.2
             arch: msvc2019_64
-          - qt_version: 6.5.3
-            arch: msvc2019_64
-          - qt_version: 6.6.3
-            arch: msvc2019_64
-          - qt_version: 6.7.3
-            arch: msvc2019_64
-          - qt_version: 6.8.1
+          - qt_version: 6.8.3
+            arch: msvc2022_64
+          - qt_version: 6.9.0
             arch: msvc2022_64
 
     steps:
