@@ -75,6 +75,8 @@ For Android, the `ANDROID_ABI` environment variable should be set.
 |----------|----------------------|---------------------------------------------------------------------|
 | Linux    | `Linux-coverage`     | Linux build with Qt6, `ccache` and code coverage                    |
 | Linux    | `Linux-internal-icu` | Linux build with Qt6 and internal ICU library (also with `-ccache`) |
+| Linux    | `Linux-CI`           | Linux build with Qt6 and ccache for CI                              |
+| Linux    | `Linux-legacy-CI`    | Linux build with Qt5 and ccache for CI                              |
 | macOS    | `macOS-clang-tidy`   | macOS build with Qt6, `ccache` and `clang-tidy`                     |
 
 ## Platform specific build instructions
