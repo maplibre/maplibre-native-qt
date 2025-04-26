@@ -225,6 +225,10 @@ Settings::Settings(Settings &&s) noexcept = default;
     \brief Copy assignment operator.
 */
 Settings &Settings::operator=(const Settings &s) {
+    if (this == &s) {
+        return *this;
+    }
+
     d_ptr = std::make_unique<SettingsPrivate>(*s.d_ptr);
     return *this;
 }
