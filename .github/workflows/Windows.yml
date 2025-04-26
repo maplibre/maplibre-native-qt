@@ -123,7 +123,7 @@ jobs:
           cmake-version: 3.30.x
 
       - name: Setup ninja
-        uses: seanmiddleditch/gha-setup-ninja@v5
+        uses: seanmiddleditch/gha-setup-ninja@v6
 
       - name: Setup MSVC
         uses: ilammy/msvc-dev-cmd@v1
