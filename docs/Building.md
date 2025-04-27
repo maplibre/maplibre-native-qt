@@ -133,13 +133,18 @@ bindings build in the same step. To speed-up the build, `ninja` and `ccache`
 are recommended. For Qt 6 using the `qt-cmake` wrapper instead of plain `cmake`
 makes building non-desktop platforms easier.
 
+@note To ensure that the git submodules are up to date first run:
+
+```bash
+git submodule update --init --recursive
+```
+
 @note To make sure a correct version of Qt 6 is used, use the provided toolchain file
 with `-DCMAKE_TOOLCHAIN_FILE="<path-to-qt>/lib/cmake/Qt6/qt.toolchain.cmake"`
 
 A minimal example command is:
 
 ```bash
-git submodule update --init --recursive
 mkdir build && cd build
 cmake ../maplibre-native-qt -G Ninja \
   -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
