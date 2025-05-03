@@ -8,124 +8,6 @@ This library fully supports Qt 6.5 and newer.
 Qt 5.15 is fully supported only on desktop platforms,
 previous Qt 5 versions down to 5.6 only support widgets but not Qt Location.
 
-### Distros packaging the necessary Qt6 private headers
-
-On these distros every dependency is pre-packaged and can be installed via the package manager.
-
-#### Alpine
-
-```bash
-sudo apk add \
-    ccache \
-    cmake \
-    g++ \
-    icu-dev \
-    ninja-build \
-    qt6-qtbase-dev \
-    qt6-qtlocation-dev \
-    samurai
-```
-
-#### Archlinux & Manjaro
-
-```bash
-sudo pacman -S \
-    ccache \
-    cmake \
-    gcc \
-    icu \
-    ninja \
-    qt6-base \
-    qt6-location
-```
-
-#### Fedora
-
-```bash
-sudo dnf install \
-    ccache \
-    cmake \
-    gcc-c++ \
-    libicu-devel \
-    ninja-build \
-    qt6-qtbase-devel \
-    qt6-qtlocation-devel
-```
-
-#### openSUSE
-
-```bash
-sudo zypper in \
-    ccache \
-    cmake \
-    gcc-c++ \
-    libicu-devel \
-    ninja \
-    qt6-base-private-devel \
-    qt6-location-private-devel \
-    qt6-quicktest-private-devel
-```
-
-### Distros not packaging the necessary Qt6 private headers
-
-On these distros the minimum required Qt version might be pre-packaged,
-but some of the private headers are not packaged, so it needs to be installed via alternative means,
-in this case the `aqtinstall` PyPI package. But before that can start some dependencies still need to be installed.
-
-#### Debian / Linux Mint / Ubuntu
-
-```bash
-sudo apt update && sudo apt install -y \
-   build-essential \
-   ccache \
-   cmake \
-   g++ \
-   libgl1-mesa-dev \
-   libgstreamer-gl1.0-0 \
-   libicu-dev \
-   libpulse-dev \
-   libxcb-glx0 \
-   libxcb-icccm4 \
-   libxcb-image0 \
-   libxcb-keysyms1 \
-   libxcb-randr0 \
-   libxcb-render-util0 \
-   libxcb-render0 \
-   libxcb-shape0 \
-   libxcb-shm0 \
-   libxcb-sync1 \
-   libxcb-util1 \
-   libxcb-xfixes0 \
-   libxcb-xinerama0 \
-   libxcb1 \
-   libxkbcommon-dev \
-   libxkbcommon-x11-0 \
-   libxcb-xkb-dev \
-   libxcb-cursor0 \
-   ninja-build \
-   python3-pip \
-   python3-venv
-```
-
-#### Generic Qt installation instructions
-
-Once the distro specific dependencies are installed you can install Qt with:
-
-```
-QT_VERSION='6.5.3'
-python3 -m venv myvenv
-source myvenv/bin/activate
-python3 -m pip install 'setuptools>=70.1.0' 'py7zr==0.22.*'
-python3 -m pip install 'aqtinstall==3.2.*'
-python3 -m aqt install-qt linux desktop "${QT_VERSION}" --autodesktop --outputdir "${PWD}/Qt" --modules qtlocation qtpositioning
-export PKG_CONFIG_PATH="${PWD}/Qt/${QT_VERSION}/gcc_64/lib/pkgconfig"
-export LD_LIBRARY_PATH="${PWD}/Qt/${QT_VERSION}/gcc_64/lib"
-export QT_ROOT_DIR="${PWD}/Qt/${QT_VERSION}/gcc_64"
-export CMAKE_PREFIX_PATH="${PWD}/Qt/${QT_VERSION}/gcc_64/lib/cmake/Qt6"
-export QT_PLUGIN_PATH="${PWD}/Qt/${QT_VERSION}/gcc_64/plugins"
-export QML2_IMPORT_PATH="${PWD}/Qt/${QT_VERSION}/gcc_64/qml"
-```
-
 ## Build basics
 
 MapLibre Native for Qt uses CMake as its build system. Both the core and the
@@ -204,6 +86,157 @@ For Android, the `ANDROID_ABI` environment variable should be set.
 ## Platform specific build instructions
 
 ### Linux
+
+#### Installing Qt6 prerequisites
+##### Alpine
+
+```bash
+sudo apk add \
+    ccache \
+    cmake \
+    g++ \
+    icu-dev \
+    ninja-build \
+    qt6-qtbase-dev \
+    qt6-qtlocation-dev \
+    samurai
+```
+##### Archlinux & Manjaro
+
+```bash
+sudo pacman -S \
+    ccache \
+    cmake \
+    gcc \
+    icu \
+    ninja \
+    qt6-base \
+    qt6-location
+```
+
+##### Fedora
+
+```bash
+sudo dnf install \
+    ccache \
+    cmake \
+    gcc-c++ \
+    libicu-devel \
+    ninja-build \
+    qt6-qtbase-devel \
+    qt6-qtlocation-devel
+```
+
+##### openSUSE
+
+```bash
+sudo zypper in \
+    ccache \
+    cmake \
+    gcc-c++ \
+    libicu-devel \
+    ninja \
+    qt6-base-private-devel \
+    qt6-location-private-devel \
+    qt6-quicktest-private-devel
+```
+
+##### Debian / Ubuntu
+
+_Debian `13 Trixie` / Ubuntu `24.10 Oracular` or newer:_
+These releases have the minimum required Qt version pre-packaged, which can be used directly,
+but the `qt6-location-dev` package does not include the private headers and there is no `qt6-location-private-dev` package,
+which needs a workaround:
+
+```bash
+sudo apt update && sudo apt install -y \
+    build-essential \
+    ccache \
+    cmake \
+    g++ \
+    libicu-dev \
+    libxcb-xkb-dev \
+    ninja-build \
+    qt6-base-dev \
+    qt6-base-private-dev \
+    qt6-location-dev \
+```
+
+Install the private headers from the apropriate source files:
+
+```bash
+[ 'ubuntu' = "$(awk -F '=' '/^ID=/{print $2}' /etc/os-release)" ] \
+  && OS_URL='http://archive.ubuntu.com/ubuntu/pool/universe' \
+  || OS_URL='http://deb.debian.org/debian/pool/main/'
+QT_LOCATION_VERSION=$(dpkg -s qt6-location-dev | awk -F '[ -]' '/Version: /{print $2}')
+QT_LOCATION_PRIVATE_HEADERS_DIR="/usr/include/x86_64-linux-gnu/qt6/QtLocation/${QT_LOCATION_VERSION}/QtLocation/private/"
+sudo mkdir -p "${QT_LOCATION_PRIVATE_HEADERS_DIR}"
+mkdir /tmp/location
+cd !$
+wget "${OS_URL}/q/qt6-location/qt6-location_${QT_LOCATION_VERSION}.orig.tar.xz"
+tar -xf qt6-location_${QT_LOCATION_VERSION}.orig.tar.xz
+cd qtlocation-everywhere-src-${QT_LOCATION_VERSION}
+cmake -B build .
+cd build
+sudo find  -name \*_p.h -exec cp {} "${QT_LOCATION_PRIVATE_HEADERS_DIR}" \;
+cd ../src
+sudo find  -name \*_p.h -exec cp {} "${QT_LOCATION_PRIVATE_HEADERS_DIR}" \;
+```
+
+##### Generic Linux installation instructions
+
+On Linux distribution versions where the minimum required Qt version is not met,
+or the private headers are not packaged the `aqt` tool can be used to install
+the right version of Qt with the needed private headers, but first the distribution
+specific package manager needs to be used to resolve dependencies of Qt.
+
+###### Installing Qt dependencies
+
+_Debian `12 Bookworm` /  Linux Mint `22.1 Xia` / Ubuntu `24.04 Noble` or older:_
+```bash
+sudo apt update && sudo apt install -y \
+   build-essential \
+   ccache \
+   cmake \
+   g++ \
+   libgl1-mesa-dev \
+   libgstreamer-gl1.0-0 \
+   libicu-dev \
+   libpulse-dev \
+   libxcb-glx0 \
+   libxcb-icccm4 \
+   libxcb-image0 \
+   libxcb-keysyms1 \
+   libxcb-randr0 \
+   libxcb-render-util0 \
+   libxcb-render0 \
+   libxcb-shape0 \
+   libxcb-shm0 \
+   libxcb-sync1 \
+   libxcb-util1 \
+   libxcb-xfixes0 \
+   libxcb-xinerama0 \
+   libxcb1 \
+   libxkbcommon-dev \
+   libxkbcommon-x11-0 \
+   libxcb-xkb-dev \
+   libxcb-cursor0 \
+   ninja-build \
+   python3-pip \
+   python3-virtualenv
+```
+
+Installing Qt via `aqt`:
+
+```
+python3 -m venv /tmp/qtvenv
+source /tmp/qtvenv/bin/activate
+pip install 'setuptools>=70.1.0' 'py7zr==0.22.*'
+pip install 'aqtinstall==3.1.*'
+aqt install-qt linux desktop 6.5.3 --autodesktop --outputdir "${PWD}/Qt" --modules qtlocation qtpositioning
+```
+
+#### Building maplibre-native-qt
 
 Release binaries are build with `-DCMAKE_BUILD_TYPE="Release"`.
 
