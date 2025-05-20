@@ -12,7 +12,7 @@ var searchData=
   ['platform_20specifics_9',['Platform specifics',['../md_docs_2Usage.html#platform-specifics',1,'']]],
   ['pointtype_10',['PointType',['../structQMapLibre_1_1Feature.html#a0ba123c0252ab6116b6cb24d61ea119ea211dcae6ffc3ac69f657de9a234154e4',1,'QMapLibre::Feature']]],
   ['polygontype_11',['PolygonType',['../structQMapLibre_1_1Feature.html#a0ba123c0252ab6116b6cb24d61ea119eaf600d535d6a13dbcb6395add2ba97d19',1,'QMapLibre::Feature::PolygonType'],['../structQMapLibre_1_1ShapeAnnotationGeometry.html#a9c5ed85d18db46017e26a71c226edc08aa6af67c60b84252430f32dec9fc9d798',1,'QMapLibre::ShapeAnnotationGeometry::PolygonType']]],
-  ['prerequisites_12',['Qt prerequisites',['../md_docs_2Building.html#qt-prerequisites',1,'']]],
+  ['prerequisites_12',['prerequisites',['../md_docs_2Building.html#installing-qt6-prerequisites',1,'Installing Qt6 prerequisites'],['../md_docs_2Building.html#qt-prerequisites',1,'Qt prerequisites']]],
   ['projectedmeters_13',['ProjectedMeters',['../namespaceQMapLibre.html#aef4e59885b90aff2750e5c355edd79a4',1,'QMapLibre']]],
   ['projectedmetersforcoordinate_14',['projectedMetersForCoordinate',['../namespaceQMapLibre.html#ae8ab227468f52956fb045c080962978d',1,'QMapLibre']]],
   ['properties_15',['properties',['../structQMapLibre_1_1Feature.html#a0fb4445f67f40266242a515c518588b6',1,'QMapLibre::Feature']]],

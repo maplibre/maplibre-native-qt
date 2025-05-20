@@ -10,7 +10,8 @@ var searchData=
   ['lineannotation_7',['LineAnnotation',['../structQMapLibre_1_1LineAnnotation.html',1,'QMapLibre::LineAnnotation'],['../structQMapLibre_1_1LineAnnotation.html#ade6df65aface4fd6f0b0820727c298d5',1,'QMapLibre::LineAnnotation::LineAnnotation()']]],
   ['linestringtype_8',['LineStringType',['../structQMapLibre_1_1Feature.html#a0ba123c0252ab6116b6cb24d61ea119ea91125d646018d87bbd088ab6034cbda1',1,'QMapLibre::Feature::LineStringType'],['../structQMapLibre_1_1ShapeAnnotationGeometry.html#a9c5ed85d18db46017e26a71c226edc08a93a07caf6ba42c5ffe41ad6b0d2a3c66',1,'QMapLibre::ShapeAnnotationGeometry::LineStringType']]],
   ['linux_9',['Linux',['../md_docs_2Building.html#linux',1,'']]],
-  ['localfontfamily_10',['localFontFamily',['../classQMapLibre_1_1Settings.html#a48af70ee34e7506a9e15fb5b9c3d7494',1,'QMapLibre::Settings']]],
-  ['location_11',['QMapLibre Location',['../group__QMapLibreLocation.html',1,'']]],
-  ['longitude_12',['longitude',['../classQMapLibre_1_1Map.html#ae6fbfb295a8c613b01c990e2c1abbe63',1,'QMapLibre::Map::longitude'],['../structQMapLibre_1_1CustomLayerRenderParameters.html#ad0a64d054b053da250e02eca3113cf34',1,'QMapLibre::CustomLayerRenderParameters::longitude'],['../classQMapLibre_1_1Map.html#a7eff8824b9f1040e6b161d4a2e04c9e5',1,'QMapLibre::Map::longitude()']]]
+  ['linux_20installation_20instructions_10',['Generic Linux installation instructions',['../md_docs_2Building.html#generic-linux-installation-instructions',1,'']]],
+  ['localfontfamily_11',['localFontFamily',['../classQMapLibre_1_1Settings.html#a48af70ee34e7506a9e15fb5b9c3d7494',1,'QMapLibre::Settings']]],
+  ['location_12',['QMapLibre Location',['../group__QMapLibreLocation.html',1,'']]],
+  ['longitude_13',['longitude',['../classQMapLibre_1_1Map.html#ae6fbfb295a8c613b01c990e2c1abbe63',1,'QMapLibre::Map::longitude'],['../structQMapLibre_1_1CustomLayerRenderParameters.html#ad0a64d054b053da250e02eca3113cf34',1,'QMapLibre::CustomLayerRenderParameters::longitude'],['../classQMapLibre_1_1Map.html#a7eff8824b9f1040e6b161d4a2e04c9e5',1,'QMapLibre::Map::longitude()']]]
 ];

@@ -7,7 +7,8 @@ var searchData=
   ['onmousepressevent_4',['onMousePressEvent',['../classQMapLibre_1_1GLWidget.html#aee2f305477bb2508154efd0662d778bc',1,'QMapLibre::GLWidget']]],
   ['onmousereleaseevent_5',['onMouseReleaseEvent',['../classQMapLibre_1_1GLWidget.html#a91087cdd0f234c1b33920e7016e28bb9',1,'QMapLibre::GLWidget']]],
   ['opacity_6',['opacity',['../structQMapLibre_1_1LineAnnotation.html#aa1be056c0ce802c789b92cddcc34b013',1,'QMapLibre::LineAnnotation::opacity'],['../structQMapLibre_1_1FillAnnotation.html#a0792382622631beab05da11b1a1c37a0',1,'QMapLibre::FillAnnotation::opacity']]],
-  ['operator_3d_7',['operator=',['../classQMapLibre_1_1Settings.html#a1eae6b13600dc13f07f11b9af0af1d58',1,'QMapLibre::Settings::operator=(const Settings &amp;s)'],['../classQMapLibre_1_1Settings.html#a3651ec550c396018f2e921b06323ff18',1,'QMapLibre::Settings::operator=(Settings &amp;&amp;s) noexcept']]],
-  ['operator_3d_3d_8',['operator==',['../classQMapLibre_1_1StyleParameter.html#a7ba9f88a63e061319104dcc42d992431',1,'QMapLibre::StyleParameter']]],
-  ['outlinecolor_9',['outlineColor',['../structQMapLibre_1_1FillAnnotation.html#ab7a52b21871ed32b0b798fc4c8b8b6d5',1,'QMapLibre::FillAnnotation']]]
+  ['opensuse_7',['openSUSE',['../md_docs_2Building.html#opensuse',1,'']]],
+  ['operator_3d_8',['operator=',['../classQMapLibre_1_1Settings.html#a1eae6b13600dc13f07f11b9af0af1d58',1,'QMapLibre::Settings::operator=(const Settings &amp;s)'],['../classQMapLibre_1_1Settings.html#a3651ec550c396018f2e921b06323ff18',1,'QMapLibre::Settings::operator=(Settings &amp;&amp;s) noexcept']]],
+  ['operator_3d_3d_9',['operator==',['../classQMapLibre_1_1StyleParameter.html#a7ba9f88a63e061319104dcc42d992431',1,'QMapLibre::StyleParameter']]],
+  ['outlinecolor_10',['outlineColor',['../structQMapLibre_1_1FillAnnotation.html#ab7a52b21871ed32b0b798fc4c8b8b6d5',1,'QMapLibre::FillAnnotation']]]
 ];

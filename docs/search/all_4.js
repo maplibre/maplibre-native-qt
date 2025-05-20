@@ -6,5 +6,6 @@ var searchData=
   ['bug_20fixes_3',['Bug fixes',['../md_CHANGELOG.html#autotoc_md-bug-fixes',1,'🐞 Bug fixes'],['../md_CHANGELOG.html#autotoc_md-bug-fixes-1',1,'🐞 Bug fixes'],['../md_CHANGELOG.html#autotoc_md-bug-fixes-2',1,'🐞 Bug fixes'],['../md_CHANGELOG.html#autotoc_md-bug-fixes-3',1,'🐞 Bug fixes']]],
   ['build_4',['How to build',['../md_docs_2Building.html',1,'']]],
   ['build_20basics_5',['Build basics',['../md_docs_2Building.html#build-basics',1,'']]],
-  ['build_20instructions_6',['Platform specific build instructions',['../md_docs_2Building.html#platform-specific-build-instructions',1,'']]]
+  ['build_20instructions_6',['Platform specific build instructions',['../md_docs_2Building.html#platform-specific-build-instructions',1,'']]],
+  ['building_20maplibre_20native_20qt_7',['Building maplibre-native-qt',['../md_docs_2Building.html#building-maplibre-native-qt',1,'']]]
 ];

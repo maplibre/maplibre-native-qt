@@ -53,7 +53,17 @@ var NAVTREE =
         [ "Special workflows", "md_docs_2Building.html#special-workflows", null ]
       ] ],
       [ "Platform specific build instructions", "md_docs_2Building.html#platform-specific-build-instructions", [
-        [ "Linux", "md_docs_2Building.html#linux", null ],
+        [ "Linux", "md_docs_2Building.html#linux", [
+          [ "Installing Qt6 prerequisites", "md_docs_2Building.html#installing-qt6-prerequisites", [
+            [ "Alpine", "md_docs_2Building.html#alpine", null ],
+            [ "Archlinux & Manjaro", "md_docs_2Building.html#archlinux--manjaro", null ],
+            [ "Fedora", "md_docs_2Building.html#fedora", null ],
+            [ "openSUSE", "md_docs_2Building.html#opensuse", null ],
+            [ "Debian / Ubuntu", "md_docs_2Building.html#debian--ubuntu", null ],
+            [ "Generic Linux installation instructions", "md_docs_2Building.html#generic-linux-installation-instructions", null ]
+          ] ],
+          [ "Building maplibre-native-qt", "md_docs_2Building.html#building-maplibre-native-qt", null ]
+        ] ],
         [ "macOS", "md_docs_2Building.html#macos", null ],
         [ "Windows", "md_docs_2Building.html#windows", null ],
         [ "iOS", "md_docs_2Building.html#ios", null ],

@@ -139,6 +139,34 @@ $(function(){initNavTree('md_docs_2Building.html',''); initResizable(true); });
     <ul>
       <li class="level2">
         <a href="#linux">Linux</a>
+        <ul>
+          <li class="level3">
+            <a href="#installing-qt6-prerequisites">Installing Qt6 prerequisites</a>
+            <ul>
+              <li class="level4">
+                <a href="#alpine">Alpine</a>
+              </li>
+              <li class="level4">
+                <a href="#archlinux--manjaro">Archlinux &amp; Manjaro</a>
+              </li>
+              <li class="level4">
+                <a href="#fedora">Fedora</a>
+              </li>
+              <li class="level4">
+                <a href="#opensuse">openSUSE</a>
+              </li>
+              <li class="level4">
+                <a href="#debian--ubuntu">Debian / Ubuntu</a>
+              </li>
+              <li class="level4">
+                <a href="#generic-linux-installation-instructions">Generic Linux installation instructions</a>
+              </li>
+            </ul>
+          </li>
+          <li class="level3">
+            <a href="#building-maplibre-native-qt">Building maplibre-native-qt</a>
+          </li>
+        </ul>
       </li>
       <li class="level2">
         <a href="#macos">macOS</a>
@@ -166,7 +194,9 @@ Qt prerequisites</h1>
 <h1><a class="anchor" id="build-basics"></a>
 Build basics</h1>
 <p>MapLibre Native for Qt uses CMake as its build system. Both the core and the bindings build in the same step. To speed-up the build, <code>ninja</code> and <code>ccache</code> are recommended. For Qt 6 using the <code>qt-cmake</code> wrapper instead of plain <code>cmake</code> makes building non-desktop platforms easier.</p>
-<dl class="section note"><dt>Note</dt><dd>To make sure a correct version of Qt 6 is used, use the provided toolchain file with <code>-DCMAKE_TOOLCHAIN_FILE="&lt;path-to-qt&gt;/lib/cmake/Qt6/qt.toolchain.cmake"</code></dd></dl>
+<dl class="section note"><dt>Note</dt><dd>To ensure that the git submodules are up to date first run:</dd></dl>
+<div class="fragment"><div class="line">git submodule update --init --recursive</div>
+</div><!-- fragment --><dl class="section note"><dt>Note</dt><dd>To make sure a correct version of Qt 6 is used, use the provided toolchain file with <code>-DCMAKE_TOOLCHAIN_FILE="&lt;path-to-qt&gt;/lib/cmake/Qt6/qt.toolchain.cmake"</code></dd></dl>
 <p>A minimal example command is:</p>
 <div class="fragment"><div class="line">mkdir build &amp;&amp; cd build</div>
 <div class="line">cmake ../maplibre-native-qt -G Ninja \</div>
@@ -224,6 +254,123 @@ Special workflows</h2>
 Platform specific build instructions</h1>
 <h2><a class="anchor" id="linux"></a>
 Linux</h2>
+<h3><a class="anchor" id="installing-qt6-prerequisites"></a>
+Installing Qt6 prerequisites</h3>
+<h4><a class="anchor" id="alpine"></a>
+Alpine</h4>
+<div class="fragment"><div class="line">sudo apk add \</div>
+<div class="line">    ccache \</div>
+<div class="line">    cmake \</div>
+<div class="line">    g++ \</div>
+<div class="line">    icu-dev \</div>
+<div class="line">    ninja-build \</div>
+<div class="line">    qt6-qtbase-dev \</div>
+<div class="line">    qt6-qtlocation-dev \</div>
+<div class="line">    samurai</div>
+</div><!-- fragment --> <h4><a class="anchor" id="archlinux--manjaro"></a>
+Archlinux &amp; Manjaro</h4>
+<div class="fragment"><div class="line">sudo pacman -S \</div>
+<div class="line">    ccache \</div>
+<div class="line">    cmake \</div>
+<div class="line">    gcc \</div>
+<div class="line">    icu \</div>
+<div class="line">    ninja \</div>
+<div class="line">    qt6-base \</div>
+<div class="line">    qt6-location</div>
+</div><!-- fragment --><h4><a class="anchor" id="fedora"></a>
+Fedora</h4>
+<div class="fragment"><div class="line">sudo dnf install \</div>
+<div class="line">    ccache \</div>
+<div class="line">    cmake \</div>
+<div class="line">    gcc-c++ \</div>
+<div class="line">    libicu-devel \</div>
+<div class="line">    ninja-build \</div>
+<div class="line">    qt6-qtbase-devel \</div>
+<div class="line">    qt6-qtlocation-devel</div>
+</div><!-- fragment --><h4><a class="anchor" id="opensuse"></a>
+openSUSE</h4>
+<div class="fragment"><div class="line">sudo zypper in \</div>
+<div class="line">    ccache \</div>
+<div class="line">    cmake \</div>
+<div class="line">    gcc-c++ \</div>
+<div class="line">    libicu-devel \</div>
+<div class="line">    ninja \</div>
+<div class="line">    qt6-base-private-devel \</div>
+<div class="line">    qt6-location-private-devel \</div>
+<div class="line">    qt6-quicktest-private-devel</div>
+</div><!-- fragment --><h4><a class="anchor" id="debian--ubuntu"></a>
+Debian / Ubuntu</h4>
+<p><em>Debian <code>13 Trixie</code> / Ubuntu <code>24.10 Oracular</code> or newer:</em> These releases have the minimum required Qt version pre-packaged, which can be used directly, but the <code>qt6-location-dev</code> package does not include the private headers and there is no <code>qt6-location-private-dev</code> package, which needs a workaround:</p>
+<div class="fragment"><div class="line">sudo apt update &amp;&amp; sudo apt install -y \</div>
+<div class="line">    build-essential \</div>
+<div class="line">    ccache \</div>
+<div class="line">    cmake \</div>
+<div class="line">    g++ \</div>
+<div class="line">    libicu-dev \</div>
+<div class="line">    libxcb-xkb-dev \</div>
+<div class="line">    ninja-build \</div>
+<div class="line">    qt6-base-dev \</div>
+<div class="line">    qt6-base-private-dev \</div>
+<div class="line">    qt6-location-dev \</div>
+</div><!-- fragment --><p>Install the private headers from the apropriate source files:</p>
+<div class="fragment"><div class="line">[ &#39;ubuntu&#39; = &quot;$(awk -F &#39;=&#39; &#39;/^ID=/{print $2}&#39; /etc/os-release)&quot; ] \</div>
+<div class="line">  &amp;&amp; OS_URL=&#39;http://archive.ubuntu.com/ubuntu/pool/universe&#39; \</div>
+<div class="line">  || OS_URL=&#39;http://deb.debian.org/debian/pool/main/&#39;</div>
+<div class="line">QT_LOCATION_VERSION=$(dpkg -s qt6-location-dev | awk -F &#39;[ -]&#39; &#39;/Version: /{print $2}&#39;)</div>
+<div class="line">QT_LOCATION_PRIVATE_HEADERS_DIR=&quot;/usr/include/x86_64-linux-gnu/qt6/QtLocation/${QT_LOCATION_VERSION}/QtLocation/private/&quot;</div>
+<div class="line">sudo mkdir -p &quot;${QT_LOCATION_PRIVATE_HEADERS_DIR}&quot;</div>
+<div class="line">mkdir /tmp/location</div>
+<div class="line">cd !$</div>
+<div class="line">wget &quot;${OS_URL}/q/qt6-location/qt6-location_${QT_LOCATION_VERSION}.orig.tar.xz&quot;</div>
+<div class="line">tar -xf qt6-location_${QT_LOCATION_VERSION}.orig.tar.xz</div>
+<div class="line">cd qtlocation-everywhere-src-${QT_LOCATION_VERSION}</div>
+<div class="line">cmake -B build .</div>
+<div class="line">cd build</div>
+<div class="line">sudo find  -name \*_p.h -exec cp {} &quot;${QT_LOCATION_PRIVATE_HEADERS_DIR}&quot; \;</div>
+<div class="line">cd ../src</div>
+<div class="line">sudo find  -name \*_p.h -exec cp {} &quot;${QT_LOCATION_PRIVATE_HEADERS_DIR}&quot; \;</div>
+</div><!-- fragment --><h4><a class="anchor" id="generic-linux-installation-instructions"></a>
+Generic Linux installation instructions</h4>
+<p>On Linux distribution versions where the minimum required Qt version is not met, or the private headers are not packaged the <code>aqt</code> tool can be used to install the right version of Qt with the needed private headers, but first the distribution specific package manager needs to be used to resolve dependencies of Qt.</p>
+<h5>Installing Qt dependencies</h5>
+<p><em>Debian <code>12 Bookworm</code> / Linux Mint <code>22.1 Xia</code> / Ubuntu <code>24.04 Noble</code> or older:</em> </p><div class="fragment"><div class="line">sudo apt update &amp;&amp; sudo apt install -y \</div>
+<div class="line">   build-essential \</div>
+<div class="line">   ccache \</div>
+<div class="line">   cmake \</div>
+<div class="line">   g++ \</div>
+<div class="line">   libgl1-mesa-dev \</div>
+<div class="line">   libgstreamer-gl1.0-0 \</div>
+<div class="line">   libicu-dev \</div>
+<div class="line">   libpulse-dev \</div>
+<div class="line">   libxcb-glx0 \</div>
+<div class="line">   libxcb-icccm4 \</div>
+<div class="line">   libxcb-image0 \</div>
+<div class="line">   libxcb-keysyms1 \</div>
+<div class="line">   libxcb-randr0 \</div>
+<div class="line">   libxcb-render-util0 \</div>
+<div class="line">   libxcb-render0 \</div>
+<div class="line">   libxcb-shape0 \</div>
+<div class="line">   libxcb-shm0 \</div>
+<div class="line">   libxcb-sync1 \</div>
+<div class="line">   libxcb-util1 \</div>
+<div class="line">   libxcb-xfixes0 \</div>
+<div class="line">   libxcb-xinerama0 \</div>
+<div class="line">   libxcb1 \</div>
+<div class="line">   libxkbcommon-dev \</div>
+<div class="line">   libxkbcommon-x11-0 \</div>
+<div class="line">   libxcb-xkb-dev \</div>
+<div class="line">   libxcb-cursor0 \</div>
+<div class="line">   ninja-build \</div>
+<div class="line">   python3-pip \</div>
+<div class="line">   python3-virtualenv</div>
+</div><!-- fragment --><p>Installing Qt via <code>aqt</code>:</p>
+<div class="fragment"><div class="line">python3 -m venv /tmp/qtvenv</div>
+<div class="line">source /tmp/qtvenv/bin/activate</div>
+<div class="line">pip install &#39;setuptools&gt;=70.1.0&#39; &#39;py7zr==0.22.*&#39;</div>
+<div class="line">pip install &#39;aqtinstall==3.1.*&#39;</div>
+<div class="line">aqt install-qt linux desktop 6.5.3 --autodesktop --outputdir &quot;${PWD}/Qt&quot; --modules qtlocation qtpositioning</div>
+</div><!-- fragment --><h3><a class="anchor" id="building-maplibre-native-qt"></a>
+Building maplibre-native-qt</h3>
 <p>Release binaries are build with <code>-DCMAKE_BUILD_TYPE="Release"</code>.</p>
 <p>Note that when using the standalone Qt installation the system version of the ICU library is still used. You should make sure that the system ICU is not too new as it may prevent your app from running on older versions of Linux. Alternatively you can use internally bundled ICU with the <code>-DMLN_QT_WITH_INTERNAL_ICU=ON</code> CMake option.</p>
 <p>To replicate run:</p>
@@ -237,7 +384,7 @@ Linux</h2>
 <div class="line">ninja install</div>
 </div><!-- fragment --><h2><a class="anchor" id="macos"></a>
 macOS</h2>
-<p>Release binaries contain debug symbols. Additionally both Intel and ARM versions are supported and included. OS deployment target version is set to 11.0 for Qt 6 and 10.13 for Qt 5.</p>
+<p>Release binaries contain debug symbols. Additionally both Intel and ARM versions are supported and included. OS deployment target version is set to 12.0 for Qt 6 and 10.13 for Qt 5.</p>
 <p>To replicate run:</p>
 <div class="fragment"><div class="line">mkdir build &amp;&amp; cd build</div>
 <div class="line">cmake ../maplibre-native-qt -G Ninja \</div>
@@ -246,7 +393,7 @@ macOS</h2>
 <div class="line">  -DCMAKE_CXX_COMPILER_LAUNCHER=&quot;ccache&quot; \</div>
 <div class="line">  -DCMAKE_INSTALL_PREFIX=&quot;../install&quot; \</div>
 <div class="line">  -DCMAKE_OSX_ARCHITECTURES=&quot;x86_64;arm64&quot; \</div>
-<div class="line">  -DCMAKE_OSX_DEPLOYMENT_TARGET=&quot;11.0&quot;</div>
+<div class="line">  -DCMAKE_OSX_DEPLOYMENT_TARGET=&quot;12.0&quot;</div>
 <div class="line">ninja</div>
 <div class="line">ninja install</div>
 </div><!-- fragment --><h2><a class="anchor" id="windows"></a>
@@ -264,7 +411,7 @@ Windows</h2>
 <div class="line">ninja install</div>
 </div><!-- fragment --><h2><a class="anchor" id="ios"></a>
 iOS</h2>
-<p>Two separate release binaries are provided, one with release build and one with debug build. To achieve that <code>Ninja Multi-Config</code> generator is used. Both device and simulator builds are supported. OS deployment target version is set to 14.0.</p>
+<p>Two separate release binaries are provided, one with release build and one with debug build. To achieve that <code>Ninja Multi-Config</code> generator is used. Both device and simulator builds are supported. OS deployment target version is set to 16.0.</p>
 <p>To replicate, run:</p>
 <div class="fragment"><div class="line">mkdir build &amp;&amp; cd build</div>
 <div class="line">cmake ../maplibre-native-qt -G &quot;Ninja Multi-Config&quot; \</div>
@@ -274,7 +421,7 @@ iOS</h2>
 <div class="line">  -DCMAKE_DEFAULT_CONFIGS=&quot;all&quot; \</div>
 <div class="line">  -DCMAKE_INSTALL_PREFIX=&quot;../install&quot; \</div>
 <div class="line">  -DCMAKE_OSX_ARCHITECTURES=&quot;arm64;x86_64&quot; \</div>
-<div class="line">  -DCMAKE_OSX_DEPLOYMENT_TARGET=&quot;14.0&quot;</div>
+<div class="line">  -DCMAKE_OSX_DEPLOYMENT_TARGET=&quot;16.0&quot;</div>
 <div class="line">ninja</div>
 <div class="line">ninja install</div>
 </div><!-- fragment --><h2><a class="anchor" id="android"></a>
