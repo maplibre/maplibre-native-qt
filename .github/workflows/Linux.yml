@@ -63,12 +63,12 @@ jobs:
             preset: Linux-CI
             compiler: default
           - qt_series: 6
-            qt_version: 6.9.0
+            qt_version: 6.9.1
             qt_modules: qtlocation qtpositioning
             preset: Linux-CI
             compiler: default
           - qt_series: 6
-            qt_version: 6.9.0
+            qt_version: 6.9.1
             qt_modules: qtlocation qtpositioning
             preset: Linux-coverage
             compiler: gcc-13
@@ -234,7 +234,7 @@ jobs:
       contents: write
     strategy:
       matrix:
-        qt_version: [6.8.3, 6.9.0]
+        qt_version: [6.8.3, 6.9.1]
 
     steps:
       - name: Download artifacts
