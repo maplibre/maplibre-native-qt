@@ -74,7 +74,7 @@ jobs:
             compiler: x64
             preset: Windows-ccache
           - qt_series: 6
-            qt_version: 6.9.0
+            qt_version: 6.9.1
             qt_arch: win64_msvc2022_64
             qt_modules: qtlocation qtpositioning
             platform: windows-2022
@@ -190,7 +190,7 @@ jobs:
             arch: msvc2019_64
           - qt_version: 6.8.3
             arch: msvc2022_64
-          - qt_version: 6.9.0
+          - qt_version: 6.9.1
             arch: msvc2022_64
 
     steps:
