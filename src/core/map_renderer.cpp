@@ -40,9 +40,9 @@ namespace QMapLibre {
 /*! \cond PRIVATE */
 
 MapRenderer::MapRenderer(qreal pixelRatio, Settings::GLContextMode mode, const QString &localFontFamily)
-    : m_backend(std::make_unique<MetalRendererBackend>(static_cast<mbgl::gfx::ContextMode>(mode))),
+    : m_backend(static_cast<mbgl::gfx::ContextMode>(mode)),
       m_renderer(std::make_unique<mbgl::Renderer>(
-          *m_backend,
+          m_backend,
           pixelRatio,
           localFontFamily.isEmpty() ? std::nullopt : std::optional<std::string>{localFontFamily.toStdString()})),
       m_forceScheduler(needsToForceScheduler()) {
@@ -73,7 +73,7 @@ void MapRenderer::updateParameters(std::shared_ptr<mbgl::UpdateParameters> param
 void MapRenderer::updateFramebuffer(quint32 fbo, const mbgl::Size &size) {
     MBGL_VERIFY_THREAD(tid);
 
-    m_backend->updateFramebuffer(fbo, size);
+    m_backend.updateFramebuffer(fbo, size);
 }
 
 void MapRenderer::render() {
@@ -92,7 +92,7 @@ void MapRenderer::render() {
     }
 
     // The OpenGL implementation automatically enables the OpenGL context for us.
-    const mbgl::gfx::BackendScope scope(*m_backend, mbgl::gfx::BackendScope::ScopeType::Implicit);
+    const mbgl::gfx::BackendScope scope(m_backend, mbgl::gfx::BackendScope::ScopeType::Implicit);
 
     m_renderer->render(params);
 
@@ -103,21 +103,6 @@ void MapRenderer::render() {
 
 void MapRenderer::setObserver(mbgl::RendererObserver *observer) {
     m_renderer->setObserver(observer);
-}
-
-void MapRenderer::setBackend(std::unique_ptr<MetalRendererBackend> backend) {
-    MBGL_VERIFY_THREAD(tid);
-
-    m_backend = std::move(backend);
-
-    // Recreate renderer with new backend
-    m_renderer = std::make_unique<mbgl::Renderer>(*m_backend, m_pixelRatio,
-                                                  m_localFontFamily.isEmpty() ? std::nullopt
-                                                                               : std::optional<std::string>{m_localFontFamily.toStdString()});
-
-    if (m_rendererObserver) {
-        m_renderer->setObserver(m_rendererObserver.get());
-    }
 }
 
 /*! \endcond */
