@@ -7,7 +7,7 @@
 
 #include "settings.hpp"
 
-#include "utils/renderer_backend.hpp"
+#include "utils/metal_renderer_backend.hpp"
 
 #include <mbgl/renderer/renderer.hpp>
 #include <mbgl/renderer/renderer_observer.hpp>
@@ -26,8 +26,6 @@ class UpdateParameters;
 } // namespace mbgl
 
 namespace QMapLibre {
-
-class RendererBackend;
 
 class MapRenderer : public QObject {
     Q_OBJECT
@@ -54,7 +52,7 @@ private:
     std::mutex m_updateMutex;
     std::shared_ptr<mbgl::UpdateParameters> m_updateParameters;
 
-    RendererBackend m_backend;
+    MetalRendererBackend m_backend;
     std::unique_ptr<mbgl::Renderer> m_renderer{};
 
     bool m_forceScheduler{};

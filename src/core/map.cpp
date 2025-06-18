@@ -14,7 +14,6 @@
 
 #include <mbgl/actor/scheduler.hpp>
 #include <mbgl/annotation/annotation.hpp>
-#include <mbgl/gl/custom_layer.hpp>
 #include <mbgl/map/camera.hpp>
 #include <mbgl/map/map.hpp>
 #include <mbgl/map/map_options.hpp>
@@ -54,6 +53,8 @@
 #include <mbgl/util/run_loop.hpp>
 #include <mbgl/util/tile_server_options.hpp>
 #include <mbgl/util/traits.hpp>
+
+#include <mbgl/style/layers/custom_layer.hpp>
 
 #include <QtCore/QDebug>
 #include <QtCore/QThreadStorage>

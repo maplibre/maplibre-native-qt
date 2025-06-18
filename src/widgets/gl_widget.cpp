@@ -7,6 +7,7 @@
 
 #include <QtGui/QMouseEvent>
 #include <QtGui/QWheelEvent>
+#include <QtGui/QSurfaceFormat>
 
 namespace QMapLibre {
 
@@ -40,7 +41,28 @@ namespace QMapLibre {
 
 /*! Default constructor */
 GLWidget::GLWidget(const Settings &settings)
-    : d_ptr(std::make_unique<GLWidgetPrivate>(this, settings)) {}
+    : d_ptr(std::make_unique<GLWidgetPrivate>(this, settings)) {
+    // Ensure we get an OpenGL 3.2+ core profile to use MapLibre's modern
+    // renderer. This does nothing on platforms where such a context cannot be
+    // provided (e.g. WebAssembly), where Qt will fall back transparently.
+#ifdef __EMSCRIPTEN__
+    // WebAssembly: request a WebGL2 / OpenGL ES 3.0 context. Core profile is
+    // implicit and should *not* be asked for explicitly (it would fall back to
+    // WebGL 1). Qt will map this to the appropriate Emscripten attributes.
+    QSurfaceFormat fmt;
+    fmt.setRenderableType(QSurfaceFormat::OpenGLES);
+    fmt.setVersion(3, 0);
+#else
+    // Desktop & mobile: request a 3.2 core profile context.
+    QSurfaceFormat fmt;
+    fmt.setRenderableType(QSurfaceFormat::OpenGL);
+    fmt.setVersion(3, 2);
+    fmt.setProfile(QSurfaceFormat::CoreProfile);
+#endif
+    fmt.setDepthBufferSize(24);
+    fmt.setStencilBufferSize(8);
+    setFormat(fmt);
+}
 
 GLWidget::~GLWidget() {
     // Make sure we have a valid context so we

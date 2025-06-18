@@ -104,6 +104,7 @@ target_compile_definitions(
     MLNQtCore
     PRIVATE
         QT_BUILD_MAPLIBRE_CORE_LIB
+        MLN_RENDER_BACKEND_METAL=1
 )
 
 # Common include directories
@@ -119,6 +120,7 @@ target_include_directories(
         ${CMAKE_CURRENT_BINARY_DIR}/include
         ${MLN_CORE_PATH}/src
         ${MLN_CORE_PATH}/platform/qt/src
+        ${MLN_CORE_PATH}/vendor/metal-cpp
 )
 
 # Common link libraries

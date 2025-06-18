@@ -3,3 +3,9 @@
 compile_commands.json
 docs/output
 .venv
+
+qmaplibre-build-dir
+qmaplibre-install-dir
+widgets-build-dir
+build-metal
+quick-example

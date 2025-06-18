@@ -10,6 +10,7 @@
 #include "map_renderer_p.hpp"
 
 #include <mbgl/actor/actor.hpp>
+#include <mbgl/actor/scheduler.hpp>
 #include <mbgl/map/map.hpp>
 #include <mbgl/renderer/renderer_frontend.hpp>
 #include <mbgl/storage/resource_transform.hpp>
@@ -34,6 +35,7 @@ public:
     void reset() final {}
     void setObserver(mbgl::RendererObserver &observer) final;
     void update(std::shared_ptr<mbgl::UpdateParameters> parameters) final;
+    const mbgl::TaggedScheduler &getThreadPool() const final { return m_threadPool; }
 
     // These need to be called on the same thread.
     void createRenderer();
@@ -74,6 +76,8 @@ private:
     QString m_localFontFamily;
 
     std::atomic_flag m_renderQueued = ATOMIC_FLAG_INIT;
+
+    mbgl::TaggedScheduler m_threadPool{mbgl::Scheduler::GetBackground(), mbgl::util::SimpleIdentity{}};
 };
 
 } // namespace QMapLibre
