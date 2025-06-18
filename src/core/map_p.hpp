@@ -25,7 +25,6 @@
 namespace QMapLibre {
 
 class MapPrivate : public QObject, public mbgl::RendererFrontend {
-    friend class Map;
     Q_OBJECT
 
 public:

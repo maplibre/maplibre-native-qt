@@ -184,9 +184,6 @@ public slots:
     // and renders the map when completed.
     void startStaticRender();
 
-    // Experimental: access to the internal renderer for advanced use cases.
-    Q_DECL_UNUSED MapRenderer* renderer() const;
-
 signals:
     void needsRendering();
     void mapChanged(Map::MapChange);

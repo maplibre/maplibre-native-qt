@@ -12,8 +12,6 @@
 #include <map.hpp>
 #include <settings.hpp>
 #include <QtCore/QVariant>
-#include <platform/qt/src/utils/metal_renderer_backend.hpp>
-#import <QuartzCore/CAMetalLayer.h>
 
 #include <memory>
 
@@ -73,10 +71,6 @@ int main(int argc, char *argv[]) {
                              holder->map->createRenderer();
                              holder->map->setStyleUrl("https://demotiles.maplibre.org/style.json");
                              holder->map->setCoordinateZoom({40.7128, -74.0060}, 10);
-
-                             // Inject the CAMetalLayer‐backed backend into the renderer
-                             auto customBackend = std::make_unique<QMapLibre::MetalRendererBackend>((CA::MetalLayer*)layerPtr);
-                             holder->map->renderer()->setBackend(std::move(customBackend));
                          }
 
                          // Render every frame.
