@@ -39,7 +39,8 @@ set_target_properties(
 target_link_libraries(
     QMapLibreExampleQuick
     PRIVATE
-        Qt::Quick
+        Qt6::Quick
+        Qt6::Gui
         QMapLibre::Location
 )
 
