@@ -9,7 +9,7 @@ if(APPLE) # suppress some warnings in Qt6
 endif()
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets Quick QuickWidgets REQUIRED)
 qt_standard_project_setup()
 
 find_package(QMapLibre COMPONENTS Widgets REQUIRED)
@@ -34,6 +34,8 @@ target_link_libraries(
     QMapLibreExampleWidgets
     PRIVATE
         QMapLibre::Widgets
+        Qt${QT_VERSION_MAJOR}::Quick
+        Qt${QT_VERSION_MAJOR}::QuickWidgets
 )
 
 install(TARGETS QMapLibreExampleWidgets
@@ -64,3 +66,8 @@ else()
 endif()
 
 include(CPack)
+
+qt_add_resources(QMapLibreExampleWidgets "qml"
+    PREFIX "/"
+    FILES MapMetal.qml
+)

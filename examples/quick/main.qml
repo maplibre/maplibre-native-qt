@@ -4,90 +4,50 @@
 
 import QtQuick 6.5
 import QtQuick.Window 6.5
-import QtLocation 6.5
-import QtPositioning 6.5
-
-import MapLibre 3.0
 
 Window {
-    id: window
-    width: Qt.platform.os === "android" ? Screen.width : 512
-    height: Qt.platform.os === "android" ? Screen.height : 512
+    id: win
+    width: 800
+    height: 600
     visible: true
 
-    property bool fullWindow: false  // toggle full map with the 'F' key
-    property var coordinate: QtPositioning.coordinate(41.874, -75.789)
+    property var map   // MapLibre::Map instance created after SG init
 
-    Rectangle {
-        color: "blue"
-        anchors.fill: parent
-        focus: true
+    /**
+     * Qt Quick's scene-graph (and thus the Metal RHI backend) is ready when
+     * this signal fires.  Create the MapLibre renderer at that point.
+     */
+    onSceneGraphInitialized: Qt.callLater(initMapLibre)
 
-        Shortcut {
-            sequence: 'F'
-            onActivated: function() {
-                console.log('F')
-                if (window.fullWindow) {
-                    window.fullWindow = false
-                } else {
-                    window.fullWindow = true
-                }
-                map.center = window.coordinate
-            }
+    function initMapLibre() {
+        const ri = win.rendererInterface;               // property – no ()
+        if (!ri) {
+            console.error("No rendererInterface – not running with RHI");
+            return;
         }
+
+        // QSGRendererInterface::MetalLayerResource = 6
+        const layer = ri.getResource(win, ri.MetalLayerResource);
+        if (!layer) {
+            console.error("Qt Quick is NOT using the Metal backend");
+            return;
+        }
+
+        // Expose MapLibre Core C++ API to JS
+        const mlib = require("QMapLibre");
+
+        const backend = new mlib.MetalRendererBackend(layer);
+        map = new mlib.Map(
+                    null,                 // parent QObject
+                    {},                   // default Settings{}
+                    { width: win.width, height: win.height },
+                    Screen.devicePixelRatio,
+                    backend);
+
+        map.setStyleUrl("https://demotiles.maplibre.org/style.json");
+        map.setCoordinateZoom([40.7128, -74.0060], 10);  // New York
     }
 
-    Plugin {
-        id: mapPlugin
-        name: "maplibre"
-        // specify plugin parameters if necessary
-        PluginParameter {
-            name: "maplibre.map.styles"
-            value: "https://demotiles.maplibre.org/style.json"
-        }
-    }
-
-    Rectangle {
-        color: "red"
-        anchors.fill: parent
-        anchors.topMargin: fullWindow ? 0 : Math.round(parent.height / 3)
-
-        MapView {
-            id: mapView
-            anchors.fill: parent
-            anchors.topMargin: fullWindow ? 0 : Math.round(parent.height / 6)
-            anchors.leftMargin: fullWindow ? 0 : Math.round(parent.width / 6)
-            map.plugin: mapPlugin
-            map.center: window.coordinate
-            map.zoomLevel: 5
-
-            MapLibre.style: Style {
-                id: style
-
-                SourceParameter {
-                    id: radarSourceParam
-                    styleId: "radar"
-                    type: "image"
-                    property string url: "https://maplibre.org/maplibre-gl-js/docs/assets/radar1.gif"
-                    property var coordinates: [
-                        [-80.425, 46.437],
-                        [-71.516, 46.437],
-                        [-71.516, 37.936],
-                        [-80.425, 37.936]
-                    ]
-                }
-
-                LayerParameter {
-                    id: radarLayerParam
-                    styleId: "radar-layer"
-                    type: "raster"
-                    property string source: "radar"
-
-                    paint: {
-                        "raster-opacity": 0.9
-                    }
-                }
-            }
-        }
-    }
+    /** Render the map before Qt Quick swaps the Metal drawable */
+    onBeforeRendering: if (map) map.render()
 }

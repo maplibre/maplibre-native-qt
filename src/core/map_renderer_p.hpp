@@ -38,6 +38,11 @@ public:
     void updateFramebuffer(quint32 fbo, const mbgl::Size &size);
     void setObserver(mbgl::RendererObserver *observer);
 
+    // Inject a custom Metal renderer backend (e.g. one built from a
+    // CAMetalLayer supplied by Qt Quick). Must be called before the first
+    // call to render().
+    void setBackend(std::unique_ptr<MetalRendererBackend> backend);
+
     // Thread-safe, called by the Frontend
     void updateParameters(std::shared_ptr<mbgl::UpdateParameters> parameters);
 
@@ -52,7 +57,7 @@ private:
     std::mutex m_updateMutex;
     std::shared_ptr<mbgl::UpdateParameters> m_updateParameters;
 
-    MetalRendererBackend m_backend;
+    std::unique_ptr<MetalRendererBackend> m_backend;
     std::unique_ptr<mbgl::Renderer> m_renderer{};
 
     bool m_forceScheduler{};
