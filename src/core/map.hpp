@@ -24,6 +24,7 @@
 namespace QMapLibre {
 
 class MapPrivate;
+class MapRenderer;
 
 class Q_MAPLIBRE_CORE_EXPORT Map : public QObject {
     Q_OBJECT
@@ -182,6 +183,9 @@ public slots:
     // Commit changes, load all the resources
     // and renders the map when completed.
     void startStaticRender();
+
+    // Experimental: access to the internal renderer for advanced use cases.
+    Q_DECL_UNUSED MapRenderer* renderer() const;
 
 signals:
     void needsRendering();

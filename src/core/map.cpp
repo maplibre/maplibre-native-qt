@@ -5,6 +5,7 @@
 
 #include "map.hpp"
 #include "map_p.hpp"
+#include "map_renderer_p.hpp"
 
 #include "conversion_p.hpp"
 #include "geojson_p.hpp"
@@ -1793,5 +1794,9 @@ bool MapPrivate::setProperty(const PropertySetter &setter,
 }
 
 /*! \endcond */
+
+MapRenderer* Map::renderer() const {
+    return d_ptr->m_mapRenderer.get();
+}
 
 } // namespace QMapLibre

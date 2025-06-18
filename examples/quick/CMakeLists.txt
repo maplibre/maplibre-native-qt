@@ -13,7 +13,7 @@ if(QT_KNOWN_POLICY_QTP0002)
     qt_policy(SET QTP0002 NEW)
 endif()
 
-find_package(QMapLibre COMPONENTS Location REQUIRED)
+find_package(QMapLibre COMPONENTS Core REQUIRED)
 
 qt_add_executable(
     QMapLibreExampleQuick
@@ -41,10 +41,23 @@ target_link_libraries(
     PRIVATE
         Qt6::Quick
         Qt6::Gui
-        QMapLibre::Location
+        QMapLibre::Core
 )
 
-qmaplibre_location_setup_plugins(QMapLibreExampleQuick)
+target_include_directories(
+    QMapLibreExampleQuick
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../src/core
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native/platform/qt/src
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native/vendor
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native/vendor/mapbox-base/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native/vendor/mapbox-base/deps/variant/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native/vendor/mapbox-base/deps/geometry.hpp/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native/vendor/metal-cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native/src
+)
 
 install(
     TARGETS QMapLibreExampleQuick
@@ -64,7 +77,7 @@ install(SCRIPT ${deploy_script})
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     install(
-        IMPORTED_RUNTIME_ARTIFACTS QMapLibre::Core QMapLibre::Location
+        IMPORTED_RUNTIME_ARTIFACTS QMapLibre::Core
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Android")
