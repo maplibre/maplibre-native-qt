@@ -5,22 +5,24 @@
 
 #include <QtQuick/QSGTextureProvider>
 #include <QtQuick/QSGSimpleTextureNode>
+#include <QtQuick/QQuickWindow>
+#include <QtCore/QSize>
 
 #include <memory>
 
 QT_BEGIN_NAMESPACE
 class QQuickWindow;
-class QRhiTexture;
 QT_END_NAMESPACE
+
+// Need QNativeInterface::QSGMetalTexture from Qt headers.
+#include <QtQuick/qsgtexture_platform.h>
 
 namespace QMapLibre {
 
 // Minimal QRhi-based texture node that will later alias a MapLibre render
 // target.  For now it only fulfils the interfaces so the project builds.
-class RhiTextureNode final : public QObject,
-                             public QSGTextureProvider,
+class RhiTextureNode final : public QSGTextureProvider,
                              public QSGSimpleTextureNode {
-    Q_OBJECT
 public:
     explicit RhiTextureNode(QQuickWindow* win);
 
@@ -32,7 +34,7 @@ public:
 
 private:
     QQuickWindow* m_window{nullptr};
-    std::unique_ptr<QRhiTexture> m_rhiTexture;
+    QSize m_size;
     std::unique_ptr<QSGTexture> m_qsgTexture;
 };
 

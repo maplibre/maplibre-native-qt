@@ -9,6 +9,7 @@
 #include <QtQuick/QQuickWindow>
 #include <QtQuick/QSGRenderNode>
 #include <QtQuick/QSGSimpleTextureNode>
+#include <QtQuick/QSGTextureProvider>
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 #include <QtOpenGL/QOpenGLFramebufferObject>
 #else
@@ -20,6 +21,8 @@
 namespace QMapLibre {
 
 class QGeoMapMapLibre;
+
+class RhiTextureNode; // forward
 
 class TextureNode : public QSGSimpleTextureNode {
 public:
@@ -37,6 +40,8 @@ public:
 private:
     std::unique_ptr<Map> m_map{};
     std::unique_ptr<QOpenGLFramebufferObject> m_fbo{};
+
+    RhiTextureNode* m_rhiNode{nullptr};
 };
 
 } // namespace QMapLibre

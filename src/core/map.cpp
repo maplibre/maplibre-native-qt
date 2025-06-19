@@ -1494,6 +1494,18 @@ void Map::createRenderer() {
 }
 
 /*!
+    \brief Create the renderer with a metal layer.
+    \param layerPtr The pointer to the metal layer.
+
+    Creates the infrastructure needed for rendering the map with a metal layer.
+
+    Must be called on the render thread.
+*/
+void Map::createRendererWithMetalLayer(void *layerPtr) {
+    d_ptr->createRendererWithMetalLayer(layerPtr);
+}
+
+/*!
     \brief Destroy the renderer.
 
     Destroys the infrastructure needed for rendering the map,
@@ -1718,6 +1730,25 @@ void MapPrivate::createRenderer() {
     }
 }
 
+void MapPrivate::createRendererWithMetalLayer(void *layerPtr) {
+    const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
+
+    if (m_mapRenderer != nullptr) {
+        return; // already created
+    }
+
+    m_mapRenderer = std::make_unique<MapRenderer>(m_pixelRatio, m_mode, m_localFontFamily, layerPtr);
+
+    connect(m_mapRenderer.get(), &MapRenderer::needsRendering, this, &MapPrivate::requestRendering);
+
+    m_mapRenderer->setObserver(m_rendererObserver.get());
+
+    if (m_updateParameters != nullptr) {
+        m_mapRenderer->updateParameters(m_updateParameters);
+        requestRendering();
+    }
+}
+
 void MapPrivate::destroyRenderer() {
     const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
 
@@ -1793,5 +1824,13 @@ bool MapPrivate::setProperty(const PropertySetter &setter,
 }
 
 /*! \endcond */
+
+void* Map::nativeColorTexture() const {
+    return d_ptr->currentMetalTexture();
+}
+
+void Map::setCurrentDrawable(void *texturePtr) {
+    d_ptr->setCurrentDrawable(texturePtr);
+}
 
 } // namespace QMapLibre

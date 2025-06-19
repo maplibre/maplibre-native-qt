@@ -173,8 +173,13 @@ public:
     // When rendering on a different thread,
     // should be called on the render thread.
     void createRenderer();
+    // Metal-specific: create the renderer using a pre-existing CAMetalLayer.
+    void createRendererWithMetalLayer(void *layerPtr);
     void destroyRenderer();
     void setOpenGLFramebufferObject(quint32 fbo, const QSize &size);
+
+    // Metal-only helper: provide external drawable texture.
+    void setCurrentDrawable(void *texturePtr);
 
 public slots:
     void render();
@@ -183,6 +188,9 @@ public slots:
     // Commit changes, load all the resources
     // and renders the map when completed.
     void startStaticRender();
+
+    // Metal-only helper for Qt Quick texture node.
+    void* nativeColorTexture() const;
 
 signals:
     void needsRendering();
