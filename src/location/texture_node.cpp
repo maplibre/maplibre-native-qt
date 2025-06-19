@@ -6,6 +6,7 @@
 
 #include "texture_node.hpp"
 #include "qgeomap.hpp"
+#include "rhi_texture_node.hpp"
 
 #if __has_include(<QtQuick/private/qsgplaintexture_p.h>)
 #include <QtQuick/private/qsgplaintexture_p.h>
@@ -46,7 +47,7 @@ void TextureNode::resize(const QSize &size, qreal pixelRatio)
     m_map->setOpenGLFramebufferObject(m_fbo->handle(), fbSize);
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    setTexture(QNativeInterface::QSGOpenGLTexture::fromNative(
+    setTexture(::QNativeInterface::QSGOpenGLTexture::fromNative(
         m_fbo->texture(), window, fbSize, QQuickWindow::TextureHasAlphaChannel));
     setOwnsTexture(true);
 #else
@@ -70,6 +71,22 @@ void TextureNode::resize(const QSize &size, qreal pixelRatio)
 }
 
 void TextureNode::render(QQuickWindow *window) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    if (window->rendererInterface()->graphicsApi() == QSGRendererInterface::MetalRhi) {
+        if (!m_rhiNode) {
+            m_rhiNode = new RhiTextureNode(window);
+            appendChildNode(m_rhiNode);
+        }
+
+        m_map->render();
+        if (void* tex = m_map->nativeColorTexture()) {
+            const QRectF r = rect();
+            m_rhiNode->syncWithNativeTexture(tex, static_cast<int>(r.width()), static_cast<int>(r.height()));
+        }
+        return;
+    }
+#endif
+
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     QOpenGLFunctions *f = static_cast<QOpenGLContext *>(window->rendererInterface()->getResource(
                                                             window, QSGRendererInterface::OpenGLContextResource))

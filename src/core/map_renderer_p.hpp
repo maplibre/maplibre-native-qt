@@ -32,6 +32,8 @@ class MapRenderer : public QObject {
 
 public:
     MapRenderer(qreal pixelRatio, Settings::GLContextMode, const QString &localFontFamily);
+    // Metal: allow passing an existing CAMetalLayer supplied by the UI.
+    MapRenderer(qreal pixelRatio, Settings::GLContextMode, const QString &localFontFamily, void *metalLayerPtr);
     ~MapRenderer() override;
 
     void render();
@@ -40,6 +42,13 @@ public:
 
     // Thread-safe, called by the Frontend
     void updateParameters(std::shared_ptr<mbgl::UpdateParameters> parameters);
+
+    // Metal-only: returns the color texture of last rendered drawable.
+    void* currentMetalTexture() const { return m_backend.currentDrawable(); }
+
+    // Metal: allow external caller (Qt Quick) to provide the swap-chain texture
+    // that MapLibre should render into for the current frame.
+    void setCurrentDrawable(void *tex) { m_backend._q_setCurrentDrawable(tex); }
 
 signals:
     void needsRendering();

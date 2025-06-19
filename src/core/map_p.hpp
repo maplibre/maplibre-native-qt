@@ -39,6 +39,7 @@ public:
 
     // These need to be called on the same thread.
     void createRenderer();
+    void createRendererWithMetalLayer(void *layerPtr);
     void destroyRenderer();
     void render();
     void setOpenGLFramebufferObject(quint32 fbo, const QSize &size);
@@ -53,6 +54,13 @@ public:
     mbgl::EdgeInsets margins;
     std::unique_ptr<mbgl::Map> mapObj{};
 
+    // Metal-only helper to expose the most recent color texture from the Metal
+    // backend.  Safe to call from the GUI thread.
+    void* currentMetalTexture() const;
+
+    // Metal-only: push latest swap-chain texture into renderer
+    void setCurrentDrawable(void *tex);
+
 public slots:
     void requestRendering();
 
@@ -62,7 +70,7 @@ signals:
 private:
     Q_DISABLE_COPY(MapPrivate)
 
-    std::recursive_mutex m_mapRendererMutex;
+    mutable std::recursive_mutex m_mapRendererMutex;
     std::shared_ptr<mbgl::RendererObserver> m_rendererObserver{};
     std::shared_ptr<mbgl::UpdateParameters> m_updateParameters{};
 
@@ -79,5 +87,18 @@ private:
 
     mbgl::TaggedScheduler m_threadPool{mbgl::Scheduler::GetBackground(), mbgl::util::SimpleIdentity{}};
 };
+
+inline void* MapPrivate::currentMetalTexture() const
+{
+    std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
+    return m_mapRenderer ? m_mapRenderer->currentMetalTexture() : nullptr;
+}
+
+inline void MapPrivate::setCurrentDrawable(void *tex) {
+    std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
+    if (m_mapRenderer) {
+        m_mapRenderer->setCurrentDrawable(tex);
+    }
+}
 
 } // namespace QMapLibre
