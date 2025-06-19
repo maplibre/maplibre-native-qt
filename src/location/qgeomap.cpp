@@ -34,8 +34,8 @@
 
 #include <algorithm>
 #include <cmath>
-#include <ranges>
 #include <numbers>
+#include <ranges>
 
 namespace {
 
