@@ -35,12 +35,12 @@
 #include <algorithm>
 #include <cmath>
 #if __has_include(<ranges>)
-#  include <ranges>
-#  define MLN_HAS_RANGES 1
+#include <ranges>
+#define MLN_HAS_RANGES 1
 #endif
 #if __has_include(<numbers>) && defined(__cpp_lib_numbers)
-#  include <numbers>
-#  define MLN_HAS_NUMBERS 1
+#include <numbers>
+#define MLN_HAS_NUMBERS 1
 #endif
 
 namespace {

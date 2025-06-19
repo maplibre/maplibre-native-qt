@@ -10,8 +10,8 @@
 
 #include <algorithm>
 #if __has_include(<ranges>)
-#  include <ranges>
-#  define MLN_HAS_RANGES 1
+#include <ranges>
+#define MLN_HAS_RANGES 1
 #endif
 
 namespace {
@@ -171,14 +171,14 @@ Feature featureFromMapItem(QDeclarativeGeoMapItemBase *item) {
 
 namespace detail {
 template <typename Range, typename OutIt>
-auto moveRange(Range&& range, OutIt out) {
+auto moveRange(Range &&range, OutIt out) {
 #ifdef MLN_HAS_RANGES
     return std::ranges::move(range, out);
 #else
     return std::move(range.begin(), range.end(), out);
 #endif
 }
-}
+} // namespace detail
 
 std::vector<FeatureProperty> featureLayoutPropertiesFromMapPolyline(QDeclarativePolylineMapItem * /* item */) {
     std::vector<FeatureProperty> properties;
