@@ -7,7 +7,7 @@
 
 #include "settings.hpp"
 
-#include "utils/renderer_backend.hpp"
+#include "utils/metal_renderer_backend.hpp"
 
 #include <mbgl/renderer/renderer.hpp>
 #include <mbgl/renderer/renderer_observer.hpp>
@@ -27,13 +27,13 @@ class UpdateParameters;
 
 namespace QMapLibre {
 
-class RendererBackend;
-
 class MapRenderer : public QObject {
     Q_OBJECT
 
 public:
     MapRenderer(qreal pixelRatio, Settings::GLContextMode, const QString &localFontFamily);
+    // Metal: allow passing an existing CAMetalLayer supplied by the UI.
+    MapRenderer(qreal pixelRatio, Settings::GLContextMode, const QString &localFontFamily, void *metalLayerPtr);
     ~MapRenderer() override;
 
     void render();
@@ -42,6 +42,13 @@ public:
 
     // Thread-safe, called by the Frontend
     void updateParameters(std::shared_ptr<mbgl::UpdateParameters> parameters);
+
+    // Metal-only: returns the color texture of last rendered drawable.
+    void *currentMetalTexture() const { return m_backend.currentDrawable(); }
+
+    // Metal: allow external caller (Qt Quick) to provide the swap-chain texture
+    // that MapLibre should render into for the current frame.
+    void setCurrentDrawable(void *tex) { m_backend._q_setCurrentDrawable(tex); }
 
 signals:
     void needsRendering();
@@ -54,7 +61,7 @@ private:
     std::mutex m_updateMutex;
     std::shared_ptr<mbgl::UpdateParameters> m_updateParameters;
 
-    RendererBackend m_backend;
+    MetalRendererBackend m_backend;
     std::unique_ptr<mbgl::Renderer> m_renderer{};
 
     bool m_forceScheduler{};
