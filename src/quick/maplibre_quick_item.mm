@@ -9,7 +9,7 @@
 #include <QQuickWindow>
 #include <QSGRendererInterface>
 #include <QSGNode>
-#include <QDebug>
+
 #include <QSGSimpleTextureNode>
 #include <QSGTexture>
 #include <QtQuick/qsgtexture_platform.h>
@@ -72,7 +72,7 @@ void MapLibreQuickItem::ensureMap(int w, int h, float dpr, void *metalLayer) {
         [view.layer addSublayer:newLayer];
         metalLayer = (__bridge void *)newLayer;
 
-        qDebug() << "[MapLibreQuick] Fallback: created CAMetalLayer sublayer";
+        
         m_ownsLayer = true;
     }
 
@@ -97,8 +97,7 @@ void MapLibreQuickItem::ensureMap(int w, int h, float dpr, void *metalLayer) {
             layer.allowsNextDrawableTimeout = NO;
         }
 
-        qDebug() << "Configured CAMetalLayer: size" << layer.drawableSize.width << "x" << layer.drawableSize.height
-                 << ", device" << (void *)dev;
+        
 
         // Defer binding the renderer until the first beforeRendering callback once a drawable is available.
     }
@@ -113,7 +112,7 @@ void MapLibreQuickItem::ensureMap(int w, int h, float dpr, void *metalLayer) {
 
     // First frame will be rendered from afterRendering once the MetalLayer is ready.
 
-    m_map->setStyleUrl("https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json");
+    m_map->setStyleUrl("https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json");
     m_map->setCoordinateZoom({40.7128, -74.0060}, 2);
 }
 
@@ -139,10 +138,10 @@ QSGNode *MapLibreQuickItem::updatePaintNode(QSGNode *node, UpdatePaintNodeData *
             if (!m_layerPtr) {
                 m_layerPtr = ri->getResource(window(), "MetalLayer");
                 if (!m_layerPtr) {
-                    qDebug() << "beforeRendering: MetalLayer still null, skip render";
+                    
                     return;
                 }
-                qDebug() << "beforeRendering: obtained MetalLayer" << m_layerPtr;
+                
             }
 
             if (!m_map) {
@@ -153,7 +152,7 @@ QSGNode *MapLibreQuickItem::updatePaintNode(QSGNode *node, UpdatePaintNodeData *
                 CAMetalLayer *layer = (__bridge CAMetalLayer *)m_layerPtr;
                 id<CAMetalDrawable> drawable = [layer nextDrawable];
                 if (!drawable) {
-                    qDebug() << "fallback nextDrawable nil – skip frame";
+                    
                     return;
                 }
                 // Keep previous drawables until shutdown (leak guard). Not releasing avoids premature invalidation.
@@ -162,7 +161,7 @@ QSGNode *MapLibreQuickItem::updatePaintNode(QSGNode *node, UpdatePaintNodeData *
                 if (!m_rendererBound) {
                     m_map->createRendererWithMetalLayer(m_layerPtr);
                     m_rendererBound = true;
-                    qDebug() << "beforeRendering: bound renderer";
+                    
                 }
 
                 m_map->setCurrentDrawable((void *)drawable.texture);
@@ -170,7 +169,7 @@ QSGNode *MapLibreQuickItem::updatePaintNode(QSGNode *node, UpdatePaintNodeData *
                 if (!m_rendererBound) {
                     m_map->createRendererWithMetalLayer(m_layerPtr);
                     m_rendererBound = true;
-                    qDebug() << "beforeRendering: bound renderer";
+                    
                 }
                 // Provide the current swap-chain texture from Qt
                 void *qtTexPtr = ri->getResource(window(), "CurrentMetalTexture");
@@ -190,9 +189,9 @@ QSGNode *MapLibreQuickItem::updatePaintNode(QSGNode *node, UpdatePaintNodeData *
     }
 
     void *nativeTex = m_map ? m_map->nativeColorTexture() : nullptr;
-    qDebug() << "nativeTex" << nativeTex;
+    
     if (!nativeTex) {
-        qDebug() << "nativeTex still nil – skip SG node update";
+        
         if (node) {
             delete node;
         }
@@ -226,7 +225,7 @@ QSGNode *MapLibreQuickItem::updatePaintNode(QSGNode *node, UpdatePaintNodeData *
 void MapLibreQuickItem::itemChange(ItemChange change, const ItemChangeData &data) {
     QQuickItem::itemChange(change, data);
 
-    qDebug() << "itemChange:" << change;
+    
     if (change == ItemSceneChange) {
         if (QQuickWindow *win = window()) {
             // Once the scene graph is ready we can obtain the Metal layer and create the map.
