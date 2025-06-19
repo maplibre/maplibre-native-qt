@@ -1825,7 +1825,7 @@ bool MapPrivate::setProperty(const PropertySetter &setter,
 
 /*! \endcond */
 
-void* Map::nativeColorTexture() const {
+void *Map::nativeColorTexture() const {
     return d_ptr->currentMetalTexture();
 }
 

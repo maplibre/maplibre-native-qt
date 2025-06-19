@@ -44,7 +44,7 @@ public:
     void updateParameters(std::shared_ptr<mbgl::UpdateParameters> parameters);
 
     // Metal-only: returns the color texture of last rendered drawable.
-    void* currentMetalTexture() const { return m_backend.currentDrawable(); }
+    void *currentMetalTexture() const { return m_backend.currentDrawable(); }
 
     // Metal: allow external caller (Qt Quick) to provide the swap-chain texture
     // that MapLibre should render into for the current frame.

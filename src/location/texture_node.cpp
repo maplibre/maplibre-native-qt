@@ -79,7 +79,7 @@ void TextureNode::render(QQuickWindow *window) {
         }
 
         m_map->render();
-        if (void* tex = m_map->nativeColorTexture()) {
+        if (void *tex = m_map->nativeColorTexture()) {
             const QRectF r = rect();
             m_rhiNode->syncWithNativeTexture(tex, static_cast<int>(r.width()), static_cast<int>(r.height()));
         }

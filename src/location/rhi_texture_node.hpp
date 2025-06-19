@@ -3,10 +3,10 @@
 
 #pragma once
 
-#include <QtQuick/QSGTextureProvider>
-#include <QtQuick/QSGSimpleTextureNode>
-#include <QtQuick/QQuickWindow>
 #include <QtCore/QSize>
+#include <QtQuick/QQuickWindow>
+#include <QtQuick/QSGSimpleTextureNode>
+#include <QtQuick/QSGTextureProvider>
 
 #include <memory>
 
@@ -21,8 +21,7 @@ namespace QMapLibre {
 
 // Minimal QRhi-based texture node that will later alias a MapLibre render
 // target.  For now it only fulfils the interfaces so the project builds.
-class RhiTextureNode final : public QSGTextureProvider,
-                             public QSGSimpleTextureNode {
+class RhiTextureNode final : public QSGTextureProvider, public QSGSimpleTextureNode {
 public:
     explicit RhiTextureNode(QQuickWindow* win);
 
@@ -38,4 +37,4 @@ private:
     std::unique_ptr<QSGTexture> m_qsgTexture;
 };
 
-} // namespace QMapLibre 
+} // namespace QMapLibre

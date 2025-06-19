@@ -190,7 +190,7 @@ public slots:
     void startStaticRender();
 
     // Metal-only helper for Qt Quick texture node.
-    void* nativeColorTexture() const;
+    void *nativeColorTexture() const;
 
 signals:
     void needsRendering();

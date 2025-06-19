@@ -56,7 +56,7 @@ public:
 
     // Metal-only helper to expose the most recent color texture from the Metal
     // backend.  Safe to call from the GUI thread.
-    void* currentMetalTexture() const;
+    void *currentMetalTexture() const;
 
     // Metal-only: push latest swap-chain texture into renderer
     void setCurrentDrawable(void *tex);
@@ -88,8 +88,7 @@ private:
     mbgl::TaggedScheduler m_threadPool{mbgl::Scheduler::GetBackground(), mbgl::util::SimpleIdentity{}};
 };
 
-inline void* MapPrivate::currentMetalTexture() const
-{
+inline void *MapPrivate::currentMetalTexture() const {
     std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
     return m_mapRenderer ? m_mapRenderer->currentMetalTexture() : nullptr;
 }
