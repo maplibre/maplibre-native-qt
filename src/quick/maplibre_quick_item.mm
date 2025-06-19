@@ -14,6 +14,8 @@
 #include <QSGTexture>
 #include <QtQuick/qsgtexture_platform.h>
 #include <QTimer>
+#include <QMouseEvent>
+#include <QWheelEvent>
 
 #include "utils/metal_renderer_backend.hpp"
 
@@ -250,4 +252,56 @@ void MapLibreQuickItem::itemChange(ItemChange change, const ItemChangeData &data
             }, Qt::DirectConnection);
         }
     }
+}
+
+void MapLibreQuickItem::mousePressEvent(QMouseEvent *ev) {
+    if (!m_map) {
+        QQuickItem::mousePressEvent(ev);
+        return;
+    }
+    if (ev->button() == Qt::LeftButton) {
+        m_dragging = true;
+        m_lastMousePos = ev->position();
+        ev->accept();
+    } else {
+        QQuickItem::mousePressEvent(ev);
+    }
+}
+
+void MapLibreQuickItem::mouseMoveEvent(QMouseEvent *ev) {
+    if (m_dragging && m_map) {
+        QPointF delta = ev->position() - m_lastMousePos;
+        // Map::moveBy expects screen pixel delta; invert so drag direction feels natural
+        m_map->moveBy(-delta);
+        m_lastMousePos = ev->position();
+        update();
+        ev->accept();
+    } else {
+        QQuickItem::mouseMoveEvent(ev);
+    }
+}
+
+void MapLibreQuickItem::mouseReleaseEvent(QMouseEvent *ev) {
+    if (ev->button() == Qt::LeftButton && m_dragging) {
+        m_dragging = false;
+        ev->accept();
+    } else {
+        QQuickItem::mouseReleaseEvent(ev);
+    }
+}
+
+void MapLibreQuickItem::wheelEvent(QWheelEvent *ev) {
+    if (!m_map) {
+        QQuickItem::wheelEvent(ev);
+        return;
+    }
+    qreal angle = ev->angleDelta().y();
+    if (angle == 0) {
+        QQuickItem::wheelEvent(ev);
+        return;
+    }
+    double factor = angle > 0 ? 1.2 : 0.8;
+    m_map->scaleBy(factor, ev->position());
+    update();
+    ev->accept();
 } 

@@ -28,6 +28,12 @@ protected:
     void releaseResources() override;
     void itemChange(ItemChange change, const ItemChangeData &data) override;
 
+    // Mouse interaction
+    void mousePressEvent(QMouseEvent *) override;
+    void mouseMoveEvent(QMouseEvent *) override;
+    void mouseReleaseEvent(QMouseEvent *) override;
+    void wheelEvent(QWheelEvent *) override;
+
 private:
     void ensureMap(int w, int h, float dpr, void *metalLayer);
 
@@ -38,5 +44,9 @@ private:
     void *m_layerPtr = nullptr; // persistent CAMetalLayer pointer we pass to MapLibre
     bool   m_ownsLayer = false; // true when we created the fallback CAMetalLayer
     void  *m_currentDrawable = nullptr; // retained CAMetalDrawable until frame ends
+
+    // interaction state
+    QPointF m_lastMousePos;
+    bool    m_dragging{false};
 };
 } 
