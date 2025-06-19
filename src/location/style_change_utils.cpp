@@ -9,7 +9,10 @@
 #include <QtLocation/private/qdeclarativecirclemapitem_p_p.h>
 
 #include <algorithm>
-#include <ranges>
+#if __has_include(<ranges>)
+#  include <ranges>
+#  define MLN_HAS_RANGES 1
+#endif
 
 namespace {
 
@@ -166,6 +169,17 @@ Feature featureFromMapItem(QDeclarativeGeoMapItemBase *item) {
     }
 }
 
+namespace detail {
+template <typename Range, typename OutIt>
+auto moveRange(Range&& range, OutIt out) {
+#ifdef MLN_HAS_RANGES
+    return std::ranges::move(range, out);
+#else
+    return std::move(range.begin(), range.end(), out);
+#endif
+}
+}
+
 std::vector<FeatureProperty> featureLayoutPropertiesFromMapPolyline(QDeclarativePolylineMapItem * /* item */) {
     std::vector<FeatureProperty> properties;
     properties.reserve(2);
@@ -270,8 +284,8 @@ std::vector<FeatureProperty> featurePropertiesFromMapItem(QDeclarativeGeoMapItem
 
     std::vector<FeatureProperty> properties;
     properties.reserve(layoutProperties.size() + paintProperties.size());
-    std::ranges::move(layoutProperties, std::back_inserter(properties));
-    std::ranges::move(paintProperties, std::back_inserter(properties));
+    detail::moveRange(layoutProperties, std::back_inserter(properties));
+    detail::moveRange(paintProperties, std::back_inserter(properties));
     return properties;
 }
 
