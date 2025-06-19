@@ -41,7 +41,7 @@ private:
     std::unique_ptr<Map> m_map{};
     std::unique_ptr<QOpenGLFramebufferObject> m_fbo{};
 
-    RhiTextureNode* m_rhiNode{nullptr};
+    RhiTextureNode *m_rhiNode{nullptr};
 };
 
 } // namespace QMapLibre

@@ -1,5 +1,5 @@
-#include <QQmlExtensionPlugin>
 #include <qqml.h>
+#include <QQmlExtensionPlugin>
 #include "maplibre_quick_item.hpp"
 
 class MapLibreQuickPlugin : public QQmlExtensionPlugin {
@@ -9,4 +9,4 @@ public:
     void registerTypes(const char *) override {}
 };
 
-#include "plugin.moc" 
+#include "plugin.moc"

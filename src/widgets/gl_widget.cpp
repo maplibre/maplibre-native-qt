@@ -6,8 +6,8 @@
 #include "gl_widget_p.hpp"
 
 #include <QtGui/QMouseEvent>
-#include <QtGui/QWheelEvent>
 #include <QtGui/QSurfaceFormat>
+#include <QtGui/QWheelEvent>
 
 namespace QMapLibre {
 

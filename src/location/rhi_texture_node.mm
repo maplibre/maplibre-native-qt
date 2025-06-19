@@ -46,4 +46,4 @@ void RhiTextureNode::syncWithNativeTexture(const void* nativeTex, int w, int h)
 #endif
 }
 
-} // namespace QMapLibre 
+} // namespace QMapLibre

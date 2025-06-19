@@ -72,7 +72,7 @@ void MapLibreQuickItem::ensureMap(int w, int h, float dpr, void *metalLayer) {
         [view.layer addSublayer:newLayer];
         metalLayer = (__bridge void *)newLayer;
 
-        
+
         m_ownsLayer = true;
     }
 
@@ -97,7 +97,7 @@ void MapLibreQuickItem::ensureMap(int w, int h, float dpr, void *metalLayer) {
             layer.allowsNextDrawableTimeout = NO;
         }
 
-        
+
 
         // Defer binding the renderer until the first beforeRendering callback once a drawable is available.
     }
@@ -138,10 +138,10 @@ QSGNode *MapLibreQuickItem::updatePaintNode(QSGNode *node, UpdatePaintNodeData *
             if (!m_layerPtr) {
                 m_layerPtr = ri->getResource(window(), "MetalLayer");
                 if (!m_layerPtr) {
-                    
+
                     return;
                 }
-                
+
             }
 
             if (!m_map) {
@@ -152,7 +152,7 @@ QSGNode *MapLibreQuickItem::updatePaintNode(QSGNode *node, UpdatePaintNodeData *
                 CAMetalLayer *layer = (__bridge CAMetalLayer *)m_layerPtr;
                 id<CAMetalDrawable> drawable = [layer nextDrawable];
                 if (!drawable) {
-                    
+
                     return;
                 }
                 // Keep previous drawables until shutdown (leak guard). Not releasing avoids premature invalidation.
@@ -161,7 +161,7 @@ QSGNode *MapLibreQuickItem::updatePaintNode(QSGNode *node, UpdatePaintNodeData *
                 if (!m_rendererBound) {
                     m_map->createRendererWithMetalLayer(m_layerPtr);
                     m_rendererBound = true;
-                    
+
                 }
 
                 m_map->setCurrentDrawable((void *)drawable.texture);
@@ -169,7 +169,7 @@ QSGNode *MapLibreQuickItem::updatePaintNode(QSGNode *node, UpdatePaintNodeData *
                 if (!m_rendererBound) {
                     m_map->createRendererWithMetalLayer(m_layerPtr);
                     m_rendererBound = true;
-                    
+
                 }
                 // Provide the current swap-chain texture from Qt
                 void *qtTexPtr = ri->getResource(window(), "CurrentMetalTexture");
@@ -189,9 +189,9 @@ QSGNode *MapLibreQuickItem::updatePaintNode(QSGNode *node, UpdatePaintNodeData *
     }
 
     void *nativeTex = m_map ? m_map->nativeColorTexture() : nullptr;
-    
+
     if (!nativeTex) {
-        
+
         if (node) {
             delete node;
         }
@@ -225,7 +225,7 @@ QSGNode *MapLibreQuickItem::updatePaintNode(QSGNode *node, UpdatePaintNodeData *
 void MapLibreQuickItem::itemChange(ItemChange change, const ItemChangeData &data) {
     QQuickItem::itemChange(change, data);
 
-    
+
     if (change == ItemSceneChange) {
         if (QQuickWindow *win = window()) {
             // Once the scene graph is ready we can obtain the Metal layer and create the map.
@@ -320,4 +320,4 @@ void MapLibreQuickItem::wheelEvent(QWheelEvent *ev) {
     }
     update();
     ev->accept();
-} 
+}
