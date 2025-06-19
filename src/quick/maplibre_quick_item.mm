@@ -29,6 +29,8 @@ using namespace QMapLibre;
 
 MapLibreQuickItem::MapLibreQuickItem() {
     setFlag(ItemHasContents, true);
+    // Handle mouse interactions (press/move/release) on the left button.
+    setAcceptedMouseButtons(Qt::LeftButton);
 }
 
 void MapLibreQuickItem::releaseResources() {
@@ -261,6 +263,10 @@ void MapLibreQuickItem::mousePressEvent(QMouseEvent *ev) {
     }
     if (ev->button() == Qt::LeftButton) {
         m_dragging = true;
+        if (m_map) {
+            // Inform MapLibre that a gesture started – improves label rendering during interaction.
+            m_map->setGestureInProgress(true);
+        }
         m_lastMousePos = ev->position();
         ev->accept();
     } else {
@@ -271,8 +277,11 @@ void MapLibreQuickItem::mousePressEvent(QMouseEvent *ev) {
 void MapLibreQuickItem::mouseMoveEvent(QMouseEvent *ev) {
     if (m_dragging && m_map) {
         QPointF delta = ev->position() - m_lastMousePos;
-        // Map::moveBy expects screen pixel delta; invert so drag direction feels natural
-        m_map->moveBy(-delta);
+        // Map::moveBy expects physical pixel delta; scale by device pixel ratio.
+        const qreal dpr = window() ? window()->devicePixelRatio() : 1.0;
+        QPointF scaledDelta = delta * dpr;
+        // Move the map following the drag delta (same direction as cursor movement)
+        m_map->moveBy(scaledDelta);
         m_lastMousePos = ev->position();
         update();
         ev->accept();
@@ -284,6 +293,9 @@ void MapLibreQuickItem::mouseMoveEvent(QMouseEvent *ev) {
 void MapLibreQuickItem::mouseReleaseEvent(QMouseEvent *ev) {
     if (ev->button() == Qt::LeftButton && m_dragging) {
         m_dragging = false;
+        if (m_map) {
+            m_map->setGestureInProgress(false);
+        }
         ev->accept();
     } else {
         QQuickItem::mouseReleaseEvent(ev);
