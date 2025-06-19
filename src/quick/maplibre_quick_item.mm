@@ -113,8 +113,8 @@ void MapLibreQuickItem::ensureMap(int w, int h, float dpr, void *metalLayer) {
 
     // First frame will be rendered from afterRendering once the MetalLayer is ready.
 
-    m_map->setStyleUrl("https://demotiles.maplibre.org/style.json");
-    m_map->setCoordinateZoom({40.7128, -74.0060}, 10);
+    m_map->setStyleUrl("https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json");
+    m_map->setCoordinateZoom({40.7128, -74.0060}, 2);
 }
 
 QSGNode *MapLibreQuickItem::updatePaintNode(QSGNode *node, UpdatePaintNodeData *) {
@@ -313,7 +313,12 @@ void MapLibreQuickItem::wheelEvent(QWheelEvent *ev) {
         return;
     }
     double factor = angle > 0 ? 1.2 : 0.8;
-    m_map->scaleBy(factor, ev->position());
+    {
+        QPointF anchor = ev->position();
+        const qreal dpr = window() ? window()->devicePixelRatio() : 1.0;
+        anchor *= dpr; // Map expects physical pixels
+        m_map->scaleBy(factor, anchor);
+    }
     update();
     ev->accept();
 } 
