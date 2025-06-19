@@ -34,11 +34,13 @@
 
 #include <algorithm>
 #include <cmath>
+#include <ranges>
+#include <numbers>
 
 namespace {
 
 constexpr int mapLibreTileSize{512};
-const double invLog2 = 1.0 / std::log(2.0);
+constexpr double invLog2 = 1.0 / std::numbers::ln2;
 
 double zoomLevelFrom256(double zoomLevelFor256, double tileSize) {
     constexpr double size256{256.0};
@@ -237,7 +239,7 @@ void QGeoMapMapLibrePrivate::addMapItem(QDeclarativeGeoMapItemBase *item) {
         StyleChangeUtils::featureFromMapItem(item),
         StyleChangeUtils::featurePropertiesFromMapItem(item),
         m_mapItemsBefore);
-    std::move(changes.begin(), changes.end(), std::back_inserter(m_styleChanges));
+    std::ranges::move(changes, std::back_inserter(m_styleChanges));
 
     emit q->sgNodeChanged();
 }
@@ -268,7 +270,7 @@ void QGeoMapMapLibrePrivate::removeMapItem(QDeclarativeGeoMapItemBase *item) {
 
     std::vector<std::unique_ptr<StyleChange>> changes = StyleChange::removeFeature(
         StyleChangeUtils::featureFromMapItem(item));
-    std::move(changes.begin(), changes.end(), std::back_inserter(m_styleChanges));
+    std::ranges::move(changes, std::back_inserter(m_styleChanges));
 
     emit q->sgNodeChanged();
 }
@@ -286,7 +288,7 @@ void QGeoMapMapLibrePrivate::addStyleParameter(StyleParameter *parameter) {
 
     if (m_styleLoaded) {
         std::vector<std::unique_ptr<StyleChange>> changes = StyleChange::addParameter(parameter, m_mapItemsBefore);
-        std::move(changes.begin(), changes.end(), std::back_inserter(m_styleChanges));
+        std::ranges::move(changes, std::back_inserter(m_styleChanges));
         emit q->sgNodeChanged();
     }
 }
@@ -298,7 +300,7 @@ void QGeoMapMapLibrePrivate::removeStyleParameter(StyleParameter *parameter) {
 
     if (m_styleLoaded) {
         std::vector<std::unique_ptr<StyleChange>> changes = StyleChange::removeParameter(parameter);
-        std::move(changes.begin(), changes.end(), std::back_inserter(m_styleChanges));
+        std::ranges::move(changes, std::back_inserter(m_styleChanges));
         emit q->sgNodeChanged();
     }
 
@@ -460,13 +462,13 @@ void QGeoMapMapLibre::onMapChanged(Map::MapChange change) {
                 StyleChangeUtils::featureFromMapItem(item),
                 StyleChangeUtils::featurePropertiesFromMapItem(item),
                 d->m_mapItemsBefore);
-            std::move(changes.begin(), changes.end(), std::back_inserter(d->m_styleChanges));
+            std::ranges::move(changes, std::back_inserter(d->m_styleChanges));
         }
 
         for (StyleParameter *parameter : d->m_mapParameters) {
             std::vector<std::unique_ptr<StyleChange>> changes = StyleChange::addParameter(parameter,
                                                                                           d->m_mapItemsBefore);
-            std::move(changes.begin(), changes.end(), std::back_inserter(d->m_styleChanges));
+            std::ranges::move(changes, std::back_inserter(d->m_styleChanges));
         }
     }
 }
@@ -523,7 +525,7 @@ void QGeoMapMapLibre::onStyleParameterUpdated(StyleParameter *parameter) {
     Q_D(QGeoMapMapLibre);
 
     std::vector<std::unique_ptr<StyleChange>> changes = StyleChange::addParameter(parameter, d->m_mapItemsBefore);
-    std::move(changes.begin(), changes.end(), std::back_inserter(d->m_styleChanges));
+    std::ranges::move(changes, std::back_inserter(d->m_styleChanges));
 
     emit sgNodeChanged();
 }

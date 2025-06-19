@@ -9,6 +9,7 @@
 #include <QtLocation/private/qdeclarativecirclemapitem_p_p.h>
 
 #include <algorithm>
+#include <ranges>
 
 namespace {
 
@@ -269,8 +270,8 @@ std::vector<FeatureProperty> featurePropertiesFromMapItem(QDeclarativeGeoMapItem
 
     std::vector<FeatureProperty> properties;
     properties.reserve(layoutProperties.size() + paintProperties.size());
-    std::move(layoutProperties.begin(), layoutProperties.end(), std::back_inserter(properties));
-    std::move(paintProperties.begin(), paintProperties.end(), std::back_inserter(properties));
+    std::ranges::move(layoutProperties, std::back_inserter(properties));
+    std::ranges::move(paintProperties, std::back_inserter(properties));
     return properties;
 }
 
