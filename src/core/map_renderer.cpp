@@ -79,7 +79,6 @@ MapRenderer::MapRenderer(qreal pixelRatio,
           pixelRatio,
           localFontFamily.isEmpty() ? std::nullopt : std::optional<std::string>{localFontFamily.toStdString()})),
       m_forceScheduler(needsToForceScheduler()) {
-
     if (m_forceScheduler) {
         Scheduler *scheduler = getScheduler();
 
