@@ -10,6 +10,10 @@
 
 #include <algorithm>
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+#error "Qt versions older than 6 are no longer supported."
+#endif
+
 namespace {
 
 constexpr double fullCircle{360.0};

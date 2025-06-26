@@ -10,11 +10,7 @@
 #include <QtQuick/QSGRenderNode>
 #include <QtQuick/QSGSimpleTextureNode>
 #include <QtQuick/QSGTextureProvider>
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 #include <QtOpenGL/QOpenGLFramebufferObject>
-#else
-#include <QtGui/QOpenGLFramebufferObject>
-#endif
 
 #include <QMapLibre/Map>
 
@@ -30,11 +26,7 @@ public:
 
     [[nodiscard]] Map *map() const;
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     void resize(const QSize &size, qreal pixelRatio, QQuickWindow *window);
-#else
-    void resize(const QSize &size, qreal pixelRatio);
-#endif
     void render(QQuickWindow *);
 
 private:

@@ -14,14 +14,6 @@
 
 #include <QMapLibre/Types>
 
-#include <QtCore/QByteArray>
-#include <QtCore/QCoreApplication>
-#include <QtGui/QOpenGLContext>
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-#include <QtOpenGL/QOpenGLFramebufferObject>
-#else
-#include <QtGui/QOpenGLFramebufferObject>
-#endif
 #include <QtLocation/private/qdeclarativecirclemapitem_p.h>
 #include <QtLocation/private/qdeclarativegeomapitembase_p.h>
 #include <QtLocation/private/qdeclarativepolygonmapitem_p.h>
@@ -29,6 +21,10 @@
 #include <QtLocation/private/qdeclarativerectanglemapitem_p.h>
 #include <QtLocation/private/qgeoprojection_p.h>
 #include <QtQuick/private/qsgcontext_p.h> // for debugging the context name
+#include <QtCore/QByteArray>
+#include <QtCore/QCoreApplication>
+#include <QtGui/QOpenGLContext>
+#include <QtOpenGL/QOpenGLFramebufferObject>
 #include <QtQuick/QQuickWindow>
 #include <QtQuick/QSGImageNode>
 
@@ -114,8 +110,6 @@ QSGNode *QGeoMapMapLibrePrivate::updateSceneGraph(QSGNode *node, QQuickWindow *w
     if ((m_syncState & ViewportSync) != 0) {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         static_cast<TextureNode *>(node)->resize(m_viewportSize, window->devicePixelRatio(), window);
-#else
-        static_cast<TextureNode *>(node)->resize(m_viewportSize, window->devicePixelRatio());
 #endif
     }
 
@@ -371,17 +365,14 @@ void QGeoMapMapLibrePrivate::threadedRenderingHack(QQuickWindow *window, Map *ma
     // the map until all the resources are loaded, which is not exactly
     // battery friendly, because might trigger more paints than we need.
     if (!m_threadedRenderingChecked) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         m_threadedRendering = static_cast<QOpenGLContext *>(window->rendererInterface()->getResource(
                                                                 window, QSGRendererInterface::OpenGLContextResource))
                                   ->thread() != QCoreApplication::instance()->thread();
-#else
-        m_threadedRendering = window->openglContext()->thread() != QCoreApplication::instance()->thread();
-#endif
 
         m_threadedRenderingChecked = true;
     }
 
+    // Fallback timer to keep updating until map fully loaded when threaded rendering is active.
     if (m_threadedRendering) {
         if (!map->isFullyLoaded()) {
             QMetaObject::invokeMethod(&m_refresh, "start", Qt::QueuedConnection);
