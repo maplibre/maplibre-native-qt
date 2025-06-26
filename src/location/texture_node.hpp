@@ -6,11 +6,11 @@
 
 #pragma once
 
+#include <QtOpenGL/QOpenGLFramebufferObject>
 #include <QtQuick/QQuickWindow>
 #include <QtQuick/QSGRenderNode>
 #include <QtQuick/QSGSimpleTextureNode>
 #include <QtQuick/QSGTextureProvider>
-#include <QtOpenGL/QOpenGLFramebufferObject>
 
 #include <QMapLibre/Map>
 
