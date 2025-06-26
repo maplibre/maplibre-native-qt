@@ -90,9 +90,6 @@ static_assert(mbgl::underlying_type(QMapLibre::Map::NorthLeftwards) ==
 #pragma warning(pop)
 #endif
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-#error "Qt versions older than 6 are no longer supported."
-#endif
 
 namespace {
 

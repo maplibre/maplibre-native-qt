@@ -2,10 +2,6 @@
 
 // SPDX-License-Identifier: BSD-2-Clause
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-#error "Qt versions older than 6 are no longer supported."
-#endif
-
 #include "gl_widget.hpp"
 #include "gl_widget_p.hpp"
 
