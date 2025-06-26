@@ -12,7 +12,8 @@
 #include <QtCore/QThreadStorage>
 
 #include <TargetConditionals.h>
-#if defined(__APPLE__) && TARGET_OS_OSX
+
+#if defined(MLN_RENDER_BACKEND_METAL) && defined(__APPLE__) && TARGET_OS_OSX
 #include <QuartzCore/CAMetalLayer.hpp>
 #endif
 
@@ -66,16 +67,13 @@ MapRenderer::MapRenderer(qreal pixelRatio, Settings::GLContextMode mode, const Q
     }
 }
 
-// Constructor that takes an externally provided CAMetalLayer.
+#if defined(MLN_RENDER_BACKEND_METAL) && defined(__APPLE__) && TARGET_OS_OSX
+// Constructor that takes an externally provided CAMetalLayer (Metal only).
 MapRenderer::MapRenderer(qreal pixelRatio,
                          Settings::GLContextMode mode,
                          const QString &localFontFamily,
                          void *metalLayerPtr)
-#if defined(__APPLE__) && TARGET_OS_OSX
     : m_backend(static_cast<CA::MetalLayer *>(metalLayerPtr)),
-#else
-    : m_backend(static_cast<mbgl::gfx::ContextMode>(mode)),
-#endif
       m_renderer(std::make_unique<mbgl::Renderer>(
           m_backend,
           pixelRatio,
@@ -92,10 +90,16 @@ MapRenderer::MapRenderer(qreal pixelRatio,
         connect(scheduler, &Scheduler::needsProcessing, this, &MapRenderer::needsRendering);
     }
 
-#if defined(__APPLE__) && TARGET_OS_OSX
     Q_UNUSED(mode);
-#endif
 }
+#else
+// Fallback constructor for non-Metal backends; just delegate to default ctor and ignore pointer.
+MapRenderer::MapRenderer(qreal pixelRatio,
+                         Settings::GLContextMode mode,
+                         const QString &localFontFamily,
+                         void * /*unusedLayerPtr*/)
+    : MapRenderer(pixelRatio, mode, localFontFamily) {}
+#endif
 
 MapRenderer::~MapRenderer() {
     // MapRenderer may be destroyed from the GUI thread after the render thread is
