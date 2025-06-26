@@ -3,3 +3,6 @@
 compile_commands.json
 docs/output
 .venv
+qmaplibre-build-macos
+qmaplibre-install-macos
+.DS_Store
