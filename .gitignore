@@ -6,3 +6,4 @@ docs/output
 qmaplibre-build-macos
 qmaplibre-install-macos
 .DS_Store
+examples/quick/build

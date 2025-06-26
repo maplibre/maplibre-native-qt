@@ -14,10 +14,8 @@
 
 #include <QtGui/QOpenGLContext>
 #include <QtGui/QOpenGLFunctions>
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 #include <QtQuick/QQuickOpenGLUtils>
 #include <QtQuick/QSGRendererInterface>
-#endif
 
 namespace QMapLibre {
 
@@ -32,11 +30,7 @@ TextureNode::TextureNode(const Settings &settings, const QSize &size, qreal pixe
     QObject::connect(m_map.get(), &Map::needsRendering, geoMap, &QGeoMap::sgNodeChanged);
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 void TextureNode::resize(const QSize &size, qreal pixelRatio, QQuickWindow *window)
-#else
-void TextureNode::resize(const QSize &size, qreal pixelRatio)
-#endif
 {
     const QSize &minSize = size.expandedTo(minTextureSize);
     const QSize fbSize = minSize * pixelRatio;
@@ -46,32 +40,15 @@ void TextureNode::resize(const QSize &size, qreal pixelRatio)
     m_fbo = std::make_unique<QOpenGLFramebufferObject>(fbSize, QOpenGLFramebufferObject::CombinedDepthStencil);
     m_map->setOpenGLFramebufferObject(m_fbo->handle(), fbSize);
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     setTexture(::QNativeInterface::QSGOpenGLTexture::fromNative(
         m_fbo->texture(), window, fbSize, QQuickWindow::TextureHasAlphaChannel));
     setOwnsTexture(true);
-#else
-    auto *fboTexture = static_cast<QSGPlainTexture *>(texture());
-    if (fboTexture == nullptr) {
-        fboTexture = new QSGPlainTexture;
-        fboTexture->setHasAlphaChannel(true);
-    }
-
-    fboTexture->setTextureId(m_fbo->texture());
-    fboTexture->setTextureSize(fbSize);
-
-    if (texture() == nullptr) {
-        setTexture(fboTexture);
-        setOwnsTexture(true);
-    }
-#endif
 
     setRect(QRectF(QPointF(), minSize));
     markDirty(QSGNode::DirtyGeometry);
 }
 
 void TextureNode::render(QQuickWindow *window) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     if (window->rendererInterface()->graphicsApi() == QSGRendererInterface::MetalRhi) {
         if (!m_rhiNode) {
             m_rhiNode = new RhiTextureNode(window);
@@ -85,24 +62,18 @@ void TextureNode::render(QQuickWindow *window) {
         }
         return;
     }
-#endif
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     QOpenGLFunctions *f = static_cast<QOpenGLContext *>(window->rendererInterface()->getResource(
                                                             window, QSGRendererInterface::OpenGLContextResource))
                               ->functions();
-#else
-    QOpenGLFunctions *f = window->openglContext()->functions();
-#endif
 
     f->glViewport(0, 0, m_fbo->width(), m_fbo->height());
 
     GLint alignment{};
     f->glGetIntegerv(GL_UNPACK_ALIGNMENT, &alignment);
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    // Ensure a clean GL state before binding FBO
     QQuickOpenGLUtils::resetOpenGLState();
-#endif
 
     m_fbo->bind();
 
@@ -116,16 +87,10 @@ void TextureNode::render(QQuickWindow *window) {
 
     // QTBUG-62861
     f->glPixelStorei(GL_UNPACK_ALIGNMENT, alignment);
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    // makes sure the right depth is used
-    f->glDepthRangef(0, 1);
-#endif
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    // Restore GL state modified by MapLibre rendering
     QQuickOpenGLUtils::resetOpenGLState();
-#else
-    window->resetOpenGLState();
-#endif
+
     markDirty(QSGNode::DirtyMaterial);
 }
 

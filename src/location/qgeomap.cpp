@@ -17,11 +17,7 @@
 #include <QtCore/QByteArray>
 #include <QtCore/QCoreApplication>
 #include <QtGui/QOpenGLContext>
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 #include <QtOpenGL/QOpenGLFramebufferObject>
-#else
-#include <QtGui/QOpenGLFramebufferObject>
-#endif
 #include <QtLocation/private/qdeclarativecirclemapitem_p.h>
 #include <QtLocation/private/qdeclarativegeomapitembase_p.h>
 #include <QtLocation/private/qdeclarativepolygonmapitem_p.h>
@@ -114,8 +110,6 @@ QSGNode *QGeoMapMapLibrePrivate::updateSceneGraph(QSGNode *node, QQuickWindow *w
     if ((m_syncState & ViewportSync) != 0) {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         static_cast<TextureNode *>(node)->resize(m_viewportSize, window->devicePixelRatio(), window);
-#else
-        static_cast<TextureNode *>(node)->resize(m_viewportSize, window->devicePixelRatio());
 #endif
     }
 
@@ -366,18 +360,11 @@ void QGeoMapMapLibrePrivate::syncStyleChanges(Map *map) {
 }
 
 void QGeoMapMapLibrePrivate::threadedRenderingHack(QQuickWindow *window, Map *map) {
-    // FIXME: Optimal support for threaded rendering needs core changes
-    // in MapLibre Native. Meanwhile we need to set a timer to update
-    // the map until all the resources are loaded, which is not exactly
-    // battery friendly, because might trigger more paints than we need.
+    // Detect threaded rendering only once and warn.
     if (!m_warned) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         m_threadedRendering = static_cast<QOpenGLContext *>(window->rendererInterface()->getResource(
                                                                 window, QSGRendererInterface::OpenGLContextResource))
                                   ->thread() != QCoreApplication::instance()->thread();
-#else
-        m_threadedRendering = window->openglContext()->thread() != QCoreApplication::instance()->thread();
-#endif
 
         if (m_threadedRendering) {
             qWarning() << "Threaded rendering is not optimal in the MapLibre Native plugin.";
@@ -386,6 +373,7 @@ void QGeoMapMapLibrePrivate::threadedRenderingHack(QQuickWindow *window, Map *ma
         m_warned = true;
     }
 
+    // Fallback timer to keep updating until map fully loaded when threaded rendering is active.
     if (m_threadedRendering) {
         if (!map->isFullyLoaded()) {
             QMetaObject::invokeMethod(&m_refresh, "start", Qt::QueuedConnection);
