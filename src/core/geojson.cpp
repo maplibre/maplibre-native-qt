@@ -7,7 +7,6 @@
 
 #include <QtCore/QDebug>
 
-
 namespace QMapLibre::GeoJSON {
 
 mbgl::Point<double> asPoint(const Coordinate &coordinate) {

@@ -30,8 +30,7 @@ TextureNode::TextureNode(const Settings &settings, const QSize &size, qreal pixe
     QObject::connect(m_map.get(), &Map::needsRendering, geoMap, &QGeoMap::sgNodeChanged);
 }
 
-void TextureNode::resize(const QSize &size, qreal pixelRatio, QQuickWindow *window)
-{
+void TextureNode::resize(const QSize &size, qreal pixelRatio, QQuickWindow *window) {
     const QSize &minSize = size.expandedTo(minTextureSize);
     const QSize fbSize = minSize * pixelRatio;
 

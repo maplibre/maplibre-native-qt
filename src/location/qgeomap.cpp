@@ -14,10 +14,6 @@
 
 #include <QMapLibre/Types>
 
-#include <QtCore/QByteArray>
-#include <QtCore/QCoreApplication>
-#include <QtGui/QOpenGLContext>
-#include <QtOpenGL/QOpenGLFramebufferObject>
 #include <QtLocation/private/qdeclarativecirclemapitem_p.h>
 #include <QtLocation/private/qdeclarativegeomapitembase_p.h>
 #include <QtLocation/private/qdeclarativepolygonmapitem_p.h>
@@ -25,6 +21,10 @@
 #include <QtLocation/private/qdeclarativerectanglemapitem_p.h>
 #include <QtLocation/private/qgeoprojection_p.h>
 #include <QtQuick/private/qsgcontext_p.h> // for debugging the context name
+#include <QtCore/QByteArray>
+#include <QtCore/QCoreApplication>
+#include <QtGui/QOpenGLContext>
+#include <QtOpenGL/QOpenGLFramebufferObject>
 #include <QtQuick/QQuickWindow>
 #include <QtQuick/QSGImageNode>
 

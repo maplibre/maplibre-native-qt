@@ -90,7 +90,6 @@ static_assert(mbgl::underlying_type(QMapLibre::Map::NorthLeftwards) ==
 #pragma warning(pop)
 #endif
 
-
 namespace {
 
 QThreadStorage<std::shared_ptr<mbgl::util::RunLoop>> loop;
