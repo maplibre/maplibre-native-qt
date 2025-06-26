@@ -7,7 +7,14 @@
 #include <QtQuick/QSGTexture>
 
 // Need Metal imports for id<MTLTexture>
-#include <Metal/Metal.h>
+#if defined(MLN_RENDER_BACKEND_METAL)
+#    include <Metal/Metal.h>
+#elif defined(MLN_RENDER_BACKEND_OPENGL)
+#    include <QtGui/QOpenGLContext>
+#    include <QtGui/QOpenGLFunctions>
+#elif defined(MLN_RENDER_BACKEND_VULKAN)
+#    include <vulkan/vulkan.h>
+#endif
 
 namespace QMapLibre {
 
@@ -18,31 +25,41 @@ RhiTextureNode::RhiTextureNode(QQuickWindow* win) : m_window(win) {
 
 void RhiTextureNode::syncWithNativeTexture(const void* nativeTex, int w, int h)
 {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-#if defined(Q_OS_MACOS) || defined(Q_OS_IOS)
+#if defined(MLN_RENDER_BACKEND_METAL) && (defined(Q_OS_MACOS) || defined(Q_OS_IOS))
     id<MTLTexture> mtlTex = static_cast<id<MTLTexture>>(const_cast<void*>(nativeTex));
-    if (!mtlTex) {
+    if (!mtlTex)
         return;
-    }
 
     const QSize newSize(w, h);
-
-    // Re-create QSGTexture every frame for simplicity.
-    m_qsgTexture.reset(::QNativeInterface::QSGMetalTexture::fromNative(
+    m_qsgTexture.reset(QNativeInterface::QSGMetalTexture::fromNative(
         mtlTex, m_window, newSize, QQuickWindow::TextureHasAlphaChannel));
-    m_size = newSize;
+
+    m_size = {w, h};
     setTexture(m_qsgTexture.get());
     setOwnsTexture(false);
     markDirty(QSGNode::DirtyMaterial);
+#elif defined(MLN_RENDER_BACKEND_OPENGL)
+    GLuint glTex = static_cast<GLuint>(reinterpret_cast<uintptr_t>(nativeTex));
+    if (!glTex)
+        return;
+
+    const QSize newSize(w, h);
+    m_qsgTexture.reset(QNativeInterface::QSGOpenGLTexture::fromNative(
+        glTex, m_window, newSize, QQuickWindow::TextureHasAlphaChannel));
+
+    m_size = {w, h};
+    setTexture(m_qsgTexture.get());
+    setOwnsTexture(false);
+    markDirty(QSGNode::DirtyMaterial);
+#elif defined(MLN_RENDER_BACKEND_VULKAN)
+    // TODO: integrate Vulkan swapchain image views when Qt is built with Vulkan support.
+    Q_UNUSED(nativeTex);
+    Q_UNUSED(w);
+    Q_UNUSED(h);
 #else
-    Q_UNUSED(nativeTex)
-    Q_UNUSED(w)
-    Q_UNUSED(h)
-#endif
-#else
-    Q_UNUSED(nativeTex)
-    Q_UNUSED(w)
-    Q_UNUSED(h)
+    Q_UNUSED(nativeTex);
+    Q_UNUSED(w);
+    Q_UNUSED(h);
 #endif
 }
 
