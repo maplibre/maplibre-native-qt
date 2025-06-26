@@ -7,7 +7,7 @@
 
 #include "settings.hpp"
 
-#include "utils/metal_renderer_backend.hpp"
+#include "utils/renderer_backend.hpp"  // provides RendererBackend alias
 
 #include <mbgl/renderer/renderer.hpp>
 #include <mbgl/renderer/renderer_observer.hpp>
@@ -43,12 +43,14 @@ public:
     // Thread-safe, called by the Frontend
     void updateParameters(std::shared_ptr<mbgl::UpdateParameters> parameters);
 
-    // Metal-only: returns the color texture of last rendered drawable.
+    // Backend-specific helpers (only meaningful for Metal).
+#if defined(MLN_RENDER_BACKEND_METAL)
     void *currentMetalTexture() const { return m_backend.currentDrawable(); }
-
-    // Metal: allow external caller (Qt Quick) to provide the swap-chain texture
-    // that MapLibre should render into for the current frame.
     void setCurrentDrawable(void *tex) { m_backend._q_setCurrentDrawable(tex); }
+#else
+    void *currentMetalTexture() const { return nullptr; }
+    void setCurrentDrawable(void *) {}
+#endif
 
 signals:
     void needsRendering();
@@ -61,7 +63,7 @@ private:
     std::mutex m_updateMutex;
     std::shared_ptr<mbgl::UpdateParameters> m_updateParameters;
 
-    MetalRendererBackend m_backend;
+    RendererBackend m_backend;
     std::unique_ptr<mbgl::Renderer> m_renderer{};
 
     bool m_forceScheduler{};
