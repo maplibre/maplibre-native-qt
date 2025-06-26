@@ -7,9 +7,6 @@
 
 #include <QtCore/QDebug>
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-#error "Qt versions older than 6 are no longer supported."
-#endif
 
 namespace QMapLibre::GeoJSON {
 
