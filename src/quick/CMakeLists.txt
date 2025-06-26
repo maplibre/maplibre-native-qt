@@ -38,5 +38,7 @@ target_include_directories(maplibre_quick PRIVATE
 )
 
 # Install the whole generated QML module folder (library + qmldir)
-install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/MapLibre/Quick
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/qml/MapLibre)
+if(EXISTS "${CMAKE_CURRENT_BINARY_DIR}/MapLibre/Quick")
+    install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/MapLibre/Quick
+            DESTINATION ${CMAKE_INSTALL_PREFIX}/qml/MapLibre)
+endif()
