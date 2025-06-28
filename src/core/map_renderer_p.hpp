@@ -7,7 +7,7 @@
 
 #include "settings.hpp"
 
-#include "utils/renderer_backend.hpp"
+#include "utils/renderer_backend.hpp" // provides RendererBackend alias
 
 #include <mbgl/renderer/renderer.hpp>
 #include <mbgl/renderer/renderer_observer.hpp>
@@ -27,13 +27,13 @@ class UpdateParameters;
 
 namespace QMapLibre {
 
-class RendererBackend;
-
 class MapRenderer : public QObject {
     Q_OBJECT
 
 public:
     MapRenderer(qreal pixelRatio, Settings::GLContextMode, const QString &localFontFamily);
+    // Metal: allow passing an existing CAMetalLayer supplied by the UI.
+    MapRenderer(qreal pixelRatio, Settings::GLContextMode, const QString &localFontFamily, void *metalLayerPtr);
     ~MapRenderer() override;
 
     void render();
@@ -42,6 +42,15 @@ public:
 
     // Thread-safe, called by the Frontend
     void updateParameters(std::shared_ptr<mbgl::UpdateParameters> parameters);
+
+    // Backend-specific helpers (only meaningful for Metal).
+#if defined(MLN_RENDER_BACKEND_METAL)
+    void *currentMetalTexture() const { return m_backend.currentDrawable(); }
+    void setCurrentDrawable(void *tex) { m_backend._q_setCurrentDrawable(tex); }
+#else
+    void *currentMetalTexture() const { return nullptr; }
+    void setCurrentDrawable(void *) {}
+#endif
 
 signals:
     void needsRendering();

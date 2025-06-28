@@ -10,6 +10,7 @@
 #include "map_renderer_p.hpp"
 
 #include <mbgl/actor/actor.hpp>
+#include <mbgl/actor/scheduler.hpp>
 #include <mbgl/map/map.hpp>
 #include <mbgl/renderer/renderer_frontend.hpp>
 #include <mbgl/storage/resource_transform.hpp>
@@ -34,9 +35,11 @@ public:
     void reset() final {}
     void setObserver(mbgl::RendererObserver &observer) final;
     void update(std::shared_ptr<mbgl::UpdateParameters> parameters) final;
+    const mbgl::TaggedScheduler &getThreadPool() const final { return m_threadPool; }
 
     // These need to be called on the same thread.
     void createRenderer();
+    void createRendererWithMetalLayer(void *layerPtr);
     void destroyRenderer();
     void render();
     void setOpenGLFramebufferObject(quint32 fbo, const QSize &size);
@@ -51,6 +54,13 @@ public:
     mbgl::EdgeInsets margins;
     std::unique_ptr<mbgl::Map> mapObj{};
 
+    // Metal-only helper to expose the most recent color texture from the Metal
+    // backend.  Safe to call from the GUI thread.
+    void *currentMetalTexture() const;
+
+    // Metal-only: push latest swap-chain texture into renderer
+    void setCurrentDrawable(void *tex);
+
 public slots:
     void requestRendering();
 
@@ -60,7 +70,7 @@ signals:
 private:
     Q_DISABLE_COPY(MapPrivate)
 
-    std::recursive_mutex m_mapRendererMutex;
+    mutable std::recursive_mutex m_mapRendererMutex;
     std::shared_ptr<mbgl::RendererObserver> m_rendererObserver{};
     std::shared_ptr<mbgl::UpdateParameters> m_updateParameters{};
 
@@ -74,6 +84,20 @@ private:
     QString m_localFontFamily;
 
     std::atomic_flag m_renderQueued = ATOMIC_FLAG_INIT;
+
+    mbgl::TaggedScheduler m_threadPool{mbgl::Scheduler::GetBackground(), mbgl::util::SimpleIdentity{}};
 };
+
+inline void *MapPrivate::currentMetalTexture() const {
+    std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
+    return m_mapRenderer ? m_mapRenderer->currentMetalTexture() : nullptr;
+}
+
+inline void MapPrivate::setCurrentDrawable(void *tex) {
+    std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
+    if (m_mapRenderer) {
+        m_mapRenderer->setCurrentDrawable(tex);
+    }
+}
 
 } // namespace QMapLibre
