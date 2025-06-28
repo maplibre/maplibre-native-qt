@@ -3,7 +3,8 @@
 compile_commands.json
 docs/output
 .venv
-qmaplibre-build-macos
-qmaplibre-install-macos
+qmaplibre-build-*
+qmaplibre-install-*
 .DS_Store
-examples/quick/build
+examples/quick/build*
+examples/quick/xcode*
