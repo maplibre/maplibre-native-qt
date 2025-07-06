@@ -14,5 +14,6 @@ Window {
 
     MapLibreView {
         anchors.fill: parent
+        focus: true
     }
 }

@@ -7,7 +7,7 @@
 
 #include "settings.hpp"
 
-#include "utils/renderer_backend.hpp" // provides RendererBackend alias
+#include <utils/renderer_backend.hpp> // provides RendererBackend alias
 
 #include <mbgl/renderer/renderer.hpp>
 #include <mbgl/renderer/renderer_observer.hpp>
