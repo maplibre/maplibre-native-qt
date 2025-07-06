@@ -1,133 +1,330 @@
-#if defined(__APPLE__)
 #import <Metal/Metal.h>
 #import <QuartzCore/CAMetalLayer.h>
 #import <AppKit/AppKit.h>
 #include <CoreFoundation/CoreFoundation.h>
-#endif
-
-// MapLibreQuickItem Metal backend implementation for Apple platforms
+// MapLibreQuickItem implementation for Metal backend
 
 #include "maplibre_quick_item_metal.hpp"
 
 #include <QQuickWindow>
 #include <QSGRendererInterface>
 #include <QSGNode>
+
 #include <QSGSimpleTextureNode>
 #include <QSGTexture>
 #include <QtQuick/qsgtexture_platform.h>
-#include <QDebug>
+#include <QTimer>
+#include <QMouseEvent>
+#include <QWheelEvent>
 
 #include "utils/metal_renderer_backend.hpp"
 
+// Need Metal layer declaration already included above
+
+#include <QMapLibre/Map>
+#include <QMapLibre/Settings>
+
 using namespace QMapLibreQuick;
+using namespace QMapLibre;
 
-MapLibreQuickItemMetal::MapLibreQuickItemMetal() {
-    qDebug() << "Creating MapLibreQuickItemMetal";
+MapLibreQuickItem::MapLibreQuickItem() {
+    qDebug() << "Creating MapLibreQuickItem";
+    setFlag(ItemHasContents, true);
+    // Handle mouse interactions (press/move/release) on the left button.
+    setAcceptedMouseButtons(Qt::LeftButton);
 }
 
-MapLibreQuickItemMetal::~MapLibreQuickItemMetal() {
-#if defined(__APPLE__)
+MapLibreQuickItem::~MapLibreQuickItem() {
     if (m_currentDrawable) {
         CFRelease(m_currentDrawable);
     }
-#endif
 }
 
-void MapLibreQuickItemMetal::initializeBackend() {
-    qDebug() << "Initializing Metal backend";
-    // Metal initialization specific code would go here
+void MapLibreQuickItem::releaseResources() {
+    m_map.reset();
 }
 
-void MapLibreQuickItemMetal::cleanupBackend() {
-    qDebug() << "Cleaning up Metal backend";
-#if defined(__APPLE__)
-    if (m_currentDrawable) {
-        CFRelease(m_currentDrawable);
-        m_currentDrawable = nullptr;
+void MapLibreQuickItem::geometryChange(const QRectF &newG, const QRectF &oldG) {
+    QQuickItem::geometryChange(newG, oldG);
+    if (newG.size() != oldG.size()) {
+        m_size = newG.size().toSize();
+        if (m_map) {
+            m_map->resize(QSize(m_size.width() * window()->devicePixelRatio(), m_size.height() * window()->devicePixelRatio()));
+        }
+        update();
     }
-    // Clean up Metal layer if we own it
-    if (m_ownsLayer && m_layerPtr) {
-        // Release the Metal layer
-        m_layerPtr = nullptr;
-        m_ownsLayer = false;
-    }
-#endif
 }
 
-QSGNode* MapLibreQuickItemMetal::renderFrame(QSGNode* oldNode) {
-#if defined(__APPLE__)
-    if (!m_map || !window()) {
-        qDebug() << "Metal: Early return - Map:" << (m_map ? "exists" : "null") << "Window:" << (window() ? "exists" : "null");
-        return oldNode;
+void MapLibreQuickItem::ensureMap(int w, int h, float dpr, void *metalLayer) {
+    if (m_map)
+        return;
+
+    if (!metalLayer) {
+        // Still no MetalLayer from Qt – create our own sublayer.
+        NSView *view = (NSView *)window()->winId();
+        if (![view wantsLayer]) {
+            [view setWantsLayer:YES];
+        }
+        CAMetalLayer *newLayer = [CAMetalLayer layer];
+        id<MTLDevice> dev = MTLCreateSystemDefaultDevice();
+        newLayer.device = dev;
+        newLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+        newLayer.framebufferOnly = NO;
+        newLayer.displaySyncEnabled = NO;
+        if ([newLayer respondsToSelector:@selector(setAllowsNextDrawableTimeout:)])
+            newLayer.allowsNextDrawableTimeout = NO;
+
+        newLayer.frame = view.bounds;
+        newLayer.drawableSize = CGSizeMake(w * dpr, h * dpr);
+        [view.layer addSublayer:newLayer];
+        metalLayer = (__bridge void *)newLayer;
+
+
+        m_ownsLayer = true;
     }
 
-    qDebug() << "Metal: Continuing with rendering, map and window both exist";
+    if (metalLayer) {
+        m_layerPtr = metalLayer;
+        // Treat the opaque pointer as the Objective-C runtime layer
+        CAMetalLayer *layer = (__bridge CAMetalLayer *)metalLayer;
 
-    // Calculate actual render size with device pixel ratio
-    const QSize windowSize(static_cast<int>(width()), static_cast<int>(height()));
-    const float dpr = window() ? window()->devicePixelRatio() : 1.0f;
-    const QSize renderSize(static_cast<int>(windowSize.width() * dpr),
-                          static_cast<int>(windowSize.height() * dpr));
+        id<MTLDevice> dev = MTLCreateSystemDefaultDevice();
+        layer.device = dev;
+        layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+        layer.framebufferOnly = NO;
+        layer.drawableSize = CGSizeMake(w * dpr, h * dpr);
 
-    qDebug() << "Metal: renderFrame: windowSize=" << windowSize << "renderSize=" << renderSize;
+        // Off-screen layer: disable vsync and drawable timeout so
+        // nextDrawable() returns even when the layer is not presented
+        // directly by Core Animation.
+        if ([layer respondsToSelector:@selector(setDisplaySyncEnabled:)]) {
+            layer.displaySyncEnabled = NO;
+        }
+        if ([layer respondsToSelector:@selector(setAllowsNextDrawableTimeout:)]) {
+            layer.allowsNextDrawableTimeout = NO;
+        }
 
-    // Create or update the scene graph node
-    QSGSimpleTextureNode* node = static_cast<QSGSimpleTextureNode*>(oldNode);
-    if (!node) {
-        node = new QSGSimpleTextureNode();
-        node->setFiltering(QSGTexture::Linear);
-        qDebug() << "Metal: Created new QSGSimpleTextureNode";
+
+
+        // Defer binding the renderer until the first beforeRendering callback once a drawable is available.
     }
 
-    // Metal-specific rendering implementation would go here
-    // This is a placeholder implementation that creates a colored texture
-    const QSize textureSize(static_cast<int>(width()), static_cast<int>(height()));
-    if (textureSize.width() > 0 && textureSize.height() > 0) {
-        QImage image(textureSize, QImage::Format_RGBA8888);
-        image.fill(QColor(50, 150, 50, 255)); // Green background for Metal
+    // Map constructor takes size and DPR; renderer will pick Metal automatically
+    m_map = std::make_unique<Map>(nullptr, Settings{}, QSize(w * dpr, h * dpr), dpr);
+    // Renderer will be created lazily in beforeRendering.
 
-        QPainter painter(&image);
-        painter.setPen(Qt::white);
-        painter.setFont(QFont("Arial", 14));
-        painter.drawText(image.rect(), Qt::AlignCenter, "MapLibre Metal Backend\n(Placeholder Implementation)");
+    if (window()) {
+        window()->setColor(Qt::transparent);
+    }
 
-        auto texture = window()->createTextureFromImage(image);
-        if (texture) {
-            node->setTexture(texture);
-            node->setOwnsTexture(true);
-            node->setRect(boundingRect());
-            node->markDirty(QSGNode::DirtyGeometry | QSGNode::DirtyMaterial);
+    // First frame will be rendered from afterRendering once the MetalLayer is ready.
+
+    m_map->setStyleUrl("https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json");
+    m_map->setCoordinateZoom({40.7128, -74.0060}, 2);
+}
+
+QSGNode *MapLibreQuickItem::updatePaintNode(QSGNode *node, UpdatePaintNodeData *) {
+    if (!window())
+        return node;
+
+    auto *ri = window()->rendererInterface();
+    if (!ri) {
+        qWarning() << "No rendererInterface";
+        return node;
+    }
+
+    if (!m_map)
+        ensureMap(width(), height(), window()->devicePixelRatio(), m_layerPtr);
+
+    if (!m_connected) {
+        QObject::connect(window(), &QQuickWindow::beforeRendering, this, [this]() {
+            auto *ri = window()->rendererInterface();
+            if (!ri)
+                return;
+
+            if (!m_layerPtr) {
+                m_layerPtr = ri->getResource(window(), "MetalLayer");
+                if (!m_layerPtr) {
+
+                    return;
+                }
+
+            }
+
+            if (!m_map) {
+                ensureMap(width(), height(), window()->devicePixelRatio(), m_layerPtr);
+            }
+
+            if (m_ownsLayer) {
+                CAMetalLayer *layer = (__bridge CAMetalLayer *)m_layerPtr;
+                id<CAMetalDrawable> drawable = [layer nextDrawable];
+                if (!drawable) {
+
+                    return;
+                }
+                // Keep previous drawables until shutdown (leak guard). Not releasing avoids premature invalidation.
+                m_currentDrawable = const_cast<void*>(CFRetain((__bridge CFTypeRef)drawable));
+                // Lazily create renderer once we have a valid drawable
+                if (!m_rendererBound) {
+                    m_map->createRendererWithMetalLayer(m_layerPtr);
+                    m_rendererBound = true;
+
+                }
+
+                m_map->setCurrentDrawable((void *)drawable.texture);
+            } else {
+                if (!m_rendererBound) {
+                    m_map->createRendererWithMetalLayer(m_layerPtr);
+                    m_rendererBound = true;
+
+                }
+                // Provide the current swap-chain texture from Qt
+                void *qtTexPtr = ri->getResource(window(), "CurrentMetalTexture");
+                if (qtTexPtr) {
+                    m_map->setCurrentDrawable(qtTexPtr);
+                }
+            }
+
+            window()->beginExternalCommands();
+            m_map->render();
+            window()->endExternalCommands();
+
+            // Trigger a texture update in the SG
+            QMetaObject::invokeMethod(this, "update", Qt::QueuedConnection);
+        }, Qt::DirectConnection);
+        m_connected = true;
+    }
+
+    void *nativeTex = m_map ? m_map->nativeColorTexture() : nullptr;
+
+    if (!nativeTex) {
+
+        if (node) {
+            delete node;
+        }
+        return nullptr;
+    }
+
+    auto *textureNode = static_cast<QSGSimpleTextureNode *>(node);
+    if (!textureNode) {
+        textureNode = new QSGSimpleTextureNode();
+        node = textureNode;
+    }
+
+    const int texWidth = width() * window()->devicePixelRatio();
+    const int texHeight = height() * window()->devicePixelRatio();
+
+    // Use Qt's native interface helper to wrap the Metal texture
+    auto mtlTex = (__bridge id<MTLTexture>)nativeTex;
+    QSGTexture *qtTex = QNativeInterface::QSGMetalTexture::fromNative(
+        mtlTex,
+        window(),
+        QSize(texWidth, texHeight),
+        QQuickWindow::TextureHasAlphaChannel);
+
+    textureNode->setTexture(qtTex);
+    textureNode->setRect(boundingRect());
+    textureNode->setOwnsTexture(true);
+    textureNode->markDirty(QSGNode::DirtyMaterial);
+    return textureNode;
+}
+
+void MapLibreQuickItem::itemChange(ItemChange change, const ItemChangeData &data) {
+    QQuickItem::itemChange(change, data);
+
+
+    if (change == ItemSceneChange) {
+        if (QQuickWindow *win = window()) {
+            // Once the scene graph is ready we can obtain the Metal layer and create the map.
+            QObject::connect(win, &QQuickWindow::sceneGraphInitialized, this, [this]() {
+                if (m_map)
+                    return;
+
+                auto *ri = window()->rendererInterface();
+                if (!ri) {
+                    qWarning() << "rendererInterface still null";
+                    return;
+                }
+
+                void *layerPtr = ri->getResource(window(), "MetalLayer");
+
+                if (!layerPtr) {
+                    qWarning() << "MetalLayer still not ready";
+                    return;
+                }
+
+                ensureMap(width(), height(), window()->devicePixelRatio(), layerPtr);
+
+                // First valid layer obtained – trigger update to paint.
+                update();
+            }, Qt::DirectConnection);
         }
     }
+}
 
-    return node;
-#else
-    // Non-Apple platforms - return placeholder
-    QSGSimpleTextureNode* node = static_cast<QSGSimpleTextureNode*>(oldNode);
-    if (!node) {
-        node = new QSGSimpleTextureNode();
-        node->setFiltering(QSGTexture::Linear);
+void MapLibreQuickItem::mousePressEvent(QMouseEvent *ev) {
+    if (!m_map) {
+        QQuickItem::mousePressEvent(ev);
+        return;
     }
-
-    const QSize textureSize(static_cast<int>(width()), static_cast<int>(height()));
-    if (textureSize.width() > 0 && textureSize.height() > 0) {
-        QImage image(textureSize, QImage::Format_RGBA8888);
-        image.fill(QColor(100, 100, 100, 255)); // Gray background
-
-        QPainter painter(&image);
-        painter.setPen(Qt::white);
-        painter.setFont(QFont("Arial", 14));
-        painter.drawText(image.rect(), Qt::AlignCenter, "Metal Backend\nNot Available\n(Non-Apple Platform)");
-
-        auto texture = window()->createTextureFromImage(image);
-        if (texture) {
-            node->setTexture(texture);
-            node->setOwnsTexture(true);
-            node->setRect(boundingRect());
-            node->markDirty(QSGNode::DirtyGeometry | QSGNode::DirtyMaterial);
+    if (ev->button() == Qt::LeftButton) {
+        m_dragging = true;
+        if (m_map) {
+            // Inform MapLibre that a gesture started – improves label rendering during interaction.
+            m_map->setGestureInProgress(true);
         }
+        m_lastMousePos = ev->position();
+        ev->accept();
+    } else {
+        QQuickItem::mousePressEvent(ev);
     }
+}
 
-    return node;
-#endif
+void MapLibreQuickItem::mouseMoveEvent(QMouseEvent *ev) {
+    if (m_dragging && m_map) {
+        QPointF delta = ev->position() - m_lastMousePos;
+        // Map::moveBy expects physical pixel delta; scale by device pixel ratio.
+        const qreal dpr = window() ? window()->devicePixelRatio() : 1.0;
+        QPointF scaledDelta = delta * dpr;
+        // Move the map following the drag delta (same direction as cursor movement)
+        m_map->moveBy(scaledDelta);
+        m_lastMousePos = ev->position();
+        update();
+        ev->accept();
+    } else {
+        QQuickItem::mouseMoveEvent(ev);
+    }
+}
+
+void MapLibreQuickItem::mouseReleaseEvent(QMouseEvent *ev) {
+    if (ev->button() == Qt::LeftButton && m_dragging) {
+        m_dragging = false;
+        if (m_map) {
+            m_map->setGestureInProgress(false);
+        }
+        ev->accept();
+    } else {
+        QQuickItem::mouseReleaseEvent(ev);
+    }
+}
+
+void MapLibreQuickItem::wheelEvent(QWheelEvent *ev) {
+    if (!m_map) {
+        QQuickItem::wheelEvent(ev);
+        return;
+    }
+    qreal angle = ev->angleDelta().y();
+    if (angle == 0) {
+        QQuickItem::wheelEvent(ev);
+        return;
+    }
+    double factor = angle > 0 ? 1.2 : 0.8;
+    {
+        QPointF anchor = ev->position();
+        const qreal dpr = window() ? window()->devicePixelRatio() : 1.0;
+        anchor *= dpr; // Map expects physical pixels
+        m_map->scaleBy(factor, anchor);
+    }
+    update();
+    ev->accept();
 }
