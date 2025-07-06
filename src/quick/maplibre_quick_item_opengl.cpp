@@ -2,17 +2,17 @@
 
 #include "maplibre_quick_item_opengl.hpp"
 
-#include <QQuickWindow>
-#include <QOpenGLFramebufferObject>
-#include <QOpenGLContext>
-#include <QOpenGLFunctions>
-#include <QMouseEvent>
-#include <QWheelEvent>
 #include <QDebug>
-#include <cmath>
 #include <QMapLibre/Map>
 #include <QMapLibre/Settings>
 #include <QMapLibre/Types>
+#include <QMouseEvent>
+#include <QOpenGLContext>
+#include <QOpenGLFramebufferObject>
+#include <QOpenGLFunctions>
+#include <QQuickWindow>
+#include <QWheelEvent>
+#include <cmath>
 
 #include "utils/opengl_renderer_backend.hpp"
 
@@ -26,7 +26,8 @@ namespace QMapLibreQuick {
  */
 class MapLibreRenderer : public QQuickFramebufferObject::Renderer {
 public:
-    MapLibreRenderer(MapLibreQuickItemOpenGL* item) : m_item(item) {
+    MapLibreRenderer(MapLibreQuickItemOpenGL* item)
+        : m_item(item) {
         qDebug() << "Creating MapLibreRenderer";
     }
 
@@ -38,7 +39,7 @@ protected:
         }
 
         qDebug() << "MapLibreRenderer::render() called";
-        
+
         // Get the current FBO from Qt
         QOpenGLFramebufferObject* fbo = framebufferObject();
         if (!fbo) {
@@ -50,8 +51,7 @@ protected:
         qDebug() << "Rendering to FBO size:" << fboSize;
 
         // Update map size if needed
-        const QSize itemSize(static_cast<int>(m_item->width()), 
-                           static_cast<int>(m_item->height()));
+        const QSize itemSize(static_cast<int>(m_item->width()), static_cast<int>(m_item->height()));
         m_item->m_map->resize(itemSize);
 
         // Set the FBO for MapLibre to render into
@@ -72,7 +72,7 @@ protected:
 
         // Clear the FBO
         f->glViewport(0, 0, fboSize.width(), fboSize.height());
-        f->glClearColor(0.2f, 0.2f, 0.3f, 1.0f);  // Dark blue background
+        f->glClearColor(0.2f, 0.2f, 0.3f, 1.0f); // Dark blue background
         f->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Render the map
@@ -87,18 +87,18 @@ protected:
 
     QOpenGLFramebufferObject* createFramebufferObject(const QSize& size) override {
         qDebug() << "Creating FBO of size:" << size;
-        
+
         // Create FBO with depth and stencil buffers
         QOpenGLFramebufferObjectFormat format;
         format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
         format.setSamples(4); // Enable 4x MSAA
-        
+
         auto* fbo = new QOpenGLFramebufferObject(size, format);
-        
+
         // The FBO will be used by MapLibre which expects OpenGL coordinate system
         // (origin at bottom-left), but QML expects top-left origin.
         // This will be handled in the render() method.
-        
+
         return fbo;
     }
 
@@ -115,35 +115,35 @@ MapLibreQuickItemOpenGL::MapLibreQuickItemOpenGL() {
     setAcceptedMouseButtons(Qt::AllButtons);
     setAcceptTouchEvents(true);
     setAcceptHoverEvents(true);
-    
+
     // Enable focus so we can receive keyboard and mouse events
     setActiveFocusOnTab(true);
     setFlag(ItemIsFocusScope, true);
-    
+
     // Important: Enable mouse tracking to receive move events even when not pressed
     setKeepMouseGrab(true);
     setKeepTouchGrab(true);
-    
+
     // Set mirror vertically to correct OpenGL coordinate system vs QML coordinate system
     setMirrorVertically(true);
-    
+
     qDebug() << "MapLibreQuickItemOpenGL constructor complete - accepted mouse buttons:" << acceptedMouseButtons();
 }
 
 QQuickFramebufferObject::Renderer* MapLibreQuickItemOpenGL::createRenderer() const {
     qDebug() << "MapLibreQuickItemOpenGL::createRenderer() called";
-    
+
     // Ensure map is created
     if (!m_map) {
         const int w = static_cast<int>(width());
         const int h = static_cast<int>(height());
         const float dpr = window() ? window()->devicePixelRatio() : 1.0f;
-        
+
         if (w > 0 && h > 0) {
             const_cast<MapLibreQuickItemOpenGL*>(this)->ensureMap(w, h, dpr);
         }
     }
-    
+
     return new MapLibreRenderer(const_cast<MapLibreQuickItemOpenGL*>(this));
 }
 
@@ -156,7 +156,7 @@ void MapLibreQuickItemOpenGL::ensureMap(int w, int h, float dpr) {
 
     // Create map settings
     Settings settings;
-    settings.setApiKey("");  // No API key needed for OpenStreetMap styles
+    settings.setApiKey(""); // No API key needed for OpenStreetMap styles
     settings.setApiBaseUrl("");
     settings.setLocalFontFamily("Arial");
     settings.setContextMode(Settings::GLContextMode::SharedGLContext);
@@ -197,12 +197,12 @@ void MapLibreQuickItemOpenGL::mouseMoveEvent(QMouseEvent* event) {
     if (m_dragging && m_map) {
         qDebug() << "Processing drag - delta:" << (event->position() - m_lastMousePos);
         const QPointF delta = event->position() - m_lastMousePos;
-        
+
         // Use MapLibre's moveBy method which handles pixel offset directly
         // Fix the direction: move in the same direction as the mouse drag
         const QPointF offset(delta.x(), delta.y());
         m_map->moveBy(offset);
-        
+
         m_lastMousePos = event->position();
         update(); // Trigger re-render
     }
@@ -226,7 +226,7 @@ void MapLibreQuickItemOpenGL::wheelEvent(QWheelEvent* event) {
             const double currentZoom = m_map->zoom();
             const double zoomDelta = numDegrees.y() / 120.0; // Standard wheel delta
             const double newZoom = std::max(0.0, std::min(22.0, currentZoom + zoomDelta));
-            
+
             m_map->setZoom(newZoom);
             update(); // Trigger re-render
         }
