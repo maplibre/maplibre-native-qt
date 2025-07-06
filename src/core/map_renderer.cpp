@@ -11,7 +11,9 @@
 
 #include <QtCore/QThreadStorage>
 
+#if defined(__APPLE__)
 #include <TargetConditionals.h>
+#endif
 
 #if defined(MLN_RENDER_BACKEND_METAL) && defined(__APPLE__) && TARGET_OS_OSX
 #include <QuartzCore/CAMetalLayer.hpp>

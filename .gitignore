@@ -8,3 +8,4 @@ qmaplibre-install-*
 .DS_Store
 examples/quick/build*
 examples/quick/xcode*
+examples/widgets/build*

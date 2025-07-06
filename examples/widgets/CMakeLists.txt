@@ -67,7 +67,3 @@ endif()
 
 include(CPack)
 
-qt_add_resources(QMapLibreExampleWidgets "qml"
-    PREFIX "/"
-    FILES MapMetal.qml
-)

@@ -8,8 +8,12 @@
 #include <QtQuick/QSGRendererInterface>
 
 int main(int argc, char *argv[]) {
-    // Use Metal RHI
+    // Use platform-appropriate graphics API
+#if defined(__APPLE__)
     QQuickWindow::setGraphicsApi(QSGRendererInterface::MetalRhi);
+#else
+    QQuickWindow::setGraphicsApi(QSGRendererInterface::OpenGLRhi);
+#endif
 
     QGuiApplication app(argc, argv);
 

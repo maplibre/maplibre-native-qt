@@ -104,8 +104,32 @@ target_compile_definitions(
     MLNQtCore
     PRIVATE
         QT_BUILD_MAPLIBRE_CORE_LIB
-        MLN_RENDER_BACKEND_METAL=1
 )
+
+# Backend-specific compile definitions
+if(MLN_WITH_OPENGL)
+    target_compile_definitions(
+        MLNQtCore
+        PRIVATE
+            MLN_RENDER_BACKEND_OPENGL=1
+    )
+endif()
+
+if(MLN_WITH_METAL)
+    target_compile_definitions(
+        MLNQtCore
+        PRIVATE
+            MLN_RENDER_BACKEND_METAL=1
+    )
+endif()
+
+if(MLN_WITH_VULKAN)
+    target_compile_definitions(
+        MLNQtCore
+        PRIVATE
+            MLN_RENDER_BACKEND_VULKAN=1
+    )
+endif()
 
 # Common include directories
 target_include_directories(
