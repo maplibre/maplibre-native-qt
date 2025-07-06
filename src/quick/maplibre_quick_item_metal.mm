@@ -60,17 +60,17 @@ QSGNode* MapLibreQuickItemMetal::renderFrame(QSGNode* oldNode) {
         qDebug() << "Metal: Early return - Map:" << (m_map ? "exists" : "null") << "Window:" << (window() ? "exists" : "null");
         return oldNode;
     }
-    
+
     qDebug() << "Metal: Continuing with rendering, map and window both exist";
-    
+
     // Calculate actual render size with device pixel ratio
     const QSize windowSize(static_cast<int>(width()), static_cast<int>(height()));
     const float dpr = window() ? window()->devicePixelRatio() : 1.0f;
-    const QSize renderSize(static_cast<int>(windowSize.width() * dpr), 
+    const QSize renderSize(static_cast<int>(windowSize.width() * dpr),
                           static_cast<int>(windowSize.height() * dpr));
-    
+
     qDebug() << "Metal: renderFrame: windowSize=" << windowSize << "renderSize=" << renderSize;
-    
+
     // Create or update the scene graph node
     QSGSimpleTextureNode* node = static_cast<QSGSimpleTextureNode*>(oldNode);
     if (!node) {
@@ -78,19 +78,19 @@ QSGNode* MapLibreQuickItemMetal::renderFrame(QSGNode* oldNode) {
         node->setFiltering(QSGTexture::Linear);
         qDebug() << "Metal: Created new QSGSimpleTextureNode";
     }
-    
+
     // Metal-specific rendering implementation would go here
     // This is a placeholder implementation that creates a colored texture
     const QSize textureSize(static_cast<int>(width()), static_cast<int>(height()));
     if (textureSize.width() > 0 && textureSize.height() > 0) {
         QImage image(textureSize, QImage::Format_RGBA8888);
         image.fill(QColor(50, 150, 50, 255)); // Green background for Metal
-        
+
         QPainter painter(&image);
         painter.setPen(Qt::white);
         painter.setFont(QFont("Arial", 14));
         painter.drawText(image.rect(), Qt::AlignCenter, "MapLibre Metal Backend\n(Placeholder Implementation)");
-        
+
         auto texture = window()->createTextureFromImage(image);
         if (texture) {
             node->setTexture(texture);
@@ -99,7 +99,7 @@ QSGNode* MapLibreQuickItemMetal::renderFrame(QSGNode* oldNode) {
             node->markDirty(QSGNode::DirtyGeometry | QSGNode::DirtyMaterial);
         }
     }
-    
+
     return node;
 #else
     // Non-Apple platforms - return placeholder
@@ -108,17 +108,17 @@ QSGNode* MapLibreQuickItemMetal::renderFrame(QSGNode* oldNode) {
         node = new QSGSimpleTextureNode();
         node->setFiltering(QSGTexture::Linear);
     }
-    
+
     const QSize textureSize(static_cast<int>(width()), static_cast<int>(height()));
     if (textureSize.width() > 0 && textureSize.height() > 0) {
         QImage image(textureSize, QImage::Format_RGBA8888);
         image.fill(QColor(100, 100, 100, 255)); // Gray background
-        
+
         QPainter painter(&image);
         painter.setPen(Qt::white);
         painter.setFont(QFont("Arial", 14));
         painter.drawText(image.rect(), Qt::AlignCenter, "Metal Backend\nNot Available\n(Non-Apple Platform)");
-        
+
         auto texture = window()->createTextureFromImage(image);
         if (texture) {
             node->setTexture(texture);
@@ -127,7 +127,7 @@ QSGNode* MapLibreQuickItemMetal::renderFrame(QSGNode* oldNode) {
             node->markDirty(QSGNode::DirtyGeometry | QSGNode::DirtyMaterial);
         }
     }
-    
+
     return node;
 #endif
 }

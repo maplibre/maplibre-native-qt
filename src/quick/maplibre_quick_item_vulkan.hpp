@@ -10,7 +10,7 @@ namespace QMapLibreQuick {
 class MapLibreQuickItemVulkan : public MapLibreQuickItemBase {
     Q_OBJECT
     QML_NAMED_ELEMENT(MapLibreView)
-    
+
 public:
     MapLibreQuickItemVulkan();
     ~MapLibreQuickItemVulkan() override = default;

@@ -14,13 +14,13 @@ namespace QMapLibreQuick {
 
 /**
  * @brief Base class for MapLibre Quick item implementations
- * 
+ *
  * This class contains the common interface and functionality shared
  * across all rendering backend implementations (OpenGL, Metal, Vulkan).
  */
 class MapLibreQuickItemBase : public QQuickItem {
     Q_OBJECT
-    
+
 public:
     MapLibreQuickItemBase();
     virtual ~MapLibreQuickItemBase() = default;
@@ -39,7 +39,7 @@ protected:
     void wheelEvent(QWheelEvent *) override;
 
     // Backend-specific virtual methods
-    virtual QSGNode* renderFrame(QSGNode* oldNode) = 0;
+    virtual QSGNode *renderFrame(QSGNode *oldNode) = 0;
     virtual void initializeBackend() = 0;
     virtual void cleanupBackend() = 0;
 

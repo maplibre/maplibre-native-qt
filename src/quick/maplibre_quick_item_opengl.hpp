@@ -2,12 +2,12 @@
 
 #include <QtQml/qqmlregistration.h>
 #include <QMapLibre/Map>
-#include <QQuickFramebufferObject>
 #include <QMouseEvent>
-#include <QWheelEvent>
-#include <QString>
-#include <QSize>
 #include <QPointF>
+#include <QQuickFramebufferObject>
+#include <QSize>
+#include <QString>
+#include <QWheelEvent>
 #include <memory>
 
 namespace QMapLibre {
@@ -22,13 +22,13 @@ namespace QMapLibreQuick {
 class MapLibreQuickItemOpenGL : public QQuickFramebufferObject {
     Q_OBJECT
     QML_NAMED_ELEMENT(MapLibreView)
-    
+
 public:
     MapLibreQuickItemOpenGL();
     ~MapLibreQuickItemOpenGL() override = default;
 
     // QQuickFramebufferObject interface
-    Renderer* createRenderer() const override;
+    Renderer *createRenderer() const override;
 
 protected:
     // Mouse interaction

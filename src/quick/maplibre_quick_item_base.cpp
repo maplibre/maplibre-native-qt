@@ -2,12 +2,12 @@
 
 #include "maplibre_quick_item_base.hpp"
 
-#include <QQuickWindow>
-#include <QMouseEvent>
-#include <QWheelEvent>
 #include <QDebug>
 #include <QMapLibre/Map>
 #include <QMapLibre/Settings>
+#include <QMouseEvent>
+#include <QQuickWindow>
+#include <QWheelEvent>
 
 using namespace QMapLibreQuick;
 using namespace QMapLibre;
@@ -23,24 +23,24 @@ QSGNode* MapLibreQuickItemBase::updatePaintNode(QSGNode* oldNode, UpdatePaintNod
         const int w = static_cast<int>(width());
         const int h = static_cast<int>(height());
         const float dpr = window() ? window()->devicePixelRatio() : 1.0f;
-        
+
         if (w > 0 && h > 0) {
             qDebug() << "Creating map in updatePaintNode";
             ensureMap(w, h, dpr);
             initializeBackend();
         }
     }
-    
+
     if (!m_map || !window()) {
         return oldNode;
     }
-    
+
     return renderFrame(oldNode);
 }
 
-void MapLibreQuickItemBase::geometryChange(const QRectF &newG, const QRectF &oldG) {
+void MapLibreQuickItemBase::geometryChange(const QRectF& newG, const QRectF& oldG) {
     QQuickItem::geometryChange(newG, oldG);
-    
+
     const QSize newSize(newG.width(), newG.height());
     if (newSize != m_size) {
         m_size = newSize;
@@ -54,9 +54,9 @@ void MapLibreQuickItemBase::releaseResources() {
     m_map.reset();
 }
 
-void MapLibreQuickItemBase::itemChange(ItemChange change, const ItemChangeData &data) {
+void MapLibreQuickItemBase::itemChange(ItemChange change, const ItemChangeData& data) {
     QQuickItem::itemChange(change, data);
-    
+
     if (change == ItemSceneChange && data.window) {
         // Connect to window changed signals if needed
         if (!m_connected) {
@@ -69,22 +69,22 @@ void MapLibreQuickItemBase::ensureMap(int w, int h, float dpr, void* /*backendSp
     if (m_map) {
         return;
     }
-    
+
     qDebug() << "Creating MapLibre map with size:" << w << "x" << h << "dpr:" << dpr;
-    
+
     // Create map settings
     Settings settings;
-    settings.setApiKey("");  // No API key needed for OpenStreetMap styles
+    settings.setApiKey(""); // No API key needed for OpenStreetMap styles
     settings.setApiBaseUrl("");
     settings.setLocalFontFamily("Arial");
     settings.setContextMode(Settings::GLContextMode::SharedGLContext);
-    
+
     // Create the map
     m_map = std::make_unique<Map>(nullptr, settings, QSize(w, h), dpr);
-    
+
     // Set a public style that doesn't require API key
     m_map->setStyleUrl("https://demotiles.maplibre.org/style.json");
-    
+
     qDebug() << "MapLibre map created successfully";
 }
 
