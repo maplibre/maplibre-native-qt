@@ -3,22 +3,21 @@
 
 #include "rhi_texture_node.hpp"
 
+#include <vulkan/vulkan.h>
 #include <QtQuick/QQuickWindow>
 #include <QtQuick/QSGTexture>
-#include <vulkan/vulkan.h>
 
 namespace QMapLibre {
 
-RhiTextureNode::RhiTextureNode(QQuickWindow* win) : m_window(win) {
+RhiTextureNode::RhiTextureNode(QQuickWindow* win)
+    : m_window(win) {
     setTextureCoordinatesTransform(QSGSimpleTextureNode::MirrorVertically);
     setFiltering(QSGTexture::Linear);
 }
 
-void RhiTextureNode::syncWithNativeTexture(const void* nativeTex, int w, int h)
-{
+void RhiTextureNode::syncWithNativeTexture(const void* nativeTex, int w, int h) {
     VkImage vkImage = static_cast<VkImage>(reinterpret_cast<uintptr_t>(nativeTex));
-    if (vkImage == VK_NULL_HANDLE)
-        return;
+    if (vkImage == VK_NULL_HANDLE) return;
 
     const QSize newSize(w, h);
 
