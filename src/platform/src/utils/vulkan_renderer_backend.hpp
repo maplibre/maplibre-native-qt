@@ -2,13 +2,13 @@
 
 #if defined(MLN_RENDER_BACKEND_VULKAN)
 
-#include <mbgl/vulkan/renderer_backend.hpp>
 #include <mbgl/gfx/renderable.hpp>
-#include <mbgl/vulkan/renderable_resource.hpp>
 #include <mbgl/util/size.hpp>
+#include <mbgl/vulkan/renderable_resource.hpp>
+#include <mbgl/vulkan/renderer_backend.hpp>
 
-#include <QtGui/QWindow>
 #include <QtGui/qvulkaninstance.h>
+#include <QtGui/QWindow>
 
 namespace QMapLibre {
 

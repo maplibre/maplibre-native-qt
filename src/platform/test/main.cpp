@@ -1,9 +1,9 @@
 #include <QGuiApplication>
 
-#include <mbgl/test.hpp>
-#include <cstring>
 #include <cerrno>
 #include <cstdio>
+#include <cstring>
+#include <mbgl/test.hpp>
 
 #if defined(WIN32) && !defined(__clang__)
 #include <direct.h>

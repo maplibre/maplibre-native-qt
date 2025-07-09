@@ -4,11 +4,11 @@
 #include <TargetConditionals.h>
 #if TARGET_OS_OSX || TARGET_OS_IPHONE
 
-#include <mbgl/mtl/renderer_backend.hpp>
-#include <mbgl/gfx/renderable.hpp>
-#include <mbgl/gfx/context.hpp>
-#import <QuartzCore/CAMetalLayer.hpp>
 #include <QtCore/QtGlobal>
+#import <QuartzCore/CAMetalLayer.hpp>
+#include <mbgl/gfx/context.hpp>
+#include <mbgl/gfx/renderable.hpp>
+#include <mbgl/mtl/renderer_backend.hpp>
 
 namespace QMapLibre {
 

@@ -1,5 +1,5 @@
-#include <mbgl/util/platform.hpp>
 #include <mbgl/platform/thread.hpp>
+#include <mbgl/util/platform.hpp>
 
 #include <string>
 
