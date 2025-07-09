@@ -27,7 +27,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
         endif()
     else()
         message(STATUS "Using internal ICU")
-        include(${PROJECT_SOURCE_DIR}/vendor/icu.cmake)
+        include(${PROJECT_SOURCE_DIR}/vendor/maplibre-native/vendor/icu.cmake)
     endif()
 endif()
 
@@ -45,7 +45,7 @@ if(NOT MLN_QT_WITH_INTERNAL_SQLITE)
     find_package(Qt${QT_VERSION_MAJOR}Sql REQUIRED)
 else()
     message(STATUS "Using internal sqlite")
-    include(${PROJECT_SOURCE_DIR}/vendor/sqlite.cmake)
+    include(${PROJECT_SOURCE_DIR}/vendor/maplibre-native/vendor/sqlite.cmake)
 endif()
 
 # Debugging & ccache on Windows
