@@ -6,6 +6,7 @@
 #include "gl_widget_p.hpp"
 
 #include <QtGui/QMouseEvent>
+#include <QtGui/QSurfaceFormat>
 #include <QtGui/QWheelEvent>
 
 namespace QMapLibre {
@@ -40,7 +41,28 @@ namespace QMapLibre {
 
 /*! Default constructor */
 GLWidget::GLWidget(const Settings &settings)
-    : d_ptr(std::make_unique<GLWidgetPrivate>(this, settings)) {}
+    : d_ptr(std::make_unique<GLWidgetPrivate>(this, settings)) {
+    // Ensure we get an OpenGL 3.2+ core profile to use MapLibre's modern
+    // renderer. This does nothing on platforms where such a context cannot be
+    // provided (e.g. WebAssembly), where Qt will fall back transparently.
+#ifdef __EMSCRIPTEN__
+    // WebAssembly: request a WebGL2 / OpenGL ES 3.0 context. Core profile is
+    // implicit and should *not* be asked for explicitly (it would fall back to
+    // WebGL 1). Qt will map this to the appropriate Emscripten attributes.
+    QSurfaceFormat fmt;
+    fmt.setRenderableType(QSurfaceFormat::OpenGLES);
+    fmt.setVersion(3, 0);
+#else
+    // Desktop & mobile: request a 3.2 core profile context.
+    QSurfaceFormat fmt;
+    fmt.setRenderableType(QSurfaceFormat::OpenGL);
+    fmt.setVersion(3, 2);
+    fmt.setProfile(QSurfaceFormat::CoreProfile);
+#endif
+    fmt.setDepthBufferSize(24);
+    fmt.setStencilBufferSize(8);
+    setFormat(fmt);
+}
 
 GLWidget::~GLWidget() {
     // Make sure we have a valid context so we
@@ -60,11 +82,7 @@ Map *GLWidget::map() {
     \brief Mouse press event handler.
 */
 void GLWidget::mousePressEvent(QMouseEvent *event) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     const QPointF &position = event->position();
-#else
-    const QPointF &position = event->localPos();
-#endif
     emit onMousePressEvent(d_ptr->m_map->coordinateForPixel(position));
     if (event->type() == QEvent::MouseButtonDblClick) {
         emit onMouseDoubleClickEvent(d_ptr->m_map->coordinateForPixel(position));
@@ -77,11 +95,7 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
     \brief Mouse release event handler.
 */
 void GLWidget::mouseReleaseEvent(QMouseEvent *event) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     const QPointF &position = event->position();
-#else
-    const QPointF &position = event->localPos();
-#endif
     emit onMouseReleaseEvent(d_ptr->m_map->coordinateForPixel(position));
 }
 
@@ -89,11 +103,7 @@ void GLWidget::mouseReleaseEvent(QMouseEvent *event) {
     \brief Mouse move event handler.
 */
 void GLWidget::mouseMoveEvent(QMouseEvent *event) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     const QPointF &position = event->position();
-#else
-    const QPointF &position = event->localPos();
-#endif
     emit onMouseMoveEvent(d_ptr->m_map->coordinateForPixel(position));
 
     d_ptr->handleMouseMoveEvent(event);
@@ -150,11 +160,7 @@ void GLWidgetPrivate::handleMousePressEvent(QMouseEvent *event) {
     constexpr double zoomInScale{2.0};
     constexpr double zoomOutScale{0.5};
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     m_lastPos = event->position();
-#else
-    m_lastPos = event->localPos();
-#endif
 
     if (event->type() == QEvent::MouseButtonDblClick) {
         if (event->buttons() == Qt::LeftButton) {
@@ -168,11 +174,7 @@ void GLWidgetPrivate::handleMousePressEvent(QMouseEvent *event) {
 }
 
 void GLWidgetPrivate::handleMouseMoveEvent(QMouseEvent *event) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     const QPointF &position = event->position();
-#else
-    const QPointF &position = event->localPos();
-#endif
 
     const QPointF delta = position - m_lastPos;
     if (!delta.isNull()) {
@@ -201,11 +203,7 @@ void GLWidgetPrivate::handleWheelEvent(QWheelEvent *event) const {
         factor = factor > -1 ? factor : 1 / factor;
     }
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
     m_map->scaleBy(1 + factor, event->position());
-#else
-    m_map->scaleBy(1 + factor, event->pos());
-#endif
     event->accept();
 }
 

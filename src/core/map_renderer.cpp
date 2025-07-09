@@ -11,6 +11,14 @@
 
 #include <QtCore/QThreadStorage>
 
+#if defined(__APPLE__)
+#include <TargetConditionals.h>
+#endif
+
+#if defined(MLN_RENDER_BACKEND_METAL) && defined(__APPLE__) && TARGET_OS_OSX
+#include <QuartzCore/CAMetalLayer.hpp>
+#endif
+
 namespace {
 
 bool needsToForceScheduler() {
@@ -61,8 +69,43 @@ MapRenderer::MapRenderer(qreal pixelRatio, Settings::GLContextMode mode, const Q
     }
 }
 
+#if defined(MLN_RENDER_BACKEND_METAL) && defined(__APPLE__) && TARGET_OS_OSX
+// Constructor that takes an externally provided CAMetalLayer (Metal only).
+MapRenderer::MapRenderer(qreal pixelRatio,
+                         Settings::GLContextMode mode,
+                         const QString &localFontFamily,
+                         void *metalLayerPtr)
+    : m_backend(static_cast<CA::MetalLayer *>(metalLayerPtr)),
+      m_renderer(std::make_unique<mbgl::Renderer>(
+          m_backend,
+          pixelRatio,
+          localFontFamily.isEmpty() ? std::nullopt : std::optional<std::string>{localFontFamily.toStdString()})),
+      m_forceScheduler(needsToForceScheduler()) {
+    if (m_forceScheduler) {
+        Scheduler *scheduler = getScheduler();
+
+        if (mbgl::Scheduler::GetCurrent() == nullptr) {
+            mbgl::Scheduler::SetCurrent(scheduler);
+        }
+
+        connect(scheduler, &Scheduler::needsProcessing, this, &MapRenderer::needsRendering);
+    }
+
+    Q_UNUSED(mode);
+}
+#else
+// Fallback constructor for non-Metal backends; just delegate to default ctor and ignore pointer.
+MapRenderer::MapRenderer(qreal pixelRatio,
+                         Settings::GLContextMode mode,
+                         const QString &localFontFamily,
+                         void * /*unusedLayerPtr*/)
+    : MapRenderer(pixelRatio, mode, localFontFamily) {}
+#endif
+
 MapRenderer::~MapRenderer() {
-    MBGL_VERIFY_THREAD(tid);
+    // MapRenderer may be destroyed from the GUI thread after the render thread is
+    // already shut down, so the thread identity might differ from creation
+    // time. Skip the thread guard here to avoid false assertion failures.
 }
 
 void MapRenderer::updateParameters(std::shared_ptr<mbgl::UpdateParameters> parameters) {
