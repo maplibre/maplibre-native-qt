@@ -11,7 +11,7 @@ project(
     maplibre-native-qt
     VERSION "${MLN_QT_VERSION}"
     DESCRIPTION "MapLibre Native Qt Bindings"
-    LANGUAGES CXX
+    LANGUAGES CXX C
 )
 
 # Common CMake definitions

@@ -62,7 +62,7 @@ if(APPLE)
 endif()
 
 target_include_directories(maplibre_quick PRIVATE
-    ${PROJECT_SOURCE_DIR}/vendor/maplibre-native/platform/qt/src
+    ${PROJECT_SOURCE_DIR}/src/platform/src
     ${PROJECT_SOURCE_DIR}/vendor/maplibre-native/include
     ${PROJECT_SOURCE_DIR}/vendor/maplibre-native/vendor
     ${PROJECT_SOURCE_DIR}/vendor/maplibre-native/vendor/mapbox-base/include

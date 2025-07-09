@@ -16,11 +16,7 @@ class MapLibreQuickItem : public QQuickItem {
     QML_NAMED_ELEMENT(MapLibreView)
 public:
     MapLibreQuickItem();
-    ~MapLibreQuickItem() override {
-        if (m_currentDrawable) {
-            CFRelease(m_currentDrawable);
-        }
-    }
+    ~MapLibreQuickItem() override;
 
 protected:
     QSGNode *updatePaintNode(QSGNode *, UpdatePaintNodeData *) override;
