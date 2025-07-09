@@ -1,12 +1,12 @@
 #include <mbgl/text/local_glyph_rasterizer.hpp>
-#include <mbgl/util/i18n.hpp>
 #include <mbgl/util/constants.hpp>
+#include <mbgl/util/i18n.hpp>
 
+#include <qglobal.h>
 #include <QtCore/QFile>
 #include <QtGui/QFont>
 #include <QtGui/QImage>
 #include <QtGui/QPainter>
-#include <qglobal.h>
 
 namespace mbgl {
 

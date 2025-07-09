@@ -1,8 +1,8 @@
 #include <mbgl/platform/gl_functions.hpp>
 
 #include <QOpenGLContext>
-#include <QOpenGLFunctions>
 #include <QOpenGLExtraFunctions>
+#include <QOpenGLFunctions>
 
 namespace mbgl {
 namespace platform {

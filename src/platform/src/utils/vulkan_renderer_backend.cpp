@@ -6,12 +6,12 @@
 #include <mbgl/vulkan/context.hpp>
 #include <mbgl/vulkan/renderable_resource.hpp>
 
+#include <QGuiApplication>
 #include <QtGui/QVulkanInstance>
 #include <QtGui/QWindow>
-#include <QGuiApplication>
 
-#include <cassert>
 #include <vulkan/vulkan.h>
+#include <cassert>
 
 namespace QMapLibre {
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <mbgl/util/logging.hpp>
 #include <mbgl/util/async_task.hpp>
+#include <mbgl/util/logging.hpp>
 #include <mbgl/util/run_loop.hpp>
 
 #include <QEventLoop>

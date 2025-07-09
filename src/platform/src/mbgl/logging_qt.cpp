@@ -1,5 +1,5 @@
-#include <mbgl/util/logging.hpp>
 #include <mbgl/util/enum.hpp>
+#include <mbgl/util/logging.hpp>
 
 #include <QDebug>
 

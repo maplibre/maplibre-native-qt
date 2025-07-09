@@ -1,17 +1,17 @@
 #include <mbgl/storage/sqlite3.hpp>
 
+#include <QAtomicInt>
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QStringList>
 #include <QThread>
 #include <QVariant>
-#include <QAtomicInt>
 
 #include <cassert>
-#include <cstring>
-#include <cstdio>
 #include <chrono>
+#include <cstdio>
+#include <cstring>
 #include <limits>
 #include <optional>
 #include <variant>

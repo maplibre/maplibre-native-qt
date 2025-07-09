@@ -4,8 +4,8 @@
 
 #include <QObject>
 
-#include <functional>
 #include <atomic>
+#include <functional>
 
 namespace mbgl {
 namespace util {
