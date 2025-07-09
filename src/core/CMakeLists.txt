@@ -13,6 +13,9 @@ add_subdirectory(
     EXCLUDE_FROM_ALL
 )
 
+# Include Qt platform sources
+include(${PROJECT_SOURCE_DIR}/src/platform/qt.cmake)
+
 # Public headers
 string(TOLOWER ${MLN_QT_NAME} MLN_QT_NAME_LOWERCASE)
 set(MLNQtCore_Headers
@@ -143,8 +146,9 @@ target_include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/style
         ${CMAKE_CURRENT_BINARY_DIR}/include
         ${MLN_CORE_PATH}/src
-        ${MLN_CORE_PATH}/platform/qt/src
+        ${PROJECT_SOURCE_DIR}/src/platform/src
         ${MLN_CORE_PATH}/vendor/metal-cpp
+        ${MLN_CORE_PATH}/platform/default/include
 )
 
 # Common link libraries
@@ -158,6 +162,9 @@ target_link_libraries(
         $<BUILD_INTERFACE:mbgl-compiler-options>
         $<BUILD_INTERFACE:mbgl-core>
         $<BUILD_INTERFACE:MLNQtCompilerOptions>
+        $<BUILD_INTERFACE:mbgl-vendor-parsedate>
+        $<BUILD_INTERFACE:mbgl-vendor-nunicode>
+        $<BUILD_INTERFACE:mbgl-vendor-csscolorparser>
 )
 if(NOT MLN_QT_WITH_INTERNAL_SQLITE)
     target_link_libraries(
