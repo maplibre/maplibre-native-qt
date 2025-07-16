@@ -46,21 +46,6 @@
         "MLN_QT_WITH_COVERAGE": "ON",
         "GCOV_PATH": "$penv{GCOV_PATH}"
       }
-    },
-    {
-      "name": "Linux-legacy",
-      "displayName": "Linux configuration using Qt5",
-      "generator": "Ninja",
-      "binaryDir": "${sourceParentDir}/build/qt5-Linux",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release",
-        "QT_VERSION_MAJOR": "5"
-      }
-    },
-    {
-      "name": "Linux-legacy-ccache",
-      "displayName": "Linux configuration using Qt5 and ccache",
-      "inherits": ["dev", "ccache", "Linux-legacy"]
     }
   ],
   "buildPresets": [
