@@ -65,9 +65,9 @@ target_include_directories(maplibre_quick PRIVATE
     ${PROJECT_SOURCE_DIR}/src/platform/src
     ${PROJECT_SOURCE_DIR}/vendor/maplibre-native/include
     ${PROJECT_SOURCE_DIR}/vendor/maplibre-native/vendor
-    ${PROJECT_SOURCE_DIR}/vendor/maplibre-native/vendor/mapbox-base/include
-    ${PROJECT_SOURCE_DIR}/vendor/maplibre-native/vendor/mapbox-base/deps/geometry.hpp/include
-    ${PROJECT_SOURCE_DIR}/vendor/maplibre-native/vendor/mapbox-base/deps/variant/include
+    ${PROJECT_SOURCE_DIR}/vendor/maplibre-native/vendor/maplibre-native-base/include
+    ${PROJECT_SOURCE_DIR}/vendor/maplibre-native/vendor/maplibre-native-base/deps/geometry.hpp/include
+    ${PROJECT_SOURCE_DIR}/vendor/maplibre-native/vendor/maplibre-native-base/deps/variant/include
     ${PROJECT_SOURCE_DIR}/vendor/maplibre-native/vendor/metal-cpp
     ${PROJECT_SOURCE_DIR}/vendor/maplibre-native/src
 )

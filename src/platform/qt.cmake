@@ -17,7 +17,10 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
             unset(CMAKE_FIND_ROOT_PATH)
         endif()
 
-        find_package(ICU COMPONENTS uc REQUIRED)
+        # Use PkgConfig to find ICU
+        find_package(PkgConfig REQUIRED)
+        pkg_check_modules(ICU_UC REQUIRED icu-uc)
+        pkg_check_modules(ICU_I18N REQUIRED icu-i18n)
 
         if(MLN_QT_IGNORE_ICU)
             set(CMAKE_PREFIX_PATH ${_CMAKE_PREFIX_PATH_ORIG})
@@ -228,7 +231,8 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     if (MLN_QT_WITH_INTERNAL_ICU)
         target_link_libraries(mbgl-core PUBLIC $<BUILD_INTERFACE:mbgl-vendor-icu>)
     else()
-        target_link_libraries(mbgl-core PUBLIC ICU::uc)
+        target_link_libraries(mbgl-core PUBLIC ${ICU_UC_LIBRARIES} ${ICU_I18N_LIBRARIES})
+        target_include_directories(mbgl-core PRIVATE ${ICU_UC_INCLUDE_DIRS} ${ICU_I18N_INCLUDE_DIRS})
     endif()
 endif()
 

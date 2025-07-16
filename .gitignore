@@ -9,3 +9,5 @@ qmaplibre-install-*
 examples/quick/build*
 examples/quick/xcode*
 examples/widgets/build*
+build
+install
