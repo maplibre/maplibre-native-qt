@@ -2,13 +2,15 @@
 
 // SPDX-License-Identifier: MIT
 
+#if defined(MLN_WITH_VULKAN)
 #include <vulkan/vulkan.h>
+#include <QVulkanInstance>
+#endif
 #include <QDebug>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQuickWindow>
-#include <QVulkanInstance>
 #include <QtQuick/QSGRendererInterface>
 
 int main(int argc, char *argv[]) {
