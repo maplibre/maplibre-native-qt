@@ -4,9 +4,9 @@
 
 #include <mbgl/gfx/renderable.hpp>
 #include <mbgl/util/size.hpp>
+#include <mbgl/vulkan/context.hpp>
 #include <mbgl/vulkan/renderable_resource.hpp>
 #include <mbgl/vulkan/renderer_backend.hpp>
-#include <mbgl/vulkan/context.hpp>
 
 #include <QtGui/qvulkaninstance.h>
 #include <QtGui/QWindow>
@@ -23,16 +23,16 @@ public:
     std::vector<const char*> getDeviceExtensions() override;
     void createPlatformSurface() override;
     void bind() override;
-    
+
     // Override to provide custom framebuffer for offscreen rendering
     const vk::UniqueFramebuffer& getFramebuffer() const override { return framebuffer; }
-    
+
 private:
     void setupQtTextureRendering(void* qtTexture);
     void createDummySwapchain();
     void createOffscreenRenderPass();
     void createOffscreenFramebuffer();
-    
+
     // For offscreen rendering
     vk::UniqueFramebuffer framebuffer;
 };
@@ -52,7 +52,7 @@ public:
     // Size helpers
     mbgl::Size getSize() const { return size; }
     void setSize(const mbgl::Size newSize);
-    
+
     // Qt integration helpers
     void updateFramebuffer(uint32_t fbo, const mbgl::Size& newSize);
 
@@ -70,31 +70,31 @@ public:
 
     // Initialization management
     void ensureInitialized();
-    
+
     // Override init to integrate Qt Vulkan instance
     void init();
-    
+
     // Shadow initSwapchain to skip swapchain creation for Qt Quick integration
     void initSwapchain();
 
 protected:
-        // Override createContext to provide standard context
+    // Override createContext to provide standard context
     std::unique_ptr<mbgl::gfx::Context> createContext() override;
 
 private:
     void createOffscreenTexture(const mbgl::Size& size);
-    void setupQtVulkanInstance();  // Helper to setup Qt Vulkan instance integration
-    
+    void setupQtVulkanInstance(); // Helper to setup Qt Vulkan instance integration
+
 public:
     // Helper method to get the texture object for pixel data extraction
     mbgl::vulkan::Texture2D* getOffscreenTexture() const;
-    
+
     QWindow* window{nullptr};
     QVulkanInstance* vulkanInstance{nullptr};
-    mutable void* m_currentDrawable{nullptr};  // Current drawable texture for Qt integration
-    mutable std::unique_ptr<mbgl::gfx::OffscreenTexture> m_offscreenTexture;  // Offscreen texture for rendering
-    bool m_isInitialized{false};  // Track initialization state
-    
+    mutable void* m_currentDrawable{nullptr}; // Current drawable texture for Qt integration
+    mutable std::unique_ptr<mbgl::gfx::OffscreenTexture> m_offscreenTexture; // Offscreen texture for rendering
+    bool m_isInitialized{false};                                             // Track initialization state
+
     friend class QtVulkanRenderableResource;
 };
 

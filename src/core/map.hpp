@@ -189,8 +189,8 @@ public:
 
 #ifdef MLN_RENDER_BACKEND_VULKAN
     // Vulkan-specific: get the Vulkan texture object.
-    mbgl::vulkan::Texture2D* getVulkanTexture() const;
-    
+    mbgl::vulkan::Texture2D *getVulkanTexture() const;
+
     // Vulkan-specific: read image data from the Vulkan texture.
     std::shared_ptr<mbgl::PremultipliedImage> readVulkanImageData() const;
 #endif

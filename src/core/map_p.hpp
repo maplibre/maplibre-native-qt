@@ -62,10 +62,10 @@ public:
 
     // Backend-specific: push latest swap-chain texture into renderer
     void setCurrentDrawable(void *tex);
-    
+
 #if defined(MLN_RENDER_BACKEND_VULKAN)
     // Helper method to get the texture object for pixel data extraction
-    mbgl::vulkan::Texture2D* getVulkanTexture() const;
+    mbgl::vulkan::Texture2D *getVulkanTexture() const;
 #endif
 
 public slots:
@@ -113,7 +113,7 @@ inline void MapPrivate::setCurrentDrawable(void *tex) {
 }
 
 #if defined(MLN_RENDER_BACKEND_VULKAN)
-inline mbgl::vulkan::Texture2D* MapPrivate::getVulkanTexture() const {
+inline mbgl::vulkan::Texture2D *MapPrivate::getVulkanTexture() const {
     std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
     return m_mapRenderer ? m_mapRenderer->getVulkanTexture() : nullptr;
 }

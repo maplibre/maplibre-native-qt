@@ -13,8 +13,8 @@
 #include <mbgl/renderer/renderer_observer.hpp>
 #include <mbgl/util/util.hpp>
 
-#include <QtCore/QObject>
 #include <QDebug>
+#include <QtCore/QObject>
 
 #include <QtGlobal>
 
@@ -39,7 +39,8 @@ public:
     // Metal: allow passing an existing CAMetalLayer supplied by the UI.
     MapRenderer(qreal pixelRatio, Settings::GLContextMode, const QString &localFontFamily, void *metalLayerPtr);
     // Vulkan: allow passing a Qt Quick window for Vulkan surface creation.
-    MapRenderer(qreal pixelRatio, Settings::GLContextMode, const QString &localFontFamily, void *windowPtr, bool isVulkan);
+    MapRenderer(
+        qreal pixelRatio, Settings::GLContextMode, const QString &localFontFamily, void *windowPtr, bool isVulkan);
     ~MapRenderer() override;
 
     // Debug: Check which backend is compiled
@@ -67,7 +68,7 @@ public:
     void setCurrentDrawable(void *tex) { m_backend._q_setCurrentDrawable(tex); }
 #elif defined(MLN_RENDER_BACKEND_VULKAN)
     void *currentMetalTexture() const { return nullptr; }
-    void *currentVulkanTexture() const { 
+    void *currentVulkanTexture() const {
         qDebug() << "MapRenderer::currentVulkanTexture() called - calling backend.currentDrawable()";
         qDebug() << "MLN_RENDER_BACKEND_VULKAN is defined - using Vulkan backend";
         void *result = m_backend.currentDrawable();
@@ -75,21 +76,19 @@ public:
         return result;
     }
     void setCurrentDrawable(void *tex) { m_backend._q_setCurrentDrawable(tex); }
-    
+
     // Helper method to get the texture object for pixel data extraction
-    mbgl::vulkan::Texture2D* getVulkanTexture() const { return m_backend.getOffscreenTexture(); }
+    mbgl::vulkan::Texture2D *getVulkanTexture() const { return m_backend.getOffscreenTexture(); }
 #else
-    void *currentMetalTexture() const { 
+    void *currentMetalTexture() const {
         qDebug() << "WARNING: No backend defined - using fallback (Metal/Vulkan not available)";
-        return nullptr; 
+        return nullptr;
     }
-    void *currentVulkanTexture() const { 
+    void *currentVulkanTexture() const {
         qDebug() << "WARNING: No backend defined - using fallback (Metal/Vulkan not available)";
-        return nullptr; 
+        return nullptr;
     }
-    void setCurrentDrawable(void *) {
-        qDebug() << "WARNING: No backend defined - setCurrentDrawable is a no-op";
-    }
+    void setCurrentDrawable(void *) { qDebug() << "WARNING: No backend defined - setCurrentDrawable is a no-op"; }
 #endif
 
 signals:
