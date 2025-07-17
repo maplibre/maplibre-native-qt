@@ -25,7 +25,7 @@ cd /home/birks/repos/maplibre-native-qt/qmaplibre-build-dir && rm -rf * && cmake
   -G Ninja
 ```
 
-Then run 
+Then run
 `ninja` and `ninja install`
 
 
@@ -44,7 +44,7 @@ Manually installing MapLibre.Quick
 
 mkdir -p /home/birks/repos/maplibre-native-qt/qmaplibre-install-dir/qml/MapLibre/Quick && cp src/quick/qmldir src/quick/libmaplibre_quickplugin.so src/quick/libmaplibre_quick.so src/quick/maplibre_quick.qmltypes src/quick/plugin.json /home/birks/repos/maplibre-native-qt/qmaplibre-install-dir/qml/MapLibre/Quick/
 
-    
+
 And then run the example
 
 cd /home/birks/repos/maplibre-native-qt/examples/quick/build && QML_IMPORT_PATH=/home/birks/repos/maplibre-native-qt/qmaplibre-install-dir/qml QSG_RHI_BACKEND=opengl ./QMapLibreExampleQuick
@@ -74,4 +74,3 @@ If you get `bash: ./QMapLibreExampleWidgets: No such file or directory`, make su
 
 - **Quick example**: Must be run from `/home/birks/repos/maplibre-native-qt/examples/quick/build/`
 - **Widgets example**: Must be run from `/home/birks/repos/maplibre-native-qt/examples/widgets/build/`
-

@@ -3,14 +3,14 @@
 #include "maplibre_quick_item_vulkan.hpp"
 
 #include <QDebug>
-#include <QTimer>
 #include <QMapLibre/Map>
 #include <QMapLibre/Settings>
 #include <QMapLibre/Types>
 #include <QMouseEvent>
 #include <QQuickWindow>
-#include <QSGSimpleTextureNode>
 #include <QSGSimpleRectNode>
+#include <QSGSimpleTextureNode>
+#include <QTimer>
 #include <QWheelEvent>
 #include <cmath>
 
@@ -21,7 +21,7 @@ MapLibreQuickItemVulkan::MapLibreQuickItemVulkan() {
     setFlag(ItemHasContents, true);
     setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton | Qt::MiddleButton);
     setAcceptHoverEvents(true);
-    
+
     // Set a default size to ensure the item is visible
     setImplicitWidth(400);
     setImplicitHeight(300);
@@ -48,15 +48,13 @@ void MapLibreQuickItemVulkan::ensureMap(int w, int h, float dpr) {
         // Create with minimal settings
         Settings settings;
         settings.setContextMode(Settings::SharedGLContext);
-        
+
         m_map = std::make_unique<Map>(nullptr, settings, QSize(w * dpr, h * dpr), dpr);
-        
+
         if (m_map) {
             // Connect to the map's rendering signals
-            QObject::connect(m_map.get(), &Map::needsRendering, this, [this]() {
-                update();
-            });
-            
+            QObject::connect(m_map.get(), &Map::needsRendering, this, [this]() { update(); });
+
             // Set style and coordinates after a delay
             QTimer::singleShot(1000, this, [this]() {
                 if (m_map) {
@@ -119,7 +117,7 @@ QSGNode *MapLibreQuickItemVulkan::updatePaintNode(QSGNode *node, UpdatePaintNode
         // We have a texture - try to display it
         const int texWidth = width() * window()->devicePixelRatio();
         const int texHeight = height() * window()->devicePixelRatio();
-        
+
         auto *textureNode = dynamic_cast<QSGSimpleTextureNode *>(node);
         if (!textureNode) {
             if (node) {
@@ -132,17 +130,15 @@ QSGNode *MapLibreQuickItemVulkan::updatePaintNode(QSGNode *node, UpdatePaintNode
         // Try to read pixel data from the map
         if (auto imageData = m_map->readVulkanImageData()) {
             if (imageData && imageData->data.get()) {
-                QImage mapImage(imageData->data.get(), 
-                               imageData->size.width, 
-                               imageData->size.height, 
-                               QImage::Format_RGBA8888);
-                
+                QImage mapImage(
+                    imageData->data.get(), imageData->size.width, imageData->size.height, QImage::Format_RGBA8888);
+
                 if (!mapImage.isNull()) {
                     // Scale to display size if needed
                     if (mapImage.size() != QSize(texWidth, texHeight)) {
                         mapImage = mapImage.scaled(texWidth, texHeight, Qt::KeepAspectRatio, Qt::FastTransformation);
                     }
-                    
+
                     // Create Qt texture from the map image
                     QSGTexture *qtTexture = window()->createTextureFromImage(mapImage);
                     if (qtTexture) {
@@ -166,7 +162,7 @@ QSGNode *MapLibreQuickItemVulkan::updatePaintNode(QSGNode *node, UpdatePaintNode
         rectNode = new QSGSimpleRectNode();
         node = rectNode;
     }
-    
+
     rectNode->setColor(QColor(0, 0, 0, 0)); // Transparent
     rectNode->setRect(boundingRect());
     return rectNode;
@@ -174,11 +170,10 @@ QSGNode *MapLibreQuickItemVulkan::updatePaintNode(QSGNode *node, UpdatePaintNode
 
 void MapLibreQuickItemVulkan::geometryChange(const QRectF &newGeometry, const QRectF &oldGeometry) {
     QQuickItem::geometryChange(newGeometry, oldGeometry);
-    
+
     if (m_map && newGeometry.size() != oldGeometry.size()) {
         const float dpr = window() ? window()->devicePixelRatio() : 1.0f;
-        m_map->resize(QSize(static_cast<int>(newGeometry.width() * dpr),
-                           static_cast<int>(newGeometry.height() * dpr)));
+        m_map->resize(QSize(static_cast<int>(newGeometry.width() * dpr), static_cast<int>(newGeometry.height() * dpr)));
         update();
     }
 }
@@ -188,11 +183,16 @@ void MapLibreQuickItemVulkan::itemChange(ItemChange change, const ItemChangeData
 
     if (change == ItemSceneChange) {
         if (QQuickWindow *win = window()) {
-            QObject::connect(win, &QQuickWindow::sceneGraphInitialized, this, [this]() {
-                if (!m_map) {
-                    ensureMap(width(), height(), window()->devicePixelRatio());
-                }
-            }, Qt::DirectConnection);
+            QObject::connect(
+                win,
+                &QQuickWindow::sceneGraphInitialized,
+                this,
+                [this]() {
+                    if (!m_map) {
+                        ensureMap(width(), height(), window()->devicePixelRatio());
+                    }
+                },
+                Qt::DirectConnection);
         }
     }
 }

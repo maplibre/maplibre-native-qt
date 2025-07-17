@@ -179,7 +179,7 @@ export VK_INSTANCE_LAYERS=VK_LAYER_KHRONOS_validation
 ### Graphics Driver Requirements
 
 - **NVIDIA**: Driver 367.27 or later
-- **AMD**: Driver 16.50 or later  
+- **AMD**: Driver 16.50 or later
 - **Intel**: Driver 100.4169 or later (Linux), 15.45.23.4860 or later (Windows)
 
 ### Environment Variables
@@ -260,7 +260,7 @@ Set Qt Quick graphics API to OpenGL RHI
 
 # Other relevant files for vulkan, (and other backends), that are upstream to the quick item
 
-src/core/* , in particularly the 
+src/core/* , in particularly the
 
 src/core/map.cpp
 src/core/map.hpp

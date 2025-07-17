@@ -32,7 +32,6 @@
 #include <mbgl/style/conversion_impl.hpp>
 #include <mbgl/style/filter.hpp>
 #include <mbgl/style/image.hpp>
-#include <mbgl/util/image.hpp>
 #include <mbgl/style/layers/background_layer.hpp>
 #include <mbgl/style/layers/circle_layer.hpp>
 #include <mbgl/style/layers/fill_extrusion_layer.hpp>
@@ -49,6 +48,7 @@
 #include <mbgl/util/constants.hpp>
 #include <mbgl/util/geo.hpp>
 #include <mbgl/util/geometry.hpp>
+#include <mbgl/util/image.hpp>
 #include <mbgl/util/projection.hpp>
 #include <mbgl/util/rapidjson.hpp>
 #include <mbgl/util/run_loop.hpp>
@@ -1777,7 +1777,7 @@ void MapPrivate::createRendererWithVulkanWindow(void *windowPtr) {
         m_mapRenderer->updateParameters(m_updateParameters);
         requestRendering();
     }
-    
+
     qDebug() << "MapRenderer setup completed";
 }
 
@@ -1878,12 +1878,12 @@ void Map::setCurrentDrawable(void *texturePtr) {
 }
 
 #ifdef MLN_RENDER_BACKEND_VULKAN
-mbgl::vulkan::Texture2D* Map::getVulkanTexture() const {
+mbgl::vulkan::Texture2D *Map::getVulkanTexture() const {
     return d_ptr->getVulkanTexture();
 }
 
 std::shared_ptr<mbgl::PremultipliedImage> Map::readVulkanImageData() const {
-    auto* texture = d_ptr->getVulkanTexture();
+    auto *texture = d_ptr->getVulkanTexture();
     if (texture) {
         return texture->readImage();
     }

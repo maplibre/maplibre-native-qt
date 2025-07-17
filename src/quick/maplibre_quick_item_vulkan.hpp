@@ -27,7 +27,7 @@ protected:
     void geometryChange(const QRectF &newGeometry, const QRectF &oldGeometry) override;
     void releaseResources() override;
     void itemChange(ItemChange change, const ItemChangeData &data) override;
-    
+
     // Mouse interaction
     void mousePressEvent(QMouseEvent *) override;
     void mouseMoveEvent(QMouseEvent *) override;
@@ -43,7 +43,7 @@ private:
     bool m_connected = false;
     bool m_rendererBound = false;
     QMetaObject::Connection m_renderConnection;
-    
+
     // interaction state
     QPointF m_lastMousePos;
     bool m_dragging{false};

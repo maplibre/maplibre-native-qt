@@ -97,11 +97,8 @@ MapRenderer::MapRenderer(qreal pixelRatio,
 
 #if defined(MLN_RENDER_BACKEND_VULKAN) || (defined(MLN_RENDER_BACKEND_METAL) && defined(__APPLE__) && TARGET_OS_OSX)
 // Constructor that takes a window/layer pointer and determines the backend based on isVulkan flag
-MapRenderer::MapRenderer(qreal pixelRatio,
-                         Settings::GLContextMode mode,
-                         const QString &localFontFamily,
-                         void *windowPtr,
-                         bool isVulkan)
+MapRenderer::MapRenderer(
+    qreal pixelRatio, Settings::GLContextMode mode, const QString &localFontFamily, void *windowPtr, bool isVulkan)
 #if defined(MLN_RENDER_BACKEND_VULKAN)
     : m_backend(isVulkan ? static_cast<QWindow *>(windowPtr) : nullptr),
 #elif defined(MLN_RENDER_BACKEND_METAL)
@@ -114,10 +111,10 @@ MapRenderer::MapRenderer(qreal pixelRatio,
           pixelRatio,
           localFontFamily.isEmpty() ? std::nullopt : std::optional<std::string>{localFontFamily.toStdString()})),
       m_forceScheduler(needsToForceScheduler()) {
-    
+
     // Debug: Log which backend we're using
     logBackendInfo();
-    
+
     if (m_forceScheduler) {
         Scheduler *scheduler = getScheduler();
 
@@ -167,7 +164,6 @@ void MapRenderer::updateFramebuffer(quint32 fbo, const mbgl::Size &size) {
 }
 
 void MapRenderer::render() {
-    
     try {
         MBGL_VERIFY_THREAD(tid);
     } catch (const std::exception &e) {
@@ -196,24 +192,22 @@ void MapRenderer::render() {
         return;
     }
 
-
     // The OpenGL implementation automatically enables the OpenGL context for us.
     // For Vulkan, we need to ensure the backend is properly initialized
     try {
         const mbgl::gfx::BackendScope scope(m_backend, mbgl::gfx::BackendScope::ScopeType::Implicit);
 
-        
         // Add safety checks before calling render
         if (!m_renderer) {
             qWarning() << "MapRenderer::render() - m_renderer is null!";
             return;
         }
-        
+
         if (!params) {
             qWarning() << "MapRenderer::render() - params is null!";
             return;
         }
-        
+
         try {
             m_renderer->render(params);
         } catch (const std::exception &e) {
