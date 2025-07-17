@@ -21,6 +21,10 @@
 #include <functional>
 #include <memory>
 
+#ifdef MLN_RENDER_BACKEND_VULKAN
+#include <mbgl/vulkan/texture2d.hpp>
+#endif
+
 namespace QMapLibre {
 
 class MapPrivate;
@@ -175,11 +179,21 @@ public:
     void createRenderer();
     // Metal-specific: create the renderer using a pre-existing CAMetalLayer.
     void createRendererWithMetalLayer(void *layerPtr);
+    // Vulkan-specific: create the renderer using a Qt Quick window.
+    void createRendererWithVulkanWindow(void *windowPtr);
     void destroyRenderer();
     void setOpenGLFramebufferObject(quint32 fbo, const QSize &size);
 
-    // Metal-only helper: provide external drawable texture.
+    // Backend-specific helper: provide external drawable texture.
     void setCurrentDrawable(void *texturePtr);
+
+#ifdef MLN_RENDER_BACKEND_VULKAN
+    // Vulkan-specific: get the Vulkan texture object.
+    mbgl::vulkan::Texture2D* getVulkanTexture() const;
+    
+    // Vulkan-specific: read image data from the Vulkan texture.
+    std::shared_ptr<mbgl::PremultipliedImage> readVulkanImageData() const;
+#endif
 
 public slots:
     void render();
@@ -189,7 +203,7 @@ public slots:
     // and renders the map when completed.
     void startStaticRender();
 
-    // Metal-only helper for Qt Quick texture node.
+    // Backend-specific helper for Qt Quick texture node (Metal/Vulkan).
     void *nativeColorTexture() const;
 
 signals:

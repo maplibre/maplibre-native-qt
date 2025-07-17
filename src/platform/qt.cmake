@@ -173,16 +173,17 @@ if(MLN_WITH_VULKAN)
                 ${PROJECT_SOURCE_DIR}/vendor/maplibre-native/platform/default/src/mbgl/vulkan/headless_backend.cpp
         )
 
-        # Define selector macro unless another backend already took precedence
-        target_compile_definitions(
-            mbgl-core
-            PRIVATE
-                $<$<AND:$<BOOL:${MLN_WITH_VULKAN}>,$<NOT:$<BOOL:${MLN_WITH_METAL}>>,$<NOT:$<BOOL:${MLN_WITH_OPENGL}>>>:MLN_RENDER_BACKEND_VULKAN=1>
-        )
+
     else()
         message(STATUS "Qt build has no Vulkan headers; skipping Qt Vulkan backend")
         set(MLN_WITH_VULKAN OFF CACHE BOOL "Disable Vulkan backend due to missing Qt Vulkan support" FORCE)
     endif()
+
+    target_compile_definitions(
+        mbgl-core
+        PRIVATE MLN_RENDER_BACKEND_VULKAN=1
+    )
+
 endif()
 
 target_compile_definitions(

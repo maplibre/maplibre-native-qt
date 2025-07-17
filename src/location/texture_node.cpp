@@ -48,7 +48,8 @@ void TextureNode::resize(const QSize &size, qreal pixelRatio, QQuickWindow *wind
 }
 
 void TextureNode::render(QQuickWindow *window) {
-    if (window->rendererInterface()->graphicsApi() == QSGRendererInterface::MetalRhi) {
+    if (window->rendererInterface()->graphicsApi() == QSGRendererInterface::MetalRhi ||
+        window->rendererInterface()->graphicsApi() == QSGRendererInterface::VulkanRhi) {
         if (!m_rhiNode) {
             m_rhiNode = new RhiTextureNode(window);
             appendChildNode(m_rhiNode);

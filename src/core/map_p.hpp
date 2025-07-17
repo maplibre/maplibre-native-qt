@@ -40,6 +40,7 @@ public:
     // These need to be called on the same thread.
     void createRenderer();
     void createRendererWithMetalLayer(void *layerPtr);
+    void createRendererWithVulkanWindow(void *windowPtr);
     void destroyRenderer();
     void render();
     void setOpenGLFramebufferObject(quint32 fbo, const QSize &size);
@@ -54,12 +55,18 @@ public:
     mbgl::EdgeInsets margins;
     std::unique_ptr<mbgl::Map> mapObj{};
 
-    // Metal-only helper to expose the most recent color texture from the Metal
-    // backend.  Safe to call from the GUI thread.
+    // Backend-specific helpers to expose the most recent color texture
+    // Safe to call from the GUI thread.
     void *currentMetalTexture() const;
+    void *currentVulkanTexture() const;
 
-    // Metal-only: push latest swap-chain texture into renderer
+    // Backend-specific: push latest swap-chain texture into renderer
     void setCurrentDrawable(void *tex);
+    
+#if defined(MLN_RENDER_BACKEND_VULKAN)
+    // Helper method to get the texture object for pixel data extraction
+    mbgl::vulkan::Texture2D* getVulkanTexture() const;
+#endif
 
 public slots:
     void requestRendering();
@@ -93,11 +100,23 @@ inline void *MapPrivate::currentMetalTexture() const {
     return m_mapRenderer ? m_mapRenderer->currentMetalTexture() : nullptr;
 }
 
+inline void *MapPrivate::currentVulkanTexture() const {
+    std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
+    return m_mapRenderer ? m_mapRenderer->currentVulkanTexture() : nullptr;
+}
+
 inline void MapPrivate::setCurrentDrawable(void *tex) {
     std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
     if (m_mapRenderer) {
         m_mapRenderer->setCurrentDrawable(tex);
     }
 }
+
+#if defined(MLN_RENDER_BACKEND_VULKAN)
+inline mbgl::vulkan::Texture2D* MapPrivate::getVulkanTexture() const {
+    std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
+    return m_mapRenderer ? m_mapRenderer->getVulkanTexture() : nullptr;
+}
+#endif
 
 } // namespace QMapLibre

@@ -4,21 +4,45 @@
 
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QQmlContext>
 #include <QQuickWindow>
 #include <QtQuick/QSGRendererInterface>
+#include <QVulkanInstance>
+#include <QDebug>
+#include <vulkan/vulkan.h>
 
 int main(int argc, char *argv[]) {
-    // Use platform-appropriate graphics API
-#if defined(__APPLE__)
-    QQuickWindow::setGraphicsApi(QSGRendererInterface::MetalRhi);
+    
+    // Set up graphics API and instance for each platform
+#if defined(MLN_WITH_VULKAN)  
+    // Set Qt Quick to use Vulkan RHI
+    QQuickWindow::setGraphicsApi(QSGRendererInterface::Vulkan);
+    
+    bool vulkanAvailable = true; // Assume available for now
+    
+#elif defined(__APPLE__)
+    // Use Metal on Apple platforms
+    QQuickWindow::setGraphicsApi(QSGRendererInterface::Metal);
+    
 #else
-    QQuickWindow::setGraphicsApi(QSGRendererInterface::OpenGLRhi);
+    // Use OpenGL on other platforms
+    QQuickWindow::setGraphicsApi(QSGRendererInterface::OpenGL);
+
 #endif
 
+
     QGuiApplication app(argc, argv);
+    
+    qDebug() << "Platform:" << QGuiApplication::platformName();
 
     QQmlApplicationEngine engine;
-    engine.load(QUrl(QStringLiteral("qrc:/Example/main.qml")));
+    
+    // Try to load test file if provided as argument
+    if (argc > 1) {
+        engine.load(QUrl::fromLocalFile(argv[1]));
+    } else {
+        engine.load(QUrl(QStringLiteral("qrc:/Example/main.qml")));
+    }
     if (engine.rootObjects().isEmpty()) return -1;
 
     return app.exec();
