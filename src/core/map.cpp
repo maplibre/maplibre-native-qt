@@ -32,6 +32,7 @@
 #include <mbgl/style/conversion_impl.hpp>
 #include <mbgl/style/filter.hpp>
 #include <mbgl/style/image.hpp>
+#include <mbgl/util/image.hpp>
 #include <mbgl/style/layers/background_layer.hpp>
 #include <mbgl/style/layers/circle_layer.hpp>
 #include <mbgl/style/layers/fill_extrusion_layer.hpp>
@@ -1505,6 +1506,10 @@ void Map::createRendererWithMetalLayer(void *layerPtr) {
     d_ptr->createRendererWithMetalLayer(layerPtr);
 }
 
+void Map::createRendererWithVulkanWindow(void *windowPtr) {
+    d_ptr->createRendererWithVulkanWindow(windowPtr);
+}
+
 /*!
     \brief Destroy the renderer.
 
@@ -1737,7 +1742,7 @@ void MapPrivate::createRendererWithMetalLayer(void *layerPtr) {
         return; // already created
     }
 
-    m_mapRenderer = std::make_unique<MapRenderer>(m_pixelRatio, m_mode, m_localFontFamily, layerPtr);
+    m_mapRenderer = std::make_unique<MapRenderer>(m_pixelRatio, m_mode, m_localFontFamily, layerPtr, false);
 
     connect(m_mapRenderer.get(), &MapRenderer::needsRendering, this, &MapPrivate::requestRendering);
 
@@ -1749,6 +1754,33 @@ void MapPrivate::createRendererWithMetalLayer(void *layerPtr) {
     }
 }
 
+void MapPrivate::createRendererWithVulkanWindow(void *windowPtr) {
+    const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
+
+    qDebug() << "MapPrivate::createRendererWithVulkanWindow() called with window:" << windowPtr;
+
+    if (m_mapRenderer != nullptr) {
+        qDebug() << "Renderer already exists, returning";
+        return; // already created
+    }
+
+    qDebug() << "Creating MapRenderer with Vulkan window";
+    m_mapRenderer = std::make_unique<MapRenderer>(m_pixelRatio, m_mode, m_localFontFamily, windowPtr, true);
+    qDebug() << "MapRenderer created successfully";
+
+    connect(m_mapRenderer.get(), &MapRenderer::needsRendering, this, &MapPrivate::requestRendering);
+
+    m_mapRenderer->setObserver(m_rendererObserver.get());
+
+    if (m_updateParameters != nullptr) {
+        qDebug() << "Updating renderer parameters and requesting rendering";
+        m_mapRenderer->updateParameters(m_updateParameters);
+        requestRendering();
+    }
+    
+    qDebug() << "MapRenderer setup completed";
+}
+
 void MapPrivate::destroyRenderer() {
     const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
 
@@ -1758,12 +1790,17 @@ void MapPrivate::destroyRenderer() {
 void MapPrivate::render() {
     const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
 
+    qDebug() << "MapPrivate::render() called";
+
     if (m_mapRenderer == nullptr) {
+        qDebug() << "MapRenderer is null, creating renderer";
         createRenderer();
     }
 
+    qDebug() << "Clearing render queue and calling renderer->render()";
     m_renderQueued.clear();
     m_mapRenderer->render();
+    qDebug() << "MapRenderer::render() completed";
 }
 
 void MapPrivate::setOpenGLFramebufferObject(quint32 fbo, const QSize &size) {
@@ -1826,11 +1863,32 @@ bool MapPrivate::setProperty(const PropertySetter &setter,
 /*! \endcond */
 
 void *Map::nativeColorTexture() const {
+#if defined(MLN_RENDER_BACKEND_METAL)
     return d_ptr->currentMetalTexture();
+#elif defined(MLN_RENDER_BACKEND_VULKAN)
+    void *result = d_ptr->currentVulkanTexture();
+    return result;
+#else
+    return nullptr;
+#endif
 }
 
 void Map::setCurrentDrawable(void *texturePtr) {
     d_ptr->setCurrentDrawable(texturePtr);
 }
+
+#ifdef MLN_RENDER_BACKEND_VULKAN
+mbgl::vulkan::Texture2D* Map::getVulkanTexture() const {
+    return d_ptr->getVulkanTexture();
+}
+
+std::shared_ptr<mbgl::PremultipliedImage> Map::readVulkanImageData() const {
+    auto* texture = d_ptr->getVulkanTexture();
+    if (texture) {
+        return texture->readImage();
+    }
+    return nullptr;
+}
+#endif
 
 } // namespace QMapLibre

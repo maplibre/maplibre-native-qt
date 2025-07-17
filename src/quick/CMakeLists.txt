@@ -14,8 +14,6 @@ qt_add_qml_module(maplibre_quick
     INSTALL_DIRECTORY MapLibre/Quick
     SOURCES
         maplibre_quick_item.hpp
-        maplibre_quick_item_base.hpp
-        maplibre_quick_item_base.cpp
         plugin.cpp
     RESOURCES
         plugin.json
@@ -40,6 +38,10 @@ elseif(MLN_WITH_VULKAN)
         maplibre_quick_item_vulkan.cpp
     )
     target_compile_definitions(maplibre_quick PRIVATE MLN_RENDER_BACKEND_VULKAN=1)
+    target_include_directories(maplibre_quick SYSTEM PRIVATE 
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native/vendor/Vulkan-Headers/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native/vendor/VulkanMemoryAllocator/include
+    )
 else()
     # Default to OpenGL backend
     target_sources(maplibre_quick PRIVATE

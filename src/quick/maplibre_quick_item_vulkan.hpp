@@ -1,28 +1,52 @@
 #pragma once
 
-#include "maplibre_quick_item_base.hpp"
+#include <QtQml/qqmlregistration.h>
+#include <QMapLibre/Map>
+#include <QQuickItem>
+#include <memory>
+
+namespace QMapLibre {
+class Map;
+}
 
 namespace QMapLibreQuick {
 
 /**
  * @brief Vulkan backend implementation for MapLibre Quick item
  */
-class MapLibreQuickItemVulkan : public MapLibreQuickItemBase {
+class MapLibreQuickItemVulkan : public QQuickItem {
     Q_OBJECT
     QML_NAMED_ELEMENT(MapLibreView)
 
 public:
     MapLibreQuickItemVulkan();
-    ~MapLibreQuickItemVulkan() override = default;
+    ~MapLibreQuickItemVulkan() override;
 
 protected:
-    QSGNode* renderFrame(QSGNode* oldNode) override;
-    void initializeBackend() override;
-    void cleanupBackend() override;
+    QSGNode *updatePaintNode(QSGNode *, UpdatePaintNodeData *) override;
+    void geometryChange(const QRectF &newGeometry, const QRectF &oldGeometry) override;
+    void releaseResources() override;
+    void itemChange(ItemChange change, const ItemChangeData &data) override;
+    
+    // Mouse interaction
+    void mousePressEvent(QMouseEvent *) override;
+    void mouseMoveEvent(QMouseEvent *) override;
+    void mouseReleaseEvent(QMouseEvent *) override;
+    void wheelEvent(QWheelEvent *) override;
 
 private:
-    // Vulkan-specific member variables would go here
-    // For now, this is a placeholder implementation
+    void ensureMap(int w, int h, float dpr);
+    void setupVulkanContext(QQuickWindow *quickWindow);
+
+    std::unique_ptr<QMapLibre::Map> m_map;
+    QSize m_size;
+    bool m_connected = false;
+    bool m_rendererBound = false;
+    QMetaObject::Connection m_renderConnection;
+    
+    // interaction state
+    QPointF m_lastMousePos;
+    bool m_dragging{false};
 };
 
 // Type alias for the actual MapLibreQuickItem when using Vulkan
