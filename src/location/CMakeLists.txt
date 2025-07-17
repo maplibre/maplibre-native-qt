@@ -25,6 +25,19 @@ target_sources(
         $<$<PLATFORM_ID:Windows>:${CMAKE_BINARY_DIR}/version_info.rc>
 )
 
+# Add backend-specific RHI texture node implementations based on CMake flags
+if(MLN_WITH_OPENGL)
+    target_sources(MLNQtLocation PRIVATE rhi_texture_node_opengl.cpp)
+endif()
+
+if(MLN_WITH_VULKAN)
+    target_sources(MLNQtLocation PRIVATE rhi_texture_node_vulkan.cpp)
+endif()
+
+if(MLN_WITH_METAL AND APPLE)
+    target_sources(MLNQtLocation PRIVATE rhi_texture_node_metal.mm)
+endif()
+
 # Linux/Mac: Set framework, version and headers
 set_target_properties(
     MLNQtLocation

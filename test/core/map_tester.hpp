@@ -6,11 +6,7 @@
 
 #include <QMapLibre/Map>
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 #include <QOpenGLWidget>
-#else
-#include <QGLWidget>
-#endif
 
 class TestCore;
 
@@ -25,11 +21,7 @@ public:
     void runUntil(Map::MapChange);
 
 private:
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     QOpenGLWidget widget;
-#else
-    QGLWidget widget;
-#endif
     const QSize size;
 
 protected:
