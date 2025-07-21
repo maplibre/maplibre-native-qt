@@ -2,53 +2,53 @@
 
 #include <QtQml/qqmlregistration.h>
 #include <QMapLibre/Map>
-#include <QMouseEvent>
-#include <QPointF>
-#include <QQuickFramebufferObject>
-#include <QSize>
-#include <QString>
-#include <QWheelEvent>
+#include <QQuickItem>
+#include <QSGNode>
+#include <QSGRenderNode>
 #include <memory>
 
-namespace QMapLibre {
-class Map;
-}
 
 namespace QMapLibreQuick {
 
 /**
- * @brief OpenGL backend implementation for MapLibre Quick item using QQuickFramebufferObject
+ * @brief Direct rendering Quick item with integrated QSGRenderNode functionality
  */
-class MapLibreQuickItemOpenGL : public QQuickFramebufferObject {
+class MapLibreQuickItemOpenGL : public QQuickItem {
     Q_OBJECT
     QML_NAMED_ELEMENT(MapLibreView)
 
 public:
-    MapLibreQuickItemOpenGL();
-    ~MapLibreQuickItemOpenGL() override = default;
-
-    // QQuickFramebufferObject interface
-    Renderer *createRenderer() const override;
+    MapLibreQuickItemOpenGL(QQuickItem *parent = nullptr);
+    ~MapLibreQuickItemOpenGL() override;
 
 protected:
+    QSGNode *updatePaintNode(QSGNode *node, UpdatePaintNodeData *data) override;
+    void geometryChange(const QRectF &newGeometry, const QRectF &oldGeometry) override;
+    void releaseResources() override;
+
+public:
+    QMapLibre::Map* getMap() const;
+
+    // Direct OpenGL rendering (called by render node)
+    void performDirectRendering();
+
     // Mouse interaction
     void mousePressEvent(QMouseEvent *) override;
     void mouseMoveEvent(QMouseEvent *) override;
     void mouseReleaseEvent(QMouseEvent *) override;
     void wheelEvent(QWheelEvent *) override;
 
+private slots:
+    void handleMapNeedsRendering();
+
 private:
     void ensureMap(int w, int h, float dpr);
 
-    mutable std::unique_ptr<QMapLibre::Map> m_map;
-    QSize m_size;
-    bool m_connected{false};
+    std::unique_ptr<QMapLibre::Map> m_map;
 
-    // Interaction state
+    // interaction state
     QPointF m_lastMousePos;
     bool m_dragging{false};
-
-    friend class MapLibreRenderer;
 };
 
 // Type alias for the actual MapLibreQuickItem

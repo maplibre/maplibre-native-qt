@@ -1,4 +1,4 @@
-// MapLibreQuickItem OpenGL backend implementation using QQuickFramebufferObject
+// MapLibreQuickItem QRhi backend implementation for cross-platform compatibility
 
 #include "maplibre_quick_item_opengl.hpp"
 
@@ -7,229 +7,236 @@
 #include <QMapLibre/Settings>
 #include <QMapLibre/Types>
 #include <QMouseEvent>
-#include <QOpenGLContext>
-#include <QOpenGLFramebufferObject>
-#include <QOpenGLFunctions>
 #include <QQuickWindow>
+#include <QTimer>
 #include <QWheelEvent>
 #include <cmath>
+#include <vector>
 
-#include "utils/opengl_renderer_backend.hpp"
 
 using namespace QMapLibreQuick;
-using namespace QMapLibre;
 
-namespace QMapLibreQuick {
-
-/**
- * @brief Custom renderer for MapLibre using QQuickFramebufferObject::Renderer
- */
-class MapLibreRenderer : public QQuickFramebufferObject::Renderer {
+// ===============================
+// Simple Custom Render Node (minimal implementation)
+// ===============================
+class MapLibreDirectRenderNode : public QSGRenderNode {
 public:
-    MapLibreRenderer(MapLibreQuickItemOpenGL* item)
-        : m_item(item) {
-        qDebug() << "Creating MapLibreRenderer";
-    }
+    explicit MapLibreDirectRenderNode(MapLibreQuickItemOpenGL* item) : m_item(item) {}
 
-protected:
-    void render() override {
-        if (!m_item->m_map) {
-            qDebug() << "No map available for rendering";
-            return;
-        }
-
-        qDebug() << "MapLibreRenderer::render() called";
-
-        // Get the current FBO from Qt
-        QOpenGLFramebufferObject* fbo = framebufferObject();
-        if (!fbo) {
-            qWarning() << "No FBO available";
-            return;
-        }
-
-        const QSize fboSize = fbo->size();
-        qDebug() << "Rendering to FBO size:" << fboSize;
-
-        // Update map size if needed
-        const QSize itemSize(static_cast<int>(m_item->width()), static_cast<int>(m_item->height()));
-        m_item->m_map->resize(itemSize);
-
-        // Set the FBO for MapLibre to render into
-        m_item->m_map->setOpenGLFramebufferObject(fbo->handle(), fboSize);
-
-        // Get OpenGL context and functions
-        QOpenGLContext* context = QOpenGLContext::currentContext();
-        if (!context) {
-            qWarning() << "No current OpenGL context";
-            return;
-        }
-
-        QOpenGLFunctions* f = context->functions();
-        if (!f) {
-            qWarning() << "Failed to get OpenGL functions";
-            return;
-        }
-
-        // Clear the FBO
-        f->glViewport(0, 0, fboSize.width(), fboSize.height());
-        f->glClearColor(0.2f, 0.2f, 0.3f, 1.0f); // Dark blue background
-        f->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        // Render the map
-        try {
-            qDebug() << "Calling map render";
-            m_item->m_map->render();
-            qDebug() << "Map render completed successfully";
-        } catch (const std::exception& e) {
-            qWarning() << "MapLibre render failed:" << e.what();
+    void render(const RenderState *state) override {
+        if (m_item) {
+            m_item->performDirectRendering();
         }
     }
 
-    QOpenGLFramebufferObject* createFramebufferObject(const QSize& size) override {
-        qDebug() << "Creating FBO of size:" << size;
+    QSGRenderNode::RenderingFlags flags() const override {
+        return QSGRenderNode::BoundedRectRendering | QSGRenderNode::OpaqueRendering;
+    }
 
-        // Create FBO with depth and stencil buffers
-        QOpenGLFramebufferObjectFormat format;
-        format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
-        format.setSamples(4); // Enable 4x MSAA
-
-        auto* fbo = new QOpenGLFramebufferObject(size, format);
-
-        // The FBO will be used by MapLibre which expects OpenGL coordinate system
-        // (origin at bottom-left), but QML expects top-left origin.
-        // This will be handled in the render() method.
-
-        return fbo;
+    QRectF rect() const override {
+        return m_item ? QRectF(0, 0, m_item->width(), m_item->height()) : QRectF();
     }
 
 private:
-    MapLibreQuickItemOpenGL* m_item;
+    MapLibreQuickItemOpenGL* m_item = nullptr;
 };
 
-} // namespace QMapLibreQuick
 
-MapLibreQuickItemOpenGL::MapLibreQuickItemOpenGL() {
-    qDebug() << "Creating MapLibreQuickItemOpenGL";
-    setFlag(ItemHasContents, true);
-    setFlag(ItemAcceptsInputMethod, true);
-    setAcceptedMouseButtons(Qt::AllButtons);
-    setAcceptTouchEvents(true);
+MapLibreQuickItemOpenGL::MapLibreQuickItemOpenGL(QQuickItem *parent)
+    : QQuickItem(parent)
+{
+    setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton | Qt::MiddleButton);
     setAcceptHoverEvents(true);
 
-    // Enable focus so we can receive keyboard and mouse events
-    setActiveFocusOnTab(true);
-    setFlag(ItemIsFocusScope, true);
+    // Enable custom paint node rendering
+    setFlag(ItemHasContents, true);
 
-    // Important: Enable mouse tracking to receive move events even when not pressed
-    setKeepMouseGrab(true);
-    setKeepTouchGrab(true);
+    // Set a default size to ensure the item is visible
+    setImplicitWidth(400);
+    setImplicitHeight(300);
 
-    // Set mirror vertically to correct OpenGL coordinate system vs QML coordinate system
-    setMirrorVertically(true);
-
-    qDebug() << "MapLibreQuickItemOpenGL constructor complete - accepted mouse buttons:" << acceptedMouseButtons();
+    qDebug() << "MapLibreQuickItemOpenGL: Initialized with QRhi backend for cross-platform compatibility";
 }
 
-QQuickFramebufferObject::Renderer* MapLibreQuickItemOpenGL::createRenderer() const {
-    qDebug() << "MapLibreQuickItemOpenGL::createRenderer() called";
-
-    // Ensure map is created
-    if (!m_map) {
-        const int w = static_cast<int>(width());
-        const int h = static_cast<int>(height());
-        const float dpr = window() ? window()->devicePixelRatio() : 1.0f;
-
-        if (w > 0 && h > 0) {
-            const_cast<MapLibreQuickItemOpenGL*>(this)->ensureMap(w, h, dpr);
-        }
-    }
-
-    return new MapLibreRenderer(const_cast<MapLibreQuickItemOpenGL*>(this));
+MapLibreQuickItemOpenGL::~MapLibreQuickItemOpenGL()
+{
+    qDebug() << "MapLibreQuickItemOpenGL: Destroying OpenGL item";
+    m_map.reset();
 }
 
-void MapLibreQuickItemOpenGL::ensureMap(int w, int h, float dpr) {
-    if (m_map) {
+void MapLibreQuickItemOpenGL::ensureMap(const int width, const int height, const float pixelRatio) {
+    if (m_map || width <= 0 || height <= 0) {
         return;
     }
 
-    qDebug() << "Creating MapLibre map with size:" << w << "x" << h << "dpr:" << dpr;
+    qDebug() << "MapLibreQuickItemOpenGL: Creating map with size" << width << "x" << height << "DPR:" << pixelRatio;
 
-    // Create map settings
-    Settings settings;
-    settings.setApiKey(""); // No API key needed for OpenStreetMap styles
-    settings.setApiBaseUrl("");
-    settings.setLocalFontFamily("Arial");
-    settings.setContextMode(Settings::GLContextMode::SharedGLContext);
+    try {
+        // Create with minimal settings optimized for OpenGL performance
+        QMapLibre::Settings settings;
+        settings.setContextMode(QMapLibre::Settings::SharedGLContext);
 
-    // Create the map using standard constructor (Map will handle renderer backend internally)
-    m_map = std::make_unique<Map>(nullptr, settings, QSize(w, h), dpr);
+        m_map = std::make_unique<QMapLibre::Map>(nullptr, settings, QSize(width, height), pixelRatio);
 
-    // Connect to needsRendering signal to trigger updates
-    connect(m_map.get(), &Map::needsRendering, this, &QQuickFramebufferObject::update);
+        if (m_map) {
+            // Connect to the map's rendering signals
+            connect(m_map.get(), &QMapLibre::Map::needsRendering, this, &MapLibreQuickItemOpenGL::handleMapNeedsRendering);
 
-    // Explicitly create the renderer
-    m_map->createRenderer();
-    qDebug() << "Created map renderer";
+            // Set up map for tile rendering
+            qDebug() << "Setting map style and coordinates";
+            m_map->setStyleUrl("https://demotiles.maplibre.org/style.json");
+            
+            // Set coordinates with good tile coverage (London) and reasonable zoom
+            m_map->setCoordinateZoom(QMapLibre::Coordinate{51.505, -0.09}, 8.0); // London, zoom 8
+            m_map->setPitch(0.0); // No tilt for clearer tile visibility
+            m_map->setBearing(0.0); // No rotation
+            m_map->setConnectionEstablished();
 
-    // Set default coordinate and zoom
-    m_map->setCoordinateZoom(Coordinate(43.0, 21.0), 5.0);
-
-    // Set a public style that doesn't require API key
-    m_map->setStyleUrl("https://demotiles.maplibre.org/style.json");
-
-    qDebug() << "MapLibre map created successfully";
+            qDebug() << "MapLibreQuickItemOpenGL: Map configured for London at zoom 8";
+        }
+    } catch (const std::exception &e) {
+        qWarning() << "Failed to create MapLibre map:" << e.what();
+        m_map.reset();
+    }
 }
 
-// Mouse event handlers
-void MapLibreQuickItemOpenGL::mousePressEvent(QMouseEvent* event) {
-    qDebug() << "Mouse press at:" << event->position() << "button:" << event->button();
+QSGNode *MapLibreQuickItemOpenGL::updatePaintNode(QSGNode *node, UpdatePaintNodeData *)
+{
+    qDebug() << "=== DIRECT OPENGL RENDERING: updatePaintNode called ===";
+    if (!window()) {
+        return node;
+    }
+
+    // Check for valid size
+    if (width() <= 0 || height() <= 0) {
+        return node;
+    }
+
+    // Ensure we have a map
+    if (!m_map) {
+        ensureMap(width(), height(), window()->devicePixelRatio());
+        if (!m_map) {
+            return node;
+        }
+    }
+
+    // This is the OpenGL-specific Quick item
+
+    // DIRECT APPROACH: Use simple custom render node
+    qDebug() << "DIRECT OPENGL RENDERING: Using direct OpenGL rendering";
+    
+    // Create or reuse direct render node
+    MapLibreDirectRenderNode *renderNode = static_cast<MapLibreDirectRenderNode *>(node);
+    if (!renderNode) {
+        qDebug() << "DIRECT OPENGL RENDERING: Creating new direct render node";
+        renderNode = new MapLibreDirectRenderNode(this);
+    }
+    
+    qDebug() << "DIRECT OPENGL RENDERING: Render node ready";
+    qDebug() << "DIRECT OPENGL RENDERING: Size:" << width() << "x" << height() << "DPR:" << window()->devicePixelRatio();
+    
+    return renderNode;
+}
+
+QMapLibre::Map* MapLibreQuickItemOpenGL::getMap() const
+{
+    return m_map.get();
+}
+
+void MapLibreQuickItemOpenGL::performDirectRendering()
+{
+    if (!m_map) {
+        qDebug() << "MapLibreQuickItemOpenGL: No map available for rendering";
+        return;
+    }
+
+    qDebug() << "MapLibreQuickItemOpenGL: Executing direct OpenGL rendering";
+    
+    // Update map size if needed
+    if (window()) {
+        const qreal dpr = window()->devicePixelRatio();
+        const QSize mapSize(
+            static_cast<int>(width() * dpr),
+            static_cast<int>(height() * dpr)
+        );
+        m_map->resize(mapSize);
+    }
+
+    // Direct map rendering (OpenGL-only Quick item)
+    qDebug() << "MapLibreQuickItemOpenGL: Direct map rendering";
+    m_map->render();
+    qDebug() << "MapLibreQuickItemOpenGL: Map rendering completed";
+}
+
+
+void MapLibreQuickItemOpenGL::geometryChange(const QRectF &newGeometry, const QRectF &oldGeometry) {
+    QQuickItem::geometryChange(newGeometry, oldGeometry);
+
+    if (m_map && newGeometry.size() != oldGeometry.size()) {
+        const float dpr = window() ? window()->devicePixelRatio() : 1.0f;
+        m_map->resize(QSize(static_cast<int>(newGeometry.width() * dpr), static_cast<int>(newGeometry.height() * dpr)));
+        update();
+    }
+}
+
+
+void MapLibreQuickItemOpenGL::releaseResources()
+{
+    // Clean up OpenGL resources
+    qDebug() << "MapLibreQuickItemOpenGL: Releasing OpenGL resources";
+    m_map.reset();
+}
+
+void MapLibreQuickItemOpenGL::handleMapNeedsRendering()
+{
+    qDebug() << "TILES DEBUG: needsRendering signal received - triggering update()";
+    update();
+}
+
+// Mouse interaction (same as other backends)
+void MapLibreQuickItemOpenGL::mousePressEvent(QMouseEvent *event)
+{
     if (event->button() == Qt::LeftButton) {
         m_lastMousePos = event->position();
         m_dragging = true;
-        grabMouse(); // Grab mouse to ensure we get move events
-        qDebug() << "Started dragging and grabbed mouse";
-    }
-    event->accept(); // Accept the event to ensure we get subsequent events
-}
-
-void MapLibreQuickItemOpenGL::mouseMoveEvent(QMouseEvent* event) {
-    qDebug() << "Mouse move event - dragging:" << m_dragging << "position:" << event->position();
-    if (m_dragging && m_map) {
-        qDebug() << "Processing drag - delta:" << (event->position() - m_lastMousePos);
-        const QPointF delta = event->position() - m_lastMousePos;
-
-        // Use MapLibre's moveBy method which handles pixel offset directly
-        // Fix the direction: move in the same direction as the mouse drag
-        const QPointF offset(delta.x(), delta.y());
-        m_map->moveBy(offset);
-
-        m_lastMousePos = event->position();
-        update(); // Trigger re-render
+        qDebug() << "Mouse press at" << m_lastMousePos;
     }
     event->accept();
 }
 
-void MapLibreQuickItemOpenGL::mouseReleaseEvent(QMouseEvent* event) {
-    qDebug() << "Mouse release, button:" << event->button();
+void MapLibreQuickItemOpenGL::mouseMoveEvent(QMouseEvent *event)
+{
+    if (m_dragging && m_map) {
+        const QPointF delta = event->position() - m_lastMousePos;
+        m_map->moveBy(delta);
+        m_lastMousePos = event->position();
+        update();
+        qDebug() << "Mouse move delta" << delta;
+    }
+    event->accept();
+}
+
+void MapLibreQuickItemOpenGL::mouseReleaseEvent(QMouseEvent *event)
+{
     if (event->button() == Qt::LeftButton) {
         m_dragging = false;
-        ungrabMouse(); // Release mouse grab
-        qDebug() << "Stopped dragging and released mouse grab";
+        qDebug() << "Mouse released";
     }
     event->accept();
 }
 
-void MapLibreQuickItemOpenGL::wheelEvent(QWheelEvent* event) {
+void MapLibreQuickItemOpenGL::wheelEvent(QWheelEvent *event)
+{
     if (m_map) {
         const QPoint numDegrees = event->angleDelta() / 8;
         if (!numDegrees.isNull()) {
             const double currentZoom = m_map->zoom();
-            const double zoomDelta = numDegrees.y() / 120.0; // Standard wheel delta
+            const double zoomDelta = numDegrees.y() / 120.0;
             const double newZoom = std::max(0.0, std::min(22.0, currentZoom + zoomDelta));
-
             m_map->setZoom(newZoom);
-            update(); // Trigger re-render
+            update();
+            qDebug() << "Zoom changed to" << newZoom;
         }
     }
-    QQuickFramebufferObject::wheelEvent(event);
+    QQuickItem::wheelEvent(event);
 }
