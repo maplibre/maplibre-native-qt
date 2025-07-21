@@ -33,7 +33,6 @@ Window {
         // Ensure the map view is properly configured for Vulkan
         Component.onCompleted: {
             console.log("MapLibreView initialized");
-            console.log("MapLibreView ready for Vulkan integration testing");
         }
     }
 }
