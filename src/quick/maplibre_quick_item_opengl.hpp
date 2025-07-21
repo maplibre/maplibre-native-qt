@@ -7,7 +7,6 @@
 #include <QSGRenderNode>
 #include <memory>
 
-
 namespace QMapLibreQuick {
 
 /**
@@ -27,7 +26,7 @@ protected:
     void releaseResources() override;
 
 public:
-    QMapLibre::Map* getMap() const;
+    QMapLibre::Map *getMap() const;
 
     // Direct OpenGL rendering (called by render node)
     void performDirectRendering();
