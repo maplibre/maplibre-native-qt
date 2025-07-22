@@ -9,7 +9,11 @@
 #include <mbgl/gfx/renderable.hpp>
 #include <mbgl/vulkan/renderer_backend.hpp>
 
-namespace mbgl { namespace vulkan { class Texture2D; } }
+namespace mbgl {
+namespace vulkan {
+class Texture2D;
+}
+} // namespace mbgl
 
 namespace QMapLibre {
 
