@@ -68,6 +68,11 @@ public:
     mbgl::vulkan::Texture2D *getVulkanTexture() const;
 #endif
 
+#if defined(MLN_RENDER_BACKEND_OPENGL)
+    // Helper method to get the OpenGL framebuffer texture ID for direct texture sharing
+    unsigned int getFramebufferTextureId() const;
+#endif
+
 public slots:
     void requestRendering();
 
@@ -116,6 +121,13 @@ inline void MapPrivate::setCurrentDrawable(void *tex) {
 inline mbgl::vulkan::Texture2D *MapPrivate::getVulkanTexture() const {
     std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
     return m_mapRenderer ? m_mapRenderer->getVulkanTexture() : nullptr;
+}
+#endif
+
+#if defined(MLN_RENDER_BACKEND_OPENGL)
+inline unsigned int MapPrivate::getFramebufferTextureId() const {
+    std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
+    return m_mapRenderer ? m_mapRenderer->getFramebufferTextureId() : 0;
 }
 #endif
 

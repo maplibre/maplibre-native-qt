@@ -1891,4 +1891,10 @@ std::shared_ptr<mbgl::PremultipliedImage> Map::readVulkanImageData() const {
 }
 #endif
 
+#ifdef MLN_RENDER_BACKEND_OPENGL
+unsigned int Map::getFramebufferTextureId() const {
+    return d_ptr->getFramebufferTextureId();
+}
+#endif
+
 } // namespace QMapLibre

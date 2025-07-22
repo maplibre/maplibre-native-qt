@@ -28,9 +28,13 @@ public:
     // Qt integration helpers -----------------------------------------------------
     void restoreFramebufferBinding();
     void updateFramebuffer(uint32_t fbo, const mbgl::Size& newSize);
+    
+    // Get the current framebuffer texture ID for direct texture sharing
+    unsigned int getFramebufferTextureId() const;
 
 private:
     uint32_t m_fbo{0};
+    uint32_t m_colorTexture{0}; // OpenGL texture ID for the framebuffer's color attachment
 };
 
 } // namespace QMapLibre
