@@ -28,7 +28,7 @@ public:
     // Qt integration helpers -----------------------------------------------------
     void restoreFramebufferBinding();
     void updateFramebuffer(uint32_t fbo, const mbgl::Size& newSize);
-    
+
     // Get the current framebuffer texture ID for direct texture sharing
     unsigned int getFramebufferTextureId() const;
 

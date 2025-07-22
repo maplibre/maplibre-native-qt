@@ -65,44 +65,46 @@ void OpenGLRendererBackend::restoreFramebufferBinding() {
 void OpenGLRendererBackend::updateFramebuffer(uint32_t fbo, const mbgl::Size& newSize) {
     m_fbo = fbo;
     size = newSize;
-    
+
     // Create or recreate the color texture for the framebuffer
     QOpenGLContext* glContext = QOpenGLContext::currentContext();
     if (glContext && newSize.width > 0 && newSize.height > 0) {
         QOpenGLFunctions* gl = glContext->functions();
-        
+
         // Delete old texture if it exists
         if (m_colorTexture != 0) {
             gl->glDeleteTextures(1, &m_colorTexture);
         }
-        
+
         // Create new texture for the framebuffer's color attachment
         gl->glGenTextures(1, &m_colorTexture);
         gl->glBindTexture(GL_TEXTURE_2D, m_colorTexture);
-        
+
         // Set up texture parameters for framebuffer use
-        gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, newSize.width, newSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        gl->glTexImage2D(
+            GL_TEXTURE_2D, 0, GL_RGBA8, newSize.width, newSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
         gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        
+
         // Create and setup framebuffer if we don't have one
         if (fbo != 0) {
             gl->glBindFramebuffer(GL_FRAMEBUFFER, fbo);
             gl->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_colorTexture, 0);
-            
+
             // Check framebuffer completeness
             GLenum status = gl->glCheckFramebufferStatus(GL_FRAMEBUFFER);
             if (status != GL_FRAMEBUFFER_COMPLETE) {
                 qWarning() << "OpenGLRendererBackend: Framebuffer not complete, status:" << status;
             } else {
-                qDebug() << "OpenGLRendererBackend: Framebuffer" << fbo << "setup complete with texture" << m_colorTexture << "size" << newSize.width << "x" << newSize.height;
+                qDebug() << "OpenGLRendererBackend: Framebuffer" << fbo << "setup complete with texture"
+                         << m_colorTexture << "size" << newSize.width << "x" << newSize.height;
             }
-            
+
             // Don't clear the framebuffer - let MapLibre handle rendering
         }
-        
+
         // Restore default texture binding
         gl->glBindTexture(GL_TEXTURE_2D, 0);
     }

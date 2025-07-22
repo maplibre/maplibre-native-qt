@@ -27,7 +27,6 @@ protected:
 public:
     QMapLibre::Map *getMap() const;
 
-
     // Mouse interaction
     void mousePressEvent(QMouseEvent *) override;
     void mouseMoveEvent(QMouseEvent *) override;

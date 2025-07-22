@@ -83,7 +83,7 @@ public:
     void *currentMetalTexture() const { return nullptr; }
     void *currentVulkanTexture() const { return nullptr; }
     void setCurrentDrawable(void *) { /* OpenGL doesn't use drawable textures */ }
-    
+
     // Helper method to get the OpenGL framebuffer texture ID for direct texture sharing
     unsigned int getFramebufferTextureId() const { return m_backend.getFramebufferTextureId(); }
 #else
