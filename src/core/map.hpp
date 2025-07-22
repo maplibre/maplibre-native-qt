@@ -195,6 +195,11 @@ public:
     std::shared_ptr<mbgl::PremultipliedImage> readVulkanImageData() const;
 #endif
 
+#ifdef MLN_RENDER_BACKEND_OPENGL
+    // OpenGL-specific: get the OpenGL framebuffer texture ID for direct texture sharing.
+    unsigned int getFramebufferTextureId() const;
+#endif
+
 public slots:
     void render();
     void setConnectionEstablished();

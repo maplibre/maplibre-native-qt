@@ -4,13 +4,12 @@
 #include <QMapLibre/Map>
 #include <QQuickItem>
 #include <QSGNode>
-#include <QSGRenderNode>
 #include <memory>
 
 namespace QMapLibreQuick {
 
 /**
- * @brief Direct rendering Quick item with integrated QSGRenderNode functionality
+ * @brief OpenGL Quick item using QSGSimpleTextureNode for texture-based rendering
  */
 class MapLibreQuickItemOpenGL : public QQuickItem {
     Q_OBJECT
@@ -28,8 +27,6 @@ protected:
 public:
     QMapLibre::Map *getMap() const;
 
-    // Direct OpenGL rendering (called by render node)
-    void performDirectRendering();
 
     // Mouse interaction
     void mousePressEvent(QMouseEvent *) override;

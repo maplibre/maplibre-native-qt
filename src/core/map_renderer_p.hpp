@@ -79,6 +79,13 @@ public:
 
     // Helper method to get the texture object for pixel data extraction
     mbgl::vulkan::Texture2D *getVulkanTexture() const { return m_backend.getOffscreenTexture(); }
+#elif defined(MLN_RENDER_BACKEND_OPENGL)
+    void *currentMetalTexture() const { return nullptr; }
+    void *currentVulkanTexture() const { return nullptr; }
+    void setCurrentDrawable(void *) { /* OpenGL doesn't use drawable textures */ }
+    
+    // Helper method to get the OpenGL framebuffer texture ID for direct texture sharing
+    unsigned int getFramebufferTextureId() const { return m_backend.getFramebufferTextureId(); }
 #else
     void *currentMetalTexture() const {
         qDebug() << "WARNING: No backend defined - using fallback (Metal/Vulkan not available)";

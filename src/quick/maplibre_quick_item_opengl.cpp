@@ -11,33 +11,13 @@
 #include <QTimer>
 #include <QWheelEvent>
 #include <cmath>
+#include <QSGSimpleTextureNode>
+#include <qopengl.h>
+#include <QOpenGLContext>
+#include <QtQuick/qsgrendererinterface.h>
 #include <vector>
 
 using namespace QMapLibreQuick;
-
-// ===============================
-// Simple Custom Render Node (minimal implementation)
-// ===============================
-class MapLibreDirectRenderNode : public QSGRenderNode {
-public:
-    explicit MapLibreDirectRenderNode(MapLibreQuickItemOpenGL *item)
-        : m_item(item) {}
-
-    void render(const RenderState *state) override {
-        if (m_item) {
-            m_item->performDirectRendering();
-        }
-    }
-
-    QSGRenderNode::RenderingFlags flags() const override {
-        return QSGRenderNode::BoundedRectRendering | QSGRenderNode::OpaqueRendering;
-    }
-
-    QRectF rect() const override { return m_item ? QRectF(0, 0, m_item->width(), m_item->height()) : QRectF(); }
-
-private:
-    MapLibreQuickItemOpenGL *m_item = nullptr;
-};
 
 MapLibreQuickItemOpenGL::MapLibreQuickItemOpenGL(QQuickItem *parent)
     : QQuickItem(parent) {
@@ -89,6 +69,10 @@ void MapLibreQuickItemOpenGL::ensureMap(const int width, const int height, const
             m_map->setConnectionEstablished();
 
             qDebug() << "MapLibreQuickItemOpenGL: Map configured for London at zoom 8";
+            qDebug() << "Map style URL:" << m_map->styleUrl();
+            auto coord = m_map->coordinate();
+            qDebug() << "Map coordinate:" << coord.first << "," << coord.second;
+            qDebug() << "Map zoom:" << m_map->zoom();
         }
     } catch (const std::exception &e) {
         qWarning() << "Failed to create MapLibre map:" << e.what();
@@ -97,7 +81,7 @@ void MapLibreQuickItemOpenGL::ensureMap(const int width, const int height, const
 }
 
 QSGNode *MapLibreQuickItemOpenGL::updatePaintNode(QSGNode *node, UpdatePaintNodeData *) {
-    qDebug() << "=== DIRECT OPENGL RENDERING: updatePaintNode called ===";
+    qDebug() << "=== OPENGL TEXTURE RENDERING: updatePaintNode called ===";
     if (!window()) {
         return node;
     }
@@ -115,49 +99,111 @@ QSGNode *MapLibreQuickItemOpenGL::updatePaintNode(QSGNode *node, UpdatePaintNode
         }
     }
 
-    // This is the OpenGL-specific Quick item
-
-    // DIRECT APPROACH: Use simple custom render node
-    qDebug() << "DIRECT OPENGL RENDERING: Using direct OpenGL rendering";
-
-    // Create or reuse direct render node
-    MapLibreDirectRenderNode *renderNode = static_cast<MapLibreDirectRenderNode *>(node);
-    if (!renderNode) {
-        qDebug() << "DIRECT OPENGL RENDERING: Creating new direct render node";
-        renderNode = new MapLibreDirectRenderNode(this);
+    // Create or reuse texture node
+    auto *textureNode = dynamic_cast<QSGSimpleTextureNode *>(node);
+    if (!textureNode) {
+        if (node) {
+            delete node;
+        }
+        qDebug() << "OPENGL TEXTURE RENDERING: Creating new QSGSimpleTextureNode";
+        textureNode = new QSGSimpleTextureNode();
+        textureNode->setFiltering(QSGTexture::Linear);
+        node = textureNode;
     }
 
-    qDebug() << "DIRECT OPENGL RENDERING: Render node ready";
-    qDebug() << "DIRECT OPENGL RENDERING: Size:" << width() << "x" << height()
-             << "DPR:" << window()->devicePixelRatio();
+    // Perform map rendering and get texture
+    if (m_map) {
+        try {
+            // Update map size if needed
+            const qreal dpr = window()->devicePixelRatio();
+            const QSize mapSize(static_cast<int>(width() * dpr), static_cast<int>(height() * dpr));
+            m_map->resize(mapSize);
+            
+            // CRITICAL: Set up framebuffer for texture sharing before rendering
+            QOpenGLContext* context = QOpenGLContext::currentContext();
+            if (context) {
+                // Create a dedicated framebuffer for MapLibre rendering
+                // We need a non-zero FBO ID to trigger the OpenGL backend's texture creation
+                GLuint framebufferForMapLibre = 1; // Use FBO ID 1 to trigger proper texture setup
+                m_map->setOpenGLFramebufferObject(framebufferForMapLibre, mapSize);
+                qDebug() << "OPENGL TEXTURE RENDERING: Configured framebuffer" << framebufferForMapLibre << "with size" << mapSize;
+            }
+            
+            // Render the map to the configured FBO
+            qDebug() << "OPENGL TEXTURE RENDERING: Calling map render";
+            qDebug() << "Before render - Style URL:" << m_map->styleUrl();
+            auto currentCoord = m_map->coordinate();
+            qDebug() << "Before render - Coordinate:" << currentCoord.first << "," << currentCoord.second << "zoom:" << m_map->zoom();
+            m_map->render();
+            qDebug() << "OPENGL TEXTURE RENDERING: Map render completed";
+            
+            // Try to get MapLibre's OpenGL framebuffer texture ID for zero-copy sharing
+            GLuint maplibreTextureId = m_map->getFramebufferTextureId();
+            if (maplibreTextureId > 0) {
+                qDebug() << "OPENGL TEXTURE RENDERING: Got MapLibre framebuffer texture ID:" << maplibreTextureId;
+                
+                // Wrap it directly as QSGTexture (zero-copy!)
+                QSGTexture *qtTexture = QNativeInterface::QSGOpenGLTexture::fromNative(
+                    maplibreTextureId,
+                    window(),
+                    mapSize,
+                    QQuickWindow::TextureHasAlphaChannel
+                );
+                
+                if (qtTexture) {
+                    qDebug() << "OPENGL TEXTURE RENDERING: Successfully created zero-copy texture from framebuffer";
+                    qtTexture->setFiltering(QSGTexture::Linear);
+                    
+                    // Create a new texture node and manually set flipped texture coordinates
+                    delete textureNode;
+                    textureNode = new QSGSimpleTextureNode();
+                    textureNode->setTexture(qtTexture);
+                    textureNode->setRect(boundingRect());
+                    
+                    // Get the geometry and manually flip the texture coordinates
+                    QSGGeometry *geometry = textureNode->geometry();
+                    if (geometry && geometry->vertexCount() == 4) {
+                        QSGGeometry::TexturedPoint2D *vertices = geometry->vertexDataAsTexturedPoint2D();
+                        
+                        // Standard Qt texture coordinates (top-left origin):
+                        // vertices[0] = top-left:     (x0, y0, 0.0, 0.0)
+                        // vertices[1] = bottom-left:  (x0, y1, 0.0, 1.0)  
+                        // vertices[2] = top-right:    (x1, y0, 1.0, 0.0)
+                        // vertices[3] = bottom-right: (x1, y1, 1.0, 1.0)
+                        
+                        // For OpenGL framebuffer (bottom-left origin), flip Y coords:
+                        // We want: top maps to bottom of texture, bottom maps to top
+                        vertices[0].ty = 1.0f; // top-left -> use bottom of texture
+                        vertices[1].ty = 0.0f; // bottom-left -> use top of texture  
+                        vertices[2].ty = 1.0f; // top-right -> use bottom of texture
+                        vertices[3].ty = 0.0f; // bottom-right -> use top of texture
+                        
+                        textureNode->markDirty(QSGNode::DirtyGeometry);
+                        qDebug() << "OPENGL TEXTURE RENDERING: Flipped texture coordinates for correct orientation";
+                    }
+                    
+                    textureNode->setOwnsTexture(false); // Don't delete MapLibre's texture!
+                    return textureNode;
+                } else {
+                    qDebug() << "OPENGL TEXTURE RENDERING: Failed to wrap framebuffer texture";
+                }
+            } else {
+                qDebug() << "OPENGL TEXTURE RENDERING: No framebuffer texture ID available - zero-copy not supported yet";
+            }
+        } catch (const std::exception &e) {
+            qWarning() << "OPENGL TEXTURE RENDERING: Exception:" << e.what();
+        }
+    }
 
-    return renderNode;
+    // Zero-copy texture sharing failed - this should not happen in normal operation
+    qWarning() << "OPENGL TEXTURE RENDERING: Zero-copy texture sharing unavailable";
+    return nullptr;
 }
 
 QMapLibre::Map *MapLibreQuickItemOpenGL::getMap() const {
     return m_map.get();
 }
 
-void MapLibreQuickItemOpenGL::performDirectRendering() {
-    if (!m_map) {
-        qDebug() << "MapLibreQuickItemOpenGL: No map available for rendering";
-        return;
-    }
-
-    qDebug() << "MapLibreQuickItemOpenGL: Executing direct OpenGL rendering";
-
-    // Update map size if needed
-    if (window()) {
-        const qreal dpr = window()->devicePixelRatio();
-        const QSize mapSize(static_cast<int>(width() * dpr), static_cast<int>(height() * dpr));
-        m_map->resize(mapSize);
-    }
-
-    // Direct map rendering (OpenGL-only Quick item)
-    qDebug() << "MapLibreQuickItemOpenGL: Direct map rendering";
-    m_map->render();
-    qDebug() << "MapLibreQuickItemOpenGL: Map rendering completed";
-}
 
 void MapLibreQuickItemOpenGL::geometryChange(const QRectF &newGeometry, const QRectF &oldGeometry) {
     QQuickItem::geometryChange(newGeometry, oldGeometry);
