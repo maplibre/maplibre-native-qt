@@ -1,10 +1,10 @@
 #pragma once
 
 #include <QtQml/qqmlregistration.h>
+#include <qopengl.h>
 #include <QMapLibre/Map>
 #include <QQuickItem>
 #include <QSGNode>
-#include <qopengl.h>
 #include <memory>
 
 namespace QMapLibreQuick {

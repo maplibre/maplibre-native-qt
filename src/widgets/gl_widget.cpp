@@ -156,7 +156,7 @@ void GLWidget::initializeGL() {
     } else if (!d_ptr->m_settings.providerStyles().empty()) {
         d_ptr->m_map->setStyleUrl(d_ptr->m_settings.providerStyles().front().url);
     }
-    
+
     // Ensure the map is ready to render
     d_ptr->m_map->setConnectionEstablished();
 
