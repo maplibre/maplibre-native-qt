@@ -33,7 +33,7 @@ public:
 
     std::unique_ptr<Map> m_map{};
     Settings m_settings;
-    
+
     // Zero-copy texture rendering members
     std::unique_ptr<QOpenGLShaderProgram> m_shaderProgram{};
     unsigned int m_vertexBuffer{0};
