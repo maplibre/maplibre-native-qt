@@ -41,7 +41,10 @@ public:
     void createRenderer();
     void createRendererWithMetalLayer(void *layerPtr);
     void createRendererWithVulkanWindow(void *windowPtr);
-    void createRendererWithQtVulkanDevice(void *windowPtr, void *physicalDevice, void *device, uint32_t graphicsQueueIndex);
+    void createRendererWithQtVulkanDevice(void *windowPtr,
+                                          void *physicalDevice,
+                                          void *device,
+                                          uint32_t graphicsQueueIndex);
     void destroyRenderer();
     void render();
     void updateFramebuffer(quint32 fbo, const QSize &size);

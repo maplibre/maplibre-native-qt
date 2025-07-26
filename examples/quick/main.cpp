@@ -15,10 +15,10 @@
 int main(int argc, char *argv[]) {
     // Set up graphics API and instance for each platform
 #if defined(MLN_WITH_VULKAN)
-    
+
     // Let Qt handle Vulkan initialization automatically
     QQuickWindow::setGraphicsApi(QSGRendererInterface::Vulkan);
-    
+
     // Enable Vulkan debug output
     qputenv("QT_VULKAN_DEBUG_OUTPUT", "1");
 

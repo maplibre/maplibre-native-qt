@@ -52,9 +52,9 @@ private:
     // interaction state
     QPointF m_lastMousePos;
     bool m_dragging{false};
-    
+
     // Zero-copy texture caching
-    QSGTexture* m_qtTextureWrapper{nullptr};
+    QSGTexture *m_qtTextureWrapper{nullptr};
     VkImage m_lastVkImage{VK_NULL_HANDLE};
     QSize m_lastTextureSize;
 };

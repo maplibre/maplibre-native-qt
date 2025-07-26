@@ -42,9 +42,13 @@ public:
     MapRenderer(
         qreal pixelRatio, Settings::GLContextMode, const QString &localFontFamily, void *windowPtr, bool isVulkan);
     // Vulkan: allow passing Qt's Vulkan device for proper resource sharing.
-    MapRenderer(
-        qreal pixelRatio, Settings::GLContextMode, const QString &localFontFamily, void *windowPtr, 
-        void *physicalDevice, void *device, uint32_t graphicsQueueIndex);
+    MapRenderer(qreal pixelRatio,
+                Settings::GLContextMode,
+                const QString &localFontFamily,
+                void *windowPtr,
+                void *physicalDevice,
+                void *device,
+                uint32_t graphicsQueueIndex);
     ~MapRenderer() override;
 
     // Debug: Check which backend is compiled
