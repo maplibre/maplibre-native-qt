@@ -56,7 +56,7 @@ public:
 
 protected:
     // Override base class methods to use external Vulkan resources
-    void init() override;
+    void init();
     void initInstance() override;
     void initSurface() override;
     void initDevice() override;

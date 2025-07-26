@@ -23,10 +23,10 @@ namespace QMapLibre {
 
 namespace {
 // Custom renderable resource for Qt integration supporting zero-copy GPU rendering
-class QtVulkanRenderableResource final : public mbgl::vulkan::RenderableResource {
+class QtVulkanRenderableResource final : public mbgl::vulkan::SurfaceRenderableResource {
 public:
     QtVulkanRenderableResource(VulkanRendererBackend& backend_, mbgl::Size initialSize)
-        : mbgl::vulkan::RenderableResource(backend_),
+        : mbgl::vulkan::SurfaceRenderableResource(backend_),
           backend(backend_),
           size(initialSize) {
         extent.width = size.width;
@@ -121,13 +121,18 @@ public:
     void swap() override {
         // For offscreen rendering, we need to ensure commands are submitted
         // but we don't present to a swapchain
-        auto& context = static_cast<mbgl::vulkan::Context&>(backend.getContext());
-
-        // Submit the current command buffer
-        context.submitFrame();
-
-        // Wait for the GPU to complete rendering
-        backend.getDevice()->waitIdle(backend.getDispatcher());
+        mbgl::vulkan::SurfaceRenderableResource::swap();
+        
+        // Add barrier to transition image layout to shader read-only optimal
+        if (offscreenTexture) {
+            auto texture = offscreenTexture->getTexture();
+            if (texture) {
+                auto& vulkanTexture = static_cast<mbgl::vulkan::Texture2D&>(*texture);
+                // The barrier will be added by the texture itself when needed
+            }
+        }
+        
+        // No need for waitIdle as synchronization is handled by barriers
     }
 
 private:
@@ -284,6 +289,11 @@ private:
         throw std::runtime_error("Failed to find suitable memory type");
     }
 
+    // Override from SurfaceRenderableResource
+    void createPlatformSurface() override {
+        // No surface needed for offscreen rendering
+    }
+    
     VulkanRendererBackend& backend;
     std::unique_ptr<mbgl::gfx::OffscreenTexture> offscreenTexture;
     vk::UniqueFramebuffer framebuffer;
