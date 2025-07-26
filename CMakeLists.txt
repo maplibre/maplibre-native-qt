@@ -130,7 +130,10 @@ enable_testing()
 
 # Add subdirectories
 add_subdirectory(src)
-add_subdirectory(test)
+# Disable tests for Vulkan build
+if(MLN_WITH_OPENGL)
+    add_subdirectory(test)
+endif()
 
 # Coverage
 if(MLN_QT_WITH_COVERAGE)

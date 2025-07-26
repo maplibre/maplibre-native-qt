@@ -40,11 +40,13 @@ public:
     // These need to be called on the same thread.
     void createRenderer();
     void createRendererWithMetalLayer(void *layerPtr);
+#ifdef MLN_RENDER_BACKEND_VULKAN
     void createRendererWithVulkanWindow(void *windowPtr);
     void createRendererWithQtVulkanDevice(void *windowPtr,
                                           void *physicalDevice,
                                           void *device,
                                           uint32_t graphicsQueueIndex);
+#endif
     void destroyRenderer();
     void render();
     void updateFramebuffer(quint32 fbo, const QSize &size);
