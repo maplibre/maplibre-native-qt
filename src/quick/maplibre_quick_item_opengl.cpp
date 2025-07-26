@@ -10,8 +10,10 @@
 #include <QMapLibre/Types>
 #include <QMouseEvent>
 #include <QOpenGLContext>
+#include <QOpenGLFunctions>
 #include <QQuickWindow>
 #include <QSGSimpleTextureNode>
+#include <QSGImageNode>
 #include <QTimer>
 #include <QWheelEvent>
 #include <cmath>
@@ -36,6 +38,15 @@ MapLibreQuickItemOpenGL::MapLibreQuickItemOpenGL(QQuickItem *parent)
 
 MapLibreQuickItemOpenGL::~MapLibreQuickItemOpenGL() {
     qDebug() << "MapLibreQuickItemOpenGL: Destroying OpenGL item";
+    
+    // Clean up framebuffer
+    if (m_fbo != 0) {
+        if (QOpenGLContext *context = QOpenGLContext::currentContext()) {
+            QOpenGLFunctions *gl = context->functions();
+            gl->glDeleteFramebuffers(1, &m_fbo);
+        }
+    }
+    
     m_map.reset();
 }
 
@@ -58,17 +69,13 @@ void MapLibreQuickItemOpenGL::ensureMap(const int width, const int height, const
             connect(
                 m_map.get(), &QMapLibre::Map::needsRendering, this, &MapLibreQuickItemOpenGL::handleMapNeedsRendering);
 
-            // Set up map for tile rendering
+            // Set up default map settings
             qDebug() << "Setting map style and coordinates";
             m_map->setStyleUrl("https://demotiles.maplibre.org/style.json");
-
-            // Set coordinates with good tile coverage (London) and reasonable zoom
-            m_map->setCoordinateZoom(QMapLibre::Coordinate{51.505, -0.09}, 8.0); // London, zoom 8
-            m_map->setPitch(0.0);                                                // No tilt for clearer tile visibility
-            m_map->setBearing(0.0);                                              // No rotation
+            m_map->setCoordinateZoom(QMapLibre::Coordinate{60.170448, 24.942046}, 10); // Helsinki
             m_map->setConnectionEstablished();
 
-            qDebug() << "MapLibreQuickItemOpenGL: Map configured for London at zoom 8";
+            qDebug() << "MapLibreQuickItemOpenGL: Map configured";
             qDebug() << "Map style URL:" << m_map->styleUrl();
             auto coord = m_map->coordinate();
             qDebug() << "Map coordinate:" << coord.first << "," << coord.second;
@@ -99,16 +106,9 @@ QSGNode *MapLibreQuickItemOpenGL::updatePaintNode(QSGNode *node, UpdatePaintNode
         }
     }
 
-    // Create or reuse texture node
-    auto *textureNode = dynamic_cast<QSGSimpleTextureNode *>(node);
-    if (!textureNode) {
-        if (node) {
-            delete node;
-        }
-        qDebug() << "OPENGL TEXTURE RENDERING: Creating new QSGSimpleTextureNode";
-        textureNode = new QSGSimpleTextureNode();
-        textureNode->setFiltering(QSGTexture::Linear);
-        node = textureNode;
+    // We'll create the node later based on what type works best
+    if (!node) {
+        qDebug() << "OPENGL TEXTURE RENDERING: Node will be created after texture is ready";
     }
 
     // Perform map rendering and get texture
@@ -122,22 +122,55 @@ QSGNode *MapLibreQuickItemOpenGL::updatePaintNode(QSGNode *node, UpdatePaintNode
             // CRITICAL: Set up framebuffer for texture sharing before rendering
             QOpenGLContext *context = QOpenGLContext::currentContext();
             if (context) {
-                // Create a dedicated framebuffer for MapLibre rendering
-                // We need a non-zero FBO ID to trigger the OpenGL backend's texture creation
-                GLuint framebufferForMapLibre = 1; // Use FBO ID 1 to trigger proper texture setup
-                m_map->updateFramebuffer(framebufferForMapLibre, mapSize);
-                qDebug() << "OPENGL TEXTURE RENDERING: Configured framebuffer" << framebufferForMapLibre << "with size"
-                         << mapSize;
+                try {
+                    // Create a real framebuffer for MapLibre rendering if needed
+                    QOpenGLFunctions *gl = context->functions();
+                    if (m_fbo == 0) {
+                        gl->glGenFramebuffers(1, &m_fbo);
+                        qDebug() << "OPENGL TEXTURE RENDERING: Created new framebuffer" << m_fbo;
+                    }
+                    
+                    m_map->updateFramebuffer(m_fbo, mapSize);
+                    qDebug() << "OPENGL TEXTURE RENDERING: Configured framebuffer" << m_fbo << "with size"
+                             << mapSize;
+                             
+                    // Don't clear - let MapLibre handle its own clearing
+                } catch (const std::exception &e) {
+                    qWarning() << "OPENGL TEXTURE RENDERING: Exception during framebuffer setup:" << e.what();
+                    return node;
+                }
             }
 
             // Render the map to the configured FBO
             qDebug() << "OPENGL TEXTURE RENDERING: Calling map render";
-            qDebug() << "Before render - Style URL:" << m_map->styleUrl();
-            auto currentCoord = m_map->coordinate();
-            qDebug() << "Before render - Coordinate:" << currentCoord.first << "," << currentCoord.second
-                     << "zoom:" << m_map->zoom();
-            m_map->render();
-            qDebug() << "OPENGL TEXTURE RENDERING: Map render completed";
+            
+            try {
+                qDebug() << "Before render - Style URL:" << m_map->styleUrl();
+                auto currentCoord = m_map->coordinate();
+                qDebug() << "Before render - Coordinate:" << currentCoord.first << "," << currentCoord.second
+                         << "zoom:" << m_map->zoom();
+                
+                // Save and restore OpenGL state to prevent conflicts
+                QOpenGLFunctions *gl = context->functions();
+                GLint prevFbo;
+                gl->glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
+                
+                m_map->render();
+                
+                // Ensure we flush the OpenGL commands
+                gl->glFlush();
+                
+                // Restore previous framebuffer
+                gl->glBindFramebuffer(GL_FRAMEBUFFER, prevFbo);
+                
+                qDebug() << "OPENGL TEXTURE RENDERING: Map render completed";
+            } catch (const std::exception &e) {
+                qWarning() << "OPENGL TEXTURE RENDERING: Exception during map render:" << e.what();
+                return node;
+            } catch (...) {
+                qWarning() << "OPENGL TEXTURE RENDERING: Unknown exception during map render";
+                return node;
+            }
 
             // Try to get MapLibre's OpenGL framebuffer texture ID for zero-copy sharing
             GLuint maplibreTextureId = m_map->getFramebufferTextureId();
@@ -145,42 +178,40 @@ QSGNode *MapLibreQuickItemOpenGL::updatePaintNode(QSGNode *node, UpdatePaintNode
                 qDebug() << "OPENGL TEXTURE RENDERING: Got MapLibre framebuffer texture ID:" << maplibreTextureId;
 
                 // Wrap it directly as QSGTexture (zero-copy!)
+                // Use alpha channel flag for proper transparency handling
                 QSGTexture *qtTexture = QNativeInterface::QSGOpenGLTexture::fromNative(
                     maplibreTextureId, window(), mapSize, QQuickWindow::TextureHasAlphaChannel);
-
+                
                 if (qtTexture) {
                     qDebug() << "OPENGL TEXTURE RENDERING: Successfully created zero-copy texture from framebuffer";
-                    qtTexture->setFiltering(QSGTexture::Linear);
-
-                    // Create a new texture node and manually set flipped texture coordinates
-                    delete textureNode;
-                    textureNode = new QSGSimpleTextureNode();
+                    
+                    // Create texture node for rendering
+                    if (node) {
+                        delete node;
+                    }
+                    
+                    qDebug() << "OPENGL TEXTURE RENDERING: Creating QSGSimpleTextureNode";
+                    QSGSimpleTextureNode *textureNode = new QSGSimpleTextureNode();
                     textureNode->setTexture(qtTexture);
                     textureNode->setRect(boundingRect());
-
-                    // Get the geometry and manually flip the texture coordinates
+                    textureNode->setFiltering(QSGTexture::Linear);
+                    
+                    // Flip Y coordinates for OpenGL framebuffer
                     QSGGeometry *geometry = textureNode->geometry();
                     if (geometry && geometry->vertexCount() == 4) {
                         QSGGeometry::TexturedPoint2D *vertices = geometry->vertexDataAsTexturedPoint2D();
-
-                        // Standard Qt texture coordinates (top-left origin):
-                        // vertices[0] = top-left:     (x0, y0, 0.0, 0.0)
-                        // vertices[1] = bottom-left:  (x0, y1, 0.0, 1.0)
-                        // vertices[2] = top-right:    (x1, y0, 1.0, 0.0)
-                        // vertices[3] = bottom-right: (x1, y1, 1.0, 1.0)
-
-                        // For OpenGL framebuffer (bottom-left origin), flip Y coords:
-                        // We want: top maps to bottom of texture, bottom maps to top
-                        vertices[0].ty = 1.0f; // top-left -> use bottom of texture
-                        vertices[1].ty = 0.0f; // bottom-left -> use top of texture
-                        vertices[2].ty = 1.0f; // top-right -> use bottom of texture
-                        vertices[3].ty = 0.0f; // bottom-right -> use top of texture
-
+                        
+                        // Y-flip for OpenGL framebuffer
+                        vertices[0].ty = 1.0f - vertices[0].ty;
+                        vertices[1].ty = 1.0f - vertices[1].ty;
+                        vertices[2].ty = 1.0f - vertices[2].ty;
+                        vertices[3].ty = 1.0f - vertices[3].ty;
+                        
                         textureNode->markDirty(QSGNode::DirtyGeometry);
-                        qDebug() << "OPENGL TEXTURE RENDERING: Flipped texture coordinates for correct orientation";
                     }
 
                     textureNode->setOwnsTexture(false); // Don't delete MapLibre's texture!
+                    
                     return textureNode;
                 } else {
                     qDebug() << "OPENGL TEXTURE RENDERING: Failed to wrap framebuffer texture";

@@ -4,6 +4,7 @@
 #include <QMapLibre/Map>
 #include <QQuickItem>
 #include <QSGNode>
+#include <qopengl.h>
 #include <memory>
 
 namespace QMapLibreQuick {
@@ -40,6 +41,7 @@ private:
     void ensureMap(int w, int h, float dpr);
 
     std::unique_ptr<QMapLibre::Map> m_map;
+    GLuint m_fbo{0};
 
     // interaction state
     QPointF m_lastMousePos;

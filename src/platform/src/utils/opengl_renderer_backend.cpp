@@ -21,6 +21,34 @@ public:
         assert(mbgl::gfx::BackendScope::exists());
         backend.restoreFramebufferBinding();
         backend.setViewport(0, 0, backend.getSize());
+        
+        // Ensure the framebuffer is properly cleared before rendering
+        QOpenGLContext* context = QOpenGLContext::currentContext();
+        if (context && backend.m_fbo != 0) {
+            QOpenGLFunctions* gl = context->functions();
+            
+            // Clear to transparent
+            gl->glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+            gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+            
+            // Enable stencil test for tile clipping
+            gl->glEnable(GL_STENCIL_TEST);
+            gl->glStencilFunc(GL_EQUAL, 0x00, 0x00); // Initially pass all - will be set by layers
+            gl->glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+            gl->glStencilMask(0xFF); // Enable writing to stencil buffer
+            
+            // Enable depth testing for proper layering
+            gl->glEnable(GL_DEPTH_TEST);
+            gl->glDepthFunc(GL_LEQUAL);
+            gl->glDepthMask(GL_TRUE);
+            
+            // Use premultiplied alpha blending
+            gl->glEnable(GL_BLEND);
+            gl->glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+            
+            // Disable scissor test for full rendering
+            gl->glDisable(GL_SCISSOR_TEST);
+        }
     }
 
 private:
@@ -32,14 +60,21 @@ OpenGLRendererBackend::OpenGLRendererBackend(const mbgl::gfx::ContextMode mode)
       mbgl::gfx::Renderable({0, 0}, std::make_unique<RenderableResource>(*this)) {}
 
 OpenGLRendererBackend::~OpenGLRendererBackend() {
-    // Clean up the color texture if we created one
-    if (m_colorTexture != 0) {
-        QOpenGLContext* glContext = QOpenGLContext::currentContext();
-        if (glContext) {
-            QOpenGLFunctions* gl = glContext->functions();
+    QOpenGLContext* glContext = QOpenGLContext::currentContext();
+    if (glContext) {
+        QOpenGLFunctions* gl = glContext->functions();
+        
+        // Clean up the color texture if we created one
+        if (m_colorTexture != 0) {
             gl->glDeleteTextures(1, &m_colorTexture);
+            m_colorTexture = 0;
         }
-        m_colorTexture = 0;
+        
+        // Clean up the depth-stencil renderbuffer if we created one
+        if (m_depthStencilRB != 0) {
+            gl->glDeleteRenderbuffers(1, &m_depthStencilRB);
+            m_depthStencilRB = 0;
+        }
     }
 }
 
@@ -80,9 +115,11 @@ void OpenGLRendererBackend::updateFramebuffer(uint32_t fbo, const mbgl::Size& ne
         gl->glGenTextures(1, &m_colorTexture);
         gl->glBindTexture(GL_TEXTURE_2D, m_colorTexture);
 
-        // Set up texture parameters for framebuffer use
+        // Set up texture parameters for framebuffer use with alpha
+        // Use GL_RGBA8 for internal format to ensure full alpha support
         gl->glTexImage2D(
             GL_TEXTURE_2D, 0, GL_RGBA8, newSize.width, newSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        // Use linear filtering for smooth rendering
         gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -93,16 +130,39 @@ void OpenGLRendererBackend::updateFramebuffer(uint32_t fbo, const mbgl::Size& ne
             gl->glBindFramebuffer(GL_FRAMEBUFFER, fbo);
             gl->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_colorTexture, 0);
 
+            // Create depth-stencil renderbuffer for proper tile clipping
+            if (m_depthStencilRB == 0) {
+                gl->glGenRenderbuffers(1, &m_depthStencilRB);
+            }
+            gl->glBindRenderbuffer(GL_RENDERBUFFER, m_depthStencilRB);
+            gl->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, newSize.width, newSize.height);
+            gl->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_depthStencilRB);
+
             // Check framebuffer completeness
             GLenum status = gl->glCheckFramebufferStatus(GL_FRAMEBUFFER);
             if (status != GL_FRAMEBUFFER_COMPLETE) {
                 qWarning() << "OpenGLRendererBackend: Framebuffer not complete, status:" << status;
-            } else {
-                qDebug() << "OpenGLRendererBackend: Framebuffer" << fbo << "setup complete with texture"
-                         << m_colorTexture << "size" << newSize.width << "x" << newSize.height;
             }
 
-            // Don't clear the framebuffer - let MapLibre handle rendering
+            // Clear the framebuffer  
+            gl->glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+            gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+            
+            // Set up rendering state optimized for tile rendering
+            gl->glEnable(GL_BLEND);
+            // Use premultiplied alpha blending to avoid edge artifacts
+            gl->glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+            
+            // Enable stencil test for tile clipping support
+            gl->glEnable(GL_STENCIL_TEST);
+            gl->glStencilFunc(GL_ALWAYS, 0, 0xFF);
+            gl->glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+            gl->glStencilMask(0xFF);
+            
+            // Enable depth testing for proper layering
+            gl->glEnable(GL_DEPTH_TEST);
+            gl->glDepthFunc(GL_LEQUAL);
+            gl->glDepthMask(GL_TRUE);
         }
 
         // Restore default texture binding
