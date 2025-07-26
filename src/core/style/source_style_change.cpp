@@ -52,8 +52,11 @@ StyleAddSource::StyleAddSource(const SourceParameter *parameter)
             const QString data = parameter->parsedProperty("data").toString();
             if (data.startsWith(':')) {
                 QFile geojson(data);
-                geojson.open(QIODevice::ReadOnly);
-                m_params[QStringLiteral("data")] = geojson.readAll();
+                if (geojson.open(QIODevice::ReadOnly)) {
+                    m_params[QStringLiteral("data")] = geojson.readAll();
+                } else {
+                    qWarning() << "Failed to open GeoJSON file:" << data;
+                }
             } else {
                 m_params[QStringLiteral("data")] = data.toUtf8();
             }

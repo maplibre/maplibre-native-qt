@@ -143,7 +143,7 @@ void GLWidget::initializeGL() {
 */
 void GLWidget::paintGL() {
     d_ptr->m_map->resize(size());
-    d_ptr->m_map->setOpenGLFramebufferObject(defaultFramebufferObject(), size() * devicePixelRatioF());
+    d_ptr->m_map->updateFramebuffer(defaultFramebufferObject(), size() * devicePixelRatioF());
     d_ptr->m_map->render();
 }
 

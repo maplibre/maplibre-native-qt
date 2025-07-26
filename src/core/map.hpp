@@ -181,8 +181,14 @@ public:
     void createRendererWithMetalLayer(void *layerPtr);
     // Vulkan-specific: create the renderer using a Qt Quick window.
     void createRendererWithVulkanWindow(void *windowPtr);
+    // Vulkan-specific: create the renderer using Qt's Vulkan device
+    void createRendererWithQtVulkanDevice(void *windowPtr, void *physicalDevice, void *device, uint32_t graphicsQueueIndex);
     void destroyRenderer();
-    void setOpenGLFramebufferObject(quint32 fbo, const QSize &size);
+    
+    // Backend-agnostic framebuffer update method
+    // For OpenGL: fbo parameter specifies the framebuffer object ID
+    // For Vulkan/Metal: fbo parameter is ignored (pass 0)
+    void updateFramebuffer(quint32 fbo, const QSize &size);
 
     // Backend-specific helper: provide external drawable texture.
     void setCurrentDrawable(void *texturePtr);

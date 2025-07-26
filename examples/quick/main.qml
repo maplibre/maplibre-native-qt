@@ -13,6 +13,7 @@ Window {
     height: 600
     visible: true // Force show window
     title: "MapLibre Native Qt - Quick Example"
+    color: "black" // Set window background to black
 
     // Additional window flags for better visibility on Wayland
     flags: Qt.Window | Qt.WindowTitleHint | Qt.WindowSystemMenuHint | Qt.WindowMinMaxButtonsHint | Qt.WindowCloseButtonHint

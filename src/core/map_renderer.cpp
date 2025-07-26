@@ -19,6 +19,11 @@
 #include <QuartzCore/CAMetalLayer.hpp>
 #endif
 
+#if defined(MLN_RENDER_BACKEND_VULKAN)
+#include <vulkan/vulkan.h>
+#include <QWindow>
+#endif
+
 namespace {
 
 bool needsToForceScheduler() {
@@ -146,6 +151,53 @@ MapRenderer::MapRenderer(qreal pixelRatio,
     : MapRenderer(pixelRatio, mode, localFontFamily) {}
 #endif
 
+#if defined(MLN_RENDER_BACKEND_VULKAN)
+// Constructor that uses Qt's Vulkan device for proper resource sharing
+MapRenderer::MapRenderer(qreal pixelRatio,
+                         Settings::GLContextMode mode,
+                         const QString &localFontFamily,
+                         void *windowPtr,
+                         void *physicalDevice,
+                         void *device,
+                         uint32_t graphicsQueueIndex)
+    : m_backend(static_cast<QWindow *>(windowPtr), 
+                static_cast<VkPhysicalDevice>(physicalDevice),
+                static_cast<VkDevice>(device),
+                graphicsQueueIndex),
+      m_renderer(std::make_unique<mbgl::Renderer>(
+          m_backend,
+          pixelRatio,
+          localFontFamily.isEmpty() ? std::nullopt : std::optional<std::string>{localFontFamily.toStdString()})),
+      m_forceScheduler(needsToForceScheduler()) {
+
+    
+    // Debug: Log which backend we're using
+    logBackendInfo();
+
+    if (m_forceScheduler) {
+        Scheduler *scheduler = getScheduler();
+
+        if (mbgl::Scheduler::GetCurrent() == nullptr) {
+            mbgl::Scheduler::SetCurrent(scheduler);
+        }
+
+        connect(scheduler, &Scheduler::needsProcessing, this, &MapRenderer::needsRendering);
+    }
+
+    Q_UNUSED(mode);
+}
+#else
+// Fallback constructor for non-Vulkan backends
+MapRenderer::MapRenderer(qreal pixelRatio,
+                         Settings::GLContextMode mode,
+                         const QString &localFontFamily,
+                         void * /*windowPtr*/,
+                         void * /*physicalDevice*/,
+                         void * /*device*/,
+                         uint32_t /*graphicsQueueIndex*/)
+    : MapRenderer(pixelRatio, mode, localFontFamily) {}
+#endif
+
 MapRenderer::~MapRenderer() {
     // MapRenderer may be destroyed from the GUI thread after the render thread is
     // already shut down, so the thread identity might differ from creation
@@ -180,7 +232,10 @@ void MapRenderer::render() {
         const std::lock_guard<std::mutex> lock(m_updateMutex);
 
         // UpdateParameters should always be available when rendering.
-        assert(m_updateParameters);
+        if (!m_updateParameters) {
+            qWarning() << "MapRenderer::render() called without update parameters, skipping render";
+            return;
+        }
 
         // Hold on to the update parameters during render
         params = m_updateParameters;

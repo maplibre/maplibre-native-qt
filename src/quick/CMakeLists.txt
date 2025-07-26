@@ -42,6 +42,10 @@ elseif(MLN_WITH_VULKAN)
         ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native/vendor/Vulkan-Headers/include
         ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native/vendor/VulkanMemoryAllocator/include
     )
+    # Add RHI include path for Qt 6.10+
+    target_include_directories(maplibre_quick PRIVATE
+        ${Qt6Gui_INCLUDE_DIRS}/QtGui/${Qt6_VERSION}/QtGui
+    )
 else()
     # Default to OpenGL backend
     target_sources(maplibre_quick PRIVATE
@@ -53,6 +57,7 @@ endif()
 
 target_link_libraries(maplibre_quick PRIVATE
     Qt6::Quick
+    Qt6::Gui
     QMapLibre::Core
 )
 

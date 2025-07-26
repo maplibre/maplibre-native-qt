@@ -2,24 +2,25 @@
 
 // SPDX-License-Identifier: MIT
 
-#if defined(MLN_WITH_VULKAN)
-#include <vulkan/vulkan.h>
-#include <QVulkanInstance>
-#endif
 #include <QDebug>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQuickWindow>
 #include <QtQuick/QSGRendererInterface>
+#if QT_CONFIG(vulkan)
+#include <QVulkanInstance>
+#endif
 
 int main(int argc, char *argv[]) {
     // Set up graphics API and instance for each platform
 #if defined(MLN_WITH_VULKAN)
-    // Set Qt Quick to use Vulkan RHI
+    
+    // Let Qt handle Vulkan initialization automatically
     QQuickWindow::setGraphicsApi(QSGRendererInterface::Vulkan);
-
-    bool vulkanAvailable = true; // Assume available for now
+    
+    // Enable Vulkan debug output
+    qputenv("QT_VULKAN_DEBUG_OUTPUT", "1");
 
 #elif defined(__APPLE__)
     // Use Metal on Apple platforms
