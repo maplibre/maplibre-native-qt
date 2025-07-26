@@ -8,7 +8,10 @@
 
 namespace QMapLibre {
 
+class RenderableResource;
+
 class OpenGLRendererBackend : public mbgl::gl::RendererBackend, public mbgl::gfx::Renderable {
+    friend class RenderableResource;
 public:
     explicit OpenGLRendererBackend(const mbgl::gfx::ContextMode mode = mbgl::gfx::ContextMode::Unique);
     ~OpenGLRendererBackend() override;
@@ -35,6 +38,7 @@ public:
 private:
     uint32_t m_fbo{0};
     uint32_t m_colorTexture{0}; // OpenGL texture ID for the framebuffer's color attachment
+    uint32_t m_depthStencilRB{0}; // OpenGL renderbuffer ID for depth-stencil attachment
 };
 
 } // namespace QMapLibre
