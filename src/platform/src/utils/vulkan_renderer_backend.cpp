@@ -340,8 +340,9 @@ void VulkanRendererBackend::initInstance() {
 
     // Check if debug utils extension is available
     const auto& extensions = m_qtInstance->supportedExtensions();
-    debugUtilsEnabled = std::any_of(extensions.begin(), extensions.end(), 
-        [](const auto& ext) { return ext.name == VK_EXT_DEBUG_UTILS_EXTENSION_NAME; });
+    debugUtilsEnabled = std::any_of(extensions.begin(), extensions.end(), [](const auto& ext) {
+        return ext.name == VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
+    });
 }
 
 void VulkanRendererBackend::initSurface() {
@@ -418,16 +419,16 @@ void VulkanRendererBackend::updateFramebuffer(quint32 /*fbo*/, const mbgl::Size&
 QVulkanInstance* VulkanRendererBackend::createQVulkanInstance() {
     auto* qtInstance = new QVulkanInstance();
     qtInstance->setApiVersion(QVersionNumber(1, 0));
-    
+
 #ifndef NDEBUG
     qtInstance->setLayers({"VK_LAYER_KHRONOS_validation"});
 #endif
-    
+
     if (!qtInstance->create()) {
         delete qtInstance;
         throw std::runtime_error("Failed to create QVulkanInstance");
     }
-    
+
     return qtInstance;
 }
 
