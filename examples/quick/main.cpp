@@ -2,21 +2,49 @@
 
 // SPDX-License-Identifier: MIT
 
+#include <QDebug>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#include <QQmlContext>
 #include <QQuickWindow>
+#include <QtQuick/QSGRendererInterface>
+#if QT_CONFIG(vulkan)
+#include <QVulkanInstance>
 #endif
 
 int main(int argc, char *argv[]) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    QQuickWindow::setGraphicsApi(QSGRendererInterface::OpenGLRhi);
+    // Set up graphics API and instance for each platform
+#if defined(MLN_WITH_VULKAN)
+
+    // Let Qt handle Vulkan initialization automatically
+    QQuickWindow::setGraphicsApi(QSGRendererInterface::Vulkan);
+
+    // Enable Vulkan debug output
+    qputenv("QT_VULKAN_DEBUG_OUTPUT", "1");
+
+#elif defined(__APPLE__)
+    // Use Metal on Apple platforms
+    QQuickWindow::setGraphicsApi(QSGRendererInterface::Metal);
+
+#else
+    // Use OpenGL on other platforms
+    QQuickWindow::setGraphicsApi(QSGRendererInterface::OpenGL);
+
 #endif
 
-    const QGuiApplication app(argc, argv);
+    QGuiApplication app(argc, argv);
+
+    qDebug() << "Platform:" << QGuiApplication::platformName();
 
     QQmlApplicationEngine engine;
-    engine.load(QUrl(QStringLiteral("qrc:/Example/main.qml")));
+
+    // Try to load test file if provided as argument
+    if (argc > 1) {
+        engine.load(QUrl::fromLocalFile(argv[1]));
+    } else {
+        engine.load(QUrl(QStringLiteral("qrc:/Example/main.qml")));
+    }
+    if (engine.rootObjects().isEmpty()) return -1;
 
     return app.exec();
 }

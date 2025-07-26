@@ -21,9 +21,14 @@
 #include <functional>
 #include <memory>
 
+#ifdef MLN_RENDER_BACKEND_VULKAN
+#include <mbgl/vulkan/texture2d.hpp>
+#endif
+
 namespace QMapLibre {
 
 class MapPrivate;
+class MapRenderer;
 
 class Q_MAPLIBRE_CORE_EXPORT Map : public QObject {
     Q_OBJECT
@@ -172,8 +177,39 @@ public:
     // When rendering on a different thread,
     // should be called on the render thread.
     void createRenderer();
+    // Metal-specific: create the renderer using a pre-existing CAMetalLayer.
+    void createRendererWithMetalLayer(void *layerPtr);
+#ifdef MLN_RENDER_BACKEND_VULKAN
+    // Vulkan-specific: create the renderer using a Qt Quick window.
+    void createRendererWithVulkanWindow(void *windowPtr);
+    // Vulkan-specific: create the renderer using Qt's Vulkan device
+    void createRendererWithQtVulkanDevice(void *windowPtr,
+                                          void *physicalDevice,
+                                          void *device,
+                                          uint32_t graphicsQueueIndex);
+#endif
     void destroyRenderer();
-    void setOpenGLFramebufferObject(quint32 fbo, const QSize &size);
+
+    // Backend-agnostic framebuffer update method
+    // For OpenGL: fbo parameter specifies the framebuffer object ID
+    // For Vulkan/Metal: fbo parameter is ignored (pass 0)
+    void updateFramebuffer(quint32 fbo, const QSize &size);
+
+    // Backend-specific helper: provide external drawable texture.
+    void setCurrentDrawable(void *texturePtr);
+
+#ifdef MLN_RENDER_BACKEND_VULKAN
+    // Vulkan-specific: get the Vulkan texture object.
+    mbgl::vulkan::Texture2D *getVulkanTexture() const;
+
+    // Vulkan-specific: read image data from the Vulkan texture.
+    std::shared_ptr<mbgl::PremultipliedImage> readVulkanImageData() const;
+#endif
+
+#ifdef MLN_RENDER_BACKEND_OPENGL
+    // OpenGL-specific: get the OpenGL framebuffer texture ID for direct texture sharing.
+    unsigned int getFramebufferTextureId() const;
+#endif
 
 public slots:
     void render();
@@ -182,6 +218,9 @@ public slots:
     // Commit changes, load all the resources
     // and renders the map when completed.
     void startStaticRender();
+
+    // Backend-specific helper for Qt Quick texture node (Metal/Vulkan).
+    void *nativeColorTexture() const;
 
 signals:
     void needsRendering();

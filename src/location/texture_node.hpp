@@ -6,14 +6,11 @@
 
 #pragma once
 
+#include <QtOpenGL/QOpenGLFramebufferObject>
 #include <QtQuick/QQuickWindow>
 #include <QtQuick/QSGRenderNode>
 #include <QtQuick/QSGSimpleTextureNode>
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-#include <QtOpenGL/QOpenGLFramebufferObject>
-#else
-#include <QtGui/QOpenGLFramebufferObject>
-#endif
+#include <QtQuick/QSGTextureProvider>
 
 #include <QMapLibre/Map>
 
@@ -21,22 +18,22 @@ namespace QMapLibre {
 
 class QGeoMapMapLibre;
 
+class RhiTextureNode; // forward
+
 class TextureNode : public QSGSimpleTextureNode {
 public:
     TextureNode(const Settings &setting, const QSize &size, qreal pixelRatio, QGeoMapMapLibre *geoMap);
 
     [[nodiscard]] Map *map() const;
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     void resize(const QSize &size, qreal pixelRatio, QQuickWindow *window);
-#else
-    void resize(const QSize &size, qreal pixelRatio);
-#endif
     void render(QQuickWindow *);
 
 private:
     std::unique_ptr<Map> m_map{};
     std::unique_ptr<QOpenGLFramebufferObject> m_fbo{};
+
+    RhiTextureNode *m_rhiNode{nullptr};
 };
 
 } // namespace QMapLibre

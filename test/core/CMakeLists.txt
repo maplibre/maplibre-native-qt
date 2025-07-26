@@ -26,7 +26,7 @@ target_link_libraries(
     test_mln_core
     PRIVATE
         MLNQtCore
-        $<$<BOOL:${Qt6_FOUND}>:Qt::OpenGLWidgets>
+        $<$<AND:$<BOOL:${Qt6_FOUND}>,$<BOOL:${MLN_WITH_OPENGL}>>:Qt::OpenGLWidgets>
         Qt::Test
         $<BUILD_INTERFACE:mbgl-compiler-options>
 )
