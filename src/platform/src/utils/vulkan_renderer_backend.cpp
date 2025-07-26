@@ -156,7 +156,8 @@ private:
                                          .setFinalLayout(vk::ImageLayout::eShaderReadOnlyOptimal);
 
         const auto depthAttachment = vk::AttachmentDescription(vk::AttachmentDescriptionFlags())
-                                         .setFormat(depthFormat != vk::Format::eUndefined ? depthFormat : vk::Format::eD24UnormS8Uint)
+                                         .setFormat(depthFormat != vk::Format::eUndefined ? depthFormat
+                                                                                          : vk::Format::eD24UnormS8Uint)
                                          .setSamples(vk::SampleCountFlagBits::e1)
                                          .setLoadOp(vk::AttachmentLoadOp::eClear)
                                          .setStoreOp(vk::AttachmentStoreOp::eDontCare)
@@ -200,7 +201,6 @@ private:
         extent.width = textureSize.width;
         extent.height = textureSize.height;
     }
-
 
     // Override from SurfaceRenderableResource
     void createPlatformSurface() override {
@@ -331,7 +331,7 @@ void VulkanRendererBackend::init() {
 
     // Call base class init which handles most initialization
     mbgl::vulkan::RendererBackend::init();
-    
+
     // Only do Qt-specific initialization
     initSwapchain();
     mbgl::vulkan::RendererBackend::initCommandPool();
