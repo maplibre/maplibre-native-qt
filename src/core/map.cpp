@@ -1857,9 +1857,6 @@ void MapPrivate::render() {
 
     if (m_mapRenderer == nullptr) {
         qDebug() << "MapRenderer is null, creating renderer";
-        if (mapObj) {
-            auto size = mapObj->getMapOptions().size();
-        }
         createRenderer();
     }
 
