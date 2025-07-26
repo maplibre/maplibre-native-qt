@@ -41,9 +41,10 @@ public:
     void createRenderer();
     void createRendererWithMetalLayer(void *layerPtr);
     void createRendererWithVulkanWindow(void *windowPtr);
+    void createRendererWithQtVulkanDevice(void *windowPtr, void *physicalDevice, void *device, uint32_t graphicsQueueIndex);
     void destroyRenderer();
     void render();
-    void setOpenGLFramebufferObject(quint32 fbo, const QSize &size);
+    void updateFramebuffer(quint32 fbo, const QSize &size);
 
     using PropertySetter = std::optional<mbgl::style::conversion::Error> (mbgl::style::Layer::*)(
         const std::string &, const mbgl::style::conversion::Convertible &);

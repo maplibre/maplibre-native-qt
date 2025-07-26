@@ -479,7 +479,13 @@ QString Map::styleUrl() const {
     signal with Map::MapChangeDidFailLoadingMap as argument.
 */
 void Map::setStyleUrl(const QString &url) {
-    d_ptr->mapObj->getStyle().loadURL(url.toStdString());
+    try {
+        d_ptr->mapObj->getStyle().loadURL(url.toStdString());
+        
+        startStaticRender();
+    } catch (const std::exception& e) {
+        qDebug() << "Map::setStyleUrl - Exception during style loading:" << e.what();
+    }
 }
 
 /*!
@@ -1048,11 +1054,15 @@ void Map::rotateBy(const QPointF &first, const QPointF &second) {
 */
 void Map::resize(const QSize &size) {
     auto sanitizedSize = sanitizeSize(size);
-    if (d_ptr->mapObj->getMapOptions().size() == sanitizedSize) {
-        return;
+    
+    bool sizeChanged = d_ptr->mapObj->getMapOptions().size() != sanitizedSize;
+    
+    if (sizeChanged) {
+        d_ptr->mapObj->setSize(sanitizedSize);
     }
-
-    d_ptr->mapObj->setSize(sanitizedSize);
+    
+    // Always update the backend framebuffer size (works for all backends: OpenGL, Metal, Vulkan)
+    updateFramebuffer(0, size);
 }
 
 /*!
@@ -1510,6 +1520,10 @@ void Map::createRendererWithVulkanWindow(void *windowPtr) {
     d_ptr->createRendererWithVulkanWindow(windowPtr);
 }
 
+void Map::createRendererWithQtVulkanDevice(void *windowPtr, void *physicalDevice, void *device, uint32_t graphicsQueueIndex) {
+    d_ptr->createRendererWithQtVulkanDevice(windowPtr, physicalDevice, device, graphicsQueueIndex);
+}
+
 /*!
     \brief Destroy the renderer.
 
@@ -1564,18 +1578,21 @@ void Map::render() {
 }
 
 /*!
-    \brief Set the OpenGL framebuffer object.
-    \param fbo The OpenGL framebuffer object ID.
-    \param size The OpenGL framebuffer size.
+    \brief Update the framebuffer size for the rendering backend.
+    \param fbo The framebuffer object ID (OpenGL only, ignored for Metal/Vulkan).
+    \param size The framebuffer size.
 
-    If MapLibre Native needs to rebind the default \a fbo, it will use the
-    ID supplied here. \a size is the size of the framebuffer, which
-    on high DPI screens is usually bigger than the map size.
+    Updates the framebuffer configuration for the current rendering backend.
+    For OpenGL: The \a fbo parameter specifies the framebuffer object ID to use.
+    For Metal/Vulkan: The \a fbo parameter is ignored (pass 0).
+    
+    The \a size is the size of the framebuffer, which on high DPI screens 
+    is usually bigger than the map size.
 
     Must be called on the render thread.
 */
-void Map::setOpenGLFramebufferObject(quint32 fbo, const QSize &size) {
-    d_ptr->setOpenGLFramebufferObject(fbo, size);
+void Map::updateFramebuffer(quint32 fbo, const QSize &size) {
+    d_ptr->updateFramebuffer(fbo, size);
 }
 
 /*!
@@ -1729,6 +1746,12 @@ void MapPrivate::createRenderer() {
 
     m_mapRenderer->setObserver(m_rendererObserver.get());
 
+    // Propagate current map size to the renderer
+    if (mapObj) {
+        auto currentSize = mapObj->getMapOptions().size();
+        m_mapRenderer->updateFramebuffer(0, currentSize);
+    } 
+
     if (m_updateParameters != nullptr) {
         m_mapRenderer->updateParameters(m_updateParameters);
         requestRendering();
@@ -1747,6 +1770,12 @@ void MapPrivate::createRendererWithMetalLayer(void *layerPtr) {
     connect(m_mapRenderer.get(), &MapRenderer::needsRendering, this, &MapPrivate::requestRendering);
 
     m_mapRenderer->setObserver(m_rendererObserver.get());
+
+    // Propagate current map size to the renderer
+    if (mapObj) {
+        auto currentSize = mapObj->getMapOptions().size();
+        m_mapRenderer->updateFramebuffer(0, currentSize);
+    }
 
     if (m_updateParameters != nullptr) {
         m_mapRenderer->updateParameters(m_updateParameters);
@@ -1772,13 +1801,42 @@ void MapPrivate::createRendererWithVulkanWindow(void *windowPtr) {
 
     m_mapRenderer->setObserver(m_rendererObserver.get());
 
+    // Propagate current map size to the renderer
+    if (mapObj) {
+        auto currentSize = mapObj->getMapOptions().size();
+        m_mapRenderer->updateFramebuffer(0, currentSize);
+    }
+
     if (m_updateParameters != nullptr) {
-        qDebug() << "Updating renderer parameters and requesting rendering";
         m_mapRenderer->updateParameters(m_updateParameters);
         requestRendering();
     }
 
-    qDebug() << "MapRenderer setup completed";
+}
+
+void MapPrivate::createRendererWithQtVulkanDevice(void *windowPtr, void *physicalDevice, void *device, uint32_t graphicsQueueIndex) {
+    const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
+
+   
+    if (m_mapRenderer != nullptr) {
+        return; // already created
+    }
+
+    m_mapRenderer = std::make_unique<MapRenderer>(m_pixelRatio, m_mode, m_localFontFamily, windowPtr, physicalDevice, device, graphicsQueueIndex);
+
+    connect(m_mapRenderer.get(), &MapRenderer::needsRendering, this, &MapPrivate::requestRendering);
+
+    m_mapRenderer->setObserver(m_rendererObserver.get());
+
+    if (mapObj) {
+        auto currentSize = mapObj->getMapOptions().size();
+        m_mapRenderer->updateFramebuffer(0, currentSize);
+    }
+
+    if (m_updateParameters != nullptr) {
+        m_mapRenderer->updateParameters(m_updateParameters);
+        requestRendering();
+    }
 }
 
 void MapPrivate::destroyRenderer() {
@@ -1794,6 +1852,9 @@ void MapPrivate::render() {
 
     if (m_mapRenderer == nullptr) {
         qDebug() << "MapRenderer is null, creating renderer";
+        if (mapObj) {
+            auto size = mapObj->getMapOptions().size();
+        }
         createRenderer();
     }
 
@@ -1803,7 +1864,7 @@ void MapPrivate::render() {
     qDebug() << "MapRenderer::render() completed";
 }
 
-void MapPrivate::setOpenGLFramebufferObject(quint32 fbo, const QSize &size) {
+void MapPrivate::updateFramebuffer(quint32 fbo, const QSize &size) {
     const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
 
     if (m_mapRenderer == nullptr) {

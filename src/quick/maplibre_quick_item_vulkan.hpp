@@ -3,7 +3,12 @@
 #include <QtQml/qqmlregistration.h>
 #include <QMapLibre/Map>
 #include <QQuickItem>
+#include <QSGTexture>
 #include <memory>
+
+#if QT_CONFIG(vulkan)
+#include <vulkan/vulkan.h>
+#endif
 
 namespace QMapLibre {
 class Map;
@@ -47,6 +52,11 @@ private:
     // interaction state
     QPointF m_lastMousePos;
     bool m_dragging{false};
+    
+    // Zero-copy texture caching
+    QSGTexture* m_qtTextureWrapper{nullptr};
+    VkImage m_lastVkImage{VK_NULL_HANDLE};
+    QSize m_lastTextureSize;
 };
 
 // Type alias for the actual MapLibreQuickItem when using Vulkan

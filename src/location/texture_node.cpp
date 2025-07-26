@@ -37,7 +37,7 @@ void TextureNode::resize(const QSize &size, qreal pixelRatio, QQuickWindow *wind
     m_map->resize(minSize);
 
     m_fbo = std::make_unique<QOpenGLFramebufferObject>(fbSize, QOpenGLFramebufferObject::CombinedDepthStencil);
-    m_map->setOpenGLFramebufferObject(m_fbo->handle(), fbSize);
+    m_map->updateFramebuffer(m_fbo->handle(), fbSize);
 
     setTexture(::QNativeInterface::QSGOpenGLTexture::fromNative(
         m_fbo->texture(), window, fbSize, QQuickWindow::TextureHasAlphaChannel));

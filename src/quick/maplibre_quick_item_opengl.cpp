@@ -125,7 +125,7 @@ QSGNode *MapLibreQuickItemOpenGL::updatePaintNode(QSGNode *node, UpdatePaintNode
                 // Create a dedicated framebuffer for MapLibre rendering
                 // We need a non-zero FBO ID to trigger the OpenGL backend's texture creation
                 GLuint framebufferForMapLibre = 1; // Use FBO ID 1 to trigger proper texture setup
-                m_map->setOpenGLFramebufferObject(framebufferForMapLibre, mapSize);
+                m_map->updateFramebuffer(framebufferForMapLibre, mapSize);
                 qDebug() << "OPENGL TEXTURE RENDERING: Configured framebuffer" << framebufferForMapLibre << "with size"
                          << mapSize;
             }
