@@ -17,6 +17,7 @@ VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 #include <QVulkanWindow>
 #include <vulkan/vulkan.hpp>
 
+#include <algorithm>
 #include <cassert>
 
 namespace QMapLibre {
@@ -228,18 +229,7 @@ VulkanRendererBackend::VulkanRendererBackend(QWindow* window)
 
     if (!qtInstance) {
         // Create our own instance for Qt Quick windows
-        qtInstance = new QVulkanInstance();
-        qtInstance->setApiVersion(QVersionNumber(1, 0));
-
-#ifndef NDEBUG
-        qtInstance->setLayers({"VK_LAYER_KHRONOS_validation"});
-#endif
-
-        if (!qtInstance->create()) {
-            delete qtInstance;
-            throw std::runtime_error("Failed to create QVulkanInstance");
-        }
-
+        qtInstance = createQVulkanInstance();
         m_ownedInstance = qtInstance;
     }
 
@@ -282,14 +272,7 @@ VulkanRendererBackend::VulkanRendererBackend(QWindow* window,
 // Convenience constructor that creates its own QVulkanInstance.
 // Used when only a ContextMode is available (e.g. MapRenderer's default path).
 VulkanRendererBackend::VulkanRendererBackend(mbgl::gfx::ContextMode)
-    : VulkanRendererBackend([]() {
-          auto* qtInstance = new QVulkanInstance();
-          qtInstance->setApiVersion(QVersionNumber(1, 0));
-          if (!qtInstance->create()) {
-              throw std::runtime_error("Failed to create QVulkanInstance");
-          }
-          return qtInstance;
-      }()) {}
+    : VulkanRendererBackend(createQVulkanInstance()) {}
 
 VulkanRendererBackend::~VulkanRendererBackend() {
     // Clean up owned instance if we created one
@@ -343,6 +326,7 @@ void VulkanRendererBackend::initInstance() {
         return;
     }
 
+    // Reuse Qt's existing instance
     usingSharedContext = true;
 
     VkInstance rawInstance = m_qtInstance->vkInstance();
@@ -354,14 +338,10 @@ void VulkanRendererBackend::initInstance() {
     instance = vk::UniqueInstance(vkInstance,
                                   vk::ObjectDestroy<vk::NoParent, vk::DispatchLoaderDynamic>(nullptr, dispatcher));
 
-    // Enable debug utils if available
+    // Check if debug utils extension is available
     const auto& extensions = m_qtInstance->supportedExtensions();
-    for (const auto& ext : extensions) {
-        if (ext.name == VK_EXT_DEBUG_UTILS_EXTENSION_NAME) {
-            debugUtilsEnabled = true;
-            break;
-        }
-    }
+    debugUtilsEnabled = std::any_of(extensions.begin(), extensions.end(), 
+        [](const auto& ext) { return ext.name == VK_EXT_DEBUG_UTILS_EXTENSION_NAME; });
 }
 
 void VulkanRendererBackend::initSurface() {
@@ -401,55 +381,8 @@ void VulkanRendererBackend::initDevice() {
         return;
     }
 
-    // Create our own device
-    const auto& physicalDevices = instance->enumeratePhysicalDevices(dispatcher);
-    if (physicalDevices.empty()) {
-        throw std::runtime_error("No Vulkan compatible GPU found");
-    }
-
-    // Pick the first suitable device
-    for (const auto& candidate : physicalDevices) {
-        const auto& queues = candidate.getQueueFamilyProperties(dispatcher);
-        graphicsQueueIndex = -1;
-
-        for (uint32_t i = 0; i < queues.size(); ++i) {
-            if (queues[i].queueFlags & vk::QueueFlagBits::eGraphics) {
-                graphicsQueueIndex = i;
-                presentQueueIndex = i;
-                break;
-            }
-        }
-
-        if (graphicsQueueIndex != -1) {
-            physicalDevice = candidate;
-            break;
-        }
-    }
-
-    if (!physicalDevice || graphicsQueueIndex == -1) {
-        throw std::runtime_error("No suitable GPU found");
-    }
-
-    // Create device
-    float queuePriority = 1.0f;
-    vk::DeviceQueueCreateInfo queueCreateInfo(vk::DeviceQueueCreateFlags(), graphicsQueueIndex, 1, &queuePriority);
-
-    vk::PhysicalDeviceFeatures deviceFeatures;
-    vk::DeviceCreateInfo createInfo;
-    createInfo.setQueueCreateInfos(queueCreateInfo);
-    createInfo.setPEnabledFeatures(&deviceFeatures);
-    auto extensions = getDeviceExtensions();
-    createInfo.setPEnabledExtensionNames(extensions);
-
-    device = physicalDevice.createDeviceUnique(createInfo, nullptr, dispatcher);
-
-    dispatcher.init(device.get());
-
-    physicalDeviceProperties = physicalDevice.getProperties(dispatcher);
-    physicalDeviceFeatures = deviceFeatures;
-
-    graphicsQueue = device->getQueue(graphicsQueueIndex, 0, dispatcher);
-    presentQueue = graphicsQueue;
+    // Use base class implementation for device creation
+    mbgl::vulkan::RendererBackend::initDevice();
 }
 
 void VulkanRendererBackend::initSwapchain() {
@@ -479,6 +412,23 @@ mbgl::vulkan::Texture2D* VulkanRendererBackend::getOffscreenTexture() const {
 
 void VulkanRendererBackend::updateFramebuffer(quint32 /*fbo*/, const mbgl::Size& newSize) {
     setSize(newSize);
+}
+
+// Helper function to create a QVulkanInstance
+QVulkanInstance* VulkanRendererBackend::createQVulkanInstance() {
+    auto* qtInstance = new QVulkanInstance();
+    qtInstance->setApiVersion(QVersionNumber(1, 0));
+    
+#ifndef NDEBUG
+    qtInstance->setLayers({"VK_LAYER_KHRONOS_validation"});
+#endif
+    
+    if (!qtInstance->create()) {
+        delete qtInstance;
+        throw std::runtime_error("Failed to create QVulkanInstance");
+    }
+    
+    return qtInstance;
 }
 
 } // namespace QMapLibre

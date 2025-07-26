@@ -76,6 +76,7 @@ private:
     bool m_useQtDevice{false};
 
     void initializeWithQtInstance(QVulkanInstance* qtInstance);
+    static QVulkanInstance* createQVulkanInstance();
 
     VulkanRendererBackend(const VulkanRendererBackend&) = delete;
     VulkanRendererBackend& operator=(const VulkanRendererBackend&) = delete;
