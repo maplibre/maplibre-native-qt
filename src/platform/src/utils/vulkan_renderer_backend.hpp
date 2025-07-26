@@ -25,7 +25,10 @@ public:
     explicit VulkanRendererBackend(QWindow* window);
     explicit VulkanRendererBackend(QVulkanInstance* instance);
     // Constructor that uses Qt's Vulkan device
-    VulkanRendererBackend(QWindow* window, VkPhysicalDevice qtPhysicalDevice, VkDevice qtDevice, uint32_t qtGraphicsQueueIndex);
+    VulkanRendererBackend(QWindow* window,
+                          VkPhysicalDevice qtPhysicalDevice,
+                          VkDevice qtDevice,
+                          uint32_t qtGraphicsQueueIndex);
     // Fallback ctor used by MapRenderer when only a ContextMode is provided.
     explicit VulkanRendererBackend(mbgl::gfx::ContextMode /*mode*/);
     ~VulkanRendererBackend() override;
@@ -63,17 +66,17 @@ protected:
 private:
     mbgl::gfx::Texture2D* m_currentDrawable{nullptr};
     QVulkanInstance* m_qtInstance{nullptr};
-    QVulkanInstance* m_ownedInstance{nullptr};  // Instance we created and own
-    QWindow* m_window{nullptr};  // Qt Quick window
-    
+    QVulkanInstance* m_ownedInstance{nullptr}; // Instance we created and own
+    QWindow* m_window{nullptr};                // Qt Quick window
+
     // Qt device info
     VkPhysicalDevice m_qtPhysicalDevice{VK_NULL_HANDLE};
     VkDevice m_qtDevice{VK_NULL_HANDLE};
     uint32_t m_qtGraphicsQueueIndex{0};
     bool m_useQtDevice{false};
-    
+
     void initializeWithQtInstance(QVulkanInstance* qtInstance);
-    
+
     VulkanRendererBackend(const VulkanRendererBackend&) = delete;
     VulkanRendererBackend& operator=(const VulkanRendererBackend&) = delete;
 };

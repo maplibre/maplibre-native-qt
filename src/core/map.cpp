@@ -481,9 +481,9 @@ QString Map::styleUrl() const {
 void Map::setStyleUrl(const QString &url) {
     try {
         d_ptr->mapObj->getStyle().loadURL(url.toStdString());
-        
+
         startStaticRender();
-    } catch (const std::exception& e) {
+    } catch (const std::exception &e) {
         qDebug() << "Map::setStyleUrl - Exception during style loading:" << e.what();
     }
 }
@@ -1054,13 +1054,13 @@ void Map::rotateBy(const QPointF &first, const QPointF &second) {
 */
 void Map::resize(const QSize &size) {
     auto sanitizedSize = sanitizeSize(size);
-    
+
     bool sizeChanged = d_ptr->mapObj->getMapOptions().size() != sanitizedSize;
-    
+
     if (sizeChanged) {
         d_ptr->mapObj->setSize(sanitizedSize);
     }
-    
+
     // Always update the backend framebuffer size (works for all backends: OpenGL, Metal, Vulkan)
     updateFramebuffer(0, size);
 }
@@ -1520,7 +1520,10 @@ void Map::createRendererWithVulkanWindow(void *windowPtr) {
     d_ptr->createRendererWithVulkanWindow(windowPtr);
 }
 
-void Map::createRendererWithQtVulkanDevice(void *windowPtr, void *physicalDevice, void *device, uint32_t graphicsQueueIndex) {
+void Map::createRendererWithQtVulkanDevice(void *windowPtr,
+                                           void *physicalDevice,
+                                           void *device,
+                                           uint32_t graphicsQueueIndex) {
     d_ptr->createRendererWithQtVulkanDevice(windowPtr, physicalDevice, device, graphicsQueueIndex);
 }
 
@@ -1585,8 +1588,8 @@ void Map::render() {
     Updates the framebuffer configuration for the current rendering backend.
     For OpenGL: The \a fbo parameter specifies the framebuffer object ID to use.
     For Metal/Vulkan: The \a fbo parameter is ignored (pass 0).
-    
-    The \a size is the size of the framebuffer, which on high DPI screens 
+
+    The \a size is the size of the framebuffer, which on high DPI screens
     is usually bigger than the map size.
 
     Must be called on the render thread.
@@ -1750,7 +1753,7 @@ void MapPrivate::createRenderer() {
     if (mapObj) {
         auto currentSize = mapObj->getMapOptions().size();
         m_mapRenderer->updateFramebuffer(0, currentSize);
-    } 
+    }
 
     if (m_updateParameters != nullptr) {
         m_mapRenderer->updateParameters(m_updateParameters);
@@ -1811,18 +1814,20 @@ void MapPrivate::createRendererWithVulkanWindow(void *windowPtr) {
         m_mapRenderer->updateParameters(m_updateParameters);
         requestRendering();
     }
-
 }
 
-void MapPrivate::createRendererWithQtVulkanDevice(void *windowPtr, void *physicalDevice, void *device, uint32_t graphicsQueueIndex) {
+void MapPrivate::createRendererWithQtVulkanDevice(void *windowPtr,
+                                                  void *physicalDevice,
+                                                  void *device,
+                                                  uint32_t graphicsQueueIndex) {
     const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
 
-   
     if (m_mapRenderer != nullptr) {
         return; // already created
     }
 
-    m_mapRenderer = std::make_unique<MapRenderer>(m_pixelRatio, m_mode, m_localFontFamily, windowPtr, physicalDevice, device, graphicsQueueIndex);
+    m_mapRenderer = std::make_unique<MapRenderer>(
+        m_pixelRatio, m_mode, m_localFontFamily, windowPtr, physicalDevice, device, graphicsQueueIndex);
 
     connect(m_mapRenderer.get(), &MapRenderer::needsRendering, this, &MapPrivate::requestRendering);
 

@@ -160,7 +160,7 @@ MapRenderer::MapRenderer(qreal pixelRatio,
                          void *physicalDevice,
                          void *device,
                          uint32_t graphicsQueueIndex)
-    : m_backend(static_cast<QWindow *>(windowPtr), 
+    : m_backend(static_cast<QWindow *>(windowPtr),
                 static_cast<VkPhysicalDevice>(physicalDevice),
                 static_cast<VkDevice>(device),
                 graphicsQueueIndex),
@@ -169,8 +169,6 @@ MapRenderer::MapRenderer(qreal pixelRatio,
           pixelRatio,
           localFontFamily.isEmpty() ? std::nullopt : std::optional<std::string>{localFontFamily.toStdString()})),
       m_forceScheduler(needsToForceScheduler()) {
-
-    
     // Debug: Log which backend we're using
     logBackendInfo();
 

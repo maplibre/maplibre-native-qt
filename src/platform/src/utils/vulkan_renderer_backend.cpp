@@ -8,13 +8,13 @@ VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 #include <mbgl/gfx/backend_scope.hpp>
 #include <mbgl/gfx/context.hpp>
 #include <mbgl/gfx/offscreen_texture.hpp>
+#include <mbgl/vulkan/context.hpp>
 #include <mbgl/vulkan/renderable_resource.hpp>
 #include <mbgl/vulkan/texture2d.hpp>
-#include <mbgl/vulkan/context.hpp>
 
+#include <QVulkanFunctions>
 #include <QVulkanInstance>
 #include <QVulkanWindow>
-#include <QVulkanFunctions>
 #include <vulkan/vulkan.hpp>
 
 #include <cassert>
@@ -38,7 +38,7 @@ public:
         if (size.isEmpty() && !size_.isEmpty()) {
             needsRecreation = true;
         }
-        
+
         size = size_;
         extent.width = size.width;
         extent.height = size.height;
@@ -60,7 +60,7 @@ public:
                         backend._q_setCurrentDrawable(texture.get());
                     }
                 }
-                
+
                 // Reset render pass and framebuffer to force recreation
                 framebuffer.reset();
                 renderPass.reset();
@@ -69,14 +69,11 @@ public:
     }
 
     mbgl::Size getSize() const { return size; }
-    
-    mbgl::Size getBackendSize() const {
-        return static_cast<const mbgl::gfx::Renderable&>(backend).getSize();
-    }
+
+    mbgl::Size getBackendSize() const { return static_cast<const mbgl::gfx::Renderable&>(backend).getSize(); }
 
     // Override bind to ensure we have an offscreen texture
     void bind() override {
-        
         // Use a minimal size if the actual size is invalid
         mbgl::Size textureSize = size;
         if (size.isEmpty()) {
@@ -84,9 +81,8 @@ public:
             // Mark that we need to recreate when valid size is available
             needsRecreation = true;
         }
-        
+
         if (!offscreenTexture || needsRecreation) {
-            
             // Reset existing resources if recreating
             if (needsRecreation) {
                 framebuffer.reset();
@@ -97,7 +93,7 @@ public:
                 depthImage.reset();
                 needsRecreation = false;
             }
-            
+
             // Create offscreen texture with proper format for zero-copy sharing
             offscreenTexture = backend.getContext().createOffscreenTexture(
                 textureSize, mbgl::gfx::TextureChannelDataType::UnsignedByte);
@@ -107,7 +103,7 @@ public:
                 if (texture) {
                     // Ensure texture is created and ready for GPU operations
                     texture->create();
-                    
+
                     // Store the texture as the current drawable
                     backend._q_setCurrentDrawable(texture.get());
                 }
@@ -120,21 +116,18 @@ public:
         }
     }
 
-    const vk::UniqueFramebuffer& getFramebuffer() const override { 
-        return framebuffer; 
-    }
-    
+    const vk::UniqueFramebuffer& getFramebuffer() const override { return framebuffer; }
+
     void swap() override {
         // For offscreen rendering, we need to ensure commands are submitted
         // but we don't present to a swapchain
         auto& context = static_cast<mbgl::vulkan::Context&>(backend.getContext());
-        
+
         // Submit the current command buffer
         context.submitFrame();
-        
+
         // Wait for the GPU to complete rendering
         backend.getDevice()->waitIdle(backend.getDispatcher());
-        
     }
 
 private:
@@ -182,15 +175,15 @@ private:
                                  .setColorAttachments(colorAttachmentRef)
                                  .setPDepthStencilAttachment(&depthAttachmentRef);
 
-        const auto renderPassCreateInfo =
-            vk::RenderPassCreateInfo().setAttachments(attachments).setSubpasses(subpass);
+        const auto renderPassCreateInfo = vk::RenderPassCreateInfo().setAttachments(attachments).setSubpasses(subpass);
 
-        renderPass = qtBackend.getDevice()->createRenderPassUnique(renderPassCreateInfo, nullptr, qtBackend.getDispatcher());
+        renderPass = qtBackend.getDevice()->createRenderPassUnique(
+            renderPassCreateInfo, nullptr, qtBackend.getDispatcher());
 
         // Create framebuffer with both color and depth attachments
         const auto& colorImageView = vulkanTexture.getVulkanImageView();
         const std::array<vk::ImageView, 2> imageViews = {colorImageView.get(), depthImageView.get()};
-        
+
         // Use texture actual size for framebuffer (which might be 1x1 if size was 0x0)
         auto textureSize = vulkanTexture.getSize();
         const auto framebufferCreateInfo = vk::FramebufferCreateInfo()
@@ -200,8 +193,9 @@ private:
                                                .setHeight(textureSize.height)
                                                .setLayers(1);
 
-        framebuffer = qtBackend.getDevice()->createFramebufferUnique(framebufferCreateInfo, nullptr, qtBackend.getDispatcher());
-        
+        framebuffer = qtBackend.getDevice()->createFramebufferUnique(
+            framebufferCreateInfo, nullptr, qtBackend.getDispatcher());
+
         // Update extent to match actual texture size
         extent.width = textureSize.width;
         extent.height = textureSize.height;
@@ -253,23 +247,23 @@ private:
 
         // Allocate memory for the depth image
         auto memRequirements = device->getImageMemoryRequirements(depthImage.get(), dispatcher);
-        
+
         vk::MemoryAllocateInfo allocInfo;
         allocInfo.setAllocationSize(memRequirements.size);
-        allocInfo.setMemoryTypeIndex(findMemoryType(memRequirements.memoryTypeBits, 
-                                                     vk::MemoryPropertyFlagBits::eDeviceLocal));
+        allocInfo.setMemoryTypeIndex(
+            findMemoryType(memRequirements.memoryTypeBits, vk::MemoryPropertyFlagBits::eDeviceLocal));
 
         depthMemory = device->allocateMemoryUnique(allocInfo, nullptr, dispatcher);
         device->bindImageMemory(depthImage.get(), depthMemory.get(), 0, dispatcher);
 
         // Create image view
-        const auto imageViewCreateInfo = vk::ImageViewCreateInfo()
-                                             .setImage(depthImage.get())
-                                             .setViewType(vk::ImageViewType::e2D)
-                                             .setFormat(depthFormat)
-                                             .setSubresourceRange(vk::ImageSubresourceRange(
-                                                 vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil, 
-                                                 0, 1, 0, 1));
+        const auto imageViewCreateInfo =
+            vk::ImageViewCreateInfo()
+                .setImage(depthImage.get())
+                .setViewType(vk::ImageViewType::e2D)
+                .setFormat(depthFormat)
+                .setSubresourceRange(vk::ImageSubresourceRange(
+                    vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil, 0, 1, 0, 1));
 
         depthImageView = device->createImageViewUnique(imageViewCreateInfo, nullptr, dispatcher);
     }
@@ -278,16 +272,15 @@ private:
         auto& qtBackend = static_cast<VulkanRendererBackend&>(backend);
         const auto& physicalDevice = qtBackend.getPhysicalDevice();
         const auto& dispatcher = qtBackend.getDispatcher();
-        
+
         auto memProperties = physicalDevice.getMemoryProperties(dispatcher);
-        
+
         for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
-            if ((typeFilter & (1 << i)) && 
-                (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+            if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
                 return i;
             }
         }
-        
+
         throw std::runtime_error("Failed to find suitable memory type");
     }
 
@@ -305,61 +298,65 @@ private:
 
 VulkanRendererBackend::VulkanRendererBackend(QWindow* window)
     : mbgl::vulkan::RendererBackend(mbgl::gfx::ContextMode::Shared),
-      mbgl::vulkan::Renderable(mbgl::Size{800, 600}, std::make_unique<QtVulkanRenderableResource>(*this, mbgl::Size{800, 600})),
+      mbgl::vulkan::Renderable(mbgl::Size{800, 600},
+                               std::make_unique<QtVulkanRenderableResource>(*this, mbgl::Size{800, 600})),
       m_window(window) {
-    
     if (!window) {
         throw std::runtime_error("Window is null");
     }
-    
+
     QVulkanInstance* qtInstance = window->vulkanInstance();
-    
+
     if (!qtInstance) {
         // Create our own instance for Qt Quick windows
         qtInstance = new QVulkanInstance();
         qtInstance->setApiVersion(QVersionNumber(1, 0));
-        
+
 #ifndef NDEBUG
         qtInstance->setLayers({"VK_LAYER_KHRONOS_validation"});
 #endif
-        
+
         if (!qtInstance->create()) {
             delete qtInstance;
             throw std::runtime_error("Failed to create QVulkanInstance");
         }
-        
+
         m_ownedInstance = qtInstance;
     }
-    
+
     initializeWithQtInstance(qtInstance);
 }
 
 VulkanRendererBackend::VulkanRendererBackend(QVulkanInstance* qtInstance)
     : mbgl::vulkan::RendererBackend(mbgl::gfx::ContextMode::Unique),
-      mbgl::vulkan::Renderable(mbgl::Size{800, 600}, std::make_unique<QtVulkanRenderableResource>(*this, mbgl::Size{800, 600})) {
+      mbgl::vulkan::Renderable(mbgl::Size{800, 600},
+                               std::make_unique<QtVulkanRenderableResource>(*this, mbgl::Size{800, 600})) {
     assert(qtInstance);
     initializeWithQtInstance(qtInstance);
 }
 
 // Constructor that reuses Qt's Vulkan device for zero-copy texture sharing
-VulkanRendererBackend::VulkanRendererBackend(QWindow* window, VkPhysicalDevice qtPhysicalDevice, VkDevice qtDevice, uint32_t qtGraphicsQueueIndex)
+VulkanRendererBackend::VulkanRendererBackend(QWindow* window,
+                                             VkPhysicalDevice qtPhysicalDevice,
+                                             VkDevice qtDevice,
+                                             uint32_t qtGraphicsQueueIndex)
     : mbgl::vulkan::RendererBackend(mbgl::gfx::ContextMode::Shared),
-      mbgl::vulkan::Renderable(mbgl::Size{800, 600}, std::make_unique<QtVulkanRenderableResource>(*this, mbgl::Size{800, 600})),
+      mbgl::vulkan::Renderable(mbgl::Size{800, 600},
+                               std::make_unique<QtVulkanRenderableResource>(*this, mbgl::Size{800, 600})),
       m_window(window),
       m_qtPhysicalDevice(qtPhysicalDevice),
       m_qtDevice(qtDevice),
       m_qtGraphicsQueueIndex(qtGraphicsQueueIndex),
       m_useQtDevice(true) {
-    
     if (!window || !qtPhysicalDevice || !qtDevice) {
         throw std::runtime_error("Invalid Qt Vulkan resources");
     }
-    
+
     QVulkanInstance* qtInstance = window->vulkanInstance();
     if (!qtInstance) {
         throw std::runtime_error("Window does not have a Vulkan instance");
     }
-    
+
     initializeWithQtInstance(qtInstance);
 }
 
@@ -385,7 +382,7 @@ VulkanRendererBackend::~VulkanRendererBackend() {
 
 void VulkanRendererBackend::initializeWithQtInstance(QVulkanInstance* qtInstance) {
     m_qtInstance = qtInstance;
-    
+
     VkInstance rawInstance = qtInstance->vkInstance();
     if (rawInstance == VK_NULL_HANDLE) {
         throw std::runtime_error("Qt Vulkan instance handle is null");
@@ -399,9 +396,9 @@ void VulkanRendererBackend::init() {
         mbgl::vulkan::RendererBackend::init();
         return;
     }
-    
+
     // Initialize dispatcher with Qt's function resolution
-    QVulkanFunctions *f = m_qtInstance->functions();
+    QVulkanFunctions* f = m_qtInstance->functions();
     if (f) {
         auto vkGetInstanceProcAddr = m_qtInstance->getInstanceProcAddr("vkGetInstanceProcAddr");
         if (vkGetInstanceProcAddr) {
@@ -412,22 +409,22 @@ void VulkanRendererBackend::init() {
         dynamicLoader = vk::DynamicLoader();
         dispatcher.init(dynamicLoader);
     }
-    
+
     mbgl::vulkan::RendererBackend::initFrameCapture();
-    
+
     initInstance();
     dispatcher.init(instance.get());
-    
+
     mbgl::vulkan::RendererBackend::initDebug();
-    
+
     initSurface();
     initDevice();
-    
+
     dispatcher.init(device.get());
     physicalDeviceProperties = physicalDevice.getProperties(dispatcher);
     if (graphicsQueueIndex != -1) graphicsQueue = device->getQueue(graphicsQueueIndex, 0, dispatcher);
     if (presentQueueIndex != -1) presentQueue = device->getQueue(presentQueueIndex, 0, dispatcher);
-    
+
     mbgl::vulkan::RendererBackend::initAllocator();
     initSwapchain();
     mbgl::vulkan::RendererBackend::initCommandPool();
@@ -438,17 +435,18 @@ void VulkanRendererBackend::initInstance() {
         mbgl::vulkan::RendererBackend::initInstance();
         return;
     }
-    
+
     usingSharedContext = true;
-    
+
     VkInstance rawInstance = m_qtInstance->vkInstance();
     if (!rawInstance) {
         throw std::runtime_error("Qt VkInstance is null");
     }
-    
+
     vk::Instance vkInstance(rawInstance);
-    instance = vk::UniqueInstance(vkInstance, vk::ObjectDestroy<vk::NoParent, vk::DispatchLoaderDynamic>(nullptr, dispatcher));
-    
+    instance = vk::UniqueInstance(vkInstance,
+                                  vk::ObjectDestroy<vk::NoParent, vk::DispatchLoaderDynamic>(nullptr, dispatcher));
+
     // Enable debug utils if available
     const auto& extensions = m_qtInstance->supportedExtensions();
     for (const auto& ext : extensions) {
@@ -465,11 +463,11 @@ void VulkanRendererBackend::initSurface() {
 
 std::vector<const char*> VulkanRendererBackend::getDeviceExtensions() {
     std::vector<const char*> extensions;
-    
+
 #ifdef __APPLE__
     extensions.push_back("VK_KHR_portability_subset");
 #endif
-    
+
     return extensions;
 }
 
@@ -477,35 +475,36 @@ void VulkanRendererBackend::initDevice() {
     if (m_useQtDevice && m_qtDevice && m_qtPhysicalDevice) {
         // Reuse Qt's existing Vulkan device for zero-copy texture sharing
         physicalDevice = vk::PhysicalDevice(m_qtPhysicalDevice);
-        
+
         vk::Device vkDevice(m_qtDevice);
-        device = vk::UniqueDevice(vkDevice, vk::ObjectDestroy<vk::NoParent, vk::DispatchLoaderDynamic>(nullptr, dispatcher));
-        
+        device = vk::UniqueDevice(vkDevice,
+                                  vk::ObjectDestroy<vk::NoParent, vk::DispatchLoaderDynamic>(nullptr, dispatcher));
+
         graphicsQueueIndex = m_qtGraphicsQueueIndex;
         presentQueueIndex = m_qtGraphicsQueueIndex;
-        
+
         dispatcher.init(vkDevice);
-        
+
         physicalDeviceProperties = physicalDevice.getProperties(dispatcher);
         physicalDeviceFeatures = physicalDevice.getFeatures(dispatcher);
-        
+
         graphicsQueue = device->getQueue(graphicsQueueIndex, 0, dispatcher);
         presentQueue = graphicsQueue;
-        
+
         return;
     }
-    
+
     // Create our own device
     const auto& physicalDevices = instance->enumeratePhysicalDevices(dispatcher);
     if (physicalDevices.empty()) {
         throw std::runtime_error("No Vulkan compatible GPU found");
     }
-    
+
     // Pick the first suitable device
     for (const auto& candidate : physicalDevices) {
         const auto& queues = candidate.getQueueFamilyProperties(dispatcher);
         graphicsQueueIndex = -1;
-        
+
         for (uint32_t i = 0; i < queues.size(); ++i) {
             if (queues[i].queueFlags & vk::QueueFlagBits::eGraphics) {
                 graphicsQueueIndex = i;
@@ -513,35 +512,35 @@ void VulkanRendererBackend::initDevice() {
                 break;
             }
         }
-        
+
         if (graphicsQueueIndex != -1) {
             physicalDevice = candidate;
             break;
         }
     }
-    
+
     if (!physicalDevice || graphicsQueueIndex == -1) {
         throw std::runtime_error("No suitable GPU found");
     }
-    
+
     // Create device
     float queuePriority = 1.0f;
     vk::DeviceQueueCreateInfo queueCreateInfo(vk::DeviceQueueCreateFlags(), graphicsQueueIndex, 1, &queuePriority);
-    
+
     vk::PhysicalDeviceFeatures deviceFeatures;
     vk::DeviceCreateInfo createInfo;
     createInfo.setQueueCreateInfos(queueCreateInfo);
     createInfo.setPEnabledFeatures(&deviceFeatures);
     auto extensions = getDeviceExtensions();
     createInfo.setPEnabledExtensionNames(extensions);
-    
+
     device = physicalDevice.createDeviceUnique(createInfo, nullptr, dispatcher);
-    
+
     dispatcher.init(device.get());
-    
+
     physicalDeviceProperties = physicalDevice.getProperties(dispatcher);
     physicalDeviceFeatures = deviceFeatures;
-    
+
     graphicsQueue = device->getQueue(graphicsQueueIndex, 0, dispatcher);
     presentQueue = graphicsQueue;
 }
@@ -551,11 +550,10 @@ void VulkanRendererBackend::initSwapchain() {
     maxFrames = 1;
 }
 
-
 void VulkanRendererBackend::setSize(mbgl::Size size_) {
     // Propagate size to the Renderable base class
     mbgl::vulkan::Renderable::setSize(size_);
-    
+
     // Also update our custom resource
     this->getResource<QtVulkanRenderableResource>().setBackendSize(size_);
 }

@@ -2,18 +2,18 @@
 
 #include "maplibre_quick_item_vulkan.hpp"
 
+#include <QtQuick/qsgtexture_platform.h>
 #include <QDebug>
 #include <QMapLibre/Map>
 #include <QMapLibre/Settings>
 #include <QMapLibre/Types>
 #include <QMouseEvent>
 #include <QQuickWindow>
+#include <QSGRendererInterface>
 #include <QSGSimpleRectNode>
 #include <QSGSimpleTextureNode>
-#include <QtQuick/qsgtexture_platform.h>
 #include <QTimer>
 #include <QWheelEvent>
-#include <QSGRendererInterface>
 #include <cmath>
 
 #if QT_CONFIG(vulkan)
@@ -68,11 +68,13 @@ void MapLibreQuickItemVulkan::ensureMap(int w, int h, float dpr) {
                     update();
                 }
             });
-            
+
             // Connect to map loading failed signal
-            QObject::connect(m_map.get(), &Map::mapLoadingFailed, this, [this](Map::MapLoadingFailure failure, const QString &reason) {
-            });
-            
+            QObject::connect(m_map.get(),
+                             &Map::mapLoadingFailed,
+                             this,
+                             [this](Map::MapLoadingFailure failure, const QString &reason) {});
+
             // Set style URL and coordinates immediately
             m_map->setStyleUrl("https://demotiles.maplibre.org/style.json");
             m_map->setCoordinateZoom(QMapLibre::Coordinate{51.5074, -0.1278}, 4.0);
@@ -90,7 +92,7 @@ QSGNode *MapLibreQuickItemVulkan::updatePaintNode(QSGNode *node, UpdatePaintNode
     }
 
     // Check Qt's graphics API
-    auto* ri = window()->rendererInterface();
+    auto *ri = window()->rendererInterface();
     if (ri) {
         if (ri->graphicsApi() != QSGRendererInterface::Vulkan) {
             qWarning() << "Qt Quick is not using Vulkan RHI! Current API:" << ri->graphicsApi();
@@ -119,28 +121,29 @@ QSGNode *MapLibreQuickItemVulkan::updatePaintNode(QSGNode *node, UpdatePaintNode
             qWarning() << "No window available for Vulkan renderer";
             return node;
         }
-        
+
         // Create renderer with Qt's Vulkan window
         try {
-            
             // Try to get Qt's Vulkan info and use Qt's device
-            auto* ri = qWindow->rendererInterface();
+            auto *ri = qWindow->rendererInterface();
             if (ri && ri->graphicsApi() == QSGRendererInterface::Vulkan) {
                 // Qt returns pointers to the handles, not the handles themselves
-                auto* qtPhysicalDevicePtr = reinterpret_cast<VkPhysicalDevice*>(ri->getResource(qWindow, QSGRendererInterface::PhysicalDeviceResource));
-                auto* qtDevicePtr = reinterpret_cast<VkDevice*>(ri->getResource(qWindow, QSGRendererInterface::DeviceResource));
-                auto* qtCommandQueuePtr = reinterpret_cast<VkQueue*>(ri->getResource(qWindow, QSGRendererInterface::CommandQueueResource));
-                
+                auto *qtPhysicalDevicePtr = reinterpret_cast<VkPhysicalDevice *>(
+                    ri->getResource(qWindow, QSGRendererInterface::PhysicalDeviceResource));
+                auto *qtDevicePtr = reinterpret_cast<VkDevice *>(
+                    ri->getResource(qWindow, QSGRendererInterface::DeviceResource));
+                auto *qtCommandQueuePtr = reinterpret_cast<VkQueue *>(
+                    ri->getResource(qWindow, QSGRendererInterface::CommandQueueResource));
+
                 VkPhysicalDevice qtPhysicalDevice = qtPhysicalDevicePtr ? *qtPhysicalDevicePtr : VK_NULL_HANDLE;
                 VkDevice qtDevice = qtDevicePtr ? *qtDevicePtr : VK_NULL_HANDLE;
                 VkQueue qtCommandQueue = qtCommandQueuePtr ? *qtCommandQueuePtr : VK_NULL_HANDLE;
-                
-                
+
                 if (qtPhysicalDevice && qtDevice) {
                     // TODO: We need to get the graphics queue index from Qt
                     // For now, assume it's 0 (common case)
                     uint32_t graphicsQueueIndex = 0;
-                    
+
                     m_map->createRendererWithQtVulkanDevice(qWindow, qtPhysicalDevice, qtDevice, graphicsQueueIndex);
                 } else {
                     m_map->createRendererWithVulkanWindow(qWindow);
@@ -149,10 +152,10 @@ QSGNode *MapLibreQuickItemVulkan::updatePaintNode(QSGNode *node, UpdatePaintNode
                 m_map->createRendererWithVulkanWindow(qWindow);
             }
             m_rendererBound = true;
-            
+
             // Now connect to the map's rendering signals
             QObject::connect(m_map.get(), &Map::needsRendering, this, [this]() { update(); });
-            
+
             // Ensure the backend has the correct size
             if (width() > 0 && height() > 0) {
                 const float dpr = qWindow->devicePixelRatio();
@@ -181,16 +184,15 @@ QSGNode *MapLibreQuickItemVulkan::updatePaintNode(QSGNode *node, UpdatePaintNode
     if (m_rendererBound && m_map) {
         try {
             // Get the Vulkan texture directly for zero-copy access
-            auto* vulkanTexture = m_map->getVulkanTexture();
-            
+            auto *vulkanTexture = m_map->getVulkanTexture();
+
             if (vulkanTexture) {
                 // Ensure the texture is in the correct layout for sampling
                 VkImage vkImage = vulkanTexture->getVulkanImage();
                 VkImageLayout imageLayout = static_cast<VkImageLayout>(vulkanTexture->getVulkanImageLayout());
-                
+
                 // Check if we have a valid VkImage
                 if (vkImage != VK_NULL_HANDLE) {
-                    
                     // Create or update texture node
                     auto *textureNode = dynamic_cast<QSGSimpleTextureNode *>(node);
                     if (!textureNode) {
@@ -198,13 +200,13 @@ QSGNode *MapLibreQuickItemVulkan::updatePaintNode(QSGNode *node, UpdatePaintNode
                         textureNode = new QSGSimpleTextureNode();
                         node = textureNode;
                     }
-                    
+
                     // Create QSGTexture from native Vulkan image (zero-copy)
                     QSGTexture *qtTexture = nullptr;
-                    
+
                     // Check if we can reuse existing texture wrapper
-                    if (m_lastVkImage == vkImage && m_qtTextureWrapper && 
-                        m_lastTextureSize.width() == texWidth && m_lastTextureSize.height() == texHeight) {
+                    if (m_lastVkImage == vkImage && m_qtTextureWrapper && m_lastTextureSize.width() == texWidth &&
+                        m_lastTextureSize.height() == texHeight) {
                         // Reuse existing wrapper for better performance
                         qtTexture = m_qtTextureWrapper;
                     } else {
@@ -215,7 +217,7 @@ QSGNode *MapLibreQuickItemVulkan::updatePaintNode(QSGNode *node, UpdatePaintNode
                             window(),
                             QSize(texWidth, texHeight),
                             QQuickWindow::TextureHasAlphaChannel);
-                        
+
                         if (qtTexture) {
                             // Store for reuse
                             m_qtTextureWrapper = qtTexture;
@@ -223,7 +225,7 @@ QSGNode *MapLibreQuickItemVulkan::updatePaintNode(QSGNode *node, UpdatePaintNode
                             m_lastTextureSize = QSize(texWidth, texHeight);
                         }
                     }
-                    
+
                     if (qtTexture) {
                         qtTexture->setFiltering(QSGTexture::Linear);
                         qtTexture->setMipmapFiltering(QSGTexture::None);
@@ -241,7 +243,7 @@ QSGNode *MapLibreQuickItemVulkan::updatePaintNode(QSGNode *node, UpdatePaintNode
                 if (nativeTex) {
                 }
             }
-        } catch (const std::exception& e) {
+        } catch (const std::exception &e) {
             qWarning() << "Exception in zero-copy texture access:" << e.what();
         }
     }
