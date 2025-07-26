@@ -122,7 +122,7 @@ public:
         // For offscreen rendering, we need to ensure commands are submitted
         // but we don't present to a swapchain
         mbgl::vulkan::SurfaceRenderableResource::swap();
-        
+
         // Add barrier to transition image layout to shader read-only optimal
         if (offscreenTexture) {
             auto texture = offscreenTexture->getTexture();
@@ -131,7 +131,7 @@ public:
                 // The barrier will be added by the texture itself when needed
             }
         }
-        
+
         // No need for waitIdle as synchronization is handled by barriers
     }
 
@@ -293,7 +293,7 @@ private:
     void createPlatformSurface() override {
         // No surface needed for offscreen rendering
     }
-    
+
     VulkanRendererBackend& backend;
     std::unique_ptr<mbgl::gfx::OffscreenTexture> offscreenTexture;
     vk::UniqueFramebuffer framebuffer;
