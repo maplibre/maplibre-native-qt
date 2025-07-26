@@ -179,6 +179,7 @@ public:
     void createRenderer();
     // Metal-specific: create the renderer using a pre-existing CAMetalLayer.
     void createRendererWithMetalLayer(void *layerPtr);
+#ifdef MLN_RENDER_BACKEND_VULKAN
     // Vulkan-specific: create the renderer using a Qt Quick window.
     void createRendererWithVulkanWindow(void *windowPtr);
     // Vulkan-specific: create the renderer using Qt's Vulkan device
@@ -186,6 +187,7 @@ public:
                                           void *physicalDevice,
                                           void *device,
                                           uint32_t graphicsQueueIndex);
+#endif
     void destroyRenderer();
 
     // Backend-agnostic framebuffer update method

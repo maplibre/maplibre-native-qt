@@ -88,9 +88,6 @@ public:
                 framebuffer.reset();
                 renderPass.reset();
                 offscreenTexture.reset();
-                depthImageView.reset();
-                depthMemory.reset();
-                depthImage.reset();
                 needsRecreation = false;
             }
 
@@ -127,8 +124,8 @@ public:
         if (offscreenTexture) {
             auto texture = offscreenTexture->getTexture();
             if (texture) {
-                auto& vulkanTexture = static_cast<mbgl::vulkan::Texture2D&>(*texture);
                 // The barrier will be added by the texture itself when needed
+                (void)static_cast<mbgl::vulkan::Texture2D&>(*texture);
             }
         }
 
@@ -145,10 +142,8 @@ private:
         auto& vulkanTexture = static_cast<mbgl::vulkan::Texture2D&>(*texture);
         auto& qtBackend = static_cast<VulkanRendererBackend&>(backend);
 
-        // Create depth/stencil texture if needed
-        if (!depthImage) {
-            createDepthStencilTexture();
-        }
+        // Initialize depth/stencil resources if needed
+        initDepthStencil();
 
         const auto colorAttachment = vk::AttachmentDescription(vk::AttachmentDescriptionFlags())
                                          .setFormat(vulkanTexture.getVulkanFormat())
@@ -161,7 +156,7 @@ private:
                                          .setFinalLayout(vk::ImageLayout::eShaderReadOnlyOptimal);
 
         const auto depthAttachment = vk::AttachmentDescription(vk::AttachmentDescriptionFlags())
-                                         .setFormat(depthFormat)
+                                         .setFormat(depthFormat != vk::Format::eUndefined ? depthFormat : vk::Format::eD24UnormS8Uint)
                                          .setSamples(vk::SampleCountFlagBits::e1)
                                          .setLoadOp(vk::AttachmentLoadOp::eClear)
                                          .setStoreOp(vk::AttachmentStoreOp::eDontCare)
@@ -187,7 +182,7 @@ private:
 
         // Create framebuffer with both color and depth attachments
         const auto& colorImageView = vulkanTexture.getVulkanImageView();
-        const std::array<vk::ImageView, 2> imageViews = {colorImageView.get(), depthImageView.get()};
+        const std::array<vk::ImageView, 2> imageViews = {colorImageView.get(), depthAllocation->imageView.get()};
 
         // Use texture actual size for framebuffer (which might be 1x1 if size was 0x0)
         auto textureSize = vulkanTexture.getSize();
@@ -206,88 +201,6 @@ private:
         extent.height = textureSize.height;
     }
 
-    void createDepthStencilTexture() {
-        auto& qtBackend = static_cast<VulkanRendererBackend&>(backend);
-        const auto& physicalDevice = qtBackend.getPhysicalDevice();
-        const auto& device = qtBackend.getDevice();
-        const auto& dispatcher = qtBackend.getDispatcher();
-
-        // Find a suitable depth format
-        const std::vector<vk::Format> formats = {
-            vk::Format::eD24UnormS8Uint,
-            vk::Format::eD32SfloatS8Uint,
-            vk::Format::eD16UnormS8Uint,
-        };
-
-        const auto& formatIt = std::find_if(formats.begin(), formats.end(), [&](const auto& format) {
-            const auto& formatProps = physicalDevice.getFormatProperties(format, dispatcher);
-            return formatProps.optimalTilingFeatures & vk::FormatFeatureFlagBits::eDepthStencilAttachment;
-        });
-
-        if (formatIt == formats.end()) {
-            return;
-        }
-
-        depthFormat = *formatIt;
-
-        // Get texture size (use 1x1 if size is invalid)
-        mbgl::Size depthSize = size;
-        if (size.isEmpty()) {
-            depthSize = mbgl::Size{1, 1};
-        }
-
-        const auto imageCreateInfo = vk::ImageCreateInfo()
-                                         .setImageType(vk::ImageType::e2D)
-                                         .setFormat(depthFormat)
-                                         .setExtent({depthSize.width, depthSize.height, 1})
-                                         .setMipLevels(1)
-                                         .setArrayLayers(1)
-                                         .setSamples(vk::SampleCountFlagBits::e1)
-                                         .setTiling(vk::ImageTiling::eOptimal)
-                                         .setUsage(vk::ImageUsageFlagBits::eDepthStencilAttachment)
-                                         .setSharingMode(vk::SharingMode::eExclusive)
-                                         .setInitialLayout(vk::ImageLayout::eUndefined);
-
-        depthImage = device->createImageUnique(imageCreateInfo, nullptr, dispatcher);
-
-        // Allocate memory for the depth image
-        auto memRequirements = device->getImageMemoryRequirements(depthImage.get(), dispatcher);
-
-        vk::MemoryAllocateInfo allocInfo;
-        allocInfo.setAllocationSize(memRequirements.size);
-        allocInfo.setMemoryTypeIndex(
-            findMemoryType(memRequirements.memoryTypeBits, vk::MemoryPropertyFlagBits::eDeviceLocal));
-
-        depthMemory = device->allocateMemoryUnique(allocInfo, nullptr, dispatcher);
-        device->bindImageMemory(depthImage.get(), depthMemory.get(), 0, dispatcher);
-
-        // Create image view
-        const auto imageViewCreateInfo =
-            vk::ImageViewCreateInfo()
-                .setImage(depthImage.get())
-                .setViewType(vk::ImageViewType::e2D)
-                .setFormat(depthFormat)
-                .setSubresourceRange(vk::ImageSubresourceRange(
-                    vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil, 0, 1, 0, 1));
-
-        depthImageView = device->createImageViewUnique(imageViewCreateInfo, nullptr, dispatcher);
-    }
-
-    uint32_t findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties) {
-        auto& qtBackend = static_cast<VulkanRendererBackend&>(backend);
-        const auto& physicalDevice = qtBackend.getPhysicalDevice();
-        const auto& dispatcher = qtBackend.getDispatcher();
-
-        auto memProperties = physicalDevice.getMemoryProperties(dispatcher);
-
-        for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
-            if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
-                return i;
-            }
-        }
-
-        throw std::runtime_error("Failed to find suitable memory type");
-    }
 
     // Override from SurfaceRenderableResource
     void createPlatformSurface() override {
@@ -297,10 +210,6 @@ private:
     VulkanRendererBackend& backend;
     std::unique_ptr<mbgl::gfx::OffscreenTexture> offscreenTexture;
     vk::UniqueFramebuffer framebuffer;
-    vk::UniqueImage depthImage;
-    vk::UniqueDeviceMemory depthMemory;
-    vk::UniqueImageView depthImageView;
-    vk::Format depthFormat{vk::Format::eUndefined};
     mbgl::Size size{800, 600};
     bool needsRecreation{false};
 };
@@ -420,22 +329,10 @@ void VulkanRendererBackend::init() {
         dispatcher.init(dynamicLoader);
     }
 
-    mbgl::vulkan::RendererBackend::initFrameCapture();
-
-    initInstance();
-    dispatcher.init(instance.get());
-
-    mbgl::vulkan::RendererBackend::initDebug();
-
-    initSurface();
-    initDevice();
-
-    dispatcher.init(device.get());
-    physicalDeviceProperties = physicalDevice.getProperties(dispatcher);
-    if (graphicsQueueIndex != -1) graphicsQueue = device->getQueue(graphicsQueueIndex, 0, dispatcher);
-    if (presentQueueIndex != -1) presentQueue = device->getQueue(presentQueueIndex, 0, dispatcher);
-
-    mbgl::vulkan::RendererBackend::initAllocator();
+    // Call base class init which handles most initialization
+    mbgl::vulkan::RendererBackend::init();
+    
+    // Only do Qt-specific initialization
     initSwapchain();
     mbgl::vulkan::RendererBackend::initCommandPool();
 }

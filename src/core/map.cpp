@@ -1516,6 +1516,7 @@ void Map::createRendererWithMetalLayer(void *layerPtr) {
     d_ptr->createRendererWithMetalLayer(layerPtr);
 }
 
+#ifdef MLN_RENDER_BACKEND_VULKAN
 void Map::createRendererWithVulkanWindow(void *windowPtr) {
     d_ptr->createRendererWithVulkanWindow(windowPtr);
 }
@@ -1526,6 +1527,7 @@ void Map::createRendererWithQtVulkanDevice(void *windowPtr,
                                            uint32_t graphicsQueueIndex) {
     d_ptr->createRendererWithQtVulkanDevice(windowPtr, physicalDevice, device, graphicsQueueIndex);
 }
+#endif
 
 /*!
     \brief Destroy the renderer.
@@ -1786,6 +1788,7 @@ void MapPrivate::createRendererWithMetalLayer(void *layerPtr) {
     }
 }
 
+#ifdef MLN_RENDER_BACKEND_VULKAN
 void MapPrivate::createRendererWithVulkanWindow(void *windowPtr) {
     const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
 
@@ -1843,6 +1846,7 @@ void MapPrivate::createRendererWithQtVulkanDevice(void *windowPtr,
         requestRendering();
     }
 }
+#endif
 
 void MapPrivate::destroyRenderer() {
     const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
