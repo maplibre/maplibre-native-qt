@@ -39,6 +39,7 @@ public:
     unsigned int m_vertexBuffer{0};
     unsigned int m_vao{0};
     unsigned int m_mapFramebuffer{0};
+    unsigned int m_mapTexture{0};
 
 private:
     Q_DISABLE_COPY(GLWidgetPrivate);
