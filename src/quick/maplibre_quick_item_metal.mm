@@ -1,20 +1,20 @@
-#import <Metal/Metal.h>
-#import <QuartzCore/CAMetalLayer.h>
 #import <AppKit/AppKit.h>
 #include <CoreFoundation/CoreFoundation.h>
+#import <Metal/Metal.h>
+#import <QuartzCore/CAMetalLayer.h>
 // MapLibreQuickItem implementation for Metal backend
 
 #include "maplibre_quick_item_metal.hpp"
 
 #include <QQuickWindow>
-#include <QSGRendererInterface>
 #include <QSGNode>
+#include <QSGRendererInterface>
 
+#include <QtQuick/qsgtexture_platform.h>
+#include <QMouseEvent>
 #include <QSGSimpleTextureNode>
 #include <QSGTexture>
-#include <QtQuick/qsgtexture_platform.h>
 #include <QTimer>
-#include <QMouseEvent>
 #include <QWheelEvent>
 
 #include "utils/metal_renderer_backend.hpp"
@@ -49,15 +49,15 @@ void MapLibreQuickItem::geometryChange(const QRectF &newG, const QRectF &oldG) {
     if (newG.size() != oldG.size()) {
         m_size = newG.size().toSize();
         if (m_map) {
-            m_map->resize(QSize(m_size.width() * window()->devicePixelRatio(), m_size.height() * window()->devicePixelRatio()));
+            m_map->resize(
+                QSize(m_size.width() * window()->devicePixelRatio(), m_size.height() * window()->devicePixelRatio()));
         }
         update();
     }
 }
 
 void MapLibreQuickItem::ensureMap(int w, int h, float dpr, void *metalLayer) {
-    if (m_map)
-        return;
+    if (m_map) return;
 
     if (!metalLayer) {
         // Still no MetalLayer from Qt – create our own sublayer.
@@ -78,7 +78,6 @@ void MapLibreQuickItem::ensureMap(int w, int h, float dpr, void *metalLayer) {
         newLayer.drawableSize = CGSizeMake(w * dpr, h * dpr);
         [view.layer addSublayer:newLayer];
         metalLayer = (__bridge void *)newLayer;
-
 
         m_ownsLayer = true;
     }
@@ -104,8 +103,6 @@ void MapLibreQuickItem::ensureMap(int w, int h, float dpr, void *metalLayer) {
             layer.allowsNextDrawableTimeout = NO;
         }
 
-
-
         // Defer binding the renderer until the first beforeRendering callback once a drawable is available.
     }
 
@@ -119,13 +116,12 @@ void MapLibreQuickItem::ensureMap(int w, int h, float dpr, void *metalLayer) {
 
     // First frame will be rendered from afterRendering once the MetalLayer is ready.
 
-    m_map->setStyleUrl("https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json");
-    m_map->setCoordinateZoom({40.7128, -74.0060}, 2);
+    m_map->setStyleUrl("https://demotiles.maplibre.org/style.json");
+    m_map->setCoordinateZoom({59.91, 10.75}, 5);
 }
 
 QSGNode *MapLibreQuickItem::updatePaintNode(QSGNode *node, UpdatePaintNodeData *) {
-    if (!window())
-        return node;
+    if (!window()) return node;
 
     auto *ri = window()->rendererInterface();
     if (!ri) {
@@ -133,72 +129,69 @@ QSGNode *MapLibreQuickItem::updatePaintNode(QSGNode *node, UpdatePaintNodeData *
         return node;
     }
 
-    if (!m_map)
-        ensureMap(width(), height(), window()->devicePixelRatio(), m_layerPtr);
+    if (!m_map) ensureMap(width(), height(), window()->devicePixelRatio(), m_layerPtr);
 
     if (!m_connected) {
-        QObject::connect(window(), &QQuickWindow::beforeRendering, this, [this]() {
-            auto *ri = window()->rendererInterface();
-            if (!ri)
-                return;
+        QObject::connect(
+            window(),
+            &QQuickWindow::beforeRendering,
+            this,
+            [this]() {
+                auto *ri = window()->rendererInterface();
+                if (!ri) return;
 
-            if (!m_layerPtr) {
-                m_layerPtr = ri->getResource(window(), "MetalLayer");
                 if (!m_layerPtr) {
-
-                    return;
+                    m_layerPtr = ri->getResource(window(), "MetalLayer");
+                    if (!m_layerPtr) {
+                        return;
+                    }
                 }
 
-            }
-
-            if (!m_map) {
-                ensureMap(width(), height(), window()->devicePixelRatio(), m_layerPtr);
-            }
-
-            if (m_ownsLayer) {
-                CAMetalLayer *layer = (__bridge CAMetalLayer *)m_layerPtr;
-                id<CAMetalDrawable> drawable = [layer nextDrawable];
-                if (!drawable) {
-
-                    return;
-                }
-                // Keep previous drawables until shutdown (leak guard). Not releasing avoids premature invalidation.
-                m_currentDrawable = const_cast<void*>(CFRetain((__bridge CFTypeRef)drawable));
-                // Lazily create renderer once we have a valid drawable
-                if (!m_rendererBound) {
-                    m_map->createRendererWithMetalLayer(m_layerPtr);
-                    m_rendererBound = true;
-
+                if (!m_map) {
+                    ensureMap(width(), height(), window()->devicePixelRatio(), m_layerPtr);
                 }
 
-                m_map->setCurrentDrawable((void *)drawable.texture);
-            } else {
-                if (!m_rendererBound) {
-                    m_map->createRendererWithMetalLayer(m_layerPtr);
-                    m_rendererBound = true;
+                if (m_ownsLayer) {
+                    CAMetalLayer *layer = (__bridge CAMetalLayer *)m_layerPtr;
+                    id<CAMetalDrawable> drawable = [layer nextDrawable];
+                    if (!drawable) {
+                        return;
+                    }
+                    // Keep previous drawables until shutdown (leak guard). Not releasing avoids premature invalidation.
+                    m_currentDrawable = const_cast<void *>(CFRetain((__bridge CFTypeRef)drawable));
+                    // Lazily create renderer once we have a valid drawable
+                    if (!m_rendererBound) {
+                        m_map->createRendererWithMetalLayer(m_layerPtr);
+                        m_rendererBound = true;
+                    }
 
+                    m_map->setCurrentDrawable((void *)drawable.texture);
+                } else {
+                    if (!m_rendererBound) {
+                        m_map->createRendererWithMetalLayer(m_layerPtr);
+                        m_rendererBound = true;
+                    }
+                    // Provide the current swap-chain texture from Qt
+                    void *qtTexPtr = ri->getResource(window(), "CurrentMetalTexture");
+                    if (qtTexPtr) {
+                        m_map->setCurrentDrawable(qtTexPtr);
+                    }
                 }
-                // Provide the current swap-chain texture from Qt
-                void *qtTexPtr = ri->getResource(window(), "CurrentMetalTexture");
-                if (qtTexPtr) {
-                    m_map->setCurrentDrawable(qtTexPtr);
-                }
-            }
 
-            window()->beginExternalCommands();
-            m_map->render();
-            window()->endExternalCommands();
+                window()->beginExternalCommands();
+                m_map->render();
+                window()->endExternalCommands();
 
-            // Trigger a texture update in the SG
-            QMetaObject::invokeMethod(this, "update", Qt::QueuedConnection);
-        }, Qt::DirectConnection);
+                // Trigger a texture update in the SG
+                QMetaObject::invokeMethod(this, "update", Qt::QueuedConnection);
+            },
+            Qt::DirectConnection);
         m_connected = true;
     }
 
     void *nativeTex = m_map ? m_map->nativeColorTexture() : nullptr;
 
     if (!nativeTex) {
-
         if (node) {
             delete node;
         }
@@ -217,10 +210,7 @@ QSGNode *MapLibreQuickItem::updatePaintNode(QSGNode *node, UpdatePaintNodeData *
     // Use Qt's native interface helper to wrap the Metal texture
     auto mtlTex = (__bridge id<MTLTexture>)nativeTex;
     QSGTexture *qtTex = QNativeInterface::QSGMetalTexture::fromNative(
-        mtlTex,
-        window(),
-        QSize(texWidth, texHeight),
-        QQuickWindow::TextureHasAlphaChannel);
+        mtlTex, window(), QSize(texWidth, texHeight), QQuickWindow::TextureHasAlphaChannel);
 
     textureNode->setTexture(qtTex);
     textureNode->setRect(boundingRect());
@@ -232,32 +222,35 @@ QSGNode *MapLibreQuickItem::updatePaintNode(QSGNode *node, UpdatePaintNodeData *
 void MapLibreQuickItem::itemChange(ItemChange change, const ItemChangeData &data) {
     QQuickItem::itemChange(change, data);
 
-
     if (change == ItemSceneChange) {
         if (QQuickWindow *win = window()) {
             // Once the scene graph is ready we can obtain the Metal layer and create the map.
-            QObject::connect(win, &QQuickWindow::sceneGraphInitialized, this, [this]() {
-                if (m_map)
-                    return;
+            QObject::connect(
+                win,
+                &QQuickWindow::sceneGraphInitialized,
+                this,
+                [this]() {
+                    if (m_map) return;
 
-                auto *ri = window()->rendererInterface();
-                if (!ri) {
-                    qWarning() << "rendererInterface still null";
-                    return;
-                }
+                    auto *ri = window()->rendererInterface();
+                    if (!ri) {
+                        qWarning() << "rendererInterface still null";
+                        return;
+                    }
 
-                void *layerPtr = ri->getResource(window(), "MetalLayer");
+                    void *layerPtr = ri->getResource(window(), "MetalLayer");
 
-                if (!layerPtr) {
-                    qWarning() << "MetalLayer still not ready";
-                    return;
-                }
+                    if (!layerPtr) {
+                        qWarning() << "MetalLayer still not ready";
+                        return;
+                    }
 
-                ensureMap(width(), height(), window()->devicePixelRatio(), layerPtr);
+                    ensureMap(width(), height(), window()->devicePixelRatio(), layerPtr);
 
-                // First valid layer obtained – trigger update to paint.
-                update();
-            }, Qt::DirectConnection);
+                    // First valid layer obtained – trigger update to paint.
+                    update();
+                },
+                Qt::DirectConnection);
         }
     }
 }

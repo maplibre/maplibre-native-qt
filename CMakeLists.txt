@@ -28,6 +28,7 @@ set(MLN_QT_NAME QMapLibre)
 set(MLN_QT_NAMESPACE ${MLN_QT_NAME}::)
 set(MLN_QT_GEOSERVICES_PLUGIN qtgeoservices_maplibre)
 set(MLN_QT_QML_PLUGIN declarative_locationplugin_maplibre)
+set(MLN_QT_QUICK_MODULE quick_maplibre)
 
 include(cmake/helpers.cmake)
 
@@ -130,10 +131,7 @@ enable_testing()
 
 # Add subdirectories
 add_subdirectory(src)
-# Disable tests for Vulkan build
-if(MLN_WITH_OPENGL)
-    add_subdirectory(test)
-endif()
+add_subdirectory(test)
 
 # Coverage
 if(MLN_QT_WITH_COVERAGE)
