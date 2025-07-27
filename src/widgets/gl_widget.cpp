@@ -150,7 +150,7 @@ void GLWidget::wheelEvent(QWheelEvent *event) {
 */
 void GLWidget::initializeGL() {
     qDebug() << "GLWidget::initializeGL - size:" << size() << "DPR:" << devicePixelRatioF();
-    
+
     d_ptr->m_map = std::make_unique<Map>(nullptr, d_ptr->m_settings, size(), devicePixelRatioF());
     connect(d_ptr->m_map.get(), SIGNAL(needsRendering()), this, SLOT(update()));
 
@@ -159,7 +159,7 @@ void GLWidget::initializeGL() {
 
     // Set default location
     d_ptr->m_map->setCoordinateZoom(d_ptr->m_settings.defaultCoordinate(), d_ptr->m_settings.defaultZoom());
-    qDebug() << "Default coordinate:" << d_ptr->m_settings.defaultCoordinate() 
+    qDebug() << "Default coordinate:" << d_ptr->m_settings.defaultCoordinate()
              << "Default zoom:" << d_ptr->m_settings.defaultZoom();
 
     // Set default style
@@ -173,14 +173,13 @@ void GLWidget::initializeGL() {
 
     // Ensure the map is ready to render
     d_ptr->m_map->setConnectionEstablished();
-    
+
     // Add observers for debugging
     connect(d_ptr->m_map.get(), &Map::mapChanged, this, [this](Map::MapChange change) {
         if (change == Map::MapChangeDidFinishLoadingStyle) {
             qDebug() << "MapChange: Style finished loading";
             // Debug: Check min/max zoom after style loads
-            qDebug() << "Map zoom bounds - Min:" << d_ptr->m_map->minimumZoom() 
-                     << "Max:" << d_ptr->m_map->maximumZoom()
+            qDebug() << "Map zoom bounds - Min:" << d_ptr->m_map->minimumZoom() << "Max:" << d_ptr->m_map->maximumZoom()
                      << "Current:" << d_ptr->m_map->zoom();
         } else if (change == Map::MapChangeDidFailLoadingMap) {
             qDebug() << "MapChange: Map failed to load";
@@ -195,14 +194,15 @@ void GLWidget::initializeGL() {
             qDebug() << "MapChange: Source changed";
         }
     });
-    
-    connect(d_ptr->m_map.get(), &Map::mapLoadingFailed, this, [](Map::MapLoadingFailure type, const QString& description) {
-        qWarning() << "Map loading failed:" << static_cast<int>(type) << description;
-    });
-    
+
+    connect(
+        d_ptr->m_map.get(), &Map::mapLoadingFailed, this, [](Map::MapLoadingFailure type, const QString &description) {
+            qWarning() << "Map loading failed:" << static_cast<int>(type) << description;
+        });
+
     // Force a render to load initial tiles
     d_ptr->m_map->render();
-    
+
     // Debug: Initial load state
     qDebug() << "Initial map state - fully loaded:" << d_ptr->m_map->isFullyLoaded();
 
@@ -231,7 +231,7 @@ void GLWidget::initializeGL() {
             // Flip Y coordinate to correct upside-down rendering
             vec2 flippedTexCoord = vec2(TexCoord.x, 1.0 - TexCoord.y);
             vec4 texColor = texture(mapTexture, flippedTexCoord);
-            
+
             // Pass through the color as-is
             // MapLibre already handles all the rendering correctly including premultiplied alpha
             FragColor = texColor;
@@ -247,14 +247,30 @@ void GLWidget::initializeGL() {
     // Create fullscreen quad
     float vertices[] = {
         // positions    // texture coords
-        -1.0f,  1.0f,   0.0f, 0.0f, // top left
-        -1.0f, -1.0f,   0.0f, 1.0f, // bottom left
-         1.0f, -1.0f,   1.0f, 1.0f, // bottom right
-         1.0f,  1.0f,   1.0f, 0.0f  // top right
+        -1.0f,
+        1.0f,
+        0.0f,
+        0.0f, // top left
+        -1.0f,
+        -1.0f,
+        0.0f,
+        1.0f, // bottom left
+        1.0f,
+        -1.0f,
+        1.0f,
+        1.0f, // bottom right
+        1.0f,
+        1.0f,
+        1.0f,
+        0.0f // top right
     };
     unsigned int indices[] = {
-        0, 1, 2, // first triangle
-        0, 2, 3  // second triangle
+        0,
+        1,
+        2, // first triangle
+        0,
+        2,
+        3 // second triangle
     };
 
     f->glGenVertexArrays(1, &d_ptr->m_vao);
@@ -292,67 +308,68 @@ void GLWidget::paintGL() {
     const qreal dpr = devicePixelRatioF();
     const QSize mapSize(static_cast<int>(width() * dpr), static_cast<int>(height() * dpr));
 
-    qDebug() << "GLWidget::paintGL - DPR:" << dpr << "Map size:" << mapSize << "Widget size:" << width() << "x" << height();
+    qDebug() << "GLWidget::paintGL - DPR:" << dpr << "Map size:" << mapSize << "Widget size:" << width() << "x"
+             << height();
 
     // Resize map if needed
     d_ptr->m_map->resize(mapSize);
 
     auto *f = QOpenGLContext::currentContext()->extraFunctions();
-    
+
     // Update framebuffer for MapLibre to render into
     d_ptr->m_map->updateFramebuffer(d_ptr->m_mapFramebuffer, mapSize);
-    
+
     // Render the map to FBO
     d_ptr->m_map->render();
-    
+
     // Update map size if needed
-    
+
     // For zero-copy rendering, get the texture from OpenGL backend
     GLuint textureId = 0;
 #ifdef MLN_RENDER_BACKEND_OPENGL
     // Use the private header to access the texture ID
     // This is a temporary solution until proper API is exposed
-    MapPrivate* mapPrivate = reinterpret_cast<MapPrivate*>(d_ptr->m_map->d_ptr.data());
+    MapPrivate *mapPrivate = reinterpret_cast<MapPrivate *>(d_ptr->m_map->d_ptr.data());
     if (mapPrivate) {
         textureId = mapPrivate->getFramebufferTextureId();
     }
 #endif
-    
+
     // Fallback to hardcoded ID if backend method not available
     if (textureId == 0) {
         textureId = 3; // Based on debug output
     }
-    
+
     // Only log key info to reduce debug spam
     static int paintCount = 0;
-    if (paintCount++ % 60 == 0) {  // Log every 60 frames
+    if (paintCount++ % 60 == 0) { // Log every 60 frames
         qDebug() << "GLWidget::paintGL - Using texture ID:" << textureId << "FBO:" << d_ptr->m_mapFramebuffer;
     }
-    
+
     if (d_ptr->m_mapFramebuffer > 0 && textureId > 0) {
         // Bind default framebuffer for rendering to screen
         f->glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebufferObject());
-        
+
         // Set viewport to match the actual framebuffer size
         // QOpenGLWidget handles DPR internally, so we need to use the actual framebuffer size
         const QSize fbSize = size() * devicePixelRatioF();
         f->glViewport(0, 0, fbSize.width(), fbSize.height());
         // Set viewport to match the framebuffer size
-        
+
         // Clear the screen with black background
         f->glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         f->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-        
+
         // Use shader to render the texture
         d_ptr->m_shaderProgram->bind();
-        
+
         // Bind the MapLibre texture
         f->glActiveTexture(GL_TEXTURE0);
         f->glBindTexture(GL_TEXTURE_2D, textureId);
-        
+
         // Don't set texture parameters - MapLibre has already configured them correctly
         // The texture is already set up for proper rendering including SDF fonts
-        
+
         // Debug texture properties only once
         static bool textureLogged = false;
         if (!textureLogged && textureId > 0) {
@@ -360,31 +377,31 @@ void GLWidget::paintGL() {
             f->glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &texWidth);
             f->glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &texHeight);
             f->glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &texFormat);
-            qDebug() << "Texture info - Size:" << texWidth << "x" << texHeight 
+            qDebug() << "Texture info - Size:" << texWidth << "x" << texHeight
                      << "Format:" << QString::number(texFormat, 16);
             textureLogged = true;
         }
-        
+
         d_ptr->m_shaderProgram->setUniformValue("mapTexture", 0);
-        
+
         // Ensure proper pixel alignment for text rendering
         f->glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        
+
         // Disable depth test for fullscreen quad
         f->glDisable(GL_DEPTH_TEST);
-        
+
         // Set proper blending for rendering MapLibre's premultiplied alpha texture
         f->glEnable(GL_BLEND);
         // MapLibre uses premultiplied alpha, so we need to use the correct blend function
         f->glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-        
+
         // Draw fullscreen quad
         f->glBindVertexArray(d_ptr->m_vao);
         f->glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         f->glBindVertexArray(0);
-        
+
         d_ptr->m_shaderProgram->release();
-        
+
         // Re-enable depth test
         f->glEnable(GL_DEPTH_TEST);
     }
