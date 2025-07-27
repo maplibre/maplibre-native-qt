@@ -12,23 +12,27 @@ target_sources(
         qgeomap.cpp qgeomap.hpp qgeomap_p.hpp
         qt_mapping_engine.cpp qt_mapping_engine.hpp
         style_change_utils.cpp style_change_utils_p.hpp
-        texture_node.cpp texture_node.hpp
+        texture_node_base.cpp texture_node_base.hpp
 
         $<$<PLATFORM_ID:Windows>:${CMAKE_BINARY_DIR}/version_info.rc>
 )
 
-# Add backend-specific RHI texture node implementations based on CMake flags
+# Add backend-specific texture node implementations
 if(MLN_WITH_OPENGL)
-    target_sources(MLNQtLocation PRIVATE rhi_texture_node_opengl.cpp)
+    target_sources(MLNQtLocation PRIVATE 
+        texture_node_opengl.cpp texture_node_opengl.hpp)
 endif()
 
 if(MLN_WITH_VULKAN)
-    target_sources(MLNQtLocation PRIVATE rhi_texture_node_vulkan.cpp)
+    target_sources(MLNQtLocation PRIVATE 
+        texture_node_vulkan.cpp texture_node_vulkan.hpp)
 endif()
 
 if(MLN_WITH_METAL AND APPLE)
-    target_sources(MLNQtLocation PRIVATE rhi_texture_node_metal.mm)
+    target_sources(MLNQtLocation PRIVATE 
+        texture_node_metal.mm texture_node_metal.hpp)
 endif()
+
 
 # Linux/Mac: Set framework, version and headers
 set_target_properties(
@@ -51,6 +55,9 @@ target_compile_definitions(
     MLNQtLocation
     PRIVATE
         QT_BUILD_MAPLIBRE_LOCATION_LIB
+        $<$<BOOL:${MLN_WITH_OPENGL}>:MLN_RENDER_BACKEND_OPENGL>
+        $<$<BOOL:${MLN_WITH_METAL}>:MLN_RENDER_BACKEND_METAL>
+        $<$<BOOL:${MLN_WITH_VULKAN}>:MLN_RENDER_BACKEND_VULKAN>
 )
 
 # Common include directories
