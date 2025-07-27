@@ -5,9 +5,9 @@
 #include <mbgl/gfx/backend_scope.hpp>
 #include <mbgl/gl/renderable_resource.hpp>
 
+#include <QDebug>
 #include <QOpenGLContext>
 #include <QOpenGLFunctions>
-#include <QDebug>
 
 #include <QtGlobal>
 
@@ -102,8 +102,8 @@ void OpenGLRendererBackend::restoreFramebufferBinding() {
 void OpenGLRendererBackend::updateFramebuffer(uint32_t fbo, const mbgl::Size& newSize) {
     size = newSize;
 
-    qDebug() << "OpenGLRendererBackend::updateFramebuffer - fbo:" << fbo << "size:" << newSize.width << "x" << newSize.height
-             << "current m_fbo:" << m_fbo << "current m_colorTexture:" << m_colorTexture;
+    qDebug() << "OpenGLRendererBackend::updateFramebuffer - fbo:" << fbo << "size:" << newSize.width << "x"
+             << newSize.height << "current m_fbo:" << m_fbo << "current m_colorTexture:" << m_colorTexture;
 
     // Skip texture creation for default framebuffer
     if (fbo == 0) {
@@ -196,8 +196,9 @@ mbgl::gl::ProcAddress OpenGLRendererBackend::getExtensionFunctionPointer(const c
 unsigned int OpenGLRendererBackend::getFramebufferTextureId() const {
     // Return the actual color texture ID attached to the framebuffer
     // Only return texture if we're using a custom framebuffer (not the default)
-    qDebug() << "OpenGLRendererBackend::getFramebufferTextureId called - m_fbo:" << m_fbo << "m_colorTexture:" << m_colorTexture;
-    
+    qDebug() << "OpenGLRendererBackend::getFramebufferTextureId called - m_fbo:" << m_fbo
+             << "m_colorTexture:" << m_colorTexture;
+
     // Debug: Check if texture is still valid
     QOpenGLContext* glContext = QOpenGLContext::currentContext();
     if (glContext && m_colorTexture != 0) {
@@ -205,7 +206,7 @@ unsigned int OpenGLRendererBackend::getFramebufferTextureId() const {
         GLboolean isTexture = gl->glIsTexture(m_colorTexture);
         qDebug() << "  Texture" << m_colorTexture << "is valid:" << (isTexture ? "YES" : "NO");
     }
-    
+
     // Always return the texture if we have one, regardless of m_fbo
     return m_colorTexture;
 }
