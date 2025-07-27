@@ -12,7 +12,9 @@
         "CMAKE_BUILD_TYPE": "RelWithDebInfo",
         "CMAKE_OSX_ARCHITECTURES": "x86_64;arm64",
         "CMAKE_OSX_DEPLOYMENT_TARGET": "12.0",
-        "CMAKE_POLICY_VERSION_MINIMUM": "3.19"
+        "CMAKE_POLICY_VERSION_MINIMUM": "3.19",
+        "MLN_WITH_METAL": "ON",
+        "MLN_WITH_OPENGL": "OFF"
       }
     },
     {
