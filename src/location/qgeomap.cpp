@@ -85,7 +85,7 @@ QSGNode *QGeoMapMapLibrePrivate::updateSceneGraph(QSGNode *node, QQuickWindow *w
         }
 
         std::unique_ptr<TextureNodeBase> mbglNode;
-        
+
         // Create backend-specific texture node
         auto *ri = window->rendererInterface();
         if (ri->graphicsApi() == QSGRendererInterface::MetalRhi) {
@@ -111,7 +111,7 @@ QSGNode *QGeoMapMapLibrePrivate::updateSceneGraph(QSGNode *node, QQuickWindow *w
             return nullptr;
 #endif
         }
-        
+
         QObject::connect(mbglNode->map(), &Map::mapChanged, q, &QGeoMapMapLibre::onMapChanged);
         m_syncState = MapTypeSync | CameraDataSync | ViewportSync | VisibleAreaSync;
         node = mbglNode.release();

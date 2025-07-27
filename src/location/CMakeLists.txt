@@ -19,17 +19,17 @@ target_sources(
 
 # Add backend-specific texture node implementations
 if(MLN_WITH_OPENGL)
-    target_sources(MLNQtLocation PRIVATE 
+    target_sources(MLNQtLocation PRIVATE
         texture_node_opengl.cpp texture_node_opengl.hpp)
 endif()
 
 if(MLN_WITH_VULKAN)
-    target_sources(MLNQtLocation PRIVATE 
+    target_sources(MLNQtLocation PRIVATE
         texture_node_vulkan.cpp texture_node_vulkan.hpp)
 endif()
 
 if(MLN_WITH_METAL AND APPLE)
-    target_sources(MLNQtLocation PRIVATE 
+    target_sources(MLNQtLocation PRIVATE
         texture_node_metal.mm texture_node_metal.hpp)
 endif()
 
