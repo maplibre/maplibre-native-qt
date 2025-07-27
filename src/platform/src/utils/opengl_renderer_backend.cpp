@@ -7,6 +7,7 @@
 
 #include <QOpenGLContext>
 #include <QOpenGLFunctions>
+#include <QDebug>
 
 #include <QtGlobal>
 
@@ -24,11 +25,11 @@ public:
 
         // Ensure the framebuffer is properly cleared before rendering
         QOpenGLContext* context = QOpenGLContext::currentContext();
-        if (context && backend.m_fbo != 0) {
+        if (context) {
             QOpenGLFunctions* gl = context->functions();
 
-            // Clear to transparent
-            gl->glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+            // Clear to opaque black background
+            gl->glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
             // Enable stencil test for tile clipping
@@ -42,8 +43,9 @@ public:
             gl->glDepthFunc(GL_LEQUAL);
             gl->glDepthMask(GL_TRUE);
 
-            // Use premultiplied alpha blending
+            // Set up blending for proper rendering
             gl->glEnable(GL_BLEND);
+            // Always use premultiplied alpha for consistency with MapLibre's rendering
             gl->glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
             // Disable scissor test for full rendering
@@ -98,8 +100,20 @@ void OpenGLRendererBackend::restoreFramebufferBinding() {
 }
 
 void OpenGLRendererBackend::updateFramebuffer(uint32_t fbo, const mbgl::Size& newSize) {
-    m_fbo = fbo;
     size = newSize;
+
+    qDebug() << "OpenGLRendererBackend::updateFramebuffer - fbo:" << fbo << "size:" << newSize.width << "x" << newSize.height
+             << "current m_fbo:" << m_fbo << "current m_colorTexture:" << m_colorTexture;
+
+    // Skip texture creation for default framebuffer
+    if (fbo == 0) {
+        // Skip texture creation for default framebuffer
+        // Do NOT reset m_fbo here - keep the custom framebuffer state
+        return;
+    }
+
+    // Only update m_fbo for non-default framebuffers
+    m_fbo = fbo;
 
     // Create or recreate the color texture for the framebuffer
     QOpenGLContext* glContext = QOpenGLContext::currentContext();
@@ -120,6 +134,7 @@ void OpenGLRendererBackend::updateFramebuffer(uint32_t fbo, const mbgl::Size& ne
         gl->glTexImage2D(
             GL_TEXTURE_2D, 0, GL_RGBA8, newSize.width, newSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
         // Use linear filtering for smooth rendering
+        // This is especially important for overzooming/underzooming and SDF text
         gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -143,10 +158,12 @@ void OpenGLRendererBackend::updateFramebuffer(uint32_t fbo, const mbgl::Size& ne
             GLenum status = gl->glCheckFramebufferStatus(GL_FRAMEBUFFER);
             if (status != GL_FRAMEBUFFER_COMPLETE) {
                 qWarning() << "OpenGLRendererBackend: Framebuffer not complete, status:" << status;
+            } else {
+                // Framebuffer is ready
             }
 
-            // Clear the framebuffer
-            gl->glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+            // Clear the framebuffer to opaque black
+            gl->glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
             // Set up rendering state optimized for tile rendering
@@ -178,6 +195,18 @@ mbgl::gl::ProcAddress OpenGLRendererBackend::getExtensionFunctionPointer(const c
 
 unsigned int OpenGLRendererBackend::getFramebufferTextureId() const {
     // Return the actual color texture ID attached to the framebuffer
+    // Only return texture if we're using a custom framebuffer (not the default)
+    qDebug() << "OpenGLRendererBackend::getFramebufferTextureId called - m_fbo:" << m_fbo << "m_colorTexture:" << m_colorTexture;
+    
+    // Debug: Check if texture is still valid
+    QOpenGLContext* glContext = QOpenGLContext::currentContext();
+    if (glContext && m_colorTexture != 0) {
+        QOpenGLFunctions* gl = glContext->functions();
+        GLboolean isTexture = gl->glIsTexture(m_colorTexture);
+        qDebug() << "  Texture" << m_colorTexture << "is valid:" << (isTexture ? "YES" : "NO");
+    }
+    
+    // Always return the texture if we have one, regardless of m_fbo
     return m_colorTexture;
 }
 

@@ -38,6 +38,13 @@ target_link_libraries(
         Qt${QT_VERSION_MAJOR}::QuickWidgets
 )
 
+# Add OpenGL backend definition
+target_compile_definitions(
+    QMapLibreExampleWidgets
+    PRIVATE
+        MLN_RENDER_BACKEND_OPENGL=1
+)
+
 install(TARGETS QMapLibreExampleWidgets
     BUNDLE DESTINATION .
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
