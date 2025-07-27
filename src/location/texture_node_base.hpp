@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <QtQuick/QSGSimpleTextureNode>
-#include <QtQuick/QQuickWindow>
 #include <QMapLibre/Map>
+#include <QtQuick/QQuickWindow>
+#include <QtQuick/QSGSimpleTextureNode>
 
 namespace QMapLibre {
 

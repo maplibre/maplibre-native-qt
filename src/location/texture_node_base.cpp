@@ -9,7 +9,8 @@ namespace QMapLibre {
 static const QSize minTextureSize = QSize(64, 64);
 
 TextureNodeBase::TextureNodeBase(const Settings &settings, const QSize &size, qreal pixelRatio, QGeoMapMapLibre *geoMap)
-    : m_size(size.expandedTo(minTextureSize)), m_pixelRatio(pixelRatio) {
+    : m_size(size.expandedTo(minTextureSize)),
+      m_pixelRatio(pixelRatio) {
     setTextureCoordinatesTransform(QSGSimpleTextureNode::MirrorVertically);
     setFiltering(QSGTexture::Linear);
 
