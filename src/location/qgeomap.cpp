@@ -10,7 +10,16 @@
 #include "source_style_change_p.hpp"
 #include "style_change_p.hpp"
 #include "style_change_utils_p.hpp"
-#include "texture_node.hpp"
+#include "texture_node_base.hpp"
+#ifdef MLN_RENDER_BACKEND_OPENGL
+#include "texture_node_opengl.hpp"
+#endif
+#ifdef MLN_RENDER_BACKEND_METAL
+#include "texture_node_metal.hpp"
+#endif
+#ifdef MLN_RENDER_BACKEND_VULKAN
+#include "texture_node_vulkan.hpp"
+#endif
 
 #include <QMapLibre/Types>
 
@@ -27,6 +36,7 @@
 #include <QtOpenGL/QOpenGLFramebufferObject>
 #include <QtQuick/QQuickWindow>
 #include <QtQuick/QSGImageNode>
+#include <QtQuick/QSGRendererInterface>
 
 #include <algorithm>
 #include <cmath>
@@ -74,12 +84,39 @@ QSGNode *QGeoMapMapLibrePrivate::updateSceneGraph(QSGNode *node, QQuickWindow *w
             return node;
         }
 
-        auto mbglNode = std::make_unique<TextureNode>(m_settings, m_viewportSize, window->devicePixelRatio(), q);
+        std::unique_ptr<TextureNodeBase> mbglNode;
+        
+        // Create backend-specific texture node
+        auto *ri = window->rendererInterface();
+        if (ri->graphicsApi() == QSGRendererInterface::MetalRhi) {
+#ifdef MLN_RENDER_BACKEND_METAL
+            mbglNode = std::make_unique<TextureNodeMetal>(m_settings, m_viewportSize, window->devicePixelRatio(), q);
+#else
+            qWarning("Metal backend not supported in this build");
+            return nullptr;
+#endif
+        } else if (ri->graphicsApi() == QSGRendererInterface::VulkanRhi) {
+#ifdef MLN_RENDER_BACKEND_VULKAN
+            mbglNode = std::make_unique<TextureNodeVulkan>(m_settings, m_viewportSize, window->devicePixelRatio(), q);
+#else
+            qWarning("Vulkan backend not supported in this build");
+            return nullptr;
+#endif
+        } else {
+#ifdef MLN_RENDER_BACKEND_OPENGL
+            // Default to OpenGL
+            mbglNode = std::make_unique<TextureNodeOpenGL>(m_settings, m_viewportSize, window->devicePixelRatio(), q);
+#else
+            qWarning("OpenGL backend not supported in this build");
+            return nullptr;
+#endif
+        }
+        
         QObject::connect(mbglNode->map(), &Map::mapChanged, q, &QGeoMapMapLibre::onMapChanged);
         m_syncState = MapTypeSync | CameraDataSync | ViewportSync | VisibleAreaSync;
         node = mbglNode.release();
     }
-    map = static_cast<TextureNode *>(node)->map();
+    map = static_cast<TextureNodeBase *>(node)->map();
 
     if ((m_syncState & MapTypeSync) != 0 && m_activeMapType.metadata().contains(QStringLiteral("url"))) {
         map->setStyleUrl(m_activeMapType.metadata()[QStringLiteral("url")].toString());
@@ -109,7 +146,7 @@ QSGNode *QGeoMapMapLibrePrivate::updateSceneGraph(QSGNode *node, QQuickWindow *w
 
     if ((m_syncState & ViewportSync) != 0) {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-        static_cast<TextureNode *>(node)->resize(m_viewportSize, window->devicePixelRatio(), window);
+        static_cast<TextureNodeBase *>(node)->resize(m_viewportSize, window->devicePixelRatio(), window);
 #endif
     }
 
@@ -117,7 +154,7 @@ QSGNode *QGeoMapMapLibrePrivate::updateSceneGraph(QSGNode *node, QQuickWindow *w
         syncStyleChanges(map);
     }
 
-    static_cast<TextureNode *>(node)->render(window);
+    static_cast<TextureNodeBase *>(node)->render(window);
 
     threadedRenderingHack(window, map);
 
