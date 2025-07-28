@@ -112,6 +112,7 @@ export QML2_IMPORT_PATH=/home/birks/repos/maplibre-native-qt/qmaplibre-install-v
 export QSG_RHI_BACKEND=vulkan
 export LD_LIBRARY_PATH=/home/birks/repos/maplibre-native-qt/qmaplibre-install-vulkan/lib64:$LD_LIBRARY_PATH
 export QT_PLUGIN_PATH=/home/birks/repos/maplibre-native-qt/qmaplibre-install-vulkan/plugins
+export QML_IMPORT_PATH=/home/birks/repos/maplibre-native-qt/qmaplibre-install-vulkan/qml
 ./QMapLibreExampleQuick
 ```
 

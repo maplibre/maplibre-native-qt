@@ -37,13 +37,11 @@ void TextureNodeVulkan::resize(const QSize &size, qreal pixelRatio, QQuickWindow
 
 void TextureNodeVulkan::render(QQuickWindow *window) {
     if (!m_map) {
-        qDebug() << "TextureNodeVulkan::render - No map!";
         return;
     }
 
     // Check for valid size
     if (m_size.isEmpty()) {
-        qDebug() << "TextureNodeVulkan::render - Empty size!";
         return;
     }
 
@@ -98,15 +96,12 @@ void TextureNodeVulkan::render(QQuickWindow *window) {
 
         // Get the Vulkan texture directly for zero-copy access
         auto *vulkanTexture = m_map->getVulkanTexture();
-        qDebug() << "TextureNodeVulkan::render - vulkanTexture:" << vulkanTexture;
 
         if (vulkanTexture) {
             // Get Vulkan image and layout
             VkImage vkImage = vulkanTexture->getVulkanImage();
             VkImageLayout imageLayout = static_cast<VkImageLayout>(vulkanTexture->getVulkanImageLayout());
 
-            qDebug() << "TextureNodeVulkan::render - VkImage:" << vkImage << "layout:" << imageLayout
-                     << "size:" << mapSize;
 
             // Check if we have a valid VkImage
             if (vkImage != VK_NULL_HANDLE) {
@@ -117,7 +112,6 @@ void TextureNodeVulkan::render(QQuickWindow *window) {
                     m_lastTextureSize.height() == mapSize.height()) {
                     // Reuse existing wrapper for better performance
                     qtTexture = m_qtTextureWrapper;
-                    qDebug() << "TextureNodeVulkan::render - Reusing existing texture wrapper";
                 } else {
                     // Create new wrapper
                     qtTexture = QNativeInterface::QSGVulkanTexture::fromNative(
@@ -128,28 +122,18 @@ void TextureNodeVulkan::render(QQuickWindow *window) {
                         m_qtTextureWrapper = qtTexture;
                         m_lastVkImage = vkImage;
                         m_lastTextureSize = mapSize;
-                        qDebug() << "TextureNodeVulkan::render - Created new Qt texture:" << qtTexture
-                                 << "size:" << qtTexture->textureSize();
                     }
                 }
 
                 if (qtTexture) {
-                    qDebug() << "TextureNodeVulkan::render - Setting texture on node, qtTexture:" << qtTexture;
                     qtTexture->setFiltering(QSGTexture::Linear);
                     qtTexture->setMipmapFiltering(QSGTexture::None);
                     setTexture(qtTexture);
                     setRect(QRectF(QPointF(), m_size));
                     setOwnsTexture(false); // Don't delete - we manage it
                     markDirty(QSGNode::DirtyMaterial | QSGNode::DirtyGeometry);
-                    qDebug() << "TextureNodeVulkan::render - Texture set successfully";
-                } else {
-                    qDebug() << "TextureNodeVulkan::render - Failed to create Qt texture from Vulkan image!";
                 }
-            } else {
-                qDebug() << "TextureNodeVulkan::render - VkImage is NULL!";
             }
-        } else {
-            qDebug() << "TextureNodeVulkan::render - No Vulkan texture from map!";
         }
     } catch (const std::exception &e) {
         qWarning() << "TextureNodeVulkan::render - Exception:" << e.what();

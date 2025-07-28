@@ -40,19 +40,13 @@ QSGNode *QGeoMapMapLibreVulkan::updateSceneGraph(QSGNode *node, QQuickWindow *wi
     if ((d->m_syncState & QGeoMapMapLibrePrivate::MapTypeSync) != 0 &&
         activeMapType().metadata().contains(QStringLiteral("url"))) {
         QString styleUrl = activeMapType().metadata()[QStringLiteral("url")].toString();
-        qDebug() << "QGeoMapMapLibreVulkan: Setting style URL:" << styleUrl;
         map->setStyleUrl(styleUrl);
         // Force a render after setting style URL to trigger tile loading
         try {
-            qDebug() << "QGeoMapMapLibreVulkan: Forcing render after style URL set";
             static_cast<TextureNodeVulkan *>(node)->render(window);
         } catch (const std::exception &e) {
             qWarning() << "QGeoMapMapLibreVulkan: Exception during forced render:" << e.what();
         }
-    } else {
-        qDebug() << "QGeoMapMapLibreVulkan: No style URL available. m_syncState:" << d->m_syncState
-                 << "has url:" << activeMapType().metadata().contains(QStringLiteral("url"))
-                 << "metadata:" << activeMapType().metadata();
     }
 
     if ((d->m_syncState & QGeoMapMapLibrePrivate::VisibleAreaSync) != 0) {
@@ -84,8 +78,6 @@ QSGNode *QGeoMapMapLibreVulkan::updateSceneGraph(QSGNode *node, QQuickWindow *wi
 
         const QGeoCoordinate coordinate = cameraData.center();
         map->setCoordinate(Coordinate(coordinate.latitude(), coordinate.longitude()));
-        qDebug() << "QGeoMapMapLibreVulkan: Setting camera - zoom:" << zoom << "center:" << coordinate.latitude() << ","
-                 << coordinate.longitude();
     }
 
     if ((d->m_syncState & QGeoMapMapLibrePrivate::ViewportSync) != 0) {
