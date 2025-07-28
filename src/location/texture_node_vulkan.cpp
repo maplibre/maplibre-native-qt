@@ -102,7 +102,6 @@ void TextureNodeVulkan::render(QQuickWindow *window) {
             VkImage vkImage = vulkanTexture->getVulkanImage();
             VkImageLayout imageLayout = static_cast<VkImageLayout>(vulkanTexture->getVulkanImageLayout());
 
-
             // Check if we have a valid VkImage
             if (vkImage != VK_NULL_HANDLE) {
                 QSGTexture *qtTexture = nullptr;
