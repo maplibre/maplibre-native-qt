@@ -32,12 +32,12 @@ The plugin files are located at:
 - `qmaplibre-build-macos/src/location/plugins/MapLibre/libdeclarative_locationplugin_maplibre.dylib`
 
 No additional copying is needed as the plugin will be found through the QML import path.
-## Qt Quick example
+##  quick-qtlocation example
 
-#### Build the quick example
+#### Build the quick-qtlocation example
 
 ```sh
-cd examples/quick
+cd examples/quick-qtlocation
 mkdir build && cd build
 qt-cmake .. -G Ninja \
   -DCMAKE_BUILD_TYPE=Release \
@@ -46,7 +46,7 @@ qt-cmake .. -G Ninja \
 ninja
 ```
 
-#### Run the quick example
+#### Run the quick-qtlocation example
 
 First, copy the MapLibre QML plugin to the build directory:
 ```sh

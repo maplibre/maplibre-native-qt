@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.19...3.21)
 
-project(QMapLibreExampleQuick VERSION 1.0.0 LANGUAGES CXX)
+project(QMapLibreExampleQuickStandalone VERSION 1.0.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -16,12 +16,12 @@ endif()
 find_package(QMapLibre COMPONENTS Core REQUIRED)
 
 qt_add_executable(
-    QMapLibreExampleQuick
+    QMapLibreExampleQuickStandalone
     main.cpp
 )
 
 qt_add_qml_module(
-    QMapLibreExampleQuick
+    QMapLibreExampleQuickStandalone
     URI Example
     VERSION 1.0
     RESOURCE_PREFIX "/"
@@ -30,14 +30,14 @@ qt_add_qml_module(
 )
 
 set_target_properties(
-    QMapLibreExampleQuick
+    QMapLibreExampleQuickStandalone
     PROPERTIES
         WIN32_EXECUTABLE ON
         MACOSX_BUNDLE ON
 )
 
 target_link_libraries(
-    QMapLibreExampleQuick
+    QMapLibreExampleQuickStandalone
     PRIVATE
         Qt6::Quick
         Qt6::Gui
@@ -46,11 +46,11 @@ target_link_libraries(
 
 # Check if Vulkan is enabled
 if(MLN_WITH_VULKAN)
-    target_compile_definitions(QMapLibreExampleQuick PRIVATE MLN_WITH_VULKAN)
+    target_compile_definitions(QMapLibreExampleQuickStandalone PRIVATE MLN_WITH_VULKAN)
 endif()
 
 target_include_directories(
-    QMapLibreExampleQuick
+    QMapLibreExampleQuickStandalone
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/../../src/core
         ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native/platform/qt/src
@@ -65,14 +65,14 @@ target_include_directories(
 )
 
 install(
-    TARGETS QMapLibreExampleQuick
+    TARGETS QMapLibreExampleQuickStandalone
     BUNDLE DESTINATION .
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
 qt_generate_deploy_qml_app_script(
-    TARGET QMapLibreExampleQuick
+    TARGET QMapLibreExampleQuickStandalone
     OUTPUT_SCRIPT deploy_script
     MACOS_BUNDLE_POST_BUILD
     NO_UNSUPPORTED_PLATFORM_ERROR
@@ -95,7 +95,7 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Android")
     FetchContent_MakeAvailable(android_openssl)
     include(${android_openssl_SOURCE_DIR}/android_openssl.cmake)
 
-    add_android_openssl_libraries(QMapLibreExampleQuick)
+    add_android_openssl_libraries(QMapLibreExampleQuickStandalone)
 endif()
 
 # Packaging

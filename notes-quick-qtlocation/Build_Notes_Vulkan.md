@@ -65,18 +65,18 @@ After installation, the plugin files will be at:
 - `qmaplibre-install-vulkan/qml/MapLibre/qmldir`
 - `qmaplibre-install-vulkan/qml/MapLibre/libdeclarative_locationplugin_maplibre.so`
 
-## Qt Quick Example with Vulkan
+## Qt quick-qtlocation Example with Vulkan
 
-## Running the Qt Quick Example
+## Running the Qt quick-qtlocation Example
 
-**⚠️ CRITICAL: You MUST build the Quick example with the MLN_WITH_VULKAN flag to enable Vulkan support.**
+**⚠️ CRITICAL: You MUST build the quick-qtlocation example with the MLN_WITH_VULKAN flag to enable Vulkan support.**
 
 ### Why MLN_WITH_VULKAN is Essential
 
 The `MLN_WITH_VULKAN` CMake flag is **not just a build optimization** - it's a **required conditional compilation flag** that:
 
 1. **Enables Vulkan Code Paths**: Without this flag, the application will **not** use the Vulkan backend, even if Qt is configured for Vulkan RHI
-2. **Sets Graphics API**: Controls whether Qt Quick uses `QSGRendererInterface::VulkanRhi` or `QSGRendererInterface::OpenGLRhi`
+2. **Sets Graphics API**: Controls whether Qt quick-qtlocation uses `QSGRendererInterface::VulkanRhi` or `QSGRendererInterface::OpenGLRhi`
 3. **Defines Preprocessor Macros**: Required for `#if defined(MLN_WITH_VULKAN)` conditional compilation blocks
 
 ### Build Configuration Comparison
@@ -86,12 +86,12 @@ The `MLN_WITH_VULKAN` CMake flag is **not just a build optimization** - it's a *
 | `cmake -DMLN_WITH_VULKAN=ON ..` | VulkanRhi | ✅ **Works**: Shows blue square, uses Vulkan backend |
 | `cmake ..` (without flag) | OpenGLRhi | ❌ **Fails**: No window surface, OpenGL context issues |
 
-### Building the Quick Example with Vulkan
+### Building the quick-qtlocation Example with Vulkan
 
 ```sh
 # Create build directory with Vulkan support
-mkdir -p /home/birks/repos/maplibre-native-qt/examples/quick/build-vulkan
-cd /home/birks/repos/maplibre-native-qt/examples/quick/build-vulkan
+mkdir -p /home/birks/repos/maplibre-native-qt/examples/quick-qtlocation/build-vulkan
+cd /home/birks/repos/maplibre-native-qt/examples/quick-qtlocation/build-vulkan
 
 # CRITICAL: Configure with MLN_WITH_VULKAN flag
 cmake -DMLN_WITH_VULKAN=ON -DMLN_RENDER_BACKEND_VULKAN=1 ..
@@ -102,10 +102,10 @@ make
 
 ### Running the Application
 
-Now that the Vulkan backend is successfully integrated, you can run the Qt Quick example:
+Now that the Vulkan backend is successfully integrated, you can run the Qt quick-qtlocation example:
 
 ```sh
-cd /home/birks/repos/maplibre-native-qt/examples/quick/build-vulkan
+cd /home/birks/repos/maplibre-native-qt/examples/quick-qtlocation/build-vulkan
 
 # Run with proper import paths (using installed location)
 export QML2_IMPORT_PATH=/home/birks/repos/maplibre-native-qt/qmaplibre-install-vulkan/qml
@@ -116,54 +116,6 @@ export QML_IMPORT_PATH=/home/birks/repos/maplibre-native-qt/qmaplibre-install-vu
 ./QMapLibreExampleQuick
 ```
 
-
-### Working Solutions
-
-The Qt Quick integration now works properly with:
-
-#### Current Approach: Qt Quick with Vulkan RHI (Working)
-The Vulkan backend now works with Qt Quick applications using the Vulkan RHI backend:
-
-1. **Set Qt Quick to use Vulkan**: `QSG_RHI_BACKEND=vulkan`
-2. **Set plugin path**: `QML2_IMPORT_PATH=/path/to/maplibre-build-vulkan/src/quick`
-3. Configure with the MLN_WITH_VULKAN cmake flag
-4. **Run the example**: The application will create a Qt Quick window with Vulkan rendering
-
-#### Option 2: Use with Qt Widgets (Alternative)
-The Vulkan backend works better with Qt Widgets applications where you have more control over the rendering surface.
-
-#### Option 3: Build Qt with Vulkan Support (Advanced)
-Ensure your Qt installation includes Vulkan support by building Qt with:
-```sh
-./configure -vulkan
-```
-
-#### Option 4: Use QVulkanWindow Directly (Advanced)
-For applications that need direct Vulkan control, use QVulkanWindow instead of Qt Quick.
-
-### Future Development
-
-To optimize the Qt Quick integration, the following improvements are planned:
-
-1. **Rendering Optimization**: Reduce excessive render calls and improve performance
-2. **Texture Integration**: Replace placeholder rectangle with actual map texture rendering
-3. **Cleanup Improvements**: Fix segmentation fault on application exit
-4. **Memory Management**: Optimize Vulkan resource management for better stability
-
-### Alternative: Test with Widgets Backend
-
-For immediate testing, you can use the widgets backend which has better Vulkan support:
-
-```sh
-# Build widgets example
-cd /home/birks/repos/maplibre-native-qt/examples/widgets
-mkdir -p build-vulkan
-cd build-vulkan
-cmake .. -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_PREFIX_PATH=/home/birks/Qt/6.10.0/gcc_arm64 \
-  -DQMapLibre_DIR=/home/birks/repos/maplibre-native-qt/qmaplibre-install-vulkan/lib64/cmake/QMapLibre
-make -j$(nproc)
-```
 
 
 ## Troubleshooting
@@ -233,10 +185,10 @@ The Qt Quick example uses conditional compilation with `#if defined(MLN_WITH_VUL
 - **With MLN_WITH_VULKAN=ON**: Creates Vulkan instance and sets Qt Quick to use Vulkan RHI
 - **Without MLN_WITH_VULKAN**: Falls back to OpenGL or Metal (on macOS)
 
-### Configure Qt Quick Example with Vulkan
+### Configure Qt quick-qtlocation Example with Vulkan
 
 ```sh
-cd /home/birks/repos/maplibre-native-qt/examples/quick
+cd /home/birks/repos/maplibre-native-qt/examples/quick-qtlocation
 mkdir -p build-vulkan
 cd build-vulkan
 
