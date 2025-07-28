@@ -66,14 +66,14 @@ For Android, the `ANDROID_ABI` environment variable should be set.
 
 ### Supported release workflows
 
-| Platform | Qt6       | Qt6 with ccache  | Qt5              | Qt5 with ccache         |
-|----------|-----------|------------------|------------------|-------------------------|
-| Linux    | `Linux`   | `Linux-ccache`   | `Linux-legacy`   | `Linux-legacy-ccache`   |
-| macOS    | `macOS`   | `macOS-ccache`   | `macOS-legacy`   | `macOS-legacy-ccache`   |
-| Windows  | `Windows` | `Windows-ccache` | `Windows-legacy` | `Windows-legacy-ccache` |
-| iOS      | `iOS`     | `iOS-ccache`     |                  |                         |
-| Android  | `Android` | `Android-ccache` |                  |                         |
-| WASM     | `WASM`    | `WASM-ccache`    |                  |                         |
+| Platform | Qt6       | Qt6 with ccache  |
+|----------|-----------|------------------|
+| Linux    | `Linux`   | `Linux-ccache`   |
+| macOS    | `macOS`   | `macOS-ccache`   |
+| Windows  | `Windows` | `Windows-ccache` |
+| iOS      | `iOS`     | `iOS-ccache`     |
+| Android  | `Android` | `Android-ccache` |
+| WASM     | `WASM`    | `WASM-ccache`    |
 
 ### Special workflows
 
@@ -82,7 +82,6 @@ For Android, the `ANDROID_ABI` environment variable should be set.
 | Linux    | `Linux-coverage`     | Linux build with Qt6, `ccache` and code coverage                    |
 | Linux    | `Linux-internal-icu` | Linux build with Qt6 and internal ICU library (also with `-ccache`) |
 | Linux    | `Linux-CI`           | Linux build with Qt6 and ccache for CI                              |
-| Linux    | `Linux-legacy-CI`    | Linux build with Qt5 and ccache for CI                              |
 | macOS    | `macOS-clang-tidy`   | macOS build with Qt6, `ccache` and `clang-tidy`                     |
 
 ## Platform specific build instructions

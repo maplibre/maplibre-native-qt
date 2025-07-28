@@ -57,14 +57,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - qt_series: 5
-            qt_version: 5.15.2
-            qt_arch: win64_msvc2019_64
-            qt_modules: ""
-            platform: windows-2019
-            arch: msvc2019_64
-            compiler: x64
-            preset: Windows-legacy-ccache
           - qt_series: 6
             qt_version: 6.8.3
             qt_arch: win64_msvc2022_64
