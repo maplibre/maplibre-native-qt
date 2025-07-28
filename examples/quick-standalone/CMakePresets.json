@@ -8,9 +8,9 @@
   "configurePresets": [
     {
       "name": "default",
-      "displayName": "MapLibre Qt Quick example configuration",
+      "displayName": "MapLibre Qt Quick Standalone example configuration",
       "generator": "Ninja",
-      "binaryDir": "${sourceParentDir}/../../build/qt6-example-quick",
+      "binaryDir": "${sourceParentDir}/../../build/qt6-example-quick-standalone",
       "toolchainFile": "$penv{QT_ROOT_DIR}/lib/cmake/Qt6/qt.toolchain.cmake",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
@@ -25,21 +25,21 @@
   "buildPresets": [
     {
       "name": "default",
-      "displayName": "MapLibre Qt Quick example build",
+      "displayName": "MapLibre Qt Quick Standalone example build",
       "configurePreset": "default"
     }
   ],
   "packagePresets": [
     {
       "name": "default",
-      "displayName": "MapLibre Qt Quick example package",
+      "displayName": "MapLibre Qt Quick Standalone example package",
       "configurePreset": "default"
     }
   ],
   "workflowPresets": [
     {
       "name": "default",
-      "displayName": "MapLibre Qt Quick example workflow",
+      "displayName": "MapLibre Qt Quick Standalone example workflow",
       "steps": [
         {
           "type": "configure",

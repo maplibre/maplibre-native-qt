@@ -30,14 +30,14 @@ Then run
 
 
 
-# Quick example  (metal, vulkan, opengl)
+# quick-qtlocation example  (metal, vulkan, opengl)
 
 Build example
 
 
-cd /home/birks/repos/maplibre-native-qt/examples/quick && ls -la
+cd /home/birks/repos/maplibre-native-qt/examples/quick-qtlocation && ls -la
 
-mkdir -p /home/birks/repos/maplibre-native-qt/examples/quick/build && cd /home/birks/repos/maplibre-native-qt/examples/quick/build && cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/home/birks/Qt/6.10.0/gcc_arm64 -DQMapLibre_DIR=/home/birks/repos/maplibre-native-qt/qmaplibre-install-opengl/lib64/cmake/QMapLibre
+mkdir -p /home/birks/repos/maplibre-native-qt/examples/quick-qtlocation/build && cd /home/birks/repos/maplibre-native-qt/examples/quick-qtlocation/build && cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/home/birks/Qt/6.10.0/gcc_arm64 -DQMapLibre_DIR=/home/birks/repos/maplibre-native-qt/qmaplibre-install-opengl/lib64/cmake/QMapLibre
 
 
 MapLibre QML Plugin Location
@@ -51,7 +51,7 @@ The plugin files are located at:
 Run the example:
 
 ```sh
-cd /home/birks/repos/maplibre-native-qt/examples/quick/build
+cd /home/birks/repos/maplibre-native-qt/examples/quick-qtlocation/build
 
 # Copy the MapLibre QML plugin to the build directory
 cp -r /home/birks/repos/maplibre-native-qt/qmaplibre-build-opengl/src/location/plugins/MapLibre ./
@@ -83,5 +83,5 @@ Run the widgets example
 ### "No such file or directory" error
 If you get `bash: ./QMapLibreExampleWidgets: No such file or directory`, make sure you're in the correct directory:
 
-- **Quick example**: Must be run from `/home/birks/repos/maplibre-native-qt/examples/quick/build/`
+- **quick-qtlocation example**: Must be run from `/home/birks/repos/maplibre-native-qt/examples/quick-qtlocation/build/`
 - **Widgets example**: Must be run from `/home/birks/repos/maplibre-native-qt/examples/widgets/build/`
