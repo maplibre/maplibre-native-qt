@@ -197,12 +197,12 @@ public:
 
     /*!
         \brief Sets the current drawable texture for backend-specific rendering.
-        
+
         This method allows external code to provide a drawable texture that the
         renderer can use. The texture pointer interpretation is backend-specific:
         - For Metal: CAMetalDrawable object
         - For Vulkan/OpenGL: Implementation-specific texture handle
-        
+
         \param texturePtr Pointer to the backend-specific drawable texture.
         \note This is primarily used internally by the rendering backends.
     */
