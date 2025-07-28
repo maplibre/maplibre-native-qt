@@ -77,7 +77,7 @@ void TextureNodeVulkan::render(QQuickWindow *window) {
 
         // Update map size if needed - pass logical size, mbgl::Map handles DPI internally
         m_map->resize(m_size);
-        
+
         // Calculate physical size for texture
         const QSize physicalSize(static_cast<int>(m_size.width() * m_pixelRatio),
                                  static_cast<int>(m_size.height() * m_pixelRatio));
@@ -109,7 +109,8 @@ void TextureNodeVulkan::render(QQuickWindow *window) {
                 QSGTexture *qtTexture = nullptr;
 
                 // Check if we can reuse existing texture wrapper
-                if (m_lastVkImage == vkImage && m_qtTextureWrapper && m_lastTextureSize.width() == physicalSize.width() &&
+                if (m_lastVkImage == vkImage && m_qtTextureWrapper &&
+                    m_lastTextureSize.width() == physicalSize.width() &&
                     m_lastTextureSize.height() == physicalSize.height()) {
                     // Reuse existing wrapper for better performance
                     qtTexture = m_qtTextureWrapper;
