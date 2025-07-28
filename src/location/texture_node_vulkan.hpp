@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include "texture_node_base.hpp"
 #include <vulkan/vulkan.h>
+#include "texture_node_base.hpp"
 
 namespace QMapLibre {
 

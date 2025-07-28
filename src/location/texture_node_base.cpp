@@ -17,7 +17,7 @@ TextureNodeBase::TextureNodeBase(const Settings &settings, const QSize &size, qr
     m_map = std::make_unique<Map>(nullptr, settings, m_size, pixelRatio);
     m_map->setConnectionEstablished();
     QObject::connect(m_map.get(), &Map::needsRendering, geoMap, &QGeoMap::sgNodeChanged);
-    
+
     qDebug() << "TextureNodeBase: Created map with settings, size:" << m_size << "pixelRatio:" << pixelRatio;
 }
 
