@@ -13,28 +13,18 @@ constexpr int kAnimationDuration = 5000;
 namespace QMapLibre {
 
 struct IdentifierToQStringVisitor {
-    QString operator()(const std::string& value) const {
-        return QString::fromStdString(value);
-    }
-    QString operator()(uint64_t value) const {
-        return QString::number(value);
-    }
-    QString operator()(int64_t value) const {
-        return QString::number(value);
-    }
-    QString operator()(double value) const {
-        return QString::number(value);
-    }
-    QString operator()(mapbox::feature::null_value_t) const {
-        return QStringLiteral("null");
-    }
+    QString operator()(const std::string& value) const { return QString::fromStdString(value); }
+    QString operator()(uint64_t value) const { return QString::number(value); }
+    QString operator()(int64_t value) const { return QString::number(value); }
+    QString operator()(double value) const { return QString::number(value); }
+    QString operator()(mapbox::feature::null_value_t) const { return QStringLiteral("null"); }
 };
 
 QString identifierToQString(const mapbox::feature::identifier& id) {
     return mapbox::util::apply_visitor(IdentifierToQStringVisitor(), id);
 }
 
-GLTester::GLTester(const QMapLibre::Settings &settings)
+GLTester::GLTester(const QMapLibre::Settings& settings)
     : GLWidget(settings) {}
 
 QString valueToQString(const mapbox::feature::value& val) {
@@ -73,7 +63,7 @@ void GLTester::initializeQuery() {
 
             for (const auto& [key, value] : feature.properties) {
                 QString keyStr = QString::fromStdString(key);
-                 QString valueStr = valueToQString(value);
+                QString valueStr = valueToQString(value);
                 qDebug() << keyStr << ":" << valueStr;
             }
         }

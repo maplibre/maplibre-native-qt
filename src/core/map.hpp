@@ -178,11 +178,11 @@ public:
     void destroyRenderer();
     void setOpenGLFramebufferObject(quint32 fbo, const QSize &size);
 
-    std::vector<mbgl::Feature> queryRenderedFeatures(const mbgl::ScreenCoordinate&,
-                                                     const mbgl::RenderedQueryOptions& options = {}) const;
+    std::vector<mbgl::Feature> queryRenderedFeatures(const mbgl::ScreenCoordinate &,
+                                                     const mbgl::RenderedQueryOptions &options = {}) const;
 
-    std::vector<mbgl::Feature> queryRenderedFeatures(const mbgl::ScreenBox& screenBox,
-                                                     const mbgl::RenderedQueryOptions& options = {}) const;
+    std::vector<mbgl::Feature> queryRenderedFeatures(const mbgl::ScreenBox &screenBox,
+                                                     const mbgl::RenderedQueryOptions &options = {}) const;
 
 public slots:
     void render();

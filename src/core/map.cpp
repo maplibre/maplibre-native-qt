@@ -1623,13 +1623,13 @@ void Map::setConnectionEstablished() {
     have changed. This can be caused by a style change or adding a new source.
 */
 
-std::vector<mbgl::Feature> Map::queryRenderedFeatures(const mbgl::ScreenCoordinate& point,
-                                                      const mbgl::RenderedQueryOptions& options) const {
+std::vector<mbgl::Feature> Map::queryRenderedFeatures(const mbgl::ScreenCoordinate &point,
+                                                      const mbgl::RenderedQueryOptions &options) const {
     return d_ptr->queryRenderedFeatures(point, options);
 }
 
-std::vector<mbgl::Feature> Map::queryRenderedFeatures(const mbgl::ScreenBox& screenBox,
-                                                      const mbgl::RenderedQueryOptions& options) const {
+std::vector<mbgl::Feature> Map::queryRenderedFeatures(const mbgl::ScreenBox &screenBox,
+                                                      const mbgl::RenderedQueryOptions &options) const {
     return d_ptr->queryRenderedFeatures(screenBox, options);
 }
 
@@ -1802,8 +1802,8 @@ bool MapPrivate::setProperty(const PropertySetter &setter,
     return true;
 }
 
-std::vector<mbgl::Feature> MapPrivate::queryRenderedFeatures(const mbgl::ScreenCoordinate& point,
-                                                             const mbgl::RenderedQueryOptions& options) const {
+std::vector<mbgl::Feature> MapPrivate::queryRenderedFeatures(const mbgl::ScreenCoordinate &point,
+                                                             const mbgl::RenderedQueryOptions &options) const {
     if (m_mapRenderer == nullptr) {
         return {};
     }
@@ -1811,8 +1811,8 @@ std::vector<mbgl::Feature> MapPrivate::queryRenderedFeatures(const mbgl::ScreenC
     return m_mapRenderer->queryRenderedFeatures(point, options);
 }
 
-std::vector<mbgl::Feature> MapPrivate::queryRenderedFeatures(const mbgl::ScreenBox& box,
-                                                             const mbgl::RenderedQueryOptions& options) const {
+std::vector<mbgl::Feature> MapPrivate::queryRenderedFeatures(const mbgl::ScreenBox &box,
+                                                             const mbgl::RenderedQueryOptions &options) const {
     if (m_mapRenderer == nullptr) {
         return {};
     }
