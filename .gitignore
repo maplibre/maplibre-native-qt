@@ -3,11 +3,14 @@
 compile_commands.json
 docs/output
 .venv
-qmaplibre-build-*
-qmaplibre-install-*
+qmaplibre-*
 .DS_Store
 examples/quick/build*
 examples/quick/xcode*
 examples/widgets/build*
 build
 install
+vulkan-debug-build
+vulkan-release-build
+vulkan-*
+build-*
