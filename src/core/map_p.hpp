@@ -51,6 +51,12 @@ public:
     mbgl::EdgeInsets margins;
     std::unique_ptr<mbgl::Map> mapObj{};
 
+    std::vector<mbgl::Feature> queryRenderedFeatures(const mbgl::ScreenCoordinate&,
+                                                     const mbgl::RenderedQueryOptions& options = {}) const;
+
+    std::vector<mbgl::Feature> queryRenderedFeatures(const mbgl::ScreenBox& screenBox,
+                                                     const mbgl::RenderedQueryOptions& options = {}) const;
+
 public slots:
     void requestRendering();
 

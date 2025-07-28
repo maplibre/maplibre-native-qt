@@ -11,6 +11,7 @@
 
 #include <mbgl/renderer/renderer.hpp>
 #include <mbgl/renderer/renderer_observer.hpp>
+#include <mbgl/util/geo.hpp>
 #include <mbgl/util/util.hpp>
 
 #include <QtCore/QObject>
@@ -43,6 +44,11 @@ public:
     // Thread-safe, called by the Frontend
     void updateParameters(std::shared_ptr<mbgl::UpdateParameters> parameters);
 
+    std::vector<mbgl::Feature> queryRenderedFeatures(const mbgl::ScreenCoordinate&,
+                                                     const mbgl::RenderedQueryOptions& options = {}) const;
+
+    std::vector<mbgl::Feature> queryRenderedFeatures(const mbgl::ScreenBox& screenBox,
+                                                     const mbgl::RenderedQueryOptions& options = {}) const;
 signals:
     void needsRendering();
 

@@ -1,3 +1,5 @@
+set(MLN_CORE_PATH "${PROJECT_SOURCE_DIR}/vendor/maplibre-native" CACHE STRING "MapLibre Native Core source path" FORCE)
+
 # Public headers
 string(TOLOWER ${MLN_QT_NAME}Widgets MLN_QT_WIDGETS_LOWERCASE)
 set(MLNQtWidgets_Headers
@@ -73,6 +75,10 @@ target_include_directories(
         ${CMAKE_CURRENT_BINARY_DIR}/include
         ${CMAKE_SOURCE_DIR}/src/core
         ${CMAKE_BINARY_DIR}/src/core/include
+        ${MLN_CORE_PATH}/include
+        ${MLN_CORE_PATH}/vendor/mapbox-base/deps/variant/include
+        ${MLN_CORE_PATH}/vendor/mapbox-base/include
+        ${MLN_CORE_PATH}/vendor/mapbox-base/deps/geometry.hpp/include
 )
 
 # Common link libraries

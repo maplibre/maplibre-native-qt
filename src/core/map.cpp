@@ -20,6 +20,7 @@
 #include <mbgl/map/map_options.hpp>
 #include <mbgl/math/log2.hpp>
 #include <mbgl/math/minmax.hpp>
+#include <mbgl/renderer/query.hpp>
 #include <mbgl/renderer/renderer.hpp>
 #include <mbgl/storage/file_source_manager.hpp>
 #include <mbgl/storage/network_status.hpp>
@@ -1622,6 +1623,16 @@ void Map::setConnectionEstablished() {
     have changed. This can be caused by a style change or adding a new source.
 */
 
+std::vector<mbgl::Feature> Map::queryRenderedFeatures(const mbgl::ScreenCoordinate& point,
+                                                      const mbgl::RenderedQueryOptions& options) const {
+    return d_ptr->queryRenderedFeatures(point, options);
+}
+
+std::vector<mbgl::Feature> Map::queryRenderedFeatures(const mbgl::ScreenBox& screenBox,
+                                                      const mbgl::RenderedQueryOptions& options) const {
+    return d_ptr->queryRenderedFeatures(screenBox, options);
+}
+
 /*! \cond PRIVATE */
 
 MapPrivate::MapPrivate(Map *map, const Settings &settings, const QSize &size, qreal pixelRatio_)
@@ -1789,6 +1800,24 @@ bool MapPrivate::setProperty(const PropertySetter &setter,
     }
 
     return true;
+}
+
+std::vector<mbgl::Feature> MapPrivate::queryRenderedFeatures(const mbgl::ScreenCoordinate& point,
+                                                             const mbgl::RenderedQueryOptions& options) const {
+    if (m_mapRenderer == nullptr) {
+        return {};
+    }
+
+    return m_mapRenderer->queryRenderedFeatures(point, options);
+}
+
+std::vector<mbgl::Feature> MapPrivate::queryRenderedFeatures(const mbgl::ScreenBox& box,
+                                                             const mbgl::RenderedQueryOptions& options) const {
+    if (m_mapRenderer == nullptr) {
+        return {};
+    }
+
+    return m_mapRenderer->queryRenderedFeatures(box, options);
 }
 
 /*! \endcond */

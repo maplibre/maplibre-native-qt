@@ -10,6 +10,9 @@
 #include <QMapLibre/Settings>
 #include <QMapLibre/Types>
 
+#include <mbgl/renderer/query.hpp>
+#include <mbgl/util/geo.hpp>
+
 #include <QtCore/QMargins>
 #include <QtCore/QObject>
 #include <QtCore/QPointF>
@@ -174,6 +177,12 @@ public:
     void createRenderer();
     void destroyRenderer();
     void setOpenGLFramebufferObject(quint32 fbo, const QSize &size);
+
+    std::vector<mbgl::Feature> queryRenderedFeatures(const mbgl::ScreenCoordinate&,
+                                                     const mbgl::RenderedQueryOptions& options = {}) const;
+
+    std::vector<mbgl::Feature> queryRenderedFeatures(const mbgl::ScreenBox& screenBox,
+                                                     const mbgl::RenderedQueryOptions& options = {}) const;
 
 public slots:
     void render();

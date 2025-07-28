@@ -8,6 +8,7 @@
 #include "utils/scheduler.hpp"
 
 #include <mbgl/gfx/backend_scope.hpp>
+#include <mbgl/util/geo.hpp>
 
 #include <QtCore/QThreadStorage>
 
@@ -103,6 +104,16 @@ void MapRenderer::render() {
 
 void MapRenderer::setObserver(mbgl::RendererObserver *observer) {
     m_renderer->setObserver(observer);
+}
+
+std::vector<mbgl::Feature> MapRenderer::queryRenderedFeatures(const mbgl::ScreenCoordinate& point,
+                                                              const mbgl::RenderedQueryOptions& options) const {
+    return m_renderer->queryRenderedFeatures(point, options);
+}
+
+std::vector<mbgl::Feature> MapRenderer::queryRenderedFeatures(const mbgl::ScreenBox& box,
+                                                              const mbgl::RenderedQueryOptions& options) const {
+    return m_renderer->queryRenderedFeatures(box, options);
 }
 
 /*! \endcond */
