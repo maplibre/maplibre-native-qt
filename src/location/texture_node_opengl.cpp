@@ -35,12 +35,12 @@ void TextureNodeOpenGL::render(QQuickWindow *window) {
     if (!m_map) {
         return;
     }
-    
+
     // Check for valid size
     if (m_size.isEmpty()) {
         return;
     }
-    
+
     auto *context = QOpenGLContext::currentContext();
     if (!context) {
         return;
@@ -52,10 +52,10 @@ void TextureNodeOpenGL::render(QQuickWindow *window) {
             m_map->createRenderer();
             m_rendererBound = true;
         }
-        
+
         // Update map size if needed
-        const QSize mapSize(static_cast<int>(m_size.width() * m_pixelRatio), 
-                           static_cast<int>(m_size.height() * m_pixelRatio));
+        const QSize mapSize(static_cast<int>(m_size.width() * m_pixelRatio),
+                            static_cast<int>(m_size.height() * m_pixelRatio));
         m_map->resize(mapSize);
 
         // CRITICAL: Set up framebuffer for texture sharing before rendering
@@ -72,12 +72,12 @@ void TextureNodeOpenGL::render(QQuickWindow *window) {
 
         // Begin external commands before MapLibre render
         window->beginExternalCommands();
-        
+
         m_map->render();
-        
+
         // Ensure we flush the OpenGL commands
         gl->glFlush();
-        
+
         // End external commands after MapLibre render
         window->endExternalCommands();
 
@@ -93,7 +93,6 @@ void TextureNodeOpenGL::render(QQuickWindow *window) {
                 maplibreTextureId, window, mapSize, QQuickWindow::TextureHasAlphaChannel);
 
             if (qtTexture) {
-
                 setTexture(qtTexture);
                 setRect(QRectF(QPointF(), m_size));
                 setFiltering(QSGTexture::Linear);

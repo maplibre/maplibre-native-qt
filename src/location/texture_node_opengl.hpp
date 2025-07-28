@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include "texture_node_base.hpp"
-#include "qgeomap.hpp"
 #include <qopengl.h>
+#include "qgeomap.hpp"
+#include "texture_node_base.hpp"
 
 namespace QMapLibre {
 
