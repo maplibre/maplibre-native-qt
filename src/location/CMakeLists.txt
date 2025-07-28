@@ -1,16 +1,8 @@
 # Make a Qt library
-if(COMMAND qt_add_library)
-    if(MLN_QT_STATIC)
-        qt_add_library(MLNQtLocation STATIC)
-    else()
-        qt_add_library(MLNQtLocation)
-    endif()
+if(MLN_QT_STATIC)
+    qt_add_library(MLNQtLocation STATIC)
 else()
-    if(MLN_QT_STATIC)
-        add_library(MLNQtLocation STATIC)
-    else()
-        add_library(MLNQtLocation SHARED)
-    endif()
+    qt_add_library(MLNQtLocation)
 endif()
 add_library(${MLN_QT_NAME}::Location ALIAS MLNQtLocation)
 
@@ -20,10 +12,30 @@ target_sources(
         qgeomap.cpp qgeomap.hpp qgeomap_p.hpp
         qt_mapping_engine.cpp qt_mapping_engine.hpp
         style_change_utils.cpp style_change_utils_p.hpp
-        texture_node.cpp texture_node.hpp
+        texture_node_base.cpp texture_node_base.hpp
 
         $<$<PLATFORM_ID:Windows>:${CMAKE_BINARY_DIR}/version_info.rc>
 )
+
+# Add backend-specific implementations
+if(MLN_WITH_OPENGL)
+    target_sources(MLNQtLocation PRIVATE
+        texture_node_opengl.cpp texture_node_opengl.hpp
+        qgeomap_opengl.cpp qgeomap_opengl.hpp)
+endif()
+
+if(MLN_WITH_VULKAN)
+    target_sources(MLNQtLocation PRIVATE
+        texture_node_vulkan.cpp texture_node_vulkan.hpp
+        qgeomap_vulkan.cpp qgeomap_vulkan.hpp)
+endif()
+
+if(MLN_WITH_METAL AND APPLE)
+    target_sources(MLNQtLocation PRIVATE
+        texture_node_metal.mm texture_node_metal.hpp
+        qgeomap_metal.mm qgeomap_metal.hpp)
+endif()
+
 
 # Linux/Mac: Set framework, version and headers
 set_target_properties(
@@ -46,6 +58,9 @@ target_compile_definitions(
     MLNQtLocation
     PRIVATE
         QT_BUILD_MAPLIBRE_LOCATION_LIB
+        $<$<BOOL:${MLN_WITH_OPENGL}>:MLN_RENDER_BACKEND_OPENGL>
+        $<$<BOOL:${MLN_WITH_METAL}>:MLN_RENDER_BACKEND_METAL>
+        $<$<BOOL:${MLN_WITH_VULKAN}>:MLN_RENDER_BACKEND_VULKAN>
 )
 
 # Common include directories
@@ -71,6 +86,32 @@ target_link_libraries(
         $<BUILD_INTERFACE:mbgl-compiler-options>
         $<BUILD_INTERFACE:MLNQtCompilerOptions>
 )
+
+# Add QuartzCore framework for Metal support on Apple platforms
+if(MLN_WITH_METAL AND APPLE)
+    target_link_libraries(
+        MLNQtLocation
+        PRIVATE
+            "-framework QuartzCore"
+    )
+endif()
+
+# Add Vulkan-specific includes
+if(MLN_WITH_VULKAN)
+    target_include_directories(
+        MLNQtLocation
+        PRIVATE
+            ${CMAKE_SOURCE_DIR}/src/platform/src
+            ${CMAKE_SOURCE_DIR}/vendor/maplibre-native/include
+            ${CMAKE_SOURCE_DIR}/vendor/maplibre-native/vendor
+            ${CMAKE_SOURCE_DIR}/vendor/maplibre-native/vendor/maplibre-native-base/include
+            ${CMAKE_SOURCE_DIR}/vendor/maplibre-native/vendor/maplibre-native-base/deps/geometry.hpp/include
+            ${CMAKE_SOURCE_DIR}/vendor/maplibre-native/vendor/maplibre-native-base/deps/variant/include
+            ${CMAKE_SOURCE_DIR}/vendor/maplibre-native/src
+            ${CMAKE_SOURCE_DIR}/vendor/maplibre-native/vendor/VulkanMemoryAllocator/include
+            ${CMAKE_SOURCE_DIR}/vendor/maplibre-native/vendor/Vulkan-Headers/include
+    )
+endif()
 
 # Apple specifics
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
