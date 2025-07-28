@@ -50,7 +50,7 @@ QSGNode *QGeoMapMapLibreVulkan::updateSceneGraph(QSGNode *node, QQuickWindow *wi
             qWarning() << "QGeoMapMapLibreVulkan: Exception during forced render:" << e.what();
         }
     } else {
-        qDebug() << "QGeoMapMapLibreVulkan: No style URL available. m_syncState:" << d->m_syncState 
+        qDebug() << "QGeoMapMapLibreVulkan: No style URL available. m_syncState:" << d->m_syncState
                  << "has url:" << activeMapType().metadata().contains(QStringLiteral("url"))
                  << "metadata:" << activeMapType().metadata();
     }
@@ -84,8 +84,8 @@ QSGNode *QGeoMapMapLibreVulkan::updateSceneGraph(QSGNode *node, QQuickWindow *wi
 
         const QGeoCoordinate coordinate = cameraData.center();
         map->setCoordinate(Coordinate(coordinate.latitude(), coordinate.longitude()));
-        qDebug() << "QGeoMapMapLibreVulkan: Setting camera - zoom:" << zoom 
-                 << "center:" << coordinate.latitude() << "," << coordinate.longitude();
+        qDebug() << "QGeoMapMapLibreVulkan: Setting camera - zoom:" << zoom << "center:" << coordinate.latitude() << ","
+                 << coordinate.longitude();
     }
 
     if ((d->m_syncState & QGeoMapMapLibrePrivate::ViewportSync) != 0) {

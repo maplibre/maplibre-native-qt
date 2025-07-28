@@ -3,12 +3,12 @@
 
 #include "texture_node_vulkan.hpp"
 
+#include <QtQuick/qsgtexture_platform.h>
+#include <vulkan/vulkan.h>
 #include <QtCore/QDebug>
 #include <QtCore/QPointer>
-#include <QtQuick/qsgtexture_platform.h>
 #include <QtQuick/QSGRendererInterface>
 #include <mbgl/vulkan/texture2d.hpp>
-#include <vulkan/vulkan.h>
 
 namespace QMapLibre {
 
@@ -40,7 +40,7 @@ void TextureNodeVulkan::render(QQuickWindow *window) {
         qDebug() << "TextureNodeVulkan::render - No map!";
         return;
     }
-    
+
     // Check for valid size
     if (m_size.isEmpty()) {
         qDebug() << "TextureNodeVulkan::render - Empty size!";
@@ -78,8 +78,8 @@ void TextureNodeVulkan::render(QQuickWindow *window) {
         }
 
         // Update map size if needed
-        const QSize mapSize(static_cast<int>(m_size.width() * m_pixelRatio), 
-                           static_cast<int>(m_size.height() * m_pixelRatio));
+        const QSize mapSize(static_cast<int>(m_size.width() * m_pixelRatio),
+                            static_cast<int>(m_size.height() * m_pixelRatio));
         m_map->resize(mapSize);
 
         // Ensure rendering happens before getting texture
@@ -104,18 +104,16 @@ void TextureNodeVulkan::render(QQuickWindow *window) {
             // Get Vulkan image and layout
             VkImage vkImage = vulkanTexture->getVulkanImage();
             VkImageLayout imageLayout = static_cast<VkImageLayout>(vulkanTexture->getVulkanImageLayout());
-            
-            qDebug() << "TextureNodeVulkan::render - VkImage:" << vkImage 
-                     << "layout:" << imageLayout
+
+            qDebug() << "TextureNodeVulkan::render - VkImage:" << vkImage << "layout:" << imageLayout
                      << "size:" << mapSize;
 
             // Check if we have a valid VkImage
             if (vkImage != VK_NULL_HANDLE) {
                 QSGTexture *qtTexture = nullptr;
-                
+
                 // Check if we can reuse existing texture wrapper
-                if (m_lastVkImage == vkImage && m_qtTextureWrapper && 
-                    m_lastTextureSize.width() == mapSize.width() &&
+                if (m_lastVkImage == vkImage && m_qtTextureWrapper && m_lastTextureSize.width() == mapSize.width() &&
                     m_lastTextureSize.height() == mapSize.height()) {
                     // Reuse existing wrapper for better performance
                     qtTexture = m_qtTextureWrapper;
@@ -123,11 +121,7 @@ void TextureNodeVulkan::render(QQuickWindow *window) {
                 } else {
                     // Create new wrapper
                     qtTexture = QNativeInterface::QSGVulkanTexture::fromNative(
-                        vkImage,
-                        imageLayout,
-                        window,
-                        mapSize,
-                        QQuickWindow::TextureHasAlphaChannel);
+                        vkImage, imageLayout, window, mapSize, QQuickWindow::TextureHasAlphaChannel);
 
                     if (qtTexture) {
                         // Store for reuse

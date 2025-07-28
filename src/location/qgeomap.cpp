@@ -481,7 +481,7 @@ QSGNode *QGeoMapMapLibre::updateSceneGraph(QSGNode *oldNode, QQuickWindow *windo
 
 void QGeoMapMapLibre::onMapChanged(Map::MapChange change) {
     Q_D(QGeoMapMapLibre);
-    
+
     qDebug() << "QGeoMapMapLibre::onMapChanged - change:" << static_cast<int>(change);
 
     if (change == Map::MapChangeDidFinishLoadingStyle || change == Map::MapChangeDidFailLoadingMap) {
