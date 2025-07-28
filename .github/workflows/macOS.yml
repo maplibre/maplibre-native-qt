@@ -54,12 +54,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - qt_series: 5
-            qt_version: 5.15.2
-            qt_modules: ""
-            preset: macOS-legacy-ccache
-            compiler: default
-            runs_on: macos-13
           - qt_series: 6
             qt_version: 6.8.3
             qt_modules: qtlocation qtpositioning

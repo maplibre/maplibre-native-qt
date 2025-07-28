@@ -152,10 +152,6 @@ jobs:
           key: Linux_${{ matrix.qt_version }}_${{ matrix.compiler }}
           max-size: 200M
 
-      - name: Build (Qt5)
-        if: matrix.qt_series == 5
-        uses: ./source/.github/actions/qt5-build
-
       - name: Build (Qt6, GCC11)
         if: matrix.qt_series == 6 && matrix.compiler == 'default'
         uses: ./source/.github/actions/qt6-build
