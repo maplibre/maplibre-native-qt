@@ -37,7 +37,7 @@ cd /home/birks/repos/maplibre-native-qt && cmake \
   -DMLN_WITH_VULKAN=ON \
   -DMLN_WITH_OPENGL=OFF \
   -DMLN_WITH_QT=ON \
-  -DMLN_QT_WITH_LOCATION=OFF \
+  -DMLN_QT_WITH_LOCATION=ON \
   -DMLN_WITH_WERROR=OFF \
   -DCMAKE_INSTALL_PREFIX="qmaplibre-install-vulkan" \
   -DCMAKE_TOOLCHAIN_FILE=/home/birks/Qt/6.10.0/gcc_arm64/lib/cmake/Qt6/qt.toolchain.cmake \
