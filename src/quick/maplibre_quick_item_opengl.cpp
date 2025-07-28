@@ -114,9 +114,8 @@ QSGNode *MapLibreQuickItemOpenGL::updatePaintNode(QSGNode *node, UpdatePaintNode
     // Perform map rendering and get texture
     if (m_map) {
         try {
-            // Update map size if needed
-            const qreal dpr = window()->devicePixelRatio();
-            const QSize mapSize(static_cast<int>(width() * dpr), static_cast<int>(height() * dpr));
+            // Update map size if needed - pass logical size, mbgl::Map handles DPI internally
+            const QSize mapSize(static_cast<int>(width()), static_cast<int>(height()));
             m_map->resize(mapSize);
 
             // CRITICAL: Set up framebuffer for texture sharing before rendering
@@ -237,8 +236,8 @@ void MapLibreQuickItemOpenGL::geometryChange(const QRectF &newGeometry, const QR
     QQuickItem::geometryChange(newGeometry, oldGeometry);
 
     if (m_map && newGeometry.size() != oldGeometry.size()) {
-        const float dpr = window() ? window()->devicePixelRatio() : 1.0f;
-        m_map->resize(QSize(static_cast<int>(newGeometry.width() * dpr), static_cast<int>(newGeometry.height() * dpr)));
+        // Pass logical size; mbgl::Map handles DPI scaling internally
+        m_map->resize(QSize(static_cast<int>(newGeometry.width()), static_cast<int>(newGeometry.height())));
         update();
     }
 }

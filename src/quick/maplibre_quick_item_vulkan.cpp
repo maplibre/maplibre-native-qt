@@ -56,7 +56,8 @@ void MapLibreQuickItemVulkan::ensureMap(int w, int h, float dpr) {
         Settings settings;
         settings.setContextMode(Settings::SharedGLContext);
 
-        m_map = std::make_unique<Map>(nullptr, settings, QSize(w * dpr, h * dpr), dpr);
+        // Pass logical size; mbgl::Map will handle DPI scaling internally
+        m_map = std::make_unique<Map>(nullptr, settings, QSize(w, h), dpr);
 
         if (m_map) {
             // Don't connect to needsRendering signal yet - we'll do it after renderer is created
@@ -158,8 +159,8 @@ QSGNode *MapLibreQuickItemVulkan::updatePaintNode(QSGNode *node, UpdatePaintNode
 
             // Ensure the backend has the correct size
             if (width() > 0 && height() > 0) {
-                const float dpr = qWindow->devicePixelRatio();
-                m_map->resize(QSize(static_cast<int>(width() * dpr), static_cast<int>(height() * dpr)));
+                // Pass logical size; mbgl::Map handles DPI scaling internally
+                m_map->resize(QSize(static_cast<int>(width()), static_cast<int>(height())));
             }
         } catch (const std::exception &e) {
             qWarning() << "Failed to create Vulkan renderer:" << e.what();
@@ -267,8 +268,8 @@ void MapLibreQuickItemVulkan::geometryChange(const QRectF &newGeometry, const QR
     QQuickItem::geometryChange(newGeometry, oldGeometry);
 
     if (m_map && newGeometry.size() != oldGeometry.size()) {
-        const float dpr = window() ? window()->devicePixelRatio() : 1.0f;
-        m_map->resize(QSize(static_cast<int>(newGeometry.width() * dpr), static_cast<int>(newGeometry.height() * dpr)));
+        // Pass logical size; mbgl::Map handles DPI scaling internally
+        m_map->resize(QSize(static_cast<int>(newGeometry.width()), static_cast<int>(newGeometry.height())));
         update();
     }
 }
