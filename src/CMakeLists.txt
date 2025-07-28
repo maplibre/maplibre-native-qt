@@ -21,7 +21,7 @@ if(MLN_QT_WITH_WIDGETS)
 endif()
 
 # Always build Quick plugin
-add_subdirectory(quick)
+# add_subdirectory(quick)
 
 # Windows metadata
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
