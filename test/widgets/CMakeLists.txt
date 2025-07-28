@@ -1,3 +1,5 @@
+set(MLN_CORE_PATH "${PROJECT_SOURCE_DIR}/vendor/maplibre-native" CACHE STRING "MapLibre Native Core source path" FORCE)
+
 set(test_sources
     ../common/test_rendering.cpp ../common/test_rendering.hpp
     gl_tester.cpp gl_tester.hpp
@@ -17,6 +19,11 @@ target_include_directories(
         ${CMAKE_SOURCE_DIR}/src/widgets
         ${CMAKE_BINARY_DIR}/src/widgets/include
         ${CMAKE_SOURCE_DIR}/test/common
+        ${CMAKE_BINARY_DIR}/include
+        ${MLN_CORE_PATH}/include
+        ${MLN_CORE_PATH}/vendor/mapbox-base/deps/variant/include
+        ${MLN_CORE_PATH}/vendor/mapbox-base/include
+        ${MLN_CORE_PATH}/vendor/mapbox-base/deps/geometry.hpp/include
 )
 
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Test REQUIRED)

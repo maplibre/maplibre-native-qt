@@ -11,6 +11,7 @@
 
 #include <mbgl/renderer/renderer.hpp>
 #include <mbgl/renderer/renderer_observer.hpp>
+#include <mbgl/util/geo.hpp>
 #include <mbgl/util/util.hpp>
 
 #include <QtCore/QObject>
@@ -33,16 +34,21 @@ class MapRenderer : public QObject {
     Q_OBJECT
 
 public:
-    MapRenderer(qreal pixelRatio, Settings::GLContextMode, const QString &localFontFamily);
+    MapRenderer(qreal pixelRatio, Settings::GLContextMode, const QString& localFontFamily);
     ~MapRenderer() override;
 
     void render();
-    void updateFramebuffer(quint32 fbo, const mbgl::Size &size);
-    void setObserver(mbgl::RendererObserver *observer);
+    void updateFramebuffer(quint32 fbo, const mbgl::Size& size);
+    void setObserver(mbgl::RendererObserver* observer);
 
     // Thread-safe, called by the Frontend
     void updateParameters(std::shared_ptr<mbgl::UpdateParameters> parameters);
 
+    std::vector<mbgl::Feature> queryRenderedFeatures(const mbgl::ScreenCoordinate&,
+                                                     const mbgl::RenderedQueryOptions& options = {}) const;
+
+    std::vector<mbgl::Feature> queryRenderedFeatures(const mbgl::ScreenBox& screenBox,
+                                                     const mbgl::RenderedQueryOptions& options = {}) const;
 signals:
     void needsRendering();
 

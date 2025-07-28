@@ -19,6 +19,7 @@ public:
     explicit GLTester(const QMapLibre::Settings &);
 
     void initializeAnimation();
+    void initializeQuery();
     int selfTest();
 
 private slots:
