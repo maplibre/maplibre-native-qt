@@ -6,7 +6,14 @@
 
 #include "qt_mapping_engine.hpp"
 #include "qgeomap.hpp"
+#include "qgeomap_metal.hpp"
+#include "qgeomap_opengl.hpp"
+#include "qgeomap_vulkan.hpp"
 #include "types.hpp"
+
+#include <QtQuick/QQuickWindow>
+#include <QtQuick/QSGRendererInterface>
+#include <QtGui/QGuiApplication>
 
 #include <QtLocation/private/qabstractgeotilecache_p.h>
 #include <QtLocation/private/qgeocameracapabilities_p.h>
@@ -244,7 +251,62 @@ QtMappingEngine::QtMappingEngine(const QVariantMap &parameters,
 }
 
 QGeoMap *QtMappingEngine::createMap() {
-    auto map = std::make_unique<QGeoMapMapLibre>(this);
+    // Try to detect the current graphics API
+    auto graphicsApi = QSGRendererInterface::Unknown;
+    if (auto *window = qobject_cast<QQuickWindow*>(QGuiApplication::topLevelWindows().value(0))) {
+        if (auto *ri = window->rendererInterface()) {
+            graphicsApi = ri->graphicsApi();
+        }
+    }
+    
+    std::unique_ptr<QGeoMapMapLibre> map;
+    
+    // Create backend-specific map
+    switch (graphicsApi) {
+    case QSGRendererInterface::MetalRhi:
+#ifdef MLN_RENDER_BACKEND_METAL
+        map = std::make_unique<QGeoMapMapLibreMetal>(this);
+#else
+        qWarning("Metal backend requested but not available, falling back to default");
+        break;
+#endif
+        break;
+        
+    case QSGRendererInterface::VulkanRhi:
+#ifdef MLN_RENDER_BACKEND_VULKAN
+        map = std::make_unique<QGeoMapMapLibreVulkan>(this);
+#else
+        qWarning("Vulkan backend requested but not available, falling back to default");
+        break;
+#endif
+        break;
+        
+    case QSGRendererInterface::OpenGLRhi:
+#ifdef MLN_RENDER_BACKEND_OPENGL
+        map = std::make_unique<QGeoMapMapLibreOpenGL>(this);
+#else
+        qWarning("OpenGL backend requested but not available, falling back to default");
+        break;
+#endif
+        break;
+        
+    default:
+        // Try to guess based on available backends
+#ifdef MLN_RENDER_BACKEND_METAL
+        map = std::make_unique<QGeoMapMapLibreMetal>(this);
+#elif defined(MLN_RENDER_BACKEND_VULKAN)
+        map = std::make_unique<QGeoMapMapLibreVulkan>(this);
+#elif defined(MLN_RENDER_BACKEND_OPENGL)
+        map = std::make_unique<QGeoMapMapLibreOpenGL>(this);
+#endif
+        break;
+    }
+    
+    if (!map) {
+        // Fallback to original implementation if no backend-specific map was created
+        map = std::make_unique<QGeoMapMapLibre>(this);
+    }
+    
     map->setSettings(m_settings);
     map->setMapItemsBefore(m_mapItemsBefore);
     return map.release();

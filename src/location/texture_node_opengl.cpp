@@ -26,7 +26,13 @@ void TextureNodeOpenGL::render(QQuickWindow *window) {
         window->rendererInterface()->getResource(window, QSGRendererInterface::OpenGLContextResource));
 
     if (!context) return;
-
+    
+    // Ensure renderer is created
+    if (!m_rendererBound) {
+        m_map->createRenderer();
+        m_rendererBound = true;
+    }
+    
     QOpenGLFunctions *f = context->functions();
 
     // Save current GL state

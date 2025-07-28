@@ -10,9 +10,16 @@ namespace QMapLibre {
 class TextureNodeMetal : public TextureNodeBase {
 public:
     TextureNodeMetal(const Settings &settings, const QSize &size, qreal pixelRatio, QGeoMapMapLibre *geoMap);
+    ~TextureNodeMetal();
 
     void resize(const QSize &size, qreal pixelRatio, QQuickWindow *window) override;
     void render(QQuickWindow *window) override;
+
+private:
+    bool m_rendererBound = false;
+    void *m_layerPtr = nullptr;
+    void *m_currentDrawable = nullptr;
+    bool m_ownsLayer = false;
 };
 
 } // namespace QMapLibre

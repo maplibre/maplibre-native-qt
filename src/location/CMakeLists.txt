@@ -17,20 +17,23 @@ target_sources(
         $<$<PLATFORM_ID:Windows>:${CMAKE_BINARY_DIR}/version_info.rc>
 )
 
-# Add backend-specific texture node implementations
+# Add backend-specific implementations
 if(MLN_WITH_OPENGL)
-    target_sources(MLNQtLocation PRIVATE
-        texture_node_opengl.cpp texture_node_opengl.hpp)
+    target_sources(MLNQtLocation PRIVATE 
+        texture_node_opengl.cpp texture_node_opengl.hpp
+        qgeomap_opengl.cpp qgeomap_opengl.hpp)
 endif()
 
 if(MLN_WITH_VULKAN)
-    target_sources(MLNQtLocation PRIVATE
-        texture_node_vulkan.cpp texture_node_vulkan.hpp)
+    target_sources(MLNQtLocation PRIVATE 
+        texture_node_vulkan.cpp texture_node_vulkan.hpp
+        qgeomap_vulkan.cpp qgeomap_vulkan.hpp)
 endif()
 
 if(MLN_WITH_METAL AND APPLE)
-    target_sources(MLNQtLocation PRIVATE
-        texture_node_metal.mm texture_node_metal.hpp)
+    target_sources(MLNQtLocation PRIVATE 
+        texture_node_metal.mm texture_node_metal.hpp
+        qgeomap_metal.mm qgeomap_metal.hpp)
 endif()
 
 
@@ -83,6 +86,15 @@ target_link_libraries(
         $<BUILD_INTERFACE:mbgl-compiler-options>
         $<BUILD_INTERFACE:MLNQtCompilerOptions>
 )
+
+# Add QuartzCore framework for Metal support on Apple platforms
+if(MLN_WITH_METAL AND APPLE)
+    target_link_libraries(
+        MLNQtLocation
+        PRIVATE
+            "-framework QuartzCore"
+    )
+endif()
 
 # Apple specifics
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
