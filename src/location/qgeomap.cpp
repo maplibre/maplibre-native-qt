@@ -71,23 +71,32 @@ QSGNode *QGeoMapMapLibrePrivate::updateSceneGraph(QSGNode *node, QQuickWindow *w
 
     Map *map{};
     if (node == nullptr) {
-        QOpenGLContext *currentCtx = QOpenGLContext::currentContext();
-        if (currentCtx == nullptr) {
-            qWarning("QOpenGLContext is NULL!");
-            qWarning() << "You are running on QSG backend " << QSGContext::backend();
-            qWarning("The MapLibre plugin works with both Desktop and ES 2.0+ OpenGL versions.");
-            qWarning("Verify that your Qt is built with OpenGL, and what kind of OpenGL.");
-            qWarning(
-                "To force using a specific OpenGL version, check QSurfaceFormat::setRenderableType and "
-                "QSurfaceFormat::setDefaultFormat");
-
+        // Check graphics API
+        auto *ri = window->rendererInterface();
+        if (!ri) {
+            qWarning("No renderer interface available");
             return node;
+        }
+        
+        // For OpenGL, we need a current context
+        if (ri->graphicsApi() == QSGRendererInterface::OpenGL || ri->graphicsApi() == QSGRendererInterface::OpenGLRhi) {
+            QOpenGLContext *currentCtx = QOpenGLContext::currentContext();
+            if (currentCtx == nullptr) {
+                qWarning("QOpenGLContext is NULL!");
+                qWarning() << "You are running on QSG backend " << QSGContext::backend();
+                qWarning("The MapLibre plugin works with both Desktop and ES 2.0+ OpenGL versions.");
+                qWarning("Verify that your Qt is built with OpenGL, and what kind of OpenGL.");
+                qWarning(
+                    "To force using a specific OpenGL version, check QSurfaceFormat::setRenderableType and "
+                    "QSurfaceFormat::setDefaultFormat");
+
+                return node;
+            }
         }
 
         std::unique_ptr<TextureNodeBase> mbglNode;
 
         // Create backend-specific texture node
-        auto *ri = window->rendererInterface();
         if (ri->graphicsApi() == QSGRendererInterface::MetalRhi) {
 #ifdef MLN_RENDER_BACKEND_METAL
             mbglNode = std::make_unique<TextureNodeMetal>(m_settings, m_viewportSize, window->devicePixelRatio(), q);

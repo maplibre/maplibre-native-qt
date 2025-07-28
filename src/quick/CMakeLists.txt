@@ -79,6 +79,7 @@ target_link_libraries(${MLN_QT_QUICK_MODULE} PRIVATE
     Qt6::Quick
     Qt6::Gui
     QMapLibre::Core
+    QMapLibre::Location
 )
 
 # Add platform-specific frameworks

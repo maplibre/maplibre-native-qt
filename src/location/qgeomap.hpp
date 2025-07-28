@@ -21,6 +21,10 @@ class Q_MAPLIBRE_LOCATION_EXPORT QGeoMapMapLibre : public QGeoMap {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QGeoMapMapLibre)
 
+    friend class QGeoMapMapLibreOpenGL;
+    friend class QGeoMapMapLibreVulkan;
+    friend class QGeoMapMapLibreMetal;
+
 public:
     explicit QGeoMapMapLibre(QGeoMappingManagerEngine *engine, QObject *parent = nullptr);
     ~QGeoMapMapLibre() override;
@@ -34,10 +38,11 @@ public:
     void removeStyleParameter(StyleParameter *parameter);
     void clearStyleParameters();
 
-private Q_SLOTS:
+protected Q_SLOTS:
     // QMapLibre
     void onMapChanged(Map::MapChange);
 
+private Q_SLOTS:
     // QDeclarativeGeoMapItemBase
     void onMapItemPropertyChanged();
     void onMapItemSubPropertyChanged();

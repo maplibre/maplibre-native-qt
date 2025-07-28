@@ -13,6 +13,9 @@ public:
 
     void resize(const QSize &size, qreal pixelRatio, QQuickWindow *window) override;
     void render(QQuickWindow *window) override;
+
+private:
+    bool m_rendererBound = false;
 };
 
 } // namespace QMapLibre
