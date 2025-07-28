@@ -5,7 +5,7 @@
 import QtQuick 6.5
 import QtQuick.Window 6.5
 import QtPositioning 6.5
-import MapLibre.Quick 1.0
+import MapLibre.Quick 3.0
 
 Window {
     id: root
