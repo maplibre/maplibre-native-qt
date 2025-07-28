@@ -40,14 +40,25 @@ cd /home/birks/repos/maplibre-native-qt/examples/quick && ls -la
 mkdir -p /home/birks/repos/maplibre-native-qt/examples/quick/build && cd /home/birks/repos/maplibre-native-qt/examples/quick/build && cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/home/birks/Qt/6.10.0/gcc_arm64 -DQMapLibre_DIR=/home/birks/repos/maplibre-native-qt/qmaplibre-install-opengl/lib64/cmake/QMapLibre
 
 
-Manually installing MapLibre.Quick
+MapLibre QML Plugin Location
 
-mkdir -p /home/birks/repos/maplibre-native-qt/qmaplibre-install-opengl/qml/MapLibre/Quick && cp src/quick/qmldir src/quick/libmaplibre_quickplugin.so src/quick/libmaplibre_quick.so src/quick/maplibre_quick.qmltypes src/quick/plugin.json /home/birks/repos/maplibre-native-qt/qmaplibre-install-opengl/qml/MapLibre/Quick/
+Since we're using Qt Location (`-DMLN_QT_WITH_LOCATION=ON`), the MapLibre QML plugin is built as part of the location module.
 
+The plugin files are located at:
+- `qmaplibre-build-opengl/src/location/plugins/MapLibre/qmldir`
+- `qmaplibre-build-opengl/src/location/plugins/MapLibre/libdeclarative_locationplugin_maplibre.so`
 
-And then run the example
+Run the example:
 
-cd /home/birks/repos/maplibre-native-qt/examples/quick/build && QML_IMPORT_PATH=/home/birks/repos/maplibre-native-qt/qmaplibre-install-opengl/qml QSG_RHI_BACKEND=opengl ./QMapLibreExampleQuick
+```sh
+cd /home/birks/repos/maplibre-native-qt/examples/quick/build
+
+# Copy the MapLibre QML plugin to the build directory
+cp -r /home/birks/repos/maplibre-native-qt/qmaplibre-build-opengl/src/location/plugins/MapLibre ./
+
+# Run with proper import paths
+QML_IMPORT_PATH=$PWD:/home/birks/repos/maplibre-native-qt/qmaplibre-build-opengl QSG_RHI_BACKEND=opengl ./QMapLibreExampleQuick
+```
 
 
 
