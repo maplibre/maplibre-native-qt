@@ -96,6 +96,23 @@ if(MLN_WITH_METAL AND APPLE)
     )
 endif()
 
+# Add Vulkan-specific includes
+if(MLN_WITH_VULKAN)
+    target_include_directories(
+        MLNQtLocation
+        PRIVATE
+            ${CMAKE_SOURCE_DIR}/src/platform/src
+            ${CMAKE_SOURCE_DIR}/vendor/maplibre-native/include
+            ${CMAKE_SOURCE_DIR}/vendor/maplibre-native/vendor
+            ${CMAKE_SOURCE_DIR}/vendor/maplibre-native/vendor/maplibre-native-base/include
+            ${CMAKE_SOURCE_DIR}/vendor/maplibre-native/vendor/maplibre-native-base/deps/geometry.hpp/include
+            ${CMAKE_SOURCE_DIR}/vendor/maplibre-native/vendor/maplibre-native-base/deps/variant/include
+            ${CMAKE_SOURCE_DIR}/vendor/maplibre-native/src
+            ${CMAKE_SOURCE_DIR}/vendor/maplibre-native/vendor/VulkanMemoryAllocator/include
+            ${CMAKE_SOURCE_DIR}/vendor/maplibre-native/vendor/Vulkan-Headers/include
+    )
+endif()
+
 # Apple specifics
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set_target_properties(

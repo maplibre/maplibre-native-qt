@@ -58,10 +58,12 @@ cmake --install qmaplibre-build-vulkan
 Since we're using Qt Location (`-DMLN_QT_WITH_LOCATION=ON`), the MapLibre QML plugin is built as part of the location module.
 
 The plugin files are located at:
-- `qmaplibre-build-vulkan/src/location/plugins/MapLibre/qmldir`
-- `qmaplibre-build-vulkan/src/location/plugins/MapLibre/libdeclarative_locationplugin_maplibre.so`
+- Build location: `qmaplibre-build-vulkan/src/location/plugins/MapLibre/`
+- Installed location: `qmaplibre-install-vulkan/qml/MapLibre/`
 
-No additional manual installation is needed as the plugin will be found through the QML import path.
+After installation, the plugin files will be at:
+- `qmaplibre-install-vulkan/qml/MapLibre/qmldir`
+- `qmaplibre-install-vulkan/qml/MapLibre/libdeclarative_locationplugin_maplibre.so`
 
 ## Qt Quick Example with Vulkan
 
@@ -105,11 +107,12 @@ Now that the Vulkan backend is successfully integrated, you can run the Qt Quick
 ```sh
 cd /home/birks/repos/maplibre-native-qt/examples/quick/build-vulkan
 
-# Copy the MapLibre QML plugin to the build directory
-cp -r /home/birks/repos/maplibre-native-qt/qmaplibre-build-vulkan/src/location/plugins/MapLibre ./
-
-# Run with proper import paths
-QML2_IMPORT_PATH=$PWD:/home/birks/repos/maplibre-native-qt/qmaplibre-build-vulkan QSG_RHI_BACKEND=vulkan ./QMapLibreExampleQuick
+# Run with proper import paths (using installed location)
+export QML2_IMPORT_PATH=/home/birks/repos/maplibre-native-qt/qmaplibre-install-vulkan/qml
+export QSG_RHI_BACKEND=vulkan
+export LD_LIBRARY_PATH=/home/birks/repos/maplibre-native-qt/qmaplibre-install-vulkan/lib64:$LD_LIBRARY_PATH
+export QT_PLUGIN_PATH=/home/birks/repos/maplibre-native-qt/qmaplibre-install-vulkan/plugins
+./QMapLibreExampleQuick
 ```
 
 

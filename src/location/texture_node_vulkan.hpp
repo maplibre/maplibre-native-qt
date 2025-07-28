@@ -4,15 +4,23 @@
 #pragma once
 
 #include "texture_node_base.hpp"
+#include <vulkan/vulkan.h>
 
 namespace QMapLibre {
 
 class TextureNodeVulkan : public TextureNodeBase {
 public:
     TextureNodeVulkan(const Settings &settings, const QSize &size, qreal pixelRatio, QGeoMapMapLibre *geoMap);
+    ~TextureNodeVulkan() override;
 
     void resize(const QSize &size, qreal pixelRatio, QQuickWindow *window) override;
     void render(QQuickWindow *window) override;
+
+private:
+    bool m_rendererBound = false;
+    QPointer<QSGTexture> m_qtTextureWrapper;
+    VkImage m_lastVkImage = VK_NULL_HANDLE;
+    QSize m_lastTextureSize;
 };
 
 } // namespace QMapLibre
