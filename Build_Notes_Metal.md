@@ -24,23 +24,14 @@ ninja
 ninja install
 ```
 
-### Install MapLibre.Quick
-Then to make sure the MapLibre.Quick can be found run the following
+### Install MapLibre QML Plugin
+Since we're using Qt Location (`-DMLN_QT_WITH_LOCATION=ON`), the MapLibre QML plugin is built as part of the location module.
 
-##### Create the expected MapLibre/Quick folder inside the build tree
-`mkdir -p qmaplibre-build-macos/MapLibre/Quick`
+The plugin files are located at:
+- `qmaplibre-build-macos/src/location/plugins/MapLibre/qmldir`
+- `qmaplibre-build-macos/src/location/plugins/MapLibre/libdeclarative_locationplugin_maplibre.dylib`
 
-##### Drop the qmldir file and the plugin library into that folder
-```
-mkdir ./qmaplibre-build-macos/MapLibre
-mkdir ./qmaplibre-build-macos/MapLibre/Quick
-
-cp qmaplibre-build-macos/src/quick/qmldir \
-   qmaplibre-build-macos/MapLibre/Quick/
-
-cp qmaplibre-build-macos/src/quick/libmaplibre_quickplugin.dylib \
-   qmaplibre-build-macos/MapLibre/Quick/
-```
+No additional copying is needed as the plugin will be found through the QML import path.
 ## Qt Quick example
 
 #### Build the quick example
@@ -56,9 +47,15 @@ ninja
 ```
 
 #### Run the quick example
-```sh
 
-export QML_IMPORT_PATH="/Users/admin/repos/maplibre-native-qt/qmaplibre-build-macos:$PWD"
+First, copy the MapLibre QML plugin to the build directory:
+```sh
+cp -r /Users/admin/repos/maplibre-native-qt/qmaplibre-build-macos/src/location/plugins/MapLibre ./
+```
+
+Then run the example:
+```sh
+export QML_IMPORT_PATH="$PWD:/Users/admin/repos/maplibre-native-qt/qmaplibre-build-macos"
 export QSG_RHI_BACKEND=metal
 ./QMapLibreExampleQuick.app/Contents/MacOS/QMapLibreExampleQuick
 ```
