@@ -77,7 +77,7 @@ QSGNode *QGeoMapMapLibrePrivate::updateSceneGraph(QSGNode *node, QQuickWindow *w
             qWarning("No renderer interface available");
             return node;
         }
-        
+
         // For OpenGL, we need a current context
         if (ri->graphicsApi() == QSGRendererInterface::OpenGL || ri->graphicsApi() == QSGRendererInterface::OpenGLRhi) {
             QOpenGLContext *currentCtx = QOpenGLContext::currentContext();

@@ -12,8 +12,7 @@
 namespace QMapLibre {
 
 QGeoMapMapLibreMetal::QGeoMapMapLibreMetal(QGeoMappingManagerEngine *engine, QObject *parent)
-    : QGeoMapMapLibre(engine, parent) {
-}
+    : QGeoMapMapLibre(engine, parent) {}
 
 QGeoMapMapLibreMetal::~QGeoMapMapLibreMetal() = default;
 
@@ -28,8 +27,9 @@ QSGNode *QGeoMapMapLibreMetal::updateSceneGraph(QSGNode *node, QQuickWindow *win
     Map *map{};
     if (node == nullptr) {
         // Metal doesn't need context checks like OpenGL
-        auto mbglNode = std::make_unique<TextureNodeMetal>(d->m_settings, viewportSize(), window->devicePixelRatio(), this);
-        
+        auto mbglNode = std::make_unique<TextureNodeMetal>(
+            d->m_settings, viewportSize(), window->devicePixelRatio(), this);
+
         QObject::connect(mbglNode->map(), &Map::mapChanged, this, &QGeoMapMapLibreMetal::onMapChanged);
         d->m_syncState = QGeoMapMapLibrePrivate::MapTypeSync | QGeoMapMapLibrePrivate::CameraDataSync |
                          QGeoMapMapLibrePrivate::ViewportSync | QGeoMapMapLibrePrivate::VisibleAreaSync;
@@ -37,7 +37,8 @@ QSGNode *QGeoMapMapLibreMetal::updateSceneGraph(QSGNode *node, QQuickWindow *win
     }
     map = static_cast<TextureNodeMetal *>(node)->map();
 
-    if ((d->m_syncState & QGeoMapMapLibrePrivate::MapTypeSync) != 0 && activeMapType().metadata().contains(QStringLiteral("url"))) {
+    if ((d->m_syncState & QGeoMapMapLibrePrivate::MapTypeSync) != 0 &&
+        activeMapType().metadata().contains(QStringLiteral("url"))) {
         map->setStyleUrl(activeMapType().metadata()[QStringLiteral("url")].toString());
     }
 
@@ -46,22 +47,22 @@ QSGNode *QGeoMapMapLibreMetal::updateSceneGraph(QSGNode *node, QQuickWindow *win
         if (visArea.isEmpty()) {
             map->setMargins(QMargins());
         } else {
-            const QMargins margins(
-                static_cast<int>(visArea.x()),
-                static_cast<int>(visArea.y()),
-                static_cast<int>(viewportSize().width() - visArea.width() - visArea.x()),
-                static_cast<int>(viewportSize().height() - visArea.height() - visArea.y()));
+            const QMargins margins(static_cast<int>(visArea.x()),
+                                   static_cast<int>(visArea.y()),
+                                   static_cast<int>(viewportSize().width() - visArea.width() - visArea.x()),
+                                   static_cast<int>(viewportSize().height() - visArea.height() - visArea.y()));
             map->setMargins(margins);
         }
     }
 
-    if ((d->m_syncState & QGeoMapMapLibrePrivate::CameraDataSync) != 0 || (d->m_syncState & QGeoMapMapLibrePrivate::VisibleAreaSync) != 0) {
+    if ((d->m_syncState & QGeoMapMapLibrePrivate::CameraDataSync) != 0 ||
+        (d->m_syncState & QGeoMapMapLibrePrivate::VisibleAreaSync) != 0) {
         constexpr double mapLibreTileSize = 512.0;
         const double invLog2 = 1.0 / std::log(2.0);
         auto zoomLevelFrom256 = [invLog2](double zoomLevelFor256, double tileSize) {
             return std::log(std::pow(2.0, zoomLevelFor256) * 256.0 / tileSize) * invLog2;
         };
-        
+
         const QGeoCameraData cameraData = this->cameraData();
         map->setZoom(zoomLevelFrom256(cameraData.zoomLevel(), mapLibreTileSize));
         map->setBearing(cameraData.bearing());
