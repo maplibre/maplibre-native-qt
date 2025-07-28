@@ -18,7 +18,7 @@ qt-cmake ../ -G Ninja \
   -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
   -DCMAKE_INSTALL_PREFIX="../qmaplibre-install-macos" \
   -DMLN_WITH_METAL=ON  -DMLN_WITH_OPENGL=OFF \
-  -DMLN_QT_WITH_LOCATION=OFF \
+  -DMLN_QT_WITH_LOCATION=ON \
   -DMLN_WITH_CORE_ONLY=ON
 ninja
 ninja install
