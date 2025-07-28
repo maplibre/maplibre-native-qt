@@ -221,11 +221,11 @@ public slots:
 
     /*!
         \brief Returns the native color texture for backend-specific rendering.
-        
+
         This method provides access to the underlying native texture used by Metal
         and Vulkan backends for Qt Quick integration. Returns nullptr if no texture
         is available or if the backend doesn't support native texture access.
-        
+
         \return A pointer to the native texture, or nullptr if unavailable.
         \note This is backend-specific and primarily used for Qt Quick texture nodes.
     */
