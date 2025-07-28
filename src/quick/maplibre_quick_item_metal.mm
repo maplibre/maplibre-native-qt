@@ -49,8 +49,8 @@ void MapLibreQuickItem::geometryChange(const QRectF &newG, const QRectF &oldG) {
     if (newG.size() != oldG.size()) {
         m_size = newG.size().toSize();
         if (m_map) {
-            m_map->resize(
-                QSize(m_size.width() * window()->devicePixelRatio(), m_size.height() * window()->devicePixelRatio()));
+            // Pass logical size; mbgl::Map handles DPI scaling internally
+            m_map->resize(m_size);
         }
         update();
     }
@@ -106,8 +106,8 @@ void MapLibreQuickItem::ensureMap(int w, int h, float dpr, void *metalLayer) {
         // Defer binding the renderer until the first beforeRendering callback once a drawable is available.
     }
 
-    // Map constructor takes size and DPR; renderer will pick Metal automatically
-    m_map = std::make_unique<Map>(nullptr, Settings{}, QSize(w * dpr, h * dpr), dpr);
+    // Map constructor takes logical size and DPR; mbgl::Map will handle the scaling internally
+    m_map = std::make_unique<Map>(nullptr, Settings{}, QSize(w, h), dpr);
     // Renderer will be created lazily in beforeRendering.
 
     if (window()) {

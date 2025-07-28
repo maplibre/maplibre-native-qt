@@ -75,10 +75,12 @@ void TextureNodeVulkan::render(QQuickWindow *window) {
             m_rendererBound = true;
         }
 
-        // Update map size if needed
-        const QSize mapSize(static_cast<int>(m_size.width() * m_pixelRatio),
-                            static_cast<int>(m_size.height() * m_pixelRatio));
-        m_map->resize(mapSize);
+        // Update map size if needed - pass logical size, mbgl::Map handles DPI internally
+        m_map->resize(m_size);
+        
+        // Calculate physical size for texture
+        const QSize physicalSize(static_cast<int>(m_size.width() * m_pixelRatio),
+                                 static_cast<int>(m_size.height() * m_pixelRatio));
 
         // Ensure rendering happens before getting texture
         if (m_rendererBound && m_map) {
@@ -107,20 +109,20 @@ void TextureNodeVulkan::render(QQuickWindow *window) {
                 QSGTexture *qtTexture = nullptr;
 
                 // Check if we can reuse existing texture wrapper
-                if (m_lastVkImage == vkImage && m_qtTextureWrapper && m_lastTextureSize.width() == mapSize.width() &&
-                    m_lastTextureSize.height() == mapSize.height()) {
+                if (m_lastVkImage == vkImage && m_qtTextureWrapper && m_lastTextureSize.width() == physicalSize.width() &&
+                    m_lastTextureSize.height() == physicalSize.height()) {
                     // Reuse existing wrapper for better performance
                     qtTexture = m_qtTextureWrapper;
                 } else {
                     // Create new wrapper
                     qtTexture = QNativeInterface::QSGVulkanTexture::fromNative(
-                        vkImage, imageLayout, window, mapSize, QQuickWindow::TextureHasAlphaChannel);
+                        vkImage, imageLayout, window, physicalSize, QQuickWindow::TextureHasAlphaChannel);
 
                     if (qtTexture) {
                         // Store for reuse
                         m_qtTextureWrapper = qtTexture;
                         m_lastVkImage = vkImage;
-                        m_lastTextureSize = mapSize;
+                        m_lastTextureSize = physicalSize;
                     }
                 }
 

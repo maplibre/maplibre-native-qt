@@ -28,7 +28,8 @@ TextureNodeOpenGL::~TextureNodeOpenGL() {
 void TextureNodeOpenGL::resize(const QSize &size, qreal pixelRatio, QQuickWindow * /* window */) {
     m_size = size.expandedTo(QSize(64, 64));
     m_pixelRatio = pixelRatio;
-    m_map->resize(m_size * m_pixelRatio);
+    // Pass logical size; mbgl::Map handles DPI scaling internally via pixelRatio passed at construction
+    m_map->resize(m_size);
 }
 
 void TextureNodeOpenGL::render(QQuickWindow *window) {
@@ -53,10 +54,8 @@ void TextureNodeOpenGL::render(QQuickWindow *window) {
             m_rendererBound = true;
         }
 
-        // Update map size if needed
-        const QSize mapSize(static_cast<int>(m_size.width() * m_pixelRatio),
-                            static_cast<int>(m_size.height() * m_pixelRatio));
-        m_map->resize(mapSize);
+        // Update map size if needed - pass logical size, mbgl::Map handles DPI internally
+        m_map->resize(m_size);
 
         // CRITICAL: Set up framebuffer for texture sharing before rendering
         QOpenGLFunctions *gl = context->functions();
@@ -64,7 +63,10 @@ void TextureNodeOpenGL::render(QQuickWindow *window) {
             gl->glGenFramebuffers(1, &m_fbo);
         }
 
-        m_map->updateFramebuffer(m_fbo, mapSize);
+        // Calculate physical size for framebuffer
+        const QSize physicalSize(static_cast<int>(m_size.width() * m_pixelRatio),
+                                 static_cast<int>(m_size.height() * m_pixelRatio));
+        m_map->updateFramebuffer(m_fbo, physicalSize);
 
         // Save and restore OpenGL state to prevent conflicts
         GLint prevFbo;
@@ -90,7 +92,7 @@ void TextureNodeOpenGL::render(QQuickWindow *window) {
         if (maplibreTextureId > 0) {
             // Wrap it directly as QSGTexture (zero-copy!)
             QSGTexture *qtTexture = QNativeInterface::QSGOpenGLTexture::fromNative(
-                maplibreTextureId, window, mapSize, QQuickWindow::TextureHasAlphaChannel);
+                maplibreTextureId, window, physicalSize, QQuickWindow::TextureHasAlphaChannel);
 
             if (qtTexture) {
                 setTexture(qtTexture);
