@@ -6,11 +6,11 @@
 #import <Metal/Metal.h>
 #import <QuartzCore/CAMetalLayer.h>
 
-#include "texture_node_metal.hpp"
 #include <QtQuick/qsgtexture_platform.h>
-#include <QtCore/QDebug>
 #include <QQuickWindow>
 #include <QSGRendererInterface>
+#include <QtCore/QDebug>
+#include "texture_node_metal.hpp"
 
 namespace QMapLibre {
 
@@ -29,11 +29,12 @@ TextureNodeMetal::~TextureNodeMetal() {
 void TextureNodeMetal::resize(const QSize &size, qreal pixelRatio, QQuickWindow * /* window */) {
     m_size = size.expandedTo(QSize(64, 64));
     m_pixelRatio = pixelRatio;
-    
-    qDebug() << "TextureNodeMetal::resize - size:" << m_size << "pixelRatio:" << m_pixelRatio << "physical size:" << (m_size * m_pixelRatio);
-    
+
+    qDebug() << "TextureNodeMetal::resize - size:" << m_size << "pixelRatio:" << m_pixelRatio
+             << "physical size:" << (m_size * m_pixelRatio);
+
     m_map->resize(m_size * m_pixelRatio);
-    
+
     // Update Metal layer drawable size if we have one
     if (m_layerPtr) {
         CAMetalLayer *layer = (__bridge CAMetalLayer *)m_layerPtr;
@@ -51,14 +52,14 @@ void TextureNodeMetal::render(QQuickWindow *window) {
     // Try to get Metal layer from Qt first
     if (!m_layerPtr) {
         m_layerPtr = ri->getResource(window, "MetalLayer");
-        
+
         // If Qt doesn't provide a layer, create our own
         if (!m_layerPtr) {
             NSView *view = (NSView *)window->winId();
             if (![view wantsLayer]) {
                 [view setWantsLayer:YES];
             }
-            
+
             CAMetalLayer *newLayer = [CAMetalLayer layer];
             id<MTLDevice> dev = MTLCreateSystemDefaultDevice();
             newLayer.device = dev;
@@ -74,7 +75,7 @@ void TextureNodeMetal::render(QQuickWindow *window) {
             [view.layer addSublayer:newLayer];
             m_layerPtr = (__bridge void *)newLayer;
             m_ownsLayer = true;
-            
+
             qDebug() << "TextureNodeMetal: Created Metal layer with frame:" << m_size.width() << "x" << m_size.height()
                      << "drawable size:" << (m_size.width() * m_pixelRatio) << "x" << (m_size.height() * m_pixelRatio);
         }
@@ -93,7 +94,7 @@ void TextureNodeMetal::render(QQuickWindow *window) {
         layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
         layer.framebufferOnly = NO;
         layer.drawableSize = CGSizeMake(m_size.width() * m_pixelRatio, m_size.height() * m_pixelRatio);
-        
+
         // Off-screen layer: disable vsync and drawable timeout
         if ([layer respondsToSelector:@selector(setDisplaySyncEnabled:)]) {
             layer.displaySyncEnabled = NO;
@@ -145,23 +146,23 @@ void TextureNodeMetal::render(QQuickWindow *window) {
     // Use Qt's native interface to wrap the Metal texture
     const int texWidth = m_size.width() * m_pixelRatio;
     const int texHeight = m_size.height() * m_pixelRatio;
-    
+
     auto mtlTex = (__bridge id<MTLTexture>)nativeTex;
-    
+
     // Debug: check actual Metal texture dimensions
-    qDebug() << "TextureNodeMetal: Metal texture actual size:" << mtlTex.width << "x" << mtlTex.height 
+    qDebug() << "TextureNodeMetal: Metal texture actual size:" << mtlTex.width << "x" << mtlTex.height
              << "expected:" << texWidth << "x" << texHeight;
-    
+
     QSGTexture *qtTex = QNativeInterface::QSGMetalTexture::fromNative(
         mtlTex, window, QSize(texWidth, texHeight), QQuickWindow::TextureHasAlphaChannel);
 
     setTexture(qtTex);
     setOwnsTexture(true);
-    
-    // Set the texture rect to match the viewport size  
+
+    // Set the texture rect to match the viewport size
     // For Metal, flip the rect vertically to correct orientation
     setRect(QRectF(0, m_size.height(), m_size.width(), -m_size.height()));
-    
+
     markDirty(QSGNode::DirtyMaterial | QSGNode::DirtyGeometry);
 }
 

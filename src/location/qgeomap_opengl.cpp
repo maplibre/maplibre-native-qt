@@ -5,17 +5,16 @@
 #include "qgeomap_p.hpp"
 #include "texture_node_opengl.hpp"
 
-#include <QtPositioning/QGeoCoordinate>
+#include <QtQuick/private/qsgcontext_p.h>
 #include <QtGui/QOpenGLContext>
+#include <QtPositioning/QGeoCoordinate>
 #include <QtQuick/QQuickWindow>
 #include <QtQuick/QSGRendererInterface>
-#include <QtQuick/private/qsgcontext_p.h>
 
 namespace QMapLibre {
 
 QGeoMapMapLibreOpenGL::QGeoMapMapLibreOpenGL(QGeoMappingManagerEngine *engine, QObject *parent)
-    : QGeoMapMapLibre(engine, parent) {
-}
+    : QGeoMapMapLibre(engine, parent) {}
 
 QGeoMapMapLibreOpenGL::~QGeoMapMapLibreOpenGL() = default;
 
@@ -43,8 +42,9 @@ QSGNode *QGeoMapMapLibreOpenGL::updateSceneGraph(QSGNode *node, QQuickWindow *wi
             return node;
         }
 
-        auto mbglNode = std::make_unique<TextureNodeOpenGL>(d->m_settings, viewportSize(), window->devicePixelRatio(), this);
-        
+        auto mbglNode = std::make_unique<TextureNodeOpenGL>(
+            d->m_settings, viewportSize(), window->devicePixelRatio(), this);
+
         QObject::connect(mbglNode->map(), &Map::mapChanged, this, &QGeoMapMapLibreOpenGL::onMapChanged);
         d->m_syncState = QGeoMapMapLibrePrivate::MapTypeSync | QGeoMapMapLibrePrivate::CameraDataSync |
                          QGeoMapMapLibrePrivate::ViewportSync | QGeoMapMapLibrePrivate::VisibleAreaSync;
@@ -52,7 +52,8 @@ QSGNode *QGeoMapMapLibreOpenGL::updateSceneGraph(QSGNode *node, QQuickWindow *wi
     }
     map = static_cast<TextureNodeOpenGL *>(node)->map();
 
-    if ((d->m_syncState & QGeoMapMapLibrePrivate::MapTypeSync) != 0 && activeMapType().metadata().contains(QStringLiteral("url"))) {
+    if ((d->m_syncState & QGeoMapMapLibrePrivate::MapTypeSync) != 0 &&
+        activeMapType().metadata().contains(QStringLiteral("url"))) {
         map->setStyleUrl(activeMapType().metadata()[QStringLiteral("url")].toString());
     }
 
@@ -61,22 +62,22 @@ QSGNode *QGeoMapMapLibreOpenGL::updateSceneGraph(QSGNode *node, QQuickWindow *wi
         if (visArea.isEmpty()) {
             map->setMargins(QMargins());
         } else {
-            const QMargins margins(
-                static_cast<int>(visArea.x()),
-                static_cast<int>(visArea.y()),
-                static_cast<int>(viewportSize().width() - visArea.width() - visArea.x()),
-                static_cast<int>(viewportSize().height() - visArea.height() - visArea.y()));
+            const QMargins margins(static_cast<int>(visArea.x()),
+                                   static_cast<int>(visArea.y()),
+                                   static_cast<int>(viewportSize().width() - visArea.width() - visArea.x()),
+                                   static_cast<int>(viewportSize().height() - visArea.height() - visArea.y()));
             map->setMargins(margins);
         }
     }
 
-    if ((d->m_syncState & QGeoMapMapLibrePrivate::CameraDataSync) != 0 || (d->m_syncState & QGeoMapMapLibrePrivate::VisibleAreaSync) != 0) {
+    if ((d->m_syncState & QGeoMapMapLibrePrivate::CameraDataSync) != 0 ||
+        (d->m_syncState & QGeoMapMapLibrePrivate::VisibleAreaSync) != 0) {
         constexpr double mapLibreTileSize = 512.0;
         const double invLog2 = 1.0 / std::log(2.0);
         auto zoomLevelFrom256 = [invLog2](double zoomLevelFor256, double tileSize) {
             return std::log(std::pow(2.0, zoomLevelFor256) * 256.0 / tileSize) * invLog2;
         };
-        
+
         const QGeoCameraData cameraData = this->cameraData();
         map->setZoom(zoomLevelFrom256(cameraData.zoomLevel(), mapLibreTileSize));
         map->setBearing(cameraData.bearing());

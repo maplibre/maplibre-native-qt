@@ -19,19 +19,19 @@ target_sources(
 
 # Add backend-specific implementations
 if(MLN_WITH_OPENGL)
-    target_sources(MLNQtLocation PRIVATE 
+    target_sources(MLNQtLocation PRIVATE
         texture_node_opengl.cpp texture_node_opengl.hpp
         qgeomap_opengl.cpp qgeomap_opengl.hpp)
 endif()
 
 if(MLN_WITH_VULKAN)
-    target_sources(MLNQtLocation PRIVATE 
+    target_sources(MLNQtLocation PRIVATE
         texture_node_vulkan.cpp texture_node_vulkan.hpp
         qgeomap_vulkan.cpp qgeomap_vulkan.hpp)
 endif()
 
 if(MLN_WITH_METAL AND APPLE)
-    target_sources(MLNQtLocation PRIVATE 
+    target_sources(MLNQtLocation PRIVATE
         texture_node_metal.mm texture_node_metal.hpp
         qgeomap_metal.mm qgeomap_metal.hpp)
 endif()
