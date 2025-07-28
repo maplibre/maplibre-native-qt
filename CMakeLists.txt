@@ -63,6 +63,7 @@ if(NOT MLN_QT_WITH_INTERNAL_SQLITE)
 endif()
 if(MLN_QT_WITH_LOCATION)
     find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Location REQUIRED) # location
+    find_package(Qt${QT_VERSION_MAJOR} COMPONENTS LocationPrivate REQUIRED) # location private headers
 endif()
 if(MLN_QT_WITH_WIDGETS)
     if(Qt6_FOUND)
