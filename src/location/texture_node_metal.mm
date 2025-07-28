@@ -158,12 +158,11 @@ void TextureNodeMetal::render(QQuickWindow *window) {
     setTexture(qtTex);
     setOwnsTexture(true);
     
-    // Set the texture rect to match the viewport size
-    setRect(QRectF(QPointF(), m_size));
-    // Don't flip the texture - let's see if MapLibre Metal already handles this
-    // setSourceRect(QRectF(0, 1, 1, -1)); // Flip vertically
+    // Set the texture rect to match the viewport size  
+    // For Metal, flip the rect vertically to correct orientation
+    setRect(QRectF(0, m_size.height(), m_size.width(), -m_size.height()));
     
-    markDirty(QSGNode::DirtyMaterial);
+    markDirty(QSGNode::DirtyMaterial | QSGNode::DirtyGeometry);
 }
 
 } // namespace QMapLibre
