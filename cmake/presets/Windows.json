@@ -17,21 +17,6 @@
       "name": "Windows-ccache",
       "displayName": "Windows configuration using Qt6 and ccache",
       "inherits": ["dev", "ccache", "Windows"]
-    },
-    {
-      "name": "Windows-legacy",
-      "displayName": "Windows configuration using Qt5",
-      "generator": "Ninja Multi-Config",
-      "binaryDir": "${sourceParentDir}/build/qt5-Windows",
-      "cacheVariables": {
-        "CMAKE_CONFIGURATION_TYPES": "Release;Debug",
-        "CMAKE_POLICY_VERSION_MINIMUM": "3.19"
-      }
-    },
-    {
-      "name": "Windows-legacy-ccache",
-      "displayName": "Windows configuration using Qt5 and ccache",
-      "inherits": ["dev", "ccache", "Windows-legacy"]
     }
   ],
   "buildPresets": [
@@ -58,30 +43,6 @@
       "displayName": "Windows debug build using Qt6 and ccache",
       "configurePreset": "Windows-ccache",
       "configuration": "Debug"
-    },
-    {
-      "name": "Windows-legacy",
-      "displayName": "Windows release build using Qt5",
-      "configurePreset": "Windows-legacy",
-      "configuration": "Release"
-    },
-    {
-      "name": "Windows-legacy-debug",
-      "displayName": "Windows debug build using Qt5",
-      "configurePreset": "Windows-legacy",
-      "configuration": "Debug"
-    },
-    {
-      "name": "Windows-legacy-ccache",
-      "displayName": "Windows release build using Qt5 and ccache",
-      "configurePreset": "Windows-legacy-ccache",
-      "configuration": "Release"
-    },
-    {
-      "name": "Windows-legacy-debug-ccache",
-      "displayName": "Windows debug build using Qt5 and ccache",
-      "configurePreset": "Windows-legacy-ccache",
-      "configuration": "Debug"
     }
   ],
   "testPresets": [
@@ -98,20 +59,6 @@
       "configurePreset": "Windows-ccache",
       "configuration": "Release",
       "inherits": ["default"]
-    },
-    {
-      "name": "Windows-legacy",
-      "displayName": "Windows tests using Qt5",
-      "configurePreset": "Windows-legacy",
-      "configuration": "Release",
-      "inherits": ["default"]
-    },
-    {
-      "name": "Windows-legacy-ccache",
-      "displayName": "Windows tests using Qt5 and ccache",
-      "configurePreset": "Windows-legacy-ccache",
-      "configuration": "Release",
-      "inherits": ["default"]
     }
   ],
   "packagePresets": [
@@ -125,18 +72,6 @@
       "name": "Windows-ccache",
       "displayName": "Windows package using Qt6 and ccache",
       "configurePreset": "Windows-ccache",
-      "configurations": ["Release", "Debug"]
-    },
-    {
-      "name": "Windows-legacy",
-      "displayName": "Windows package using Qt5",
-      "configurePreset": "Windows-legacy",
-      "configurations": ["Release", "Debug"]
-    },
-    {
-      "name": "Windows-legacy-ccache",
-      "displayName": "Windows package using Qt5 and ccache",
-      "configurePreset": "Windows-legacy-ccache",
       "configurations": ["Release", "Debug"]
     }
   ],
@@ -190,58 +125,6 @@
         {
           "type": "package",
           "name": "Windows-ccache"
-        }
-      ]
-    },
-    {
-      "name": "Windows-legacy",
-      "displayName": "Windows workflow using Qt5",
-      "steps": [
-        {
-          "type": "configure",
-          "name": "Windows-legacy"
-        },
-        {
-          "type": "build",
-          "name": "Windows-legacy"
-        },
-        {
-          "type": "build",
-          "name": "Windows-legacy-debug"
-        },
-        {
-          "type": "test",
-          "name": "Windows-legacy"
-        },
-        {
-          "type": "package",
-          "name": "Windows-legacy"
-        }
-      ]
-    },
-    {
-      "name": "Windows-legacy-ccache",
-      "displayName": "Windows workflow using Qt5 and ccache",
-      "steps": [
-        {
-          "type": "configure",
-          "name": "Windows-legacy-ccache"
-        },
-        {
-          "type": "build",
-          "name": "Windows-legacy-ccache"
-        },
-        {
-          "type": "build",
-          "name": "Windows-legacy-debug-ccache"
-        },
-        {
-          "type": "test",
-          "name": "Windows-legacy-ccache"
-        },
-        {
-          "type": "package",
-          "name": "Windows-legacy-ccache"
         }
       ]
     }

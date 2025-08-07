@@ -14,7 +14,6 @@
 
 #include <mbgl/actor/scheduler.hpp>
 #include <mbgl/annotation/annotation.hpp>
-#include <mbgl/gl/custom_layer.hpp>
 #include <mbgl/map/camera.hpp>
 #include <mbgl/map/map.hpp>
 #include <mbgl/map/map_options.hpp>
@@ -49,11 +48,14 @@
 #include <mbgl/util/constants.hpp>
 #include <mbgl/util/geo.hpp>
 #include <mbgl/util/geometry.hpp>
+#include <mbgl/util/image.hpp>
 #include <mbgl/util/projection.hpp>
 #include <mbgl/util/rapidjson.hpp>
 #include <mbgl/util/run_loop.hpp>
 #include <mbgl/util/tile_server_options.hpp>
 #include <mbgl/util/traits.hpp>
+
+#include <mbgl/style/layers/custom_layer.hpp>
 
 #include <QtCore/QDebug>
 #include <QtCore/QThreadStorage>
@@ -477,7 +479,13 @@ QString Map::styleUrl() const {
     signal with Map::MapChangeDidFailLoadingMap as argument.
 */
 void Map::setStyleUrl(const QString &url) {
-    d_ptr->mapObj->getStyle().loadURL(url.toStdString());
+    try {
+        d_ptr->mapObj->getStyle().loadURL(url.toStdString());
+
+        startStaticRender();
+    } catch (const std::exception &e) {
+        qDebug() << "Map::setStyleUrl - Exception during style loading:" << e.what();
+    }
 }
 
 /*!
@@ -1046,11 +1054,15 @@ void Map::rotateBy(const QPointF &first, const QPointF &second) {
 */
 void Map::resize(const QSize &size) {
     auto sanitizedSize = sanitizeSize(size);
-    if (d_ptr->mapObj->getMapOptions().size() == sanitizedSize) {
-        return;
+
+    bool sizeChanged = d_ptr->mapObj->getMapOptions().size() != sanitizedSize;
+
+    if (sizeChanged) {
+        d_ptr->mapObj->setSize(sanitizedSize);
     }
 
-    d_ptr->mapObj->setSize(sanitizedSize);
+    // Always update the backend framebuffer size (works for all backends: OpenGL, Metal, Vulkan)
+    updateFramebuffer(0, size);
 }
 
 /*!
@@ -1493,6 +1505,31 @@ void Map::createRenderer() {
 }
 
 /*!
+    \brief Create the renderer with a metal layer.
+    \param layerPtr The pointer to the metal layer.
+
+    Creates the infrastructure needed for rendering the map with a metal layer.
+
+    Must be called on the render thread.
+*/
+void Map::createRendererWithMetalLayer(void *layerPtr) {
+    d_ptr->createRendererWithMetalLayer(layerPtr);
+}
+
+#ifdef MLN_RENDER_BACKEND_VULKAN
+void Map::createRendererWithVulkanWindow(void *windowPtr) {
+    d_ptr->createRendererWithVulkanWindow(windowPtr);
+}
+
+void Map::createRendererWithQtVulkanDevice(void *windowPtr,
+                                           void *physicalDevice,
+                                           void *device,
+                                           uint32_t graphicsQueueIndex) {
+    d_ptr->createRendererWithQtVulkanDevice(windowPtr, physicalDevice, device, graphicsQueueIndex);
+}
+#endif
+
+/*!
     \brief Destroy the renderer.
 
     Destroys the infrastructure needed for rendering the map,
@@ -1546,18 +1583,21 @@ void Map::render() {
 }
 
 /*!
-    \brief Set the OpenGL framebuffer object.
-    \param fbo The OpenGL framebuffer object ID.
-    \param size The OpenGL framebuffer size.
+    \brief Update the framebuffer size for the rendering backend.
+    \param fbo The framebuffer object ID (OpenGL only, ignored for Metal/Vulkan).
+    \param size The framebuffer size.
 
-    If MapLibre Native needs to rebind the default \a fbo, it will use the
-    ID supplied here. \a size is the size of the framebuffer, which
-    on high DPI screens is usually bigger than the map size.
+    Updates the framebuffer configuration for the current rendering backend.
+    For OpenGL: The \a fbo parameter specifies the framebuffer object ID to use.
+    For Metal/Vulkan: The \a fbo parameter is ignored (pass 0).
+
+    The \a size is the size of the framebuffer, which on high DPI screens
+    is usually bigger than the map size.
 
     Must be called on the render thread.
 */
-void Map::setOpenGLFramebufferObject(quint32 fbo, const QSize &size) {
-    d_ptr->setOpenGLFramebufferObject(fbo, size);
+void Map::updateFramebuffer(quint32 fbo, const QSize &size) {
+    d_ptr->updateFramebuffer(fbo, size);
 }
 
 /*!
@@ -1711,11 +1751,102 @@ void MapPrivate::createRenderer() {
 
     m_mapRenderer->setObserver(m_rendererObserver.get());
 
+    // Propagate current map size to the renderer
+    if (mapObj) {
+        auto currentSize = mapObj->getMapOptions().size();
+        m_mapRenderer->updateFramebuffer(0, currentSize);
+    }
+
     if (m_updateParameters != nullptr) {
         m_mapRenderer->updateParameters(m_updateParameters);
         requestRendering();
     }
 }
+
+void MapPrivate::createRendererWithMetalLayer(void *layerPtr) {
+    const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
+
+    if (m_mapRenderer != nullptr) {
+        return; // already created
+    }
+
+    m_mapRenderer = std::make_unique<MapRenderer>(m_pixelRatio, m_mode, m_localFontFamily, layerPtr, false);
+
+    connect(m_mapRenderer.get(), &MapRenderer::needsRendering, this, &MapPrivate::requestRendering);
+
+    m_mapRenderer->setObserver(m_rendererObserver.get());
+
+    // Propagate current map size to the renderer
+    if (mapObj) {
+        auto currentSize = mapObj->getMapOptions().size();
+        m_mapRenderer->updateFramebuffer(0, currentSize);
+    }
+
+    if (m_updateParameters != nullptr) {
+        m_mapRenderer->updateParameters(m_updateParameters);
+        requestRendering();
+    }
+}
+
+#ifdef MLN_RENDER_BACKEND_VULKAN
+void MapPrivate::createRendererWithVulkanWindow(void *windowPtr) {
+    const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
+
+    qDebug() << "MapPrivate::createRendererWithVulkanWindow() called with window:" << windowPtr;
+
+    if (m_mapRenderer != nullptr) {
+        qDebug() << "Renderer already exists, returning";
+        return; // already created
+    }
+
+    qDebug() << "Creating MapRenderer with Vulkan window";
+    m_mapRenderer = std::make_unique<MapRenderer>(m_pixelRatio, m_mode, m_localFontFamily, windowPtr, true);
+    qDebug() << "MapRenderer created successfully";
+
+    connect(m_mapRenderer.get(), &MapRenderer::needsRendering, this, &MapPrivate::requestRendering);
+
+    m_mapRenderer->setObserver(m_rendererObserver.get());
+
+    // Propagate current map size to the renderer
+    if (mapObj) {
+        auto currentSize = mapObj->getMapOptions().size();
+        m_mapRenderer->updateFramebuffer(0, currentSize);
+    }
+
+    if (m_updateParameters != nullptr) {
+        m_mapRenderer->updateParameters(m_updateParameters);
+        requestRendering();
+    }
+}
+
+void MapPrivate::createRendererWithQtVulkanDevice(void *windowPtr,
+                                                  void *physicalDevice,
+                                                  void *device,
+                                                  uint32_t graphicsQueueIndex) {
+    const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
+
+    if (m_mapRenderer != nullptr) {
+        return; // already created
+    }
+
+    m_mapRenderer = std::make_unique<MapRenderer>(
+        m_pixelRatio, m_mode, m_localFontFamily, windowPtr, physicalDevice, device, graphicsQueueIndex);
+
+    connect(m_mapRenderer.get(), &MapRenderer::needsRendering, this, &MapPrivate::requestRendering);
+
+    m_mapRenderer->setObserver(m_rendererObserver.get());
+
+    if (mapObj) {
+        auto currentSize = mapObj->getMapOptions().size();
+        m_mapRenderer->updateFramebuffer(0, currentSize);
+    }
+
+    if (m_updateParameters != nullptr) {
+        m_mapRenderer->updateParameters(m_updateParameters);
+        requestRendering();
+    }
+}
+#endif
 
 void MapPrivate::destroyRenderer() {
     const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
@@ -1726,15 +1857,20 @@ void MapPrivate::destroyRenderer() {
 void MapPrivate::render() {
     const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
 
+    qDebug() << "MapPrivate::render() called";
+
     if (m_mapRenderer == nullptr) {
+        qDebug() << "MapRenderer is null, creating renderer";
         createRenderer();
     }
 
+    qDebug() << "Clearing render queue and calling renderer->render()";
     m_renderQueued.clear();
     m_mapRenderer->render();
+    qDebug() << "MapRenderer::render() completed";
 }
 
-void MapPrivate::setOpenGLFramebufferObject(quint32 fbo, const QSize &size) {
+void MapPrivate::updateFramebuffer(quint32 fbo, const QSize &size) {
     const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
 
     if (m_mapRenderer == nullptr) {
@@ -1792,5 +1928,40 @@ bool MapPrivate::setProperty(const PropertySetter &setter,
 }
 
 /*! \endcond */
+
+void *Map::nativeColorTexture() const {
+#if defined(MLN_RENDER_BACKEND_METAL)
+    return d_ptr->currentMetalTexture();
+#elif defined(MLN_RENDER_BACKEND_VULKAN)
+    void *result = d_ptr->currentVulkanTexture();
+    return result;
+#else
+    return nullptr;
+#endif
+}
+
+void Map::setCurrentDrawable(void *texturePtr) {
+    d_ptr->setCurrentDrawable(texturePtr);
+}
+
+#ifdef MLN_RENDER_BACKEND_VULKAN
+mbgl::vulkan::Texture2D *Map::getVulkanTexture() const {
+    return d_ptr->getVulkanTexture();
+}
+
+std::shared_ptr<mbgl::PremultipliedImage> Map::readVulkanImageData() const {
+    auto *texture = d_ptr->getVulkanTexture();
+    if (texture) {
+        return texture->readImage();
+    }
+    return nullptr;
+}
+#endif
+
+#ifdef MLN_RENDER_BACKEND_OPENGL
+unsigned int Map::getFramebufferTextureId() const {
+    return d_ptr->getFramebufferTextureId();
+}
+#endif
 
 } // namespace QMapLibre

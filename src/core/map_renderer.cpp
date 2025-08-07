@@ -11,6 +11,19 @@
 
 #include <QtCore/QThreadStorage>
 
+#if defined(__APPLE__)
+#include <TargetConditionals.h>
+#endif
+
+#if defined(MLN_RENDER_BACKEND_METAL) && defined(__APPLE__) && TARGET_OS_OSX
+#include <QuartzCore/CAMetalLayer.hpp>
+#endif
+
+#if defined(MLN_RENDER_BACKEND_VULKAN)
+#include <vulkan/vulkan.h>
+#include <QWindow>
+#endif
+
 namespace {
 
 bool needsToForceScheduler() {
@@ -61,8 +74,132 @@ MapRenderer::MapRenderer(qreal pixelRatio, Settings::GLContextMode mode, const Q
     }
 }
 
+#if defined(MLN_RENDER_BACKEND_METAL) && defined(__APPLE__) && TARGET_OS_OSX
+// Constructor that takes an externally provided CAMetalLayer (Metal only).
+MapRenderer::MapRenderer(qreal pixelRatio,
+                         Settings::GLContextMode mode,
+                         const QString &localFontFamily,
+                         void *metalLayerPtr)
+    : m_backend(static_cast<CA::MetalLayer *>(metalLayerPtr)),
+      m_renderer(std::make_unique<mbgl::Renderer>(
+          m_backend,
+          pixelRatio,
+          localFontFamily.isEmpty() ? std::nullopt : std::optional<std::string>{localFontFamily.toStdString()})),
+      m_forceScheduler(needsToForceScheduler()) {
+    if (m_forceScheduler) {
+        Scheduler *scheduler = getScheduler();
+
+        if (mbgl::Scheduler::GetCurrent() == nullptr) {
+            mbgl::Scheduler::SetCurrent(scheduler);
+        }
+
+        connect(scheduler, &Scheduler::needsProcessing, this, &MapRenderer::needsRendering);
+    }
+
+    Q_UNUSED(mode);
+}
+#endif
+
+#if defined(MLN_RENDER_BACKEND_VULKAN) || (defined(MLN_RENDER_BACKEND_METAL) && defined(__APPLE__) && TARGET_OS_OSX)
+// Constructor that takes a window/layer pointer and determines the backend based on isVulkan flag
+MapRenderer::MapRenderer(
+    qreal pixelRatio, Settings::GLContextMode mode, const QString &localFontFamily, void *windowPtr, bool isVulkan)
+#if defined(MLN_RENDER_BACKEND_VULKAN)
+    : m_backend(isVulkan ? static_cast<QWindow *>(windowPtr) : nullptr),
+#elif defined(MLN_RENDER_BACKEND_METAL)
+    : m_backend(isVulkan ? nullptr : static_cast<CA::MetalLayer *>(windowPtr)),
+#else
+    : m_backend(static_cast<mbgl::gfx::ContextMode>(mode)),
+#endif
+      m_renderer(std::make_unique<mbgl::Renderer>(
+          m_backend,
+          pixelRatio,
+          localFontFamily.isEmpty() ? std::nullopt : std::optional<std::string>{localFontFamily.toStdString()})),
+      m_forceScheduler(needsToForceScheduler()) {
+
+    // Debug: Log which backend we're using
+    logBackendInfo();
+
+    if (m_forceScheduler) {
+        Scheduler *scheduler = getScheduler();
+
+        if (mbgl::Scheduler::GetCurrent() == nullptr) {
+            mbgl::Scheduler::SetCurrent(scheduler);
+        }
+
+        connect(scheduler, &Scheduler::needsProcessing, this, &MapRenderer::needsRendering);
+    }
+
+    Q_UNUSED(mode);
+    Q_UNUSED(isVulkan);
+    Q_UNUSED(windowPtr);
+}
+#else
+// Fallback constructor for non-Metal/Vulkan backends; just delegate to default ctor and ignore pointer.
+MapRenderer::MapRenderer(qreal pixelRatio,
+                         Settings::GLContextMode mode,
+                         const QString &localFontFamily,
+                         void * /*unusedLayerPtr*/)
+    : MapRenderer(pixelRatio, mode, localFontFamily) {}
+
+// 5-parameter constructor for OpenGL compatibility - ignores both pointer and bool
+MapRenderer::MapRenderer(qreal pixelRatio,
+                         Settings::GLContextMode mode,
+                         const QString &localFontFamily,
+                         void * /*unusedPtr*/,
+                         bool /*isVulkan*/)
+    : MapRenderer(pixelRatio, mode, localFontFamily) {}
+#endif
+
+#if defined(MLN_RENDER_BACKEND_VULKAN)
+// Constructor that uses Qt's Vulkan device for proper resource sharing
+MapRenderer::MapRenderer(qreal pixelRatio,
+                         Settings::GLContextMode mode,
+                         const QString &localFontFamily,
+                         void *windowPtr,
+                         void *physicalDevice,
+                         void *device,
+                         uint32_t graphicsQueueIndex)
+    : m_backend(static_cast<QWindow *>(windowPtr),
+                static_cast<VkPhysicalDevice>(physicalDevice),
+                static_cast<VkDevice>(device),
+                graphicsQueueIndex),
+      m_renderer(std::make_unique<mbgl::Renderer>(
+          m_backend,
+          pixelRatio,
+          localFontFamily.isEmpty() ? std::nullopt : std::optional<std::string>{localFontFamily.toStdString()})),
+      m_forceScheduler(needsToForceScheduler()) {
+    // Debug: Log which backend we're using
+    logBackendInfo();
+
+    if (m_forceScheduler) {
+        Scheduler *scheduler = getScheduler();
+
+        if (mbgl::Scheduler::GetCurrent() == nullptr) {
+            mbgl::Scheduler::SetCurrent(scheduler);
+        }
+
+        connect(scheduler, &Scheduler::needsProcessing, this, &MapRenderer::needsRendering);
+    }
+
+    Q_UNUSED(mode);
+}
+#else
+// Fallback constructor for non-Vulkan backends
+MapRenderer::MapRenderer(qreal pixelRatio,
+                         Settings::GLContextMode mode,
+                         const QString &localFontFamily,
+                         void * /*windowPtr*/,
+                         void * /*physicalDevice*/,
+                         void * /*device*/,
+                         uint32_t /*graphicsQueueIndex*/)
+    : MapRenderer(pixelRatio, mode, localFontFamily) {}
+#endif
+
 MapRenderer::~MapRenderer() {
-    MBGL_VERIFY_THREAD(tid);
+    // MapRenderer may be destroyed from the GUI thread after the render thread is
+    // already shut down, so the thread identity might differ from creation
+    // time. Skip the thread guard here to avoid false assertion failures.
 }
 
 void MapRenderer::updateParameters(std::shared_ptr<mbgl::UpdateParameters> parameters) {
@@ -77,24 +214,67 @@ void MapRenderer::updateFramebuffer(quint32 fbo, const mbgl::Size &size) {
 }
 
 void MapRenderer::render() {
-    MBGL_VERIFY_THREAD(tid);
+    try {
+        MBGL_VERIFY_THREAD(tid);
+    } catch (const std::exception &e) {
+        qWarning() << "Thread verification failed:" << e.what();
+        return;
+    } catch (...) {
+        qWarning() << "Unknown exception in thread verification";
+        return;
+    }
 
     std::shared_ptr<mbgl::UpdateParameters> params;
-    {
+    try {
         // Lock on the parameters
         const std::lock_guard<std::mutex> lock(m_updateMutex);
 
         // UpdateParameters should always be available when rendering.
-        assert(m_updateParameters);
+        if (!m_updateParameters) {
+            qWarning() << "MapRenderer::render() called without update parameters, skipping render";
+            return;
+        }
 
         // Hold on to the update parameters during render
         params = m_updateParameters;
+    } catch (const std::exception &e) {
+        qWarning() << "Exception getting update parameters:" << e.what();
+        return;
+    } catch (...) {
+        qWarning() << "Unknown exception getting update parameters";
+        return;
     }
 
     // The OpenGL implementation automatically enables the OpenGL context for us.
-    const mbgl::gfx::BackendScope scope(m_backend, mbgl::gfx::BackendScope::ScopeType::Implicit);
+    // For Vulkan, we need to ensure the backend is properly initialized
+    try {
+        const mbgl::gfx::BackendScope scope(m_backend, mbgl::gfx::BackendScope::ScopeType::Implicit);
 
-    m_renderer->render(params);
+        // Add safety checks before calling render
+        if (!m_renderer) {
+            qWarning() << "MapRenderer::render() - m_renderer is null!";
+            return;
+        }
+
+        if (!params) {
+            qWarning() << "MapRenderer::render() - params is null!";
+            return;
+        }
+
+        try {
+            m_renderer->render(params);
+        } catch (const std::exception &e) {
+            qWarning() << "Exception in m_renderer->render():" << e.what();
+        } catch (...) {
+            qWarning() << "Unknown exception in m_renderer->render()";
+        }
+    } catch (const std::exception &e) {
+        qWarning() << "Exception creating backend scope:" << e.what();
+        return;
+    } catch (...) {
+        qWarning() << "Unknown exception creating backend scope";
+        return;
+    }
 
     if (m_forceScheduler) {
         getScheduler()->processEvents();

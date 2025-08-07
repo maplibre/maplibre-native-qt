@@ -10,18 +10,19 @@
 #include "source_style_change_p.hpp"
 #include "style_change_p.hpp"
 #include "style_change_utils_p.hpp"
-#include "texture_node.hpp"
+#include "texture_node_base.hpp"
+#ifdef MLN_RENDER_BACKEND_OPENGL
+#include "texture_node_opengl.hpp"
+#endif
+#ifdef MLN_RENDER_BACKEND_METAL
+#include "texture_node_metal.hpp"
+#endif
+#ifdef MLN_RENDER_BACKEND_VULKAN
+#include "texture_node_vulkan.hpp"
+#endif
 
 #include <QMapLibre/Types>
 
-#include <QtCore/QByteArray>
-#include <QtCore/QCoreApplication>
-#include <QtGui/QOpenGLContext>
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-#include <QtOpenGL/QOpenGLFramebufferObject>
-#else
-#include <QtGui/QOpenGLFramebufferObject>
-#endif
 #include <QtLocation/private/qdeclarativecirclemapitem_p.h>
 #include <QtLocation/private/qdeclarativegeomapitembase_p.h>
 #include <QtLocation/private/qdeclarativepolygonmapitem_p.h>
@@ -29,8 +30,13 @@
 #include <QtLocation/private/qdeclarativerectanglemapitem_p.h>
 #include <QtLocation/private/qgeoprojection_p.h>
 #include <QtQuick/private/qsgcontext_p.h> // for debugging the context name
+#include <QtCore/QByteArray>
+#include <QtCore/QCoreApplication>
+#include <QtGui/QOpenGLContext>
+#include <QtOpenGL/QOpenGLFramebufferObject>
 #include <QtQuick/QQuickWindow>
 #include <QtQuick/QSGImageNode>
+#include <QtQuick/QSGRendererInterface>
 
 #include <algorithm>
 #include <cmath>
@@ -65,25 +71,61 @@ QSGNode *QGeoMapMapLibrePrivate::updateSceneGraph(QSGNode *node, QQuickWindow *w
 
     Map *map{};
     if (node == nullptr) {
-        QOpenGLContext *currentCtx = QOpenGLContext::currentContext();
-        if (currentCtx == nullptr) {
-            qWarning("QOpenGLContext is NULL!");
-            qWarning() << "You are running on QSG backend " << QSGContext::backend();
-            qWarning("The MapLibre plugin works with both Desktop and ES 2.0+ OpenGL versions.");
-            qWarning("Verify that your Qt is built with OpenGL, and what kind of OpenGL.");
-            qWarning(
-                "To force using a specific OpenGL version, check QSurfaceFormat::setRenderableType and "
-                "QSurfaceFormat::setDefaultFormat");
-
+        // Check graphics API
+        auto *ri = window->rendererInterface();
+        if (!ri) {
+            qWarning("No renderer interface available");
             return node;
         }
 
-        auto mbglNode = std::make_unique<TextureNode>(m_settings, m_viewportSize, window->devicePixelRatio(), q);
+        // For OpenGL, we need a current context
+        if (ri->graphicsApi() == QSGRendererInterface::OpenGL || ri->graphicsApi() == QSGRendererInterface::OpenGLRhi) {
+            QOpenGLContext *currentCtx = QOpenGLContext::currentContext();
+            if (currentCtx == nullptr) {
+                qWarning("QOpenGLContext is NULL!");
+                qWarning() << "You are running on QSG backend " << QSGContext::backend();
+                qWarning("The MapLibre plugin works with both Desktop and ES 2.0+ OpenGL versions.");
+                qWarning("Verify that your Qt is built with OpenGL, and what kind of OpenGL.");
+                qWarning(
+                    "To force using a specific OpenGL version, check QSurfaceFormat::setRenderableType and "
+                    "QSurfaceFormat::setDefaultFormat");
+
+                return node;
+            }
+        }
+
+        std::unique_ptr<TextureNodeBase> mbglNode;
+
+        // Create backend-specific texture node
+        if (ri->graphicsApi() == QSGRendererInterface::MetalRhi) {
+#ifdef MLN_RENDER_BACKEND_METAL
+            mbglNode = std::make_unique<TextureNodeMetal>(m_settings, m_viewportSize, window->devicePixelRatio(), q);
+#else
+            qWarning("Metal backend not supported in this build");
+            return nullptr;
+#endif
+        } else if (ri->graphicsApi() == QSGRendererInterface::VulkanRhi) {
+#ifdef MLN_RENDER_BACKEND_VULKAN
+            mbglNode = std::make_unique<TextureNodeVulkan>(m_settings, m_viewportSize, window->devicePixelRatio(), q);
+#else
+            qWarning("Vulkan backend not supported in this build");
+            return nullptr;
+#endif
+        } else {
+#ifdef MLN_RENDER_BACKEND_OPENGL
+            // Default to OpenGL
+            mbglNode = std::make_unique<TextureNodeOpenGL>(m_settings, m_viewportSize, window->devicePixelRatio(), q);
+#else
+            qWarning("OpenGL backend not supported in this build");
+            return nullptr;
+#endif
+        }
+
         QObject::connect(mbglNode->map(), &Map::mapChanged, q, &QGeoMapMapLibre::onMapChanged);
         m_syncState = MapTypeSync | CameraDataSync | ViewportSync | VisibleAreaSync;
         node = mbglNode.release();
     }
-    map = static_cast<TextureNode *>(node)->map();
+    map = static_cast<TextureNodeBase *>(node)->map();
 
     if ((m_syncState & MapTypeSync) != 0 && m_activeMapType.metadata().contains(QStringLiteral("url"))) {
         map->setStyleUrl(m_activeMapType.metadata()[QStringLiteral("url")].toString());
@@ -113,9 +155,7 @@ QSGNode *QGeoMapMapLibrePrivate::updateSceneGraph(QSGNode *node, QQuickWindow *w
 
     if ((m_syncState & ViewportSync) != 0) {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-        static_cast<TextureNode *>(node)->resize(m_viewportSize, window->devicePixelRatio(), window);
-#else
-        static_cast<TextureNode *>(node)->resize(m_viewportSize, window->devicePixelRatio());
+        static_cast<TextureNodeBase *>(node)->resize(m_viewportSize, window->devicePixelRatio(), window);
 #endif
     }
 
@@ -123,7 +163,7 @@ QSGNode *QGeoMapMapLibrePrivate::updateSceneGraph(QSGNode *node, QQuickWindow *w
         syncStyleChanges(map);
     }
 
-    static_cast<TextureNode *>(node)->render(window);
+    static_cast<TextureNodeBase *>(node)->render(window);
 
     threadedRenderingHack(window, map);
 
@@ -366,18 +406,11 @@ void QGeoMapMapLibrePrivate::syncStyleChanges(Map *map) {
 }
 
 void QGeoMapMapLibrePrivate::threadedRenderingHack(QQuickWindow *window, Map *map) {
-    // FIXME: Optimal support for threaded rendering needs core changes
-    // in MapLibre Native. Meanwhile we need to set a timer to update
-    // the map until all the resources are loaded, which is not exactly
-    // battery friendly, because might trigger more paints than we need.
+    // Detect threaded rendering only once and warn.
     if (!m_warned) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         m_threadedRendering = static_cast<QOpenGLContext *>(window->rendererInterface()->getResource(
                                                                 window, QSGRendererInterface::OpenGLContextResource))
                                   ->thread() != QCoreApplication::instance()->thread();
-#else
-        m_threadedRendering = window->openglContext()->thread() != QCoreApplication::instance()->thread();
-#endif
 
         if (m_threadedRendering) {
             qWarning() << "Threaded rendering is not optimal in the MapLibre Native plugin.";
@@ -386,6 +419,7 @@ void QGeoMapMapLibrePrivate::threadedRenderingHack(QQuickWindow *window, Map *ma
         m_warned = true;
     }
 
+    // Fallback timer to keep updating until map fully loaded when threaded rendering is active.
     if (m_threadedRendering) {
         if (!map->isFullyLoaded()) {
             QMetaObject::invokeMethod(&m_refresh, "start", Qt::QueuedConnection);

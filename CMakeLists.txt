@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.19...3.21)
 
+# Set CMake policies to mute compile warnings about deprecated Python finding modules
+if(POLICY CMP0148)
+    cmake_policy(SET CMP0148 NEW)
+endif()
+
 # Version
 file(READ "VERSION.txt" MLN_QT_VERSION)
 string(STRIP "${MLN_QT_VERSION}" MLN_QT_VERSION) # get rid of the whitespace
@@ -11,12 +16,12 @@ project(
     maplibre-native-qt
     VERSION "${MLN_QT_VERSION}"
     DESCRIPTION "MapLibre Native Qt Bindings"
-    LANGUAGES CXX
+    LANGUAGES CXX C
 )
 
 # Common CMake definitions
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -28,6 +33,7 @@ set(MLN_QT_NAME QMapLibre)
 set(MLN_QT_NAMESPACE ${MLN_QT_NAME}::)
 set(MLN_QT_GEOSERVICES_PLUGIN qtgeoservices_maplibre)
 set(MLN_QT_QML_PLUGIN declarative_locationplugin_maplibre)
+set(MLN_QT_QUICK_MODULE quick_maplibre)
 
 include(cmake/helpers.cmake)
 
@@ -56,12 +62,13 @@ if("${QT_VERSION_MAJOR}" STREQUAL "")
 else()
     find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
 endif()
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Gui Network REQUIRED) # main dependencies
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Gui Network Quick REQUIRED) # main dependencies
 if(NOT MLN_QT_WITH_INTERNAL_SQLITE)
     find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Sql REQUIRED)
 endif()
 if(MLN_QT_WITH_LOCATION)
     find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Location REQUIRED) # location
+    find_package(Qt${QT_VERSION_MAJOR} COMPONENTS LocationPrivate REQUIRED) # location private headers
 endif()
 if(MLN_QT_WITH_WIDGETS)
     if(Qt6_FOUND)
