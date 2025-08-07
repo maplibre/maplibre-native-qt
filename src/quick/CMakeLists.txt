@@ -105,19 +105,42 @@ if(MLN_QT_WITH_CLANG_TIDY)
 endif()
 
 # QtLocation QML extension plugin installation
+# Skip export installation for iOS build to avoid resource target issues
+if(NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    install(
+        EXPORT ${MLN_QT_NAME}QuickModuleTargets
+        NAMESPACE ${MLN_QT_NAMESPACE}
+        DESTINATION ${CMAKECONFIG_INSTALL_DIR}
+    )
+endif()
+# Get the list of resource targets that qt_add_qml_module creates
+set(_resource_targets)
+if(TARGET quick_maplibre_resources_1)
+    list(APPEND _resource_targets quick_maplibre_resources_1)
+endif()
+if(TARGET quick_maplibre_resources_2)
+    list(APPEND _resource_targets quick_maplibre_resources_2)
+endif()
+
+# Install main target
 install(
-    EXPORT ${MLN_QT_NAME}QuickModuleTargets
-    NAMESPACE ${MLN_QT_NAMESPACE}
-    DESTINATION ${CMAKECONFIG_INSTALL_DIR}
-)
-install(
-    TARGETS ${MLN_QT_QUICK_MODULE} ${QmlPluginOutputTargets}
+    TARGETS ${MLN_QT_QUICK_MODULE}
     EXPORT ${MLN_QT_NAME}QuickModuleTargets
     ARCHIVE DESTINATION "qml/MapLibre/Quick"
     LIBRARY DESTINATION "qml/MapLibre/Quick"
     OBJECTS DESTINATION "qml/MapLibre/Quick"
     RUNTIME DESTINATION "qml/MapLibre/Quick"
 )
+# Install resource targets separately (without export)
+if(_resource_targets)
+    install(
+        TARGETS ${_resource_targets}
+        ARCHIVE DESTINATION "qml/MapLibre/Quick"
+        LIBRARY DESTINATION "qml/MapLibre/Quick"
+        OBJECTS DESTINATION "qml/MapLibre/Quick"
+        RUNTIME DESTINATION "qml/MapLibre/Quick"
+    )
+endif()
 install(
     FILES
         "${CMAKE_CURRENT_BINARY_DIR}/MapLibre/Quick/qmldir"

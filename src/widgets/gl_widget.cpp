@@ -373,12 +373,14 @@ void GLWidget::paintGL() {
         // Debug texture properties only once
         static bool textureLogged = false;
         if (!textureLogged && textureId > 0) {
+#if !defined(Q_OS_IOS) && !defined(Q_OS_ANDROID)
             GLint texWidth, texHeight, texFormat;
             f->glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &texWidth);
             f->glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &texHeight);
             f->glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &texFormat);
             qDebug() << "Texture info - Size:" << texWidth << "x" << texHeight
                      << "Format:" << QString::number(texFormat, 16);
+#endif
             textureLogged = true;
         }
 

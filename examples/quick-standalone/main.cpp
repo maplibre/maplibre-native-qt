@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
     if (argc > 1) {
         engine.load(QUrl::fromLocalFile(argv[1]));
     } else {
-        engine.load(QUrl(QStringLiteral("qrc:/Example/main.qml")));
+        engine.load(QUrl(QStringLiteral("qrc:/minimal/main.qml")));
     }
     if (engine.rootObjects().isEmpty()) return -1;
 

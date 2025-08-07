@@ -58,9 +58,10 @@ endif()
 
 # Find Qt
 if("${QT_VERSION_MAJOR}" STREQUAL "")
-    find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
+    set(QT_VERSION_MAJOR 6)
+    set(QT_VERSION 6)
 else()
-    find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
+    # QT_VERSION_MAJOR already set
 endif()
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Gui Network Quick REQUIRED) # main dependencies
 if(NOT MLN_QT_WITH_INTERNAL_SQLITE)

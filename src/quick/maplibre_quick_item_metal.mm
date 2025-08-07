@@ -1,4 +1,8 @@
+#if TARGET_OS_IPHONE
+#import <UIKit/UIKit.h>
+#else
 #import <AppKit/AppKit.h>
+#endif
 #include <CoreFoundation/CoreFoundation.h>
 #import <Metal/Metal.h>
 #import <QuartzCore/CAMetalLayer.h>
@@ -61,16 +65,22 @@ void MapLibreQuickItem::ensureMap(int w, int h, float dpr, void *metalLayer) {
 
     if (!metalLayer) {
         // Still no MetalLayer from Qt – create our own sublayer.
+#if TARGET_OS_IPHONE
+        UIView *view = (UIView *)window()->winId();
+#else
         NSView *view = (NSView *)window()->winId();
         if (![view wantsLayer]) {
             [view setWantsLayer:YES];
         }
+#endif
         CAMetalLayer *newLayer = [CAMetalLayer layer];
         id<MTLDevice> dev = MTLCreateSystemDefaultDevice();
         newLayer.device = dev;
         newLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
         newLayer.framebufferOnly = NO;
+#if !TARGET_OS_IPHONE
         newLayer.displaySyncEnabled = NO;
+#endif
         if ([newLayer respondsToSelector:@selector(setAllowsNextDrawableTimeout:)])
             newLayer.allowsNextDrawableTimeout = NO;
 
@@ -96,9 +106,11 @@ void MapLibreQuickItem::ensureMap(int w, int h, float dpr, void *metalLayer) {
         // Off-screen layer: disable vsync and drawable timeout so
         // nextDrawable() returns even when the layer is not presented
         // directly by Core Animation.
+#if !TARGET_OS_IPHONE
         if ([layer respondsToSelector:@selector(setDisplaySyncEnabled:)]) {
             layer.displaySyncEnabled = NO;
         }
+#endif
         if ([layer respondsToSelector:@selector(setAllowsNextDrawableTimeout:)]) {
             layer.allowsNextDrawableTimeout = NO;
         }

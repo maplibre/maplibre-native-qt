@@ -1,7 +1,11 @@
 // Copyright (C) 2024 MapLibre contributors
 // SPDX-License-Identifier: BSD-2-Clause
 
+#if TARGET_OS_IPHONE
+#import <UIKit/UIKit.h>
+#else
 #import <AppKit/AppKit.h>
+#endif
 #include <CoreFoundation/CoreFoundation.h>
 #import <Metal/Metal.h>
 #import <QuartzCore/CAMetalLayer.h>
@@ -56,17 +60,23 @@ void TextureNodeMetal::render(QQuickWindow *window) {
 
         // If Qt doesn't provide a layer, create our own
         if (!m_layerPtr) {
+#if TARGET_OS_IPHONE
+            UIView *view = (UIView *)window->winId();
+#else
             NSView *view = (NSView *)window->winId();
             if (![view wantsLayer]) {
                 [view setWantsLayer:YES];
             }
+#endif
 
             CAMetalLayer *newLayer = [CAMetalLayer layer];
             id<MTLDevice> dev = MTLCreateSystemDefaultDevice();
             newLayer.device = dev;
             newLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
             newLayer.framebufferOnly = NO;
+#if !TARGET_OS_IPHONE
             newLayer.displaySyncEnabled = NO;
+#endif
             if ([newLayer respondsToSelector:@selector(setAllowsNextDrawableTimeout:)])
                 newLayer.allowsNextDrawableTimeout = NO;
 
@@ -97,9 +107,11 @@ void TextureNodeMetal::render(QQuickWindow *window) {
         layer.drawableSize = CGSizeMake(m_size.width() * m_pixelRatio, m_size.height() * m_pixelRatio);
 
         // Off-screen layer: disable vsync and drawable timeout
+#if !TARGET_OS_IPHONE
         if ([layer respondsToSelector:@selector(setDisplaySyncEnabled:)]) {
             layer.displaySyncEnabled = NO;
         }
+#endif
         if ([layer respondsToSelector:@selector(setAllowsNextDrawableTimeout:)]) {
             layer.allowsNextDrawableTimeout = NO;
         }

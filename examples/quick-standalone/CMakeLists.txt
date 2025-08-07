@@ -36,6 +36,18 @@ set_target_properties(
         MACOSX_BUNDLE ON
 )
 
+# iOS-specific configuration
+if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    set_target_properties(
+        QMapLibreExampleQuickStandalone
+        PROPERTIES
+            MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist.ios"
+            MACOSX_BUNDLE_GUI_IDENTIFIER "com.maplibre.QMapLibreExampleQuickStandalone"
+            MACOSX_BUNDLE_BUNDLE_VERSION "1.0"
+            MACOSX_BUNDLE_SHORT_VERSION_STRING "1.0"
+    )
+endif()
+
 target_link_libraries(
     QMapLibreExampleQuickStandalone
     PRIVATE

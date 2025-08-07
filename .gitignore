@@ -14,3 +14,59 @@ vulkan-debug-build
 vulkan-release-build
 vulkan-*
 build-*
+
+# ---------------------------------------------------------
+# iOS build artifacts
+# ---------------------------------------------------------
+
+# Xcode temporary build files
+.xcode/
+*.xcbuilddata/
+XCBuildData/
+build.db
+*.build/
+DerivedData/
+
+# iOS/macOS specific
+*.app.dSYM/
+*.ipa
+*.xcuserstate
+*.xcscmblueprint
+xcuserdata/
+
+# quick-qtlocation example temporary files
+examples/quick-qtlocation/.qmake.stash
+examples/quick-qtlocation/.xcode/
+examples/quick-qtlocation/Makefile
+examples/quick-qtlocation/Debug-*/
+examples/quick-qtlocation/Release-*/
+examples/quick-qtlocation/*.xcodeproj/
+examples/quick-qtlocation/*.app/
+examples/quick-qtlocation/qrc_*.cpp
+examples/quick-qtlocation/*_plugin_import.cpp
+examples/quick-qtlocation/*_qml_plugin_import.cpp
+examples/quick-qtlocation/build-*/
+
+# Generated test files
+examples/quick-qtlocation/test-metal
+examples/quick-qtlocation/test-metal.mm
+examples/quick-qtlocation/simple-*.qml
+examples/quick-qtlocation/test-*.qml
+examples/quick-qtlocation/test.qml
+examples/quick-qtlocation/simple-*.pro
+examples/quick-qtlocation/test-*.pro
+examples/quick-qtlocation/main_*.qml
+examples/quick-qtlocation/main_*.cpp
+examples/quick-qtlocation/debug-*.cpp
+examples/quick-qtlocation/ios-*.cpp
+examples/quick-qtlocation/maplibre-*.qml
+examples/quick-qtlocation/*Test*.plist
+examples/quick-qtlocation/qmake_qmake_immediate.qrc
+examples/quick-qtlocation/qml_test.qrc
+examples/quick-qtlocation/CMakeLists_iOS.txt
+examples/quick-qtlocation/ios-qtlocation.pro
+
+# Build scripts (outdated)
+examples/quick-qtlocation/app.entitlements
+examples/quick-qtlocation/ios-run.sh
+examples/quick-qtlocation/build-ios.sh
