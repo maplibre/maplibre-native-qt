@@ -1,132 +1,161 @@
 # Build instructions (iOS Metal example)
 
-Prerequisites similar to macOS Metal build, with iOS-specific requirements:
+Prerequisites:
 - Xcode with iOS SDK
-- Qt 6 for iOS
+- Qt 6.9.1+ for iOS
 - CMake 3.19+
+- ios-deploy (for device deployment): `brew install ios-deploy`
 
-## Build MapLibre Native Qt for iOS
+## Build MapLibre Native Qt Core for iOS
 
 From the root of maplibre-native-qt:
 
 ```bash
+# Configure for iOS device with Metal using preset
+cmake --preset default-ios-device
+
+# Build
+cmake --build --preset default-ios-device
+
+# The build output will be in qmaplibre-build-ios-device/
+```
+
+Alternative manual configuration:
+```bash
 # Create iOS build directory
-mkdir -p qmaplibre-build-ios && cd qmaplibre-build-ios
+mkdir -p qmaplibre-build-ios-device && cd qmaplibre-build-ios-device
 
 # Configure for iOS with Metal
-qt-cmake ../ -G Xcode \
+~/Qt/6.9.1/ios/bin/qt-cmake ../ \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_SYSTEM_NAME=iOS \
   -DCMAKE_OSX_ARCHITECTURES="arm64" \
   -DCMAKE_OSX_DEPLOYMENT_TARGET=14.0 \
-  -DCMAKE_INSTALL_PREFIX="../qmaplibre-install-ios" \
   -DMLN_WITH_METAL=ON \
-  -DMLN_WITH_OPENGL=OFF \
-  -DMLN_QT_WITH_LOCATION=OFF \
-  -DMLN_WITH_CORE_ONLY=ON \
-  -DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM="YOUR_TEAM_ID"
+  -DMLN_QT_WITH_LOCATION=OFF
 
 # Build
 cmake --build . --config Release
-
-# Install
-cmake --install . --config Release
 ```
 
-### Install MapLibre.Quick Plugin
+## Build the Quick Standalone Example for iOS
 
-Create the plugin structure for iOS:
+The quick-standalone example uses MapLibre.Quick 3.0 directly (without Qt Location).
 
-```bash
-# Create the expected MapLibre/Quick folder in build tree
-mkdir -p qmaplibre-build-ios/MapLibre/Quick
-
-# Copy plugin files
-cp qmaplibre-build-ios/src/quick/qmldir \
-   qmaplibre-build-ios/MapLibre/Quick/
-
-cp qmaplibre-build-ios/src/quick/libmaplibre_quickplugin.a \
-   qmaplibre-build-ios/MapLibre/Quick/
-```
-
-## Build the Quick Example for iOS
-
-### Configure the example
+### Using qmake (Recommended)
 
 ```bash
 cd examples/quick-standalone
-mkdir build-ios && cd build-ios
 
-# Configure for iOS
-qt-cmake .. -G Xcode \
-  -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_SYSTEM_NAME=iOS \
-  -DCMAKE_OSX_ARCHITECTURES="arm64" \
-  -DCMAKE_OSX_DEPLOYMENT_TARGET=14.0 \
-  -DQMapLibre_DIR="$(pwd)/../../../qmaplibre-install-ios/lib/cmake/QMapLibre" \
-  -DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM="YOUR_TEAM_ID" \
-  -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY="iPhone Developer"
+# Generate Xcode project using qmake
+~/Qt/6.9.1/ios/bin/qmake quick-ios.pro \
+  -spec ~/Qt/6.9.1/ios/mkspecs/macx-ios-clang \
+  CONFIG+=sdk_no_version_check
 
-# Build
-cmake --build . --config Release
+# Build for Release
+xcodebuild -project MapLibreQuickiOS.xcodeproj \
+  -scheme MapLibreQuickiOS \
+  -configuration Release \
+  -sdk iphoneos build
+
+# Or build for Debug
+xcodebuild -project MapLibreQuickiOS.xcodeproj \
+  -scheme MapLibreQuickiOS \
+  -configuration Debug \
+  -sdk iphoneos build
 ```
 
-### Deploy to iOS Device/Simulator
+### Deploy to iOS Device
 
-#### For Simulator:
 ```bash
-# Set to simulator SDK
-cmake .. -DCMAKE_OSX_SYSROOT=iphonesimulator
+# Deploy using ios-deploy
+ios-deploy --bundle Release-iphoneos/MapLibreQuickiOS.app --no-wifi
 
-# Build and run
-cmake --build . --config Release
-
-# Install on simulator
-xcrun simctl install booted Release-iphonesimulator/QMapLibreExampleQuickStandalone.app
-xcrun simctl launch booted com.maplibre.QMapLibreExampleQuickStandalone
+# Or for Debug build
+ios-deploy --bundle Debug-iphoneos/MapLibreQuickiOS.app --no-wifi
 ```
 
-#### For Device:
-1. Open the Xcode project:
+### Testing on Mac (Designed for iPad)
+
+For debugging without a physical device:
+
+1. Open the project in Xcode:
 ```bash
-open QMapLibreExampleQuickStandalone.xcodeproj
+open MapLibreQuickiOS.xcodeproj
 ```
 
-2. Select your development team in project settings
-3. Select your iOS device as target
-4. Build and run from Xcode
+2. Select "My Mac (Designed for iPad)" as the destination
+3. Click Run to build and debug on your Mac
 
-### Environment Setup for iOS
+Note: The app runs as an iPad app on macOS, which is useful for development and debugging.
 
-The Metal backend should be automatically selected on iOS. If needed, you can verify:
+## Project Structure
 
-```bash
-# In Info.plist, add if needed:
-<key>QSG_RHI_BACKEND</key>
-<string>metal</string>
+Key files for iOS build:
+- `quick-ios.pro` - Main qmake project file
+- `plugin_import.cpp` - Static plugin imports for iOS
+- `Info.plist.ios` - iOS app configuration
+- `main.cpp` - Application entry point with Metal setup
+- `main.qml` - QML interface using MapLibre.Quick
+
+## Important Implementation Details
+
+### Static Plugin Linking
+
+For iOS, the MapLibre Quick plugin must be statically linked. The `quick-ios.pro` file includes:
+
+```qmake
+# Link libraries
+LIBS += -L$$PWD/../../qmaplibre-build-ios-device/src/core -lQMapLibre
+LIBS += -L$$PWD/../../qmaplibre-build-ios-device/src/quick -lquick_maplibre
+
+# Include plugin object files for static linking
+OBJECTS += $$PWD/../../qmaplibre-build-ios-device/src/quick/CMakeFiles/quick_maplibreplugin.dir/*.o
+OBJECTS += $$PWD/../../qmaplibre-build-ios-device/src/quick/CMakeFiles/quick_maplibre_resources_*.dir/.qt/rcc/*.o
+```
+
+### QML Module Registration
+
+In `main.cpp`, register the QML types:
+
+```cpp
+extern void qml_register_types_MapLibre_Quick();
+
+int main(int argc, char *argv[]) {
+    // Set Metal as graphics API
+    QQuickWindow::setGraphicsApi(QSGRendererInterface::Metal);
+    
+    QGuiApplication app(argc, argv);
+    
+    // Register MapLibre Quick QML types
+    qml_register_types_MapLibre_Quick();
+    
+    QQmlApplicationEngine engine;
+    engine.addImportPath(QStringLiteral("qrc:/"));
+    // ...
+}
 ```
 
 ## Troubleshooting
 
-### Code Signing Issues
-- Ensure you have a valid Apple Developer account
-- Set DEVELOPMENT_TEAM_ID in CMake configuration
-- For testing on simulator, you can disable signing:
-  ```bash
-  -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED="NO"
-  ```
+### QML Module Not Found
+If you get "module MapLibre.Quick is not installed":
+- Ensure QML types are registered in main.cpp
+- Check that plugin object files are linked
+- Verify resource files are included
 
-### Bundle Resources
-- Ensure the MapLibre.bundle is properly included
-- Check that Assets.car is generated for iOS icons
+### Code Signing Issues
+- Xcode automatically handles signing for "Designed for iPad" builds
+- For device deployment, ensure you have a valid development team set in Xcode
 
 ### Metal Validation
+- Metal is automatically selected on iOS
 - Enable Metal validation in Xcode scheme for debugging
-- Check console for Metal-related errors
+- Check console output for Metal-related errors
 
 ## Notes
 
 - iOS requires arm64 architecture for devices
 - Minimum deployment target is iOS 14.0 for Metal support
 - The Quick plugin must be statically linked for iOS
-- Resource bundles need special handling in iOS apps
+- All temporary build files are ignored via .gitignore
