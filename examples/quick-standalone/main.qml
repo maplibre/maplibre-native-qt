@@ -1,5 +1,3 @@
-// Copyright (C) 2023 MapLibre contributors
-
 // SPDX-License-Identifier: MIT
 
 import QtQuick 6.5

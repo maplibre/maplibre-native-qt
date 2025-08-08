@@ -12,6 +12,9 @@
 #include <QVulkanInstance>
 #endif
 
+// Declaration for QML type registration
+extern void qml_register_types_MapLibre_Quick();
+
 int main(int argc, char *argv[]) {
     // Set up graphics API and instance for each platform
 #if defined(MLN_WITH_VULKAN)
@@ -35,8 +38,14 @@ int main(int argc, char *argv[]) {
     QGuiApplication app(argc, argv);
 
     qDebug() << "Platform:" << QGuiApplication::platformName();
+    
+    // Register MapLibre Quick QML types
+    qml_register_types_MapLibre_Quick();
 
     QQmlApplicationEngine engine;
+    
+    // Add QML import path for MapLibre.Quick module
+    engine.addImportPath(QStringLiteral("qrc:/"));
 
     // Try to load test file if provided as argument
     if (argc > 1) {
