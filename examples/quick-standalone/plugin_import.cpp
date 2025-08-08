@@ -3,6 +3,3 @@
 
 // Import iOS platform plugin
 Q_IMPORT_PLUGIN(QIOSIntegrationPlugin)
-
-// Import the MapLibre Quick plugin
-Q_IMPORT_PLUGIN(MapLibreQuickModule)
