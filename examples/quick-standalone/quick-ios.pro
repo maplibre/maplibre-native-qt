@@ -26,20 +26,20 @@ INCLUDEPATH += ../../src/core \
                ../../vendor/maplibre-native/vendor/metal-cpp
 
 # Link against our built libraries (device build)
-LIBS += -L$$PWD/../../qmaplibre-build-ios-device/src/core -lQMapLibre
-LIBS += -L$$PWD/../../qmaplibre-build-ios-device/src/quick -lquick_maplibre
-LIBS += -L$$PWD/../../qmaplibre-build-ios-device/src/core/MapLibreCore/vendor/freetype -lfreetype
-LIBS += -L$$PWD/../../qmaplibre-build-ios-device/src/core/MapLibreCore/vendor/harfbuzz -lharfbuzz
+LIBS += -L$$PWD/../../qmaplibre-build-ios/src/core -lQMapLibre
+LIBS += -L$$PWD/../../qmaplibre-build-ios/src/quick -lquick_maplibre
+LIBS += -L$$PWD/../../qmaplibre-build-ios/src/core/MapLibreCore/vendor/freetype -lfreetype
+LIBS += -L$$PWD/../../qmaplibre-build-ios/src/core/MapLibreCore/vendor/harfbuzz -lharfbuzz
 
 # Add plugin object files
-OBJECTS += $$PWD/../../qmaplibre-build-ios-device/src/quick/CMakeFiles/quick_maplibreplugin.dir/quick_maplibreplugin_MapLibreQuickModule.cpp.o
-OBJECTS += $$PWD/../../qmaplibre-build-ios-device/src/quick/CMakeFiles/quick_maplibreplugin.dir/quick_maplibreplugin_autogen/mocs_compilation.cpp.o
-OBJECTS += $$PWD/../../qmaplibre-build-ios-device/src/quick/CMakeFiles/quick_maplibreplugin_init.dir/quick_maplibreplugin_init.cpp.o
-OBJECTS += $$PWD/../../qmaplibre-build-ios-device/src/quick/CMakeFiles/quick_maplibreplugin_init.dir/quick_maplibreplugin_init_autogen/mocs_compilation.cpp.o
+OBJECTS += $$PWD/../../qmaplibre-build-ios/src/quick/CMakeFiles/quick_maplibreplugin.dir/quick_maplibreplugin_MapLibreQuickModule.cpp.o
+OBJECTS += $$PWD/../../qmaplibre-build-ios/src/quick/CMakeFiles/quick_maplibreplugin.dir/quick_maplibreplugin_autogen/mocs_compilation.cpp.o
+OBJECTS += $$PWD/../../qmaplibre-build-ios/src/quick/CMakeFiles/quick_maplibreplugin_init.dir/quick_maplibreplugin_init.cpp.o
+OBJECTS += $$PWD/../../qmaplibre-build-ios/src/quick/CMakeFiles/quick_maplibreplugin_init.dir/quick_maplibreplugin_init_autogen/mocs_compilation.cpp.o
 
 # Add QML resource objects
-OBJECTS += $$PWD/../../qmaplibre-build-ios-device/src/quick/CMakeFiles/quick_maplibre_resources_1.dir/.qt/rcc/qrc_qmake_MapLibre_Quick_init.cpp.o
-OBJECTS += $$PWD/../../qmaplibre-build-ios-device/src/quick/CMakeFiles/quick_maplibre_resources_2.dir/.qt/rcc/qrc_quick_maplibre_raw_qml_0_init.cpp.o
+OBJECTS += $$PWD/../../qmaplibre-build-ios/src/quick/CMakeFiles/quick_maplibre_resources_1.dir/.qt/rcc/qrc_qmake_MapLibre_Quick_init.cpp.o
+OBJECTS += $$PWD/../../qmaplibre-build-ios/src/quick/CMakeFiles/quick_maplibre_resources_2.dir/.qt/rcc/qrc_quick_maplibre_raw_qml_0_init.cpp.o
 
 # iOS frameworks
 ios {

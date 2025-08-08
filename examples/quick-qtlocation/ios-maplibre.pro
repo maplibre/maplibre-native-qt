@@ -26,13 +26,13 @@ INCLUDEPATH += ../../src/core \
                ../../vendor/maplibre-native/vendor/metal-cpp
 
 # Link against our built libraries
-LIBS += -L$$PWD/../../qmaplibre-build-ios-device/src/core -lQMapLibre
-LIBS += -L$$PWD/../../qmaplibre-build-ios-device/src/location -lQMapLibreLocation
-LIBS += -L$$PWD/../../qmaplibre-build-ios-device/src/location/plugins -lqtgeoservices_maplibre
-LIBS += -L$$PWD/../../qmaplibre-build-ios-device/src/location/plugins/MapLibre -ldeclarative_locationplugin_maplibre
-LIBS += -L$$PWD/../../qmaplibre-build-ios-device/src/quick -lquick_maplibre
-LIBS += -L$$PWD/../../qmaplibre-build-ios-device/src/core/MapLibreCore/vendor/freetype -lfreetype
-LIBS += -L$$PWD/../../qmaplibre-build-ios-device/src/core/MapLibreCore/vendor/harfbuzz -lharfbuzz
+LIBS += -L$$PWD/../../qmaplibre-build-ios/src/core -lQMapLibre
+LIBS += -L$$PWD/../../qmaplibre-build-ios/src/location -lQMapLibreLocation
+LIBS += -L$$PWD/../../qmaplibre-build-ios/src/location/plugins -lqtgeoservices_maplibre
+LIBS += -L$$PWD/../../qmaplibre-build-ios/src/location/plugins/MapLibre -ldeclarative_locationplugin_maplibre
+LIBS += -L$$PWD/../../qmaplibre-build-ios/src/quick -lquick_maplibre
+LIBS += -L$$PWD/../../qmaplibre-build-ios/src/core/MapLibreCore/vendor/freetype -lfreetype
+LIBS += -L$$PWD/../../qmaplibre-build-ios/src/core/MapLibreCore/vendor/harfbuzz -lharfbuzz
 
 # iOS frameworks
 ios {
@@ -45,6 +45,6 @@ ios {
 }
 
 # Bundle QML plugin files (disabled for now)
-# QML_PLUGIN.files = $$PWD/../../qmaplibre-build-ios-device/src/quick/MapLibre
+# QML_PLUGIN.files = $$PWD/../../qmaplibre-build-ios/src/quick/MapLibre
 # QML_PLUGIN.path = Resources/qml
 # QMAKE_BUNDLE_DATA += QML_PLUGIN

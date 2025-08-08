@@ -32,7 +32,7 @@ export QT_ROOT_DIR=/Users/$USER/Qt/6.9.1/ios
 cmake --preset iOS
 
 # Build all libraries
-cmake --build qmaplibre-build-ios-device --config Release -j8
+cmake --build qmaplibre-build-ios --config Release -j8
 ```
 
 ### 2. Generate and Build Xcode Project
@@ -111,10 +111,10 @@ INCLUDEPATH += ../../src/core \
                ../../vendor/maplibre-native/include
 
 # Link against built libraries
-LIBS += -L$$PWD/../../qmaplibre-build-ios-device/src/core -lQMapLibre
-LIBS += -L$$PWD/../../qmaplibre-build-ios-device/src/location -lQMapLibreLocation
-LIBS += -L$$PWD/../../qmaplibre-build-ios-device/src/quick -lquick_maplibre
-LIBS += -L$$PWD/../../qmaplibre-build-ios-device/vendor/maplibre-native -lmbgl-core
+LIBS += -L$$PWD/../../qmaplibre-build-ios/src/core -lQMapLibre
+LIBS += -L$$PWD/../../qmaplibre-build-ios/src/location -lQMapLibreLocation
+LIBS += -L$$PWD/../../qmaplibre-build-ios/src/quick -lquick_maplibre
+LIBS += -L$$PWD/../../qmaplibre-build-ios/vendor/maplibre-native -lmbgl-core
 
 # iOS frameworks for Metal
 ios {

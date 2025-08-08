@@ -17,13 +17,13 @@ cmake --preset default-ios-device
 # Build
 cmake --build --preset default-ios-device
 
-# The build output will be in qmaplibre-build-ios-device/
+# The build output will be in qmaplibre-build-ios/
 ```
 
 Alternative manual configuration:
 ```bash
 # Create iOS build directory
-mkdir -p qmaplibre-build-ios-device && cd qmaplibre-build-ios-device
+mkdir -p qmaplibre-build-ios && cd qmaplibre-build-ios
 
 # Configure for iOS with Metal
 ~/Qt/6.9.1/ios/bin/qt-cmake ../ \
@@ -106,12 +106,12 @@ For iOS, the MapLibre Quick plugin must be statically linked. The `quick-ios.pro
 
 ```qmake
 # Link libraries
-LIBS += -L$$PWD/../../qmaplibre-build-ios-device/src/core -lQMapLibre
-LIBS += -L$$PWD/../../qmaplibre-build-ios-device/src/quick -lquick_maplibre
+LIBS += -L$$PWD/../../qmaplibre-build-ios/src/core -lQMapLibre
+LIBS += -L$$PWD/../../qmaplibre-build-ios/src/quick -lquick_maplibre
 
 # Include plugin object files for static linking
-OBJECTS += $$PWD/../../qmaplibre-build-ios-device/src/quick/CMakeFiles/quick_maplibreplugin.dir/*.o
-OBJECTS += $$PWD/../../qmaplibre-build-ios-device/src/quick/CMakeFiles/quick_maplibre_resources_*.dir/.qt/rcc/*.o
+OBJECTS += $$PWD/../../qmaplibre-build-ios/src/quick/CMakeFiles/quick_maplibreplugin.dir/*.o
+OBJECTS += $$PWD/../../qmaplibre-build-ios/src/quick/CMakeFiles/quick_maplibre_resources_*.dir/.qt/rcc/*.o
 ```
 
 ### QML Module Registration
