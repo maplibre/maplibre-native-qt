@@ -70,3 +70,19 @@ examples/quick-qtlocation/ios-qtlocation.pro
 examples/quick-qtlocation/app.entitlements
 examples/quick-qtlocation/ios-run.sh
 examples/quick-qtlocation/build-ios.sh
+
+# quick-standalone example temporary files
+examples/quick-standalone/.qmake.stash
+examples/quick-standalone/.xcode/
+examples/quick-standalone/Makefile
+examples/quick-standalone/Debug-*/
+examples/quick-standalone/Release-*/
+examples/quick-standalone/*.xcodeproj/
+examples/quick-standalone/*.app/
+examples/quick-standalone/qrc_*.cpp
+examples/quick-standalone/maplibrequickios_plugin_import.cpp
+examples/quick-standalone/maplibrequickios_qml_plugin_import.cpp
+examples/quick-standalone/build*/
+examples/quick-standalone/simple*.cpp
+examples/quick-standalone/simple*.qml
+examples/quick-standalone/ios-quick.pro
