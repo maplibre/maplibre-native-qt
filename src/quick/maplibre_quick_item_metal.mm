@@ -21,8 +21,6 @@
 #include <QTimer>
 #include <QWheelEvent>
 
-#include "utils/metal_renderer_backend.hpp"
-
 // Need Metal layer declaration already included above
 
 #include <QMapLibre/Map>
