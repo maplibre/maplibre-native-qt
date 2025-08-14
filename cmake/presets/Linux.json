@@ -17,7 +17,7 @@
     {
       "name": "Linux-ccache",
       "displayName": "Linux configuration using Qt6 and ccache",
-      "inherits": ["dev", "ccache", "Linux"]
+      "inherits": ["dev", "ccache", "ci-no-harfbuzz", "Linux"]
     },
     {
       "name": "Linux-internal-icu",
@@ -40,7 +40,7 @@
     {
       "name": "Linux-coverage",
       "displayName": "Linux configuration using Qt6, ccache and code coverage",
-      "inherits": ["Linux-ccache"],
+      "inherits": ["Linux-ccache", "ci-no-harfbuzz"],
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "RelWithDebInfo",
         "MLN_QT_WITH_COVERAGE": "ON",

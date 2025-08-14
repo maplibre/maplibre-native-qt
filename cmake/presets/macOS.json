@@ -20,12 +20,12 @@
     {
       "name": "macOS-ccache",
       "displayName": "macOS configuration using Qt6 and ccache",
-      "inherits": ["dev", "ccache", "macOS"]
+      "inherits": ["dev", "ccache", "ci-no-harfbuzz", "macOS"]
     },
     {
       "name": "macOS-clang-tidy",
       "displayName": "macOS configuration using Qt6, ccache and clang-tidy",
-      "inherits": ["macOS-ccache"],
+      "inherits": ["macOS-ccache", "ci-no-harfbuzz"],
       "cacheVariables": {
         "CMAKE_OSX_ARCHITECTURES": "arm64",
         "MLN_QT_WITH_CLANG_TIDY": "ON"

@@ -8,6 +8,7 @@
       "generator": "Ninja Multi-Config",
       "binaryDir": "${sourceParentDir}/build/qt6-iOS",
       "toolchainFile": "$penv{QT_ROOT_DIR}/lib/cmake/Qt6/qt.toolchain.cmake",
+      "inherits": ["ci-no-harfbuzz"],
       "cacheVariables": {
         "CMAKE_CONFIGURATION_TYPES": "Release;Debug",
         "CMAKE_OSX_ARCHITECTURES": "arm64;x86_64",
@@ -18,7 +19,7 @@
     {
       "name": "iOS-ccache",
       "displayName": "iOS configuration using Qt6 and ccache",
-      "inherits": ["dev", "ccache", "iOS"]
+      "inherits": ["dev", "ccache", "ci-no-harfbuzz", "iOS"]
     }
   ],
   "buildPresets": [

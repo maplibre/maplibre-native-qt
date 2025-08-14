@@ -16,7 +16,7 @@
     {
       "name": "Windows-ccache",
       "displayName": "Windows configuration using Qt6 and ccache",
-      "inherits": ["dev", "ccache", "Windows"]
+      "inherits": ["dev", "ccache", "ci-no-harfbuzz", "Windows"]
     }
   ],
   "buildPresets": [
