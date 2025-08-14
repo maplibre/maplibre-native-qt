@@ -59,11 +59,11 @@ endif()
 # Find Qt
 if("${QT_VERSION_MAJOR}" STREQUAL "")
     set(QT_VERSION_MAJOR 6)
-    set(QT_VERSION 6)
 else()
     # QT_VERSION_MAJOR already set
 endif()
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Gui Network Quick REQUIRED) # main dependencies
+set(QT_VERSION ${Qt${QT_VERSION_MAJOR}_VERSION})
 if(NOT MLN_QT_WITH_INTERNAL_SQLITE)
     find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Sql REQUIRED)
 endif()
