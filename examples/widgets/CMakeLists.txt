@@ -2,14 +2,14 @@ cmake_minimum_required(VERSION 3.19...3.21)
 
 project(QMapLibreExampleWidgets VERSION 1.0.0 LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if(APPLE) # suppress some warnings in Qt6
     set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 endif()
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets Quick QuickWidgets REQUIRED)
+find_package(Qt6 REQUIRED COMPONENTS Widgets REQUIRED)
 qt_standard_project_setup()
 
 find_package(QMapLibre COMPONENTS Widgets REQUIRED)
@@ -34,15 +34,6 @@ target_link_libraries(
     QMapLibreExampleWidgets
     PRIVATE
         QMapLibre::Widgets
-        Qt${QT_VERSION_MAJOR}::Quick
-        Qt${QT_VERSION_MAJOR}::QuickWidgets
-)
-
-# Add OpenGL backend definition
-target_compile_definitions(
-    QMapLibreExampleWidgets
-    PRIVATE
-        MLN_RENDER_BACKEND_OPENGL=1
 )
 
 install(TARGETS QMapLibreExampleWidgets

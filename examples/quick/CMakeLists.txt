@@ -44,26 +44,6 @@ target_link_libraries(
         QMapLibre::Core
 )
 
-# Check if Vulkan is enabled
-if(MLN_WITH_VULKAN)
-    target_compile_definitions(QMapLibreExampleQuickQtLocation PRIVATE MLN_WITH_VULKAN)
-endif()
-
-target_include_directories(
-    QMapLibreExampleQuickQtLocation
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../src/core
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native/platform/qt/src
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native/vendor
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native/vendor/maplibre-native-base/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native/vendor/maplibre-native-base/deps/variant/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native/vendor/maplibre-native-base/deps/geometry.hpp/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native/vendor/metal-cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native/src
-)
-
 install(
     TARGETS QMapLibreExampleQuickQtLocation
     BUNDLE DESTINATION .
