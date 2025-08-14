@@ -66,21 +66,45 @@ void MapLibreQuickItem::ensureMap(int w, int h, float dpr, void *metalLayer) {
     if (!metalLayer) {
         // Still no MetalLayer from Qt – create our own sublayer.
 #if TARGET_OS_IPHONE
-        UIView *view = (UIView *)window()->winId();
+        // On iOS, UI operations must happen on the main thread
+        __block void *blockMetalLayer = metalLayer;
+        __block bool blockOwnsLayer = false;
+        
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            UIView *view = (UIView *)window()->winId();
+            CAMetalLayer *newLayer = [CAMetalLayer layer];
+            id<MTLDevice> dev = MTLCreateSystemDefaultDevice();
+            newLayer.device = dev;
+            newLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+            newLayer.framebufferOnly = NO;
+            
+            if ([newLayer respondsToSelector:@selector(setAllowsNextDrawableTimeout:)])
+                newLayer.allowsNextDrawableTimeout = NO;
+
+            newLayer.frame = view.bounds;
+            newLayer.drawableSize = CGSizeMake(w * dpr, h * dpr);
+            [view.layer addSublayer:newLayer];
+            blockMetalLayer = (__bridge void *)newLayer;
+
+            blockOwnsLayer = true;
+        });
+        
+        metalLayer = blockMetalLayer;
+        m_ownsLayer = blockOwnsLayer;
 #else
+        // macOS path - no dispatch needed
         NSView *view = (NSView *)window()->winId();
         if (![view wantsLayer]) {
             [view setWantsLayer:YES];
         }
-#endif
+        
         CAMetalLayer *newLayer = [CAMetalLayer layer];
         id<MTLDevice> dev = MTLCreateSystemDefaultDevice();
         newLayer.device = dev;
         newLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
         newLayer.framebufferOnly = NO;
-#if !TARGET_OS_IPHONE
         newLayer.displaySyncEnabled = NO;
-#endif
+        
         if ([newLayer respondsToSelector:@selector(setAllowsNextDrawableTimeout:)])
             newLayer.allowsNextDrawableTimeout = NO;
 
@@ -90,6 +114,7 @@ void MapLibreQuickItem::ensureMap(int w, int h, float dpr, void *metalLayer) {
         metalLayer = (__bridge void *)newLayer;
 
         m_ownsLayer = true;
+#endif
     }
 
     if (metalLayer) {

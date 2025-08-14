@@ -26,7 +26,7 @@ INCLUDEPATH += ../../src/core \
                ../../vendor/maplibre-native/vendor/metal-cpp
 
 # Link against our built libraries (device build)
-LIBS += -L$$PWD/../../qmaplibre-build-ios/src/core -lQMapLibre
+LIBS += -F$$PWD/../../qmaplibre-build-ios/src/core -framework QMapLibre
 LIBS += -L$$PWD/../../qmaplibre-build-ios/src/quick -lquick_maplibre
 LIBS += -L$$PWD/../../qmaplibre-build-ios/src/core/MapLibreCore/vendor/freetype -lfreetype
 LIBS += -L$$PWD/../../qmaplibre-build-ios/src/core/MapLibreCore/vendor/harfbuzz -lharfbuzz
@@ -40,6 +40,10 @@ OBJECTS += $$PWD/../../qmaplibre-build-ios/src/quick/CMakeFiles/quick_maplibrepl
 # Add QML resource objects
 OBJECTS += $$PWD/../../qmaplibre-build-ios/src/quick/CMakeFiles/quick_maplibre_resources_1.dir/.qt/rcc/qrc_qmake_MapLibre_Quick_init.cpp.o
 OBJECTS += $$PWD/../../qmaplibre-build-ios/src/quick/CMakeFiles/quick_maplibre_resources_2.dir/.qt/rcc/qrc_quick_maplibre_raw_qml_0_init.cpp.o
+
+# Add the actual QML resource content objects
+OBJECTS += $$PWD/../../qmaplibre-build-ios/src/quick/CMakeFiles/quick_maplibre.dir/.qt/rcc/qrc_qmake_MapLibre_Quick.cpp.o
+OBJECTS += $$PWD/../../qmaplibre-build-ios/src/quick/CMakeFiles/quick_maplibre.dir/.qt/rcc/qrc_quick_maplibre_raw_qml_0.cpp.o
 
 # iOS frameworks
 ios {
