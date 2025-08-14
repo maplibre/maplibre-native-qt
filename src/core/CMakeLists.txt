@@ -1,5 +1,6 @@
 # Core MapLibre Native definitions
 set(MLN_WITH_QT ON CACHE BOOL "Build MapLibre Native Core with Qt platform" FORCE)
+set(MLN_TEXT_SHAPING_HARFBUZZ OFF CACHE BOOL "Use haffbuzz to shape complex text" FORCE)
 set(MLN_QT_LIBRARY_ONLY ON CACHE BOOL "Build only MapLibre Native Core Qt bindings libraries" FORCE)
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set(MLN_QT_WITH_INTERNAL_SQLITE ON CACHE BOOL "Build MapLibre Native Core with internal sqlite" FORCE)
@@ -108,31 +109,6 @@ target_compile_definitions(
     PRIVATE
         QT_BUILD_MAPLIBRE_CORE_LIB
 )
-
-# Backend-specific compile definitions
-if(MLN_WITH_OPENGL)
-    target_compile_definitions(
-        MLNQtCore
-        PRIVATE
-            MLN_RENDER_BACKEND_OPENGL=1
-    )
-endif()
-
-if(MLN_WITH_METAL)
-    target_compile_definitions(
-        MLNQtCore
-        PRIVATE
-            MLN_RENDER_BACKEND_METAL=1
-    )
-endif()
-
-if(MLN_WITH_VULKAN)
-    target_compile_definitions(
-        MLNQtCore
-        PRIVATE
-            MLN_RENDER_BACKEND_VULKAN=1
-    )
-endif()
 
 # Common include directories
 target_include_directories(

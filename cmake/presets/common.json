@@ -23,13 +23,6 @@
         "CMAKE_C_COMPILER_LAUNCHER": "ccache",
         "CMAKE_CXX_COMPILER_LAUNCHER": "ccache"
       }
-    },
-    {
-      "name": "ci-no-harfbuzz",
-      "hidden": true,
-      "cacheVariables": {
-        "MLN_TEXT_SHAPING_HARFBUZZ": "OFF"
-      }
     }
   ],
   "testPresets": [

@@ -58,9 +58,6 @@ target_compile_definitions(
     MLNQtLocation
     PRIVATE
         QT_BUILD_MAPLIBRE_LOCATION_LIB
-        $<$<BOOL:${MLN_WITH_OPENGL}>:MLN_RENDER_BACKEND_OPENGL>
-        $<$<BOOL:${MLN_WITH_METAL}>:MLN_RENDER_BACKEND_METAL>
-        $<$<BOOL:${MLN_WITH_VULKAN}>:MLN_RENDER_BACKEND_VULKAN>
 )
 
 # Common include directories

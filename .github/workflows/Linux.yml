@@ -80,11 +80,6 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
-      - name: Comment out Qt CMake include
-        run: |
-          cd source
-          ./scripts/comment-qt-cmake.sh
-
       - name: Install test dependencies
         if: matrix.compiler != 'default'
         run: |

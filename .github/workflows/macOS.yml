@@ -91,11 +91,6 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
-      - name: Comment out Qt CMake include
-        run: |
-          cd source
-          ./scripts/comment-qt-cmake.sh
-
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:

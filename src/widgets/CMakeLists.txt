@@ -61,9 +61,6 @@ target_compile_definitions(
     MLNQtWidgets
     PRIVATE
         QT_BUILD_MAPLIBRE_WIDGETS_LIB
-        $<$<BOOL:${MLN_QT_WITH_OPENGL}>:MLN_RENDER_BACKEND_OPENGL=1>
-    PUBLIC
-        $<$<BOOL:${MLN_QT_WITH_OPENGL}>:MLN_RENDER_BACKEND_OPENGL=1>
 )
 
 # Common include directories

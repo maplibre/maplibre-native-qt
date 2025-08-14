@@ -17,7 +17,7 @@
     {
       "name": "Android-ccache",
       "displayName": "Android configuration using Qt6 and ccache",
-      "inherits": ["dev", "ccache", "ci-no-harfbuzz", "Android"]
+      "inherits": ["dev", "ccache", "Android"]
     }
   ],
   "buildPresets": [

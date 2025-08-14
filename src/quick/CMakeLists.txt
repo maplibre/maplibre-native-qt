@@ -45,19 +45,16 @@ if(MLN_WITH_OPENGL)
         maplibre_quick_item_opengl.hpp
         maplibre_quick_item_opengl.cpp
     )
-    target_compile_definitions(${MLN_QT_QUICK_MODULE} PRIVATE MLN_RENDER_BACKEND_OPENGL=1)
 elseif(MLN_WITH_METAL AND APPLE)
     target_sources(${MLN_QT_QUICK_MODULE} PRIVATE
         maplibre_quick_item_metal.hpp
         maplibre_quick_item_metal.mm
     )
-    target_compile_definitions(${MLN_QT_QUICK_MODULE} PRIVATE MLN_RENDER_BACKEND_METAL=1)
 elseif(MLN_WITH_VULKAN)
     target_sources(${MLN_QT_QUICK_MODULE} PRIVATE
         maplibre_quick_item_vulkan.hpp
         maplibre_quick_item_vulkan.cpp
     )
-    target_compile_definitions(${MLN_QT_QUICK_MODULE} PRIVATE MLN_RENDER_BACKEND_VULKAN=1)
     target_include_directories(${MLN_QT_QUICK_MODULE} SYSTEM PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native/vendor/Vulkan-Headers/include
         ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native/vendor/VulkanMemoryAllocator/include
@@ -72,7 +69,6 @@ else()
         maplibre_quick_item_opengl.hpp
         maplibre_quick_item_opengl.cpp
     )
-    target_compile_definitions(maplibre_quick PRIVATE MLN_RENDER_BACKEND_OPENGL=1)
 endif()
 
 target_link_libraries(${MLN_QT_QUICK_MODULE} PRIVATE
