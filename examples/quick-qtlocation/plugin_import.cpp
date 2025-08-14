@@ -7,7 +7,7 @@ Q_IMPORT_PLUGIN(QIOSIntegrationPlugin)
 // Import the MapLibre geoservices plugin
 Q_IMPORT_PLUGIN(QGeoServiceProviderFactoryMapLibre)
 
-// Import the MapLibre QML Location plugin  
+// Import the MapLibre QML Location plugin
 Q_IMPORT_PLUGIN(MapLibreQmlModule)
 
 // Import the MapLibre Quick plugin (for MapLibre.Quick 3.0)

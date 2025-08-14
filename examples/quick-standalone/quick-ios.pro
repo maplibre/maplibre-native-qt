@@ -47,7 +47,7 @@ OBJECTS += $$PWD/../../qmaplibre-build-ios/src/quick/CMakeFiles/quick_maplibre.d
 
 # iOS frameworks
 ios {
-    LIBS += -framework Metal -framework MetalKit -framework QuartzCore 
+    LIBS += -framework Metal -framework MetalKit -framework QuartzCore
     LIBS += -framework CoreLocation -framework CoreGraphics -framework CoreText
     LIBS += -framework ImageIO -framework MobileCoreServices -framework UIKit
     LIBS += -framework Foundation -framework CoreFoundation -framework Security

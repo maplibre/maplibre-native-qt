@@ -124,12 +124,12 @@ extern void qml_register_types_MapLibre_Quick();
 int main(int argc, char *argv[]) {
     // Set Metal as graphics API
     QQuickWindow::setGraphicsApi(QSGRendererInterface::Metal);
-    
+
     QGuiApplication app(argc, argv);
-    
+
     // Register MapLibre Quick QML types
     qml_register_types_MapLibre_Quick();
-    
+
     QQmlApplicationEngine engine;
     engine.addImportPath(QStringLiteral("qrc:/"));
     // ...

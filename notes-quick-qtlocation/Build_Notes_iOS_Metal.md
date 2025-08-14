@@ -105,7 +105,7 @@ ios {
 SOURCES += main.cpp plugin_import.cpp
 RESOURCES += qml.qrc
 
-# Include paths  
+# Include paths
 INCLUDEPATH += ../../src/core \
                ../../src/quick \
                ../../vendor/maplibre-native/include
@@ -118,7 +118,7 @@ LIBS += -L$$PWD/../../qmaplibre-build-ios/vendor/maplibre-native -lmbgl-core
 
 # iOS frameworks for Metal
 ios {
-    LIBS += -framework Metal -framework MetalKit -framework QuartzCore 
+    LIBS += -framework Metal -framework MetalKit -framework QuartzCore
     LIBS += -framework CoreLocation -framework CoreGraphics -framework CoreText
     LIBS += -framework UIKit -framework Foundation
 }
@@ -140,13 +140,13 @@ Window {
     Plugin {
         id: mapPlugin
         name: "maplibre"
-        
+
         // MapLibre demo tiles configuration
         PluginParameter {
             name: "maplibre.map.styles"
             value: "https://demotiles.maplibre.org/style.json"
         }
-        
+
         PluginParameter {
             name: "maplibre.mapping.additional_style_urls"
             value: ""
@@ -174,7 +174,7 @@ Q_IMPORT_PLUGIN(QIOSIntegrationPlugin)
 // Import the MapLibre geoservices plugin
 Q_IMPORT_PLUGIN(QGeoServiceProviderFactoryMapLibre)
 
-// Import the MapLibre QML Location plugin  
+// Import the MapLibre QML Location plugin
 Q_IMPORT_PLUGIN(MapLibreQmlModule)
 
 // Note: MapLibreQuickModule may cause linking errors - comment out if needed
@@ -267,7 +267,7 @@ On Apple Silicon Macs, you can run the iOS app directly on macOS using the "Desi
 2. **Select the Mac as destination:**
    - In Xcode's toolbar, click the scheme/device selector
    - Choose "My Mac (Designed for iPad)"
-   
+
 3. **Run the app:**
    - Click the Run button (▶️) or press Cmd+R
    - The app will launch as an iPad app on your Mac with full Metal support

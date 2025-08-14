@@ -69,26 +69,26 @@ void MapLibreQuickItem::ensureMap(int w, int h, float dpr, void *metalLayer) {
         // On iOS, UI operations must happen on the main thread
         __block void *blockMetalLayer = metalLayer;
         __block bool blockOwnsLayer = false;
-        
+
         dispatch_sync(dispatch_get_main_queue(), ^{
-            UIView *view = (UIView *)window()->winId();
-            CAMetalLayer *newLayer = [CAMetalLayer layer];
-            id<MTLDevice> dev = MTLCreateSystemDefaultDevice();
-            newLayer.device = dev;
-            newLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
-            newLayer.framebufferOnly = NO;
-            
-            if ([newLayer respondsToSelector:@selector(setAllowsNextDrawableTimeout:)])
-                newLayer.allowsNextDrawableTimeout = NO;
+          UIView *view = (UIView *)window()->winId();
+          CAMetalLayer *newLayer = [CAMetalLayer layer];
+          id<MTLDevice> dev = MTLCreateSystemDefaultDevice();
+          newLayer.device = dev;
+          newLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+          newLayer.framebufferOnly = NO;
 
-            newLayer.frame = view.bounds;
-            newLayer.drawableSize = CGSizeMake(w * dpr, h * dpr);
-            [view.layer addSublayer:newLayer];
-            blockMetalLayer = (__bridge void *)newLayer;
+          if ([newLayer respondsToSelector:@selector(setAllowsNextDrawableTimeout:)])
+              newLayer.allowsNextDrawableTimeout = NO;
 
-            blockOwnsLayer = true;
+          newLayer.frame = view.bounds;
+          newLayer.drawableSize = CGSizeMake(w * dpr, h * dpr);
+          [view.layer addSublayer:newLayer];
+          blockMetalLayer = (__bridge void *)newLayer;
+
+          blockOwnsLayer = true;
         });
-        
+
         metalLayer = blockMetalLayer;
         m_ownsLayer = blockOwnsLayer;
 #else
@@ -97,14 +97,14 @@ void MapLibreQuickItem::ensureMap(int w, int h, float dpr, void *metalLayer) {
         if (![view wantsLayer]) {
             [view setWantsLayer:YES];
         }
-        
+
         CAMetalLayer *newLayer = [CAMetalLayer layer];
         id<MTLDevice> dev = MTLCreateSystemDefaultDevice();
         newLayer.device = dev;
         newLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
         newLayer.framebufferOnly = NO;
         newLayer.displaySyncEnabled = NO;
-        
+
         if ([newLayer respondsToSelector:@selector(setAllowsNextDrawableTimeout:)])
             newLayer.allowsNextDrawableTimeout = NO;
 

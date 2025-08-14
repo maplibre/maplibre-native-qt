@@ -38,12 +38,12 @@ int main(int argc, char *argv[]) {
     QGuiApplication app(argc, argv);
 
     qDebug() << "Platform:" << QGuiApplication::platformName();
-    
+
     // Register MapLibre Quick QML types
     qml_register_types_MapLibre_Quick();
 
     QQmlApplicationEngine engine;
-    
+
     // Add QML import path for MapLibre.Quick module
     engine.addImportPath(QStringLiteral("qrc:/"));
 

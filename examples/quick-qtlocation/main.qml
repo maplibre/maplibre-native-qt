@@ -18,7 +18,7 @@ Window {
 
     property bool fullWindow: false  // toggle full map with the 'F' key
     property var coordinate: QtPositioning.coordinate(41.874, -75.789)
-    
+
     Component.onCompleted: {
         console.log("Available location plugins:", Plugin.availableServiceProviders)
         var plugins = Plugin.availableServiceProviders
@@ -33,7 +33,7 @@ Window {
         color: "blue"
         anchors.fill: parent
         focus: true
-        
+
         Text {
             id: debugText
             anchors.top: parent.top
@@ -62,18 +62,18 @@ Window {
     Plugin {
         id: mapPlugin
         name: "maplibre"  // Use MapLibre plugin
-        
+
         // Configure MapLibre plugin to use demo tiles
         PluginParameter {
             name: "maplibre.map.styles"
             value: "https://demotiles.maplibre.org/style.json"
         }
-        
+
         PluginParameter {
             name: "maplibre.api_key"
             value: ""  // No API key needed for demo tiles
         }
-        
+
         Component.onCompleted: {
             console.log("Plugin loaded, available services:", availableServiceProviders)
             console.log("Plugin name:", name)
@@ -96,7 +96,7 @@ Window {
             map.plugin: mapPlugin
             map.center: window.coordinate
             map.zoomLevel: 5
-            
+
             Component.onCompleted: {
                 console.log("MapView loaded")
                 console.log("Map plugin:", map.plugin)

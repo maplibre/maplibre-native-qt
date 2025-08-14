@@ -16,7 +16,7 @@ SOURCES += main.cpp plugin_import.cpp
 
 RESOURCES += qml.qrc
 
-# Include paths  
+# Include paths
 INCLUDEPATH += ../../src/core \
                ../../src/quick \
                ../../vendor/maplibre-native/include \
@@ -36,7 +36,7 @@ LIBS += -L$$PWD/../../qmaplibre-build-ios/src/core/MapLibreCore/vendor/harfbuzz 
 
 # iOS frameworks
 ios {
-    LIBS += -framework Metal -framework MetalKit -framework QuartzCore 
+    LIBS += -framework Metal -framework MetalKit -framework QuartzCore
     LIBS += -framework CoreLocation -framework CoreGraphics -framework CoreText
     LIBS += -framework ImageIO -framework MobileCoreServices -framework UIKit
     LIBS += -framework Foundation -framework CoreFoundation -framework Security
