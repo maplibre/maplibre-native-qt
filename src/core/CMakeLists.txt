@@ -64,9 +64,19 @@ target_sources(
         map_observer.cpp map_observer_p.hpp
         map_renderer.cpp map_renderer_p.hpp
         map.cpp map_p.hpp
+        scheduler.cpp scheduler_p.hpp
         settings.cpp settings_p.hpp
         types.cpp
         utils.cpp
+
+        $<$<BOOL:${MLN_WITH_METAL}>:rendering/metal_renderer_backend.mm>
+        $<$<BOOL:${MLN_WITH_METAL}>:rendering/metal_renderer_backend_p.hpp>
+        $<$<BOOL:${MLN_WITH_OPENGL}>:rendering/opengl_renderer_backend.cpp>
+        $<$<BOOL:${MLN_WITH_OPENGL}>:rendering/opengl_renderer_backend_p.hpp>
+        $<$<BOOL:${MLN_WITH_VULKAN}>:rendering/vulkan_renderer_backend.cpp>
+        $<$<BOOL:${MLN_WITH_VULKAN}>:rendering/vulkan_renderer_backend_p.hpp>
+        rendering/renderer_backend_p.hpp
+        rendering/renderer_observer_p.hpp
 
         style/style_parameter.cpp
         style/filter_parameter.cpp
@@ -169,6 +179,23 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
         INTERFACE
             $<INSTALL_INTERFACE:lib/${MLN_QT_NAME}.framework>
     )
+
+    # Metal backend sources
+    if(MLN_WITH_METAL)
+        target_link_libraries(
+            MLNQtCore
+            PRIVATE
+                "-framework QuartzCore"
+                "-framework Metal"
+                "-framework CoreFoundation"
+        )
+
+        target_include_directories(
+            MLNQtCore
+            PRIVATE
+                ${MLN_CORE_PATH}/vendor/metal-cpp
+        )
+    endif()
 endif()
 
 # Development specifics

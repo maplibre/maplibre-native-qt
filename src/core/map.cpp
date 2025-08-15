@@ -10,7 +10,7 @@
 #include "geojson_p.hpp"
 #include "map_observer_p.hpp"
 
-#include "utils/renderer_observer.hpp"
+#include "rendering/renderer_observer_p.hpp"
 
 #include <mbgl/actor/scheduler.hpp>
 #include <mbgl/annotation/annotation.hpp>

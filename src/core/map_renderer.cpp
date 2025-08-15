@@ -5,7 +5,7 @@
 
 #include "map_renderer_p.hpp"
 
-#include "utils/scheduler.hpp"
+#include "scheduler_p.hpp"
 
 #include <mbgl/gfx/backend_scope.hpp>
 

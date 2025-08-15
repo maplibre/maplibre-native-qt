@@ -1,10 +1,5 @@
 cmake_minimum_required(VERSION 3.19...3.21)
 
-# Set CMake policies to mute compile warnings about deprecated Python finding modules
-if(POLICY CMP0148)
-    cmake_policy(SET CMP0148 NEW)
-endif()
-
 # Version
 file(READ "VERSION.txt" MLN_QT_VERSION)
 string(STRIP "${MLN_QT_VERSION}" MLN_QT_VERSION) # get rid of the whitespace
