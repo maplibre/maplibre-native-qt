@@ -1,4 +1,4 @@
-// Copyright (C) 2024 MapLibre contributors
+// Copyright (C) 2023 MapLibre contributors
 // SPDX-License-Identifier: BSD-2-Clause
 
 #pragma once
@@ -7,13 +7,13 @@
 
 namespace QMapLibre {
 
-class TextureNodeMetal : public TextureNodeBase {
+class TextureNodeMetal final : public TextureNodeBase {
 public:
-    TextureNodeMetal(const Settings &settings, const QSize &size, qreal pixelRatio, QGeoMapMapLibre *geoMap);
-    ~TextureNodeMetal();
+    using TextureNodeBase::TextureNodeBase;
+    ~TextureNodeMetal() final;
 
-    void resize(const QSize &size, qreal pixelRatio, QQuickWindow *window) override;
-    void render(QQuickWindow *window) override;
+    void resize(const QSize &size, qreal pixelRatio, QQuickWindow *window) final;
+    void render(QQuickWindow *window) final;
 
 private:
     bool m_rendererBound = false;

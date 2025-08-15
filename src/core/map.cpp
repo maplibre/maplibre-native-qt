@@ -66,7 +66,6 @@
 
 #include <functional>
 #include <memory>
-#include <sstream>
 
 #ifdef _MSC_VER
 #pragma warning(push)

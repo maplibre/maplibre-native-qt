@@ -1,4 +1,3 @@
-
 // Copyright (C) 2023 MapLibre contributors
 
 // SPDX-License-Identifier: MIT
@@ -8,7 +7,7 @@ import QtQuick.Window 6.5
 import QtLocation 6.5
 import QtPositioning 6.5
 
-// import MapLibre 3.0
+import MapLibre 3.0
 
 Window {
     id: window
@@ -69,11 +68,6 @@ Window {
             value: "https://demotiles.maplibre.org/style.json"
         }
 
-        PluginParameter {
-            name: "maplibre.api_key"
-            value: ""  // No API key needed for demo tiles
-        }
-
         Component.onCompleted: {
             console.log("Plugin loaded, available services:", availableServiceProviders)
             console.log("Plugin name:", name)
@@ -106,8 +100,6 @@ Window {
                 debugText.text += "\nMap Ready: " + map.mapReady
             }
 
-            // Temporarily comment out the MapLibre.style to test basic map
-            /*
             MapLibre.style: Style {
                 id: style
 
@@ -135,7 +127,6 @@ Window {
                     }
                 }
             }
-            */
         }
     }
 }

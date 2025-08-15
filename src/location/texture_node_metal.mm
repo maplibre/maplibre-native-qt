@@ -1,4 +1,4 @@
-// Copyright (C) 2024 MapLibre contributors
+// Copyright (C) 2023 MapLibre contributors
 // SPDX-License-Identifier: BSD-2-Clause
 
 #if TARGET_OS_IPHONE
@@ -18,12 +18,6 @@
 
 namespace QMapLibre {
 
-TextureNodeMetal::TextureNodeMetal(const Settings &settings,
-                                   const QSize &size,
-                                   qreal pixelRatio,
-                                   QGeoMapMapLibre *geoMap)
-    : TextureNodeBase(settings, size, pixelRatio, geoMap) {}
-
 TextureNodeMetal::~TextureNodeMetal() {
     if (m_currentDrawable) {
         CFRelease(m_currentDrawable);
@@ -42,14 +36,14 @@ void TextureNodeMetal::resize(const QSize &size, qreal pixelRatio, QQuickWindow 
 
     // Update Metal layer drawable size if we have one
     if (m_layerPtr) {
-        CAMetalLayer *layer = (__bridge CAMetalLayer *)m_layerPtr;
+        auto *layer = (__bridge CAMetalLayer *)m_layerPtr;
         layer.drawableSize = CGSizeMake(m_size.width() * m_pixelRatio, m_size.height() * m_pixelRatio);
     }
 }
 
 void TextureNodeMetal::render(QQuickWindow *window) {
-    auto *ri = window->rendererInterface();
-    if (!ri) {
+    QSGRendererInterface *ri = window->rendererInterface();
+    if (ri == nullptr) {
         qWarning() << "TextureNodeMetal: No renderer interface";
         return;
     }
@@ -61,9 +55,9 @@ void TextureNodeMetal::render(QQuickWindow *window) {
         // If Qt doesn't provide a layer, create our own
         if (!m_layerPtr) {
 #if TARGET_OS_IPHONE
-            UIView *view = (UIView *)window->winId();
+            auto *view = (UIView *)window->winId();
 #else
-            NSView *view = (NSView *)window->winId();
+            auto *view = (NSView *)window->winId();
             if (![view wantsLayer]) {
                 [view setWantsLayer:YES];
             }
@@ -77,8 +71,9 @@ void TextureNodeMetal::render(QQuickWindow *window) {
 #if !TARGET_OS_IPHONE
             newLayer.displaySyncEnabled = NO;
 #endif
-            if ([newLayer respondsToSelector:@selector(setAllowsNextDrawableTimeout:)])
+            if ([newLayer respondsToSelector:@selector(setAllowsNextDrawableTimeout:)]) {
                 newLayer.allowsNextDrawableTimeout = NO;
+            }
 
             // Set the layer frame to match our texture size (in points)
             newLayer.frame = CGRectMake(0, 0, m_size.width(), m_size.height());
@@ -98,7 +93,7 @@ void TextureNodeMetal::render(QQuickWindow *window) {
     }
 
     // Configure layer if we have one
-    CAMetalLayer *layer = (__bridge CAMetalLayer *)m_layerPtr;
+    auto *layer = (__bridge CAMetalLayer *)m_layerPtr;
     if (!layer.device) {
         id<MTLDevice> dev = MTLCreateSystemDefaultDevice();
         layer.device = dev;
@@ -157,8 +152,8 @@ void TextureNodeMetal::render(QQuickWindow *window) {
     }
 
     // Use Qt's native interface to wrap the Metal texture
-    const int texWidth = m_size.width() * m_pixelRatio;
-    const int texHeight = m_size.height() * m_pixelRatio;
+    const int texWidth = static_cast<int>(m_size.width() * m_pixelRatio);
+    const int texHeight = static_cast<int>(m_size.height() * m_pixelRatio);
 
     auto mtlTex = (__bridge id<MTLTexture>)nativeTex;
 
@@ -177,6 +172,9 @@ void TextureNodeMetal::render(QQuickWindow *window) {
     setRect(QRectF(0, m_size.height(), m_size.width(), -m_size.height()));
 
     markDirty(QSGNode::DirtyMaterial | QSGNode::DirtyGeometry);
+
+    qDebug() << "Rendered TextureNodeMetal with size:" << m_size << "pixelRatio:" << m_pixelRatio
+             << "drawable size:" << (m_size.width() * m_pixelRatio) << "x" << (m_size.height() * m_pixelRatio);
 }
 
 } // namespace QMapLibre

@@ -12,11 +12,6 @@
 #include <QtGui/QSurfaceFormat>
 #include <QtGui/QWheelEvent>
 #include <QtOpenGL/QOpenGLShaderProgram>
-#include <cstdio>
-
-#ifdef MLN_RENDER_BACKEND_OPENGL
-#include "../core/map_p.hpp"
-#endif
 
 namespace QMapLibre {
 
@@ -327,12 +322,7 @@ void GLWidget::paintGL() {
     // For zero-copy rendering, get the texture from OpenGL backend
     GLuint textureId = 0;
 #ifdef MLN_RENDER_BACKEND_OPENGL
-    // Use the private header to access the texture ID
-    // This is a temporary solution until proper API is exposed
-    MapPrivate *mapPrivate = reinterpret_cast<MapPrivate *>(d_ptr->m_map->d_ptr.data());
-    if (mapPrivate) {
-        textureId = mapPrivate->getFramebufferTextureId();
-    }
+    textureId = d_ptr->m_map->getFramebufferTextureId();
 #endif
 
     // Fallback to hardcoded ID if backend method not available

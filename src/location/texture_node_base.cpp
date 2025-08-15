@@ -1,4 +1,4 @@
-// Copyright (C) 2024 MapLibre contributors
+// Copyright (C) 2023 MapLibre contributors
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "texture_node_base.hpp"
@@ -15,8 +15,10 @@ TextureNodeBase::TextureNodeBase(const Settings &settings, const QSize &size, qr
     setFiltering(QSGTexture::Linear);
 
     m_map = std::make_unique<Map>(nullptr, settings, m_size, pixelRatio);
-    m_map->setConnectionEstablished();
+
     QObject::connect(m_map.get(), &Map::needsRendering, geoMap, &QGeoMap::sgNodeChanged);
+
+    m_map->setConnectionEstablished();
 }
 
 } // namespace QMapLibre

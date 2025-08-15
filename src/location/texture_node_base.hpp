@@ -1,4 +1,4 @@
-// Copyright (C) 2024 MapLibre contributors
+// Copyright (C) 2023 MapLibre contributors
 // SPDX-License-Identifier: BSD-2-Clause
 
 #pragma once
@@ -15,7 +15,7 @@ class QGeoMapMapLibre;
 class TextureNodeBase : public QSGSimpleTextureNode {
 public:
     TextureNodeBase(const Settings &settings, const QSize &size, qreal pixelRatio, QGeoMapMapLibre *geoMap);
-    virtual ~TextureNodeBase() = default;
+    ~TextureNodeBase() override = default;
 
     [[nodiscard]] Map *map() const { return m_map.get(); }
 
@@ -23,7 +23,7 @@ public:
     virtual void render(QQuickWindow *window) = 0;
 
 protected:
-    std::unique_ptr<Map> m_map{};
+    std::unique_ptr<Map> m_map;
     QSize m_size;
     qreal m_pixelRatio{1.0};
 };

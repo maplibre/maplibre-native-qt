@@ -196,11 +196,10 @@ MapRenderer::MapRenderer(qreal pixelRatio,
     : MapRenderer(pixelRatio, mode, localFontFamily) {}
 #endif
 
-MapRenderer::~MapRenderer() {
-    // MapRenderer may be destroyed from the GUI thread after the render thread is
-    // already shut down, so the thread identity might differ from creation
-    // time. Skip the thread guard here to avoid false assertion failures.
-}
+MapRenderer::~MapRenderer() = default;
+// MapRenderer may be destroyed from the GUI thread after the render thread is
+// already shut down, so the thread identity might differ from creation
+// time. Skip the thread guard here to avoid false assertion failures.
 
 void MapRenderer::updateParameters(std::shared_ptr<mbgl::UpdateParameters> parameters) {
     const std::lock_guard<std::mutex> lock(m_updateMutex);

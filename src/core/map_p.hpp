@@ -59,7 +59,7 @@ public:
                                    const QVariant &value) const;
 
     mbgl::EdgeInsets margins;
-    std::unique_ptr<mbgl::Map> mapObj{};
+    std::unique_ptr<mbgl::Map> mapObj;
 
     // Backend-specific helpers to expose the most recent color texture
     // Safe to call from the GUI thread.
@@ -89,12 +89,12 @@ private:
     Q_DISABLE_COPY(MapPrivate)
 
     mutable std::recursive_mutex m_mapRendererMutex;
-    std::shared_ptr<mbgl::RendererObserver> m_rendererObserver{};
-    std::shared_ptr<mbgl::UpdateParameters> m_updateParameters{};
+    std::shared_ptr<mbgl::RendererObserver> m_rendererObserver;
+    std::shared_ptr<mbgl::UpdateParameters> m_updateParameters;
 
-    std::unique_ptr<MapObserver> m_mapObserver{};
-    std::unique_ptr<MapRenderer> m_mapRenderer{};
-    std::unique_ptr<mbgl::Actor<mbgl::ResourceTransform::TransformCallback>> m_resourceTransform{};
+    std::unique_ptr<MapObserver> m_mapObserver;
+    std::unique_ptr<MapRenderer> m_mapRenderer;
+    std::unique_ptr<mbgl::Actor<mbgl::ResourceTransform::TransformCallback>> m_resourceTransform;
 
     Settings::GLContextMode m_mode;
     qreal m_pixelRatio;

@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
 
 #endif
 
-    QGuiApplication app(argc, argv);
+    const QGuiApplication app(argc, argv);
 
     qDebug() << "Platform:" << QGuiApplication::platformName();
     qDebug() << "Graphics API:" << QQuickWindow::graphicsApi();
@@ -48,20 +48,13 @@ int main(int argc, char *argv[]) {
 
     qDebug() << "Starting QML engine...";
 
-    // Connect to warnings/errors
-    QObject::connect(&engine, &QQmlApplicationEngine::warnings, [](const QList<QQmlError> &warnings) {
-        for (const auto &warning : warnings) {
-            qDebug() << "QML Warning:" << warning.toString();
-        }
-    });
-
     // Try to load test file if provided as argument
     if (argc > 1) {
         qDebug() << "Loading file:" << argv[1];
         engine.load(QUrl::fromLocalFile(argv[1]));
     } else {
         qDebug() << "Loading QML from resources...";
-        engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
+        engine.load(QUrl(QStringLiteral("qrc:/Example/main.qml")));
     }
 
     qDebug() << "Checking root objects...";
