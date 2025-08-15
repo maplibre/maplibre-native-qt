@@ -370,7 +370,7 @@ void QGeoMapMapLibrePrivate::threadedRenderingHack(QQuickWindow *window, Map *ma
     // in MapLibre Native. Meanwhile we need to set a timer to update
     // the map until all the resources are loaded, which is not exactly
     // battery friendly, because might trigger more paints than we need.
-    if (!m_warned) {
+    if (!m_threadedRenderingChecked) {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         m_threadedRendering = static_cast<QOpenGLContext *>(window->rendererInterface()->getResource(
                                                                 window, QSGRendererInterface::OpenGLContextResource))
@@ -379,11 +379,7 @@ void QGeoMapMapLibrePrivate::threadedRenderingHack(QQuickWindow *window, Map *ma
         m_threadedRendering = window->openglContext()->thread() != QCoreApplication::instance()->thread();
 #endif
 
-        if (m_threadedRendering) {
-            qWarning() << "Threaded rendering is not optimal in the MapLibre Native plugin.";
-        }
-
-        m_warned = true;
+        m_threadedRenderingChecked = true;
     }
 
     if (m_threadedRendering) {
