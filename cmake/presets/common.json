@@ -29,7 +29,10 @@
     {
       "name": "default",
       "hidden": true,
-      "output": { "outputOnFailure": true }
+      "output": {
+        "outputOnFailure": true,
+        "verbosity": "verbose"
+      }
     }
   ]
 }
