@@ -57,14 +57,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - qt_series: 5
-            qt_version: 5.15.2
-            qt_arch: win64_msvc2019_64
-            qt_modules: ""
-            platform: windows-2019
-            arch: msvc2019_64
-            compiler: x64
-            preset: Windows-legacy-ccache
           - qt_series: 6
             qt_version: 6.8.3
             qt_arch: win64_msvc2022_64
@@ -72,6 +64,7 @@ jobs:
             platform: windows-2022
             arch: msvc2022_64
             compiler: x64
+            vsversion: 2022
             preset: Windows-ccache
           - qt_series: 6
             qt_version: 6.9.1
@@ -80,6 +73,7 @@ jobs:
             platform: windows-2022
             arch: msvc2022_64
             compiler: x64
+            vsversion: 2022
             preset: Windows-ccache
 
     env:
@@ -121,6 +115,7 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: ${{ matrix.compiler }}
+          vsversion: ${{ matrix.vsversion }}
 
       - name: Update ccache
         run: |
@@ -186,8 +181,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - qt_version: 5.15.2
-            arch: msvc2019_64
           - qt_version: 6.8.3
             arch: msvc2022_64
           - qt_version: 6.9.1

@@ -117,7 +117,7 @@ Item {
         }
 
         function test_style_5_tiles() {
-            let url = "https://s2maps-tiles.eu/wms?service=wms&bbox={bbox-epsg-3857}&format=image/png&service=WMS&version=1.1.1&request=GetMap&srs=EPSG:900913&width=256&height=256&layers=s2cloudless-2021_3857"
+            let url = "https://tiles.maps.eox.at/wms?service=wms&bbox={bbox-epsg-3857}&format=image/png&service=WMS&version=1.1.1&request=GetMap&srs=EPSG:900913&width=256&height=256&layers=s2cloudless-2021_3857"
 
             let sourceParam = Qt.createQmlObject(`
                 import MapLibre 3.0
