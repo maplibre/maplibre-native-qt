@@ -16,6 +16,14 @@ enum NetworkMode {
     Offline,
 };
 
+enum RendererType {
+    OpenGL = 3, // same as QSGRendererInterface::OpenGL
+    Vulkan = 5, // same as QSGRendererInterface::Vulkan
+    Metal = 6,  // same as QSGRendererInterface::Metal
+};
+
+Q_MAPLIBRE_CORE_EXPORT RendererType supportedRendererType();
+
 Q_MAPLIBRE_CORE_EXPORT NetworkMode networkMode();
 Q_MAPLIBRE_CORE_EXPORT void setNetworkMode(NetworkMode mode);
 

@@ -18,11 +18,12 @@
 #include <QtCore/QStringList>
 #include <QtGui/QImage>
 
-#include <functional>
 #include <memory>
 
 #ifdef MLN_RENDER_BACKEND_VULKAN
-#include <mbgl/vulkan/texture2d.hpp>
+namespace mbgl::vulkan {
+class Texture2D;
+} // namespace mbgl::vulkan
 #endif
 
 namespace QMapLibre {
@@ -176,24 +177,16 @@ public:
     [[nodiscard]] QVariant getFilter(const QString &layerId) const;
     // When rendering on a different thread,
     // should be called on the render thread.
-    void createRenderer();
-    // Metal-specific: create the renderer using a pre-existing CAMetalLayer.
-    void createRendererWithMetalLayer(void *layerPtr);
+    void createRenderer(void *nativeLayerPtr);
 #ifdef MLN_RENDER_BACKEND_VULKAN
-    // Vulkan-specific: create the renderer using a Qt Quick window.
-    void createRendererWithVulkanWindow(void *windowPtr);
     // Vulkan-specific: create the renderer using Qt's Vulkan device
     void createRendererWithQtVulkanDevice(void *windowPtr,
                                           void *physicalDevice,
                                           void *device,
                                           uint32_t graphicsQueueIndex);
 #endif
+    void updateRenderer(const QSize &size, quint32 fbo = 0);
     void destroyRenderer();
-
-    // Backend-agnostic framebuffer update method
-    // For OpenGL: fbo parameter specifies the framebuffer object ID
-    // For Vulkan/Metal: fbo parameter is ignored (pass 0)
-    void updateFramebuffer(quint32 fbo, const QSize &size);
 
     /*!
         \brief Sets the current drawable texture for backend-specific rendering.
@@ -213,12 +206,12 @@ public:
     mbgl::vulkan::Texture2D *getVulkanTexture() const;
 
     // Vulkan-specific: read image data from the Vulkan texture.
-    std::shared_ptr<mbgl::PremultipliedImage> readVulkanImageData() const;
+    // std::shared_ptr<mbgl::PremultipliedImage> readVulkanImageData() const;
 #endif
 
 #ifdef MLN_RENDER_BACKEND_OPENGL
     // OpenGL-specific: get the OpenGL framebuffer texture ID for direct texture sharing.
-    unsigned int getFramebufferTextureId() const;
+    [[nodiscard]] unsigned int getFramebufferTextureId() const;
 #endif
 
 public slots:

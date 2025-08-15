@@ -1,3 +1,7 @@
+// Copyright (C) 2023 MapLibre contributors
+
+// SPDX-License-Identifier: BSD-2-Clause
+
 #ifdef __APPLE__
 #include <TargetConditionals.h>
 #if TARGET_OS_OSX || TARGET_OS_IPHONE
@@ -17,8 +21,6 @@
 
 namespace QMapLibre {
 
-using namespace mbgl::mtl;
-
 namespace {
 class QtMetalRenderableResource final : public mbgl::mtl::RenderableResource {
 public:
@@ -32,24 +34,26 @@ public:
     }
 
     void setBackendSize(mbgl::Size size_) {
+        qDebug() << "MapLibre Metal: Setting backend size to" << size_.width << "x" << size_.height;
         size = size_;
         layer->setDrawableSize({static_cast<CGFloat>(size.width), static_cast<CGFloat>(size.height)});
         buffersInvalid = true;
     }
 
-    mbgl::Size getSize() const { return size; }
+    [[nodiscard]] mbgl::Size getSize() const { return size; }
 
     // — mbgl::mtl::RenderableResource -----------------------------------
     void bind() override {
         // Qt Quick may supply us with the current swap-chain texture via
-        // MetalRendererBackend::_q_setCurrentDrawable().  Use that texture if
+        // MetalRendererBackend::setCurrentDrawable().  Use that texture if
         // present to avoid contending for a second drawable from the same
         // CAMetalLayer.
-        MTL::Texture *externalTex = static_cast<MTL::Texture *>(backend.currentDrawable());
+        qDebug() << "MapLibre Metal: Binding renderable resource with size" << size.width << "x" << size.height;
 
-        if (!externalTex) {
+        auto *externalTex = static_cast<MTL::Texture *>(backend.currentDrawable());
+        if (externalTex == nullptr) {
             auto *tmpDrawable = layer->nextDrawable();
-            if (!tmpDrawable) {
+            if (tmpDrawable == nullptr) {
                 qWarning() << "MapLibre Metal: nextDrawable() returned nil."
                            << "drawableSize=" << layer->drawableSize().width << "x" << layer->drawableSize().height
                            << ", device=" << (void *)layer->device()
@@ -64,7 +68,7 @@ public:
 
             surface = NS::RetainPtr(tmpDrawable);
             externalTex = surface->texture();
-            backend._q_setCurrentDrawable(externalTex);
+            backend.setCurrentDrawable(externalTex);
         }
 
         auto texSize = mbgl::Size{static_cast<uint32_t>(layer->drawableSize().width),
@@ -75,6 +79,8 @@ public:
         renderPassDescriptor->colorAttachments()->object(0)->setTexture(externalTex);
 
         if (buffersInvalid || !depthTexture || !stencilTexture) {
+            qDebug() << "MapLibre Metal: Allocating depth/stencil textures with size" << texSize.width << "x"
+                     << texSize.height;
             buffersInvalid = false;
             depthTexture = backend.getContext().createTexture2D();
             depthTexture->setSize(texSize);
@@ -82,7 +88,7 @@ public:
             depthTexture->setSamplerConfiguration({.filter = mbgl::gfx::TextureFilterType::Linear,
                                                    .wrapU = mbgl::gfx::TextureWrapType::Clamp,
                                                    .wrapV = mbgl::gfx::TextureWrapType::Clamp});
-            static_cast<Texture2D *>(depthTexture.get())
+            static_cast<mbgl::mtl::Texture2D *>(depthTexture.get())
                 ->setUsage(MTL::TextureUsageShaderRead | MTL::TextureUsageShaderWrite | MTL::TextureUsageRenderTarget);
 
             stencilTexture = backend.getContext().createTexture2D();
@@ -92,20 +98,24 @@ public:
             stencilTexture->setSamplerConfiguration({.filter = mbgl::gfx::TextureFilterType::Linear,
                                                      .wrapU = mbgl::gfx::TextureWrapType::Clamp,
                                                      .wrapV = mbgl::gfx::TextureWrapType::Clamp});
-            static_cast<Texture2D *>(stencilTexture.get())
+            static_cast<mbgl::mtl::Texture2D *>(stencilTexture.get())
                 ->setUsage(MTL::TextureUsageShaderRead | MTL::TextureUsageShaderWrite | MTL::TextureUsageRenderTarget);
         }
 
         if (depthTexture) {
             depthTexture->create();
+            qDebug() << "MapLibre Metal: Using depth texture" << depthTexture->getSize().width << "x"
+                     << depthTexture->getSize().height;
             if (auto *depthTarget = renderPassDescriptor->depthAttachment()) {
-                depthTarget->setTexture(static_cast<Texture2D *>(depthTexture.get())->getMetalTexture());
+                depthTarget->setTexture(static_cast<mbgl::mtl::Texture2D *>(depthTexture.get())->getMetalTexture());
             }
         }
         if (stencilTexture) {
             stencilTexture->create();
+            qDebug() << "MapLibre Metal: Using stencil texture" << stencilTexture->getSize().width << "x"
+                     << stencilTexture->getSize().height;
             if (auto *stencilTarget = renderPassDescriptor->stencilAttachment()) {
-                stencilTarget->setTexture(static_cast<Texture2D *>(stencilTexture.get())->getMetalTexture());
+                stencilTarget->setTexture(static_cast<mbgl::mtl::Texture2D *>(stencilTexture.get())->getMetalTexture());
             }
         }
     }
@@ -119,37 +129,41 @@ public:
         renderPassDescriptor.reset();
     }
 
-    const mbgl::mtl::RendererBackend &getBackend() const override { return backend; }
+    [[nodiscard]] const mbgl::mtl::RendererBackend &getBackend() const override { return backend; }
 
-    const MTLCommandBufferPtr &getCommandBuffer() const override { return commandBuffer; }
+    [[nodiscard]] const mbgl::mtl::MTLCommandBufferPtr &getCommandBuffer() const override { return commandBuffer; }
 
-    MTLBlitPassDescriptorPtr getUploadPassDescriptor() const override {
+    [[nodiscard]] mbgl::mtl::MTLBlitPassDescriptorPtr getUploadPassDescriptor() const override {
         return NS::RetainPtr(MTL::BlitPassDescriptor::alloc()->init());
     }
 
-    const MTLRenderPassDescriptorPtr &getRenderPassDescriptor() const override { return renderPassDescriptor; }
+    [[nodiscard]] const mbgl::mtl::MTLRenderPassDescriptorPtr &getRenderPassDescriptor() const override {
+        return renderPassDescriptor;
+    }
 
 private:
     MetalRendererBackend &backend;
     LayerPtr layer;
-    MTLCommandQueuePtr commandQueue;
-    MTLCommandBufferPtr commandBuffer;
-    MTLRenderPassDescriptorPtr renderPassDescriptor;
-    CAMetalDrawablePtr surface;
+    mbgl::mtl::MTLCommandQueuePtr commandQueue;
+    mbgl::mtl::MTLCommandBufferPtr commandBuffer;
+    mbgl::mtl::MTLRenderPassDescriptorPtr renderPassDescriptor;
+    mbgl::mtl::CAMetalDrawablePtr surface;
     mbgl::gfx::Texture2DPtr depthTexture;
     mbgl::gfx::Texture2DPtr stencilTexture;
     mbgl::Size size{0, 0};
-    bool buffersInvalid = true;
+    bool buffersInvalid{true};
 };
 } // namespace
 
 MetalRendererBackend::MetalRendererBackend(CA::MetalLayer *layer)
     : mbgl::mtl::RendererBackend(mbgl::gfx::ContextMode::Unique),
-      mbgl::gfx::Renderable(mbgl::Size{0, 0}, std::make_unique<QtMetalRenderableResource>(*this, layer)) {}
+      mbgl::gfx::Renderable(mbgl::Size{static_cast<uint32_t>(layer->drawableSize().width),
+                                       static_cast<uint32_t>(layer->drawableSize().height)},
+                            std::make_unique<QtMetalRenderableResource>(*this, layer)) {}
 
 // Convenience constructor that allocates its own CAMetalLayer. Used when only a
 // ContextMode is available (e.g. MapRenderer's default path).
-MetalRendererBackend::MetalRendererBackend(mbgl::gfx::ContextMode)
+MetalRendererBackend::MetalRendererBackend(mbgl::gfx::ContextMode /* mode */)
     : MetalRendererBackend(CA::MetalLayer::layer()) {}
 
 MetalRendererBackend::~MetalRendererBackend() = default;

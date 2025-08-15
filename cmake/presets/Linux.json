@@ -4,10 +4,10 @@
   "configurePresets": [
     {
       "name": "Linux",
-      "displayName": "Linux configuration using Qt6",
+      "displayName": "Linux configuration using Qt6 and OpenGL",
       "generator": "Ninja",
       "binaryDir": "${sourceParentDir}/build/qt6-Linux",
-      "toolchainFile": "$penv{QT_ROOT_DIR}/lib/cmake/Qt6/qt.toolchain.cmake",
+      "toolchainFile": "$penv{QT_ROOT_DIR}/lib64/cmake/Qt6/qt.toolchain.cmake",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_POLICY_VERSION_MINIMUM": "3.19",
@@ -15,9 +15,28 @@
       }
     },
     {
+      "name": "Linux-Vulkan",
+      "displayName": "Linux configuration using Qt6 and Vulkan",
+      "generator": "Ninja",
+      "binaryDir": "${sourceParentDir}/build/qt6-Linux-Vulkan",
+      "toolchainFile": "$penv{QT_ROOT_DIR}/lib64/cmake/Qt6/qt.toolchain.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_POLICY_VERSION_MINIMUM": "3.19",
+        "QT_VERSION_MAJOR": "6",
+        "MLN_WITH_VULKAN": "ON",
+        "MLN_WITH_OPENGL": "OFF"
+      }
+    },
+    {
       "name": "Linux-ccache",
       "displayName": "Linux configuration using Qt6 and ccache",
       "inherits": ["dev", "ccache", "Linux"]
+    },
+    {
+      "name": "Linux-Vulkan-ccache",
+      "displayName": "Linux configuration using Qt6 and ccache",
+      "inherits": ["dev", "ccache", "Linux-Vulkan"]
     },
     {
       "name": "Linux-internal-icu",
@@ -55,9 +74,19 @@
       "configurePreset": "Linux"
     },
     {
+      "name": "Linux-Vulkan",
+      "displayName": "Linux build using Qt6",
+      "configurePreset": "Linux-Vulkan"
+    },
+    {
       "name": "Linux-ccache",
       "displayName": "Linux build using Qt6 and ccache",
       "configurePreset": "Linux-ccache"
+    },
+    {
+      "name": "Linux-Vulkan-ccache",
+      "displayName": "Linux build using Qt6 and ccache",
+      "configurePreset": "Linux-Vulkan-ccache"
     },
     {
       "name": "Linux-internal-icu",
@@ -83,9 +112,21 @@
       "inherits": ["default"]
     },
     {
+      "name": "Linux-Vulkan",
+      "displayName": "Linux tests using Qt6",
+      "configurePreset": "Linux-Vulkan",
+      "inherits": ["default"]
+    },
+    {
       "name": "Linux-ccache",
       "displayName": "Linux tests using Qt6 and ccache",
       "configurePreset": "Linux-ccache",
+      "inherits": ["default"]
+    },
+    {
+      "name": "Linux-Vulkan-ccache",
+      "displayName": "Linux tests using Qt6 and ccache",
+      "configurePreset": "Linux-Vulkan-ccache",
       "inherits": ["default"]
     },
     {
@@ -114,9 +155,19 @@
       "configurePreset": "Linux"
     },
     {
+      "name": "Linux-Vulkan",
+      "displayName": "Linux package using Qt6",
+      "configurePreset": "Linux-Vulkan"
+    },
+    {
       "name": "Linux-ccache",
       "displayName": "Linux package using Qt6 and ccache",
       "configurePreset": "Linux-ccache"
+    },
+    {
+      "name": "Linux-Vulkan-ccache",
+      "displayName": "Linux package using Qt6 and ccache",
+      "configurePreset": "Linux-Vulkan-ccache"
     },
     {
       "name": "Linux-internal-icu",
@@ -158,6 +209,28 @@
       ]
     },
     {
+      "name": "Linux-Vulkan",
+      "displayName": "Linux workflow using Qt6",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "Linux-Vulkan"
+        },
+        {
+          "type": "build",
+          "name": "Linux-Vulkan"
+        },
+        {
+          "type": "test",
+          "name": "Linux-Vulkan"
+        },
+        {
+          "type": "package",
+          "name": "Linux-Vulkan"
+        }
+      ]
+    },
+    {
       "name": "Linux-ccache",
       "displayName": "Linux workflow using Qt6 and ccache",
       "steps": [
@@ -176,6 +249,28 @@
         {
           "type": "package",
           "name": "Linux-ccache"
+        }
+      ]
+    },
+    {
+      "name": "Linux-Vulkan-ccache",
+      "displayName": "Linux workflow using Qt6 and ccache",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "Linux-Vulkan-ccache"
+        },
+        {
+          "type": "build",
+          "name": "Linux-Vulkan-ccache"
+        },
+        {
+          "type": "test",
+          "name": "Linux-Vulkan-ccache"
+        },
+        {
+          "type": "package",
+          "name": "Linux-Vulkan-ccache"
         }
       ]
     },

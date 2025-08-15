@@ -1,3 +1,7 @@
+// Copyright (C) 2023 MapLibre contributors
+
+// SPDX-License-Identifier: BSD-2-Clause
+
 #pragma once
 
 #include <mbgl/gfx/renderable.hpp>

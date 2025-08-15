@@ -38,6 +38,37 @@ namespace QMapLibre {
 */
 
 /*!
+    \enum RendererType
+
+    This enum represents possible renderer types used by MapLibre Qt bindings.
+*/
+/*!
+    \var OpenGL
+    OpenGL renderer type.
+*/
+/*!
+    \var Vulkan
+    Vulkan renderer type.
+*/
+/*!
+    \var Metal
+    Metal renderer type.
+*/
+
+/*!
+    Returns the \ref RendererType the library was built with.
+*/
+RendererType supportedRendererType() {
+#if defined(MLN_WITH_VULKAN)
+    return RendererType::Vulkan;
+#elif defined(MLN_WITH_METAL)
+    return RendererType::Metal;
+#else
+    return RendererType::OpenGL;
+#endif
+}
+
+/*!
     Returns the current \ref NetworkMode.
 */
 NetworkMode networkMode() {

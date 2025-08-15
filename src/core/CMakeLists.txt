@@ -179,23 +179,23 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
         INTERFACE
             $<INSTALL_INTERFACE:lib/${MLN_QT_NAME}.framework>
     )
+endif()
 
-    # Metal backend sources
-    if(MLN_WITH_METAL)
-        target_link_libraries(
-            MLNQtCore
-            PRIVATE
-                "-framework QuartzCore"
-                "-framework Metal"
-                "-framework CoreFoundation"
-        )
+# Metal backend sources
+if (APPLE AND MLN_WITH_METAL)
+    target_link_libraries(
+        MLNQtCore
+        PRIVATE
+            "-framework QuartzCore"
+            "-framework Metal"
+            "-framework CoreFoundation"
+    )
 
-        target_include_directories(
-            MLNQtCore
-            PRIVATE
-                ${MLN_CORE_PATH}/vendor/metal-cpp
-        )
-    endif()
+    target_include_directories(
+        MLNQtCore
+        PRIVATE
+            ${MLN_CORE_PATH}/vendor/metal-cpp
+    )
 endif()
 
 # Development specifics

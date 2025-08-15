@@ -21,7 +21,7 @@ Window {
     Component.onCompleted: {
         console.log("Available location plugins:", Plugin.availableServiceProviders)
         var plugins = Plugin.availableServiceProviders
-        debugText.text = "Plugins: " + (plugins.length > 0 ? plugins.join(", ") : "NONE")
+        debugText.text = "Plugins: " + (typeof plugins !== undefined && plugins.length > 0 ? plugins.join(", ") : "NONE")
         console.log("Number of plugins found:", plugins.length)
         for (var i = 0; i < plugins.length; i++) {
             console.log("Plugin " + i + ": " + plugins[i])

@@ -196,14 +196,14 @@ QSGNode *MapLibreQuickItem::updatePaintNode(QSGNode *node, UpdatePaintNodeData *
                     m_currentDrawable = const_cast<void *>(CFRetain((__bridge CFTypeRef)drawable));
                     // Lazily create renderer once we have a valid drawable
                     if (!m_rendererBound) {
-                        m_map->createRendererWithMetalLayer(m_layerPtr);
+                        m_map->createRenderer(m_layerPtr);
                         m_rendererBound = true;
                     }
 
                     m_map->setCurrentDrawable((void *)drawable.texture);
                 } else {
                     if (!m_rendererBound) {
-                        m_map->createRendererWithMetalLayer(m_layerPtr);
+                        m_map->createRenderer(m_layerPtr);
                         m_rendererBound = true;
                     }
                     // Provide the current swap-chain texture from Qt

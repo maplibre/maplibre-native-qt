@@ -150,7 +150,7 @@ void GLWidget::initializeGL() {
     connect(d_ptr->m_map.get(), SIGNAL(needsRendering()), this, SLOT(update()));
 
     // Create the OpenGL renderer
-    d_ptr->m_map->createRenderer();
+    d_ptr->m_map->createRenderer(nullptr);
 
     // Set default location
     d_ptr->m_map->setCoordinateZoom(d_ptr->m_settings.defaultCoordinate(), d_ptr->m_settings.defaultZoom());
@@ -312,7 +312,7 @@ void GLWidget::paintGL() {
     auto *f = QOpenGLContext::currentContext()->extraFunctions();
 
     // Update framebuffer for MapLibre to render into
-    d_ptr->m_map->updateFramebuffer(d_ptr->m_mapFramebuffer, mapSize);
+    d_ptr->m_map->updateRenderer(mapSize, d_ptr->m_mapFramebuffer);
 
     // Render the map to FBO
     d_ptr->m_map->render();

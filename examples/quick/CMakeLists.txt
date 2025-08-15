@@ -13,7 +13,7 @@ if(QT_KNOWN_POLICY_QTP0002)
     qt_policy(SET QTP0002 NEW)
 endif()
 
-find_package(QMapLibre COMPONENTS Location REQUIRED)
+find_package(QMapLibre COMPONENTS Core Location REQUIRED)
 
 qt_add_executable(
     QMapLibreExampleQuickLocation
@@ -40,6 +40,7 @@ target_link_libraries(
     QMapLibreExampleQuickLocation
     PRIVATE
         Qt::Quick
+        QMapLibre::Core
         QMapLibre::Location
 )
 

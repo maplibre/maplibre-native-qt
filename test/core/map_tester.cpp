@@ -18,7 +18,7 @@ MapTester::MapTester()
     connect(&map, &Map::mapChanged, this, &MapTester::onMapChanged);
     connect(&map, &Map::needsRendering, this, &MapTester::onNeedsRendering);
     map.resize(size);
-    map.updateFramebuffer(widget.defaultFramebufferObject(), size);
+    map.updateRenderer(widget.defaultFramebufferObject(), size);
     map.setCoordinateZoom(Coordinate(60.170448, 24.942046), 14);
     widget.show();
 }

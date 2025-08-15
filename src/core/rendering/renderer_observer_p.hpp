@@ -1,3 +1,7 @@
+// Copyright (C) 2023 MapLibre contributors
+
+// SPDX-License-Identifier: BSD-2-Clause
+
 #pragma once
 
 #include <mbgl/actor/actor.hpp>
@@ -43,7 +47,7 @@ public:
     void onDidFinishRenderingMap() final { delegate.invoke(&mbgl::RendererObserver::onDidFinishRenderingMap); }
 
 private:
-    std::shared_ptr<mbgl::Mailbox> mailbox{};
+    std::shared_ptr<mbgl::Mailbox> mailbox;
     mbgl::ActorRef<mbgl::RendererObserver> delegate;
 };
 

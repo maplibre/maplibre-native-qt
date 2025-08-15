@@ -59,7 +59,7 @@ Item {
             wait(2000)
             root.fullView = true
             mapView.map.center = root.coordinate
-            wait(500)
+            wait(5000000)
         }
 
         function test_styles() {

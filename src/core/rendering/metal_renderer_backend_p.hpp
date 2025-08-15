@@ -1,3 +1,7 @@
+// Copyright (C) 2023 MapLibre contributors
+
+// SPDX-License-Identifier: BSD-2-Clause
+
 #pragma once
 
 #ifdef __APPLE__
@@ -31,17 +35,13 @@ public:
 
     // Qt-specific --------------------------------------------------------------
     void setSize(mbgl::Size size_);
-    mbgl::Size getSize() const;
+    [[nodiscard]] mbgl::Size getSize() const;
 
     // Returns the color texture of the drawable rendered in the last frame.
-    void* currentDrawable() const { return m_currentDrawable; }
+    [[nodiscard]] void* currentDrawable() const { return m_currentDrawable; }
+    void setCurrentDrawable(void* tex) { m_currentDrawable = tex; }
 
-    void _q_setCurrentDrawable(void* tex) { m_currentDrawable = tex; }
-
-    // Qt Widgets path still expects this hook even though Metal does not use an
-    // OpenGL FBO.  Provide a no-op so code that is agnostic of the backend can
-    // compile unmodified.
-    void updateFramebuffer(quint32 /*fbo*/, const mbgl::Size& /*size*/) {}
+    void updateRenderer(const mbgl::Size& size, quint32 /* fbo */) { setSize(size); };
 
 private:
     void* m_currentDrawable{nullptr}; // id<MTLTexture>

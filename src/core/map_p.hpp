@@ -38,18 +38,16 @@ public:
     const mbgl::TaggedScheduler &getThreadPool() const final { return m_threadPool; }
 
     // These need to be called on the same thread.
-    void createRenderer();
-    void createRendererWithMetalLayer(void *layerPtr);
+    void createRenderer(void *nativeTargetPtr);
 #ifdef MLN_RENDER_BACKEND_VULKAN
-    void createRendererWithVulkanWindow(void *windowPtr);
     void createRendererWithQtVulkanDevice(void *windowPtr,
                                           void *physicalDevice,
                                           void *device,
                                           uint32_t graphicsQueueIndex);
 #endif
+    void updateRenderer(const QSize &size, quint32 fbo = 0);
     void destroyRenderer();
     void render();
-    void updateFramebuffer(quint32 fbo, const QSize &size);
 
     using PropertySetter = std::optional<mbgl::style::conversion::Error> (mbgl::style::Layer::*)(
         const std::string &, const mbgl::style::conversion::Convertible &);
@@ -63,8 +61,7 @@ public:
 
     // Backend-specific helpers to expose the most recent color texture
     // Safe to call from the GUI thread.
-    void *currentMetalTexture() const;
-    void *currentVulkanTexture() const;
+    void *currentDrawableTexture() const;
 
     // Backend-specific: push latest swap-chain texture into renderer
     void setCurrentDrawable(void *tex);
@@ -106,14 +103,9 @@ private:
     mbgl::TaggedScheduler m_threadPool{mbgl::Scheduler::GetBackground(), mbgl::util::SimpleIdentity{}};
 };
 
-inline void *MapPrivate::currentMetalTexture() const {
+inline void *MapPrivate::currentDrawableTexture() const {
     std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
-    return m_mapRenderer ? m_mapRenderer->currentMetalTexture() : nullptr;
-}
-
-inline void *MapPrivate::currentVulkanTexture() const {
-    std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
-    return m_mapRenderer ? m_mapRenderer->currentVulkanTexture() : nullptr;
+    return m_mapRenderer ? m_mapRenderer->currentDrawableTexture() : nullptr;
 }
 
 inline void MapPrivate::setCurrentDrawable(void *tex) {

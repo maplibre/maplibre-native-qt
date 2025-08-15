@@ -1,3 +1,7 @@
+// Copyright (C) 2023 MapLibre contributors
+
+// SPDX-License-Identifier: BSD-2-Clause
+
 #include "opengl_renderer_backend_p.hpp"
 
 #include <mbgl/gfx/backend_scope.hpp>
@@ -23,7 +27,7 @@ public:
 
         // Ensure the framebuffer is properly cleared before rendering
         QOpenGLContext* context = QOpenGLContext::currentContext();
-        if (context) {
+        if (context != nullptr) {
             QOpenGLFunctions* gl = context->functions();
 
             // Clear to opaque black background
@@ -97,11 +101,11 @@ void OpenGLRendererBackend::restoreFramebufferBinding() {
     setFramebufferBinding(m_fbo);
 }
 
-void OpenGLRendererBackend::updateFramebuffer(uint32_t fbo, const mbgl::Size& newSize) {
+void OpenGLRendererBackend::updateRenderer(const mbgl::Size& newSize, uint32_t fbo) {
     size = newSize;
 
-    qDebug() << "OpenGLRendererBackend::updateFramebuffer - fbo:" << fbo << "size:" << newSize.width << "x"
-             << newSize.height << "current m_fbo:" << m_fbo << "current m_colorTexture:" << m_colorTexture;
+    qDebug() << "OpenGLRendererBackend::updateRenderer - size:" << newSize.width << "x" << newSize.height
+             << "fbo:" << fbo << "current m_fbo:" << m_fbo << "current m_colorTexture:" << m_colorTexture;
 
     // Skip texture creation for default framebuffer
     if (fbo == 0) {

@@ -67,10 +67,10 @@ void TextureNodeVulkan::render(QQuickWindow *window) {
 
                     m_map->createRendererWithQtVulkanDevice(window, qtPhysicalDevice, qtDevice, graphicsQueueIndex);
                 } else {
-                    m_map->createRendererWithVulkanWindow(window);
+                    m_map->createRenderer(window);
                 }
             } else {
-                m_map->createRendererWithVulkanWindow(window);
+                m_map->createRenderer(window);
             }
             m_rendererBound = true;
         }

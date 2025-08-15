@@ -1,3 +1,7 @@
+// Copyright (C) 2023 MapLibre contributors
+
+// SPDX-License-Identifier: BSD-2-Clause
+
 #pragma once
 
 #include <mbgl/gfx/renderable.hpp>
@@ -29,7 +33,7 @@ protected:
 public:
     // Qt integration helpers -----------------------------------------------------
     void restoreFramebufferBinding();
-    void updateFramebuffer(uint32_t fbo, const mbgl::Size& newSize);
+    void updateRenderer(const mbgl::Size& newSize, uint32_t fbo);
 
     // Get the current framebuffer texture ID for direct texture sharing
     unsigned int getFramebufferTextureId() const;

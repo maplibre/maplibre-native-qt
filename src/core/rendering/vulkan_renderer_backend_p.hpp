@@ -1,3 +1,7 @@
+// Copyright (C) 2023 MapLibre contributors
+
+// SPDX-License-Identifier: BSD-2-Clause
+
 #pragma once
 
 #include <QtCore/QtGlobal>
@@ -44,12 +48,11 @@ public:
 
     // Returns the color texture of the drawable rendered in the last frame.
     void* currentDrawable() const { return m_currentDrawable; }
-
-    void _q_setCurrentDrawable(void* tex) { m_currentDrawable = static_cast<mbgl::gfx::Texture2D*>(tex); }
+    void setCurrentDrawable(void* tex) { m_currentDrawable = static_cast<mbgl::gfx::Texture2D*>(tex); }
 
     // Qt Widgets path still expects this hook even though Vulkan doesn't use an
     // OpenGL FBO. Update the size for Vulkan rendering.
-    void updateFramebuffer(quint32 /*fbo*/, const mbgl::Size& newSize);
+    void updateRenderer(const mbgl::Size& newSize, quint32 /* fbo */) { setSize(newSize); }
 
     // Helper method to get the texture object for pixel data extraction
     mbgl::vulkan::Texture2D* getOffscreenTexture() const;

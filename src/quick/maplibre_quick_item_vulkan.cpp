@@ -147,10 +147,10 @@ QSGNode *MapLibreQuickItemVulkan::updatePaintNode(QSGNode *node, UpdatePaintNode
 
                     m_map->createRendererWithQtVulkanDevice(qWindow, qtPhysicalDevice, qtDevice, graphicsQueueIndex);
                 } else {
-                    m_map->createRendererWithVulkanWindow(qWindow);
+                    m_map->createRenderer(qWindow);
                 }
             } else {
-                m_map->createRendererWithVulkanWindow(qWindow);
+                m_map->createRenderer(qWindow);
             }
             m_rendererBound = true;
 

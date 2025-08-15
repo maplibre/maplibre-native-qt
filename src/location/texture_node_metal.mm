@@ -114,7 +114,7 @@ void TextureNodeMetal::render(QQuickWindow *window) {
 
     // Create renderer with Metal layer if not already created
     if (!m_rendererBound) {
-        m_map->createRendererWithMetalLayer(m_layerPtr);
+        m_map->createRenderer(m_layerPtr);
         m_rendererBound = true;
     }
 

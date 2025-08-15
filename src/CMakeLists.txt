@@ -15,9 +15,9 @@ if(MLN_QT_WITH_LOCATION)
 endif()
 
 if(MLN_QT_WITH_WIDGETS)
-    add_subdirectory(widgets)
-    list(APPEND MLN_QT_SUPPORTED_COMPONENTS "Widgets")
-    message(STATUS "Building widgets module")
+    # add_subdirectory(widgets)
+    # list(APPEND MLN_QT_SUPPORTED_COMPONENTS "Widgets")
+    # message(STATUS "Building widgets module")
 endif()
 
 # Always build Quick plugin

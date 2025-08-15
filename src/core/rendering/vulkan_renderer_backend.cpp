@@ -1,3 +1,7 @@
+// Copyright (C) 2023 MapLibre contributors
+
+// SPDX-License-Identifier: BSD-2-Clause
+
 #include "vulkan_renderer_backend_p.hpp"
 
 // Define storage for the global Vulkan dispatcher
@@ -56,7 +60,7 @@ public:
                     if (texture) {
                         texture->create();
                         // Store the texture as the current drawable (Qt Quick will handle VkImage access)
-                        backend._q_setCurrentDrawable(texture.get());
+                        backend.setCurrentDrawable(texture.get());
                     }
                 }
 
@@ -101,7 +105,7 @@ public:
                     texture->create();
 
                     // Store the texture as the current drawable
-                    backend._q_setCurrentDrawable(texture.get());
+                    backend.setCurrentDrawable(texture.get());
                 }
             }
         }
@@ -407,10 +411,6 @@ mbgl::vulkan::Texture2D* VulkanRendererBackend::getOffscreenTexture() const {
         return static_cast<mbgl::vulkan::Texture2D*>(m_currentDrawable);
     }
     return nullptr;
-}
-
-void VulkanRendererBackend::updateFramebuffer(quint32 /*fbo*/, const mbgl::Size& newSize) {
-    setSize(newSize);
 }
 
 // Helper function to create a QVulkanInstance

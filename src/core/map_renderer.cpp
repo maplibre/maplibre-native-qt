@@ -15,13 +15,13 @@
 #include <TargetConditionals.h>
 #endif
 
-#if defined(MLN_RENDER_BACKEND_METAL) && defined(__APPLE__) && TARGET_OS_OSX
+#if defined(MLN_RENDER_BACKEND_METAL)
 #include <QuartzCore/CAMetalLayer.hpp>
 #endif
 
 #if defined(MLN_RENDER_BACKEND_VULKAN)
 #include <vulkan/vulkan.h>
-#include <QWindow>
+#include <QtGui/QWindow>
 #endif
 
 namespace {
@@ -52,8 +52,52 @@ namespace QMapLibre {
 
 /*! \cond PRIVATE */
 
-MapRenderer::MapRenderer(qreal pixelRatio, Settings::GLContextMode mode, const QString &localFontFamily)
+MapRenderer::MapRenderer(qreal pixelRatio,
+                         Settings::GLContextMode mode,
+                         const QString &localFontFamily,
+                         void *nativeTargetPtr)
+#if defined(MLN_RENDER_BACKEND_VULKAN)
+    : m_backend(static_cast<QWindow *>(nativeTargetPtr)),
+#elif defined(MLN_RENDER_BACKEND_METAL)
+    : m_backend(static_cast<CA::MetalLayer *>(nativeTargetPtr)),
+#else
     : m_backend(static_cast<mbgl::gfx::ContextMode>(mode)),
+#endif
+      m_renderer(std::make_unique<mbgl::Renderer>(
+          m_backend,
+          pixelRatio,
+          localFontFamily.isEmpty() ? std::nullopt : std::optional<std::string>{localFontFamily.toStdString()})),
+      m_forceScheduler(needsToForceScheduler()) {
+    Q_UNUSED(mode);
+    Q_UNUSED(nativeTargetPtr);
+    // If we don't have a Scheduler on this thread, which
+    // is usually the case for render threads, use a shared
+    // dummy scheduler that needs to be explicitly forced to
+    // process events.
+    if (m_forceScheduler) {
+        Scheduler *scheduler = getScheduler();
+
+        if (mbgl::Scheduler::GetCurrent() == nullptr) {
+            mbgl::Scheduler::SetCurrent(scheduler);
+        }
+
+        connect(scheduler, &Scheduler::needsProcessing, this, &MapRenderer::needsRendering);
+    }
+}
+
+#if defined(MLN_RENDER_BACKEND_VULKAN)
+// Constructor that uses Qt's Vulkan device for proper resource sharing
+MapRenderer::MapRenderer(qreal pixelRatio,
+                         Settings::GLContextMode /* mode */,
+                         const QString &localFontFamily,
+                         void *windowPtr,
+                         void *physicalDevice,
+                         void *device,
+                         uint32_t graphicsQueueIndex)
+    : m_backend(static_cast<QWindow *>(windowPtr),
+                static_cast<VkPhysicalDevice>(physicalDevice),
+                static_cast<VkDevice>(device),
+                graphicsQueueIndex),
       m_renderer(std::make_unique<mbgl::Renderer>(
           m_backend,
           pixelRatio,
@@ -73,127 +117,6 @@ MapRenderer::MapRenderer(qreal pixelRatio, Settings::GLContextMode mode, const Q
         connect(scheduler, &Scheduler::needsProcessing, this, &MapRenderer::needsRendering);
     }
 }
-
-#if defined(MLN_RENDER_BACKEND_METAL) && defined(__APPLE__) && TARGET_OS_OSX
-// Constructor that takes an externally provided CAMetalLayer (Metal only).
-MapRenderer::MapRenderer(qreal pixelRatio,
-                         Settings::GLContextMode mode,
-                         const QString &localFontFamily,
-                         void *metalLayerPtr)
-    : m_backend(static_cast<CA::MetalLayer *>(metalLayerPtr)),
-      m_renderer(std::make_unique<mbgl::Renderer>(
-          m_backend,
-          pixelRatio,
-          localFontFamily.isEmpty() ? std::nullopt : std::optional<std::string>{localFontFamily.toStdString()})),
-      m_forceScheduler(needsToForceScheduler()) {
-    if (m_forceScheduler) {
-        Scheduler *scheduler = getScheduler();
-
-        if (mbgl::Scheduler::GetCurrent() == nullptr) {
-            mbgl::Scheduler::SetCurrent(scheduler);
-        }
-
-        connect(scheduler, &Scheduler::needsProcessing, this, &MapRenderer::needsRendering);
-    }
-
-    Q_UNUSED(mode);
-}
-#endif
-
-#if defined(MLN_RENDER_BACKEND_VULKAN) || (defined(MLN_RENDER_BACKEND_METAL) && defined(__APPLE__) && TARGET_OS_OSX)
-// Constructor that takes a window/layer pointer and determines the backend based on isVulkan flag
-MapRenderer::MapRenderer(
-    qreal pixelRatio, Settings::GLContextMode mode, const QString &localFontFamily, void *windowPtr, bool isVulkan)
-#if defined(MLN_RENDER_BACKEND_VULKAN)
-    : m_backend(isVulkan ? static_cast<QWindow *>(windowPtr) : nullptr),
-#elif defined(MLN_RENDER_BACKEND_METAL)
-    : m_backend(isVulkan ? nullptr : static_cast<CA::MetalLayer *>(windowPtr)),
-#else
-    : m_backend(static_cast<mbgl::gfx::ContextMode>(mode)),
-#endif
-      m_renderer(std::make_unique<mbgl::Renderer>(
-          m_backend,
-          pixelRatio,
-          localFontFamily.isEmpty() ? std::nullopt : std::optional<std::string>{localFontFamily.toStdString()})),
-      m_forceScheduler(needsToForceScheduler()) {
-
-    // Debug: Log which backend we're using
-    logBackendInfo();
-
-    if (m_forceScheduler) {
-        Scheduler *scheduler = getScheduler();
-
-        if (mbgl::Scheduler::GetCurrent() == nullptr) {
-            mbgl::Scheduler::SetCurrent(scheduler);
-        }
-
-        connect(scheduler, &Scheduler::needsProcessing, this, &MapRenderer::needsRendering);
-    }
-
-    Q_UNUSED(mode);
-    Q_UNUSED(isVulkan);
-    Q_UNUSED(windowPtr);
-}
-#else
-// Fallback constructor for non-Metal/Vulkan backends; just delegate to default ctor and ignore pointer.
-MapRenderer::MapRenderer(qreal pixelRatio,
-                         Settings::GLContextMode mode,
-                         const QString &localFontFamily,
-                         void * /*unusedLayerPtr*/)
-    : MapRenderer(pixelRatio, mode, localFontFamily) {}
-
-// 5-parameter constructor for OpenGL compatibility - ignores both pointer and bool
-MapRenderer::MapRenderer(qreal pixelRatio,
-                         Settings::GLContextMode mode,
-                         const QString &localFontFamily,
-                         void * /*unusedPtr*/,
-                         bool /*isVulkan*/)
-    : MapRenderer(pixelRatio, mode, localFontFamily) {}
-#endif
-
-#if defined(MLN_RENDER_BACKEND_VULKAN)
-// Constructor that uses Qt's Vulkan device for proper resource sharing
-MapRenderer::MapRenderer(qreal pixelRatio,
-                         Settings::GLContextMode mode,
-                         const QString &localFontFamily,
-                         void *windowPtr,
-                         void *physicalDevice,
-                         void *device,
-                         uint32_t graphicsQueueIndex)
-    : m_backend(static_cast<QWindow *>(windowPtr),
-                static_cast<VkPhysicalDevice>(physicalDevice),
-                static_cast<VkDevice>(device),
-                graphicsQueueIndex),
-      m_renderer(std::make_unique<mbgl::Renderer>(
-          m_backend,
-          pixelRatio,
-          localFontFamily.isEmpty() ? std::nullopt : std::optional<std::string>{localFontFamily.toStdString()})),
-      m_forceScheduler(needsToForceScheduler()) {
-    // Debug: Log which backend we're using
-    logBackendInfo();
-
-    if (m_forceScheduler) {
-        Scheduler *scheduler = getScheduler();
-
-        if (mbgl::Scheduler::GetCurrent() == nullptr) {
-            mbgl::Scheduler::SetCurrent(scheduler);
-        }
-
-        connect(scheduler, &Scheduler::needsProcessing, this, &MapRenderer::needsRendering);
-    }
-
-    Q_UNUSED(mode);
-}
-#else
-// Fallback constructor for non-Vulkan backends
-MapRenderer::MapRenderer(qreal pixelRatio,
-                         Settings::GLContextMode mode,
-                         const QString &localFontFamily,
-                         void * /*windowPtr*/,
-                         void * /*physicalDevice*/,
-                         void * /*device*/,
-                         uint32_t /*graphicsQueueIndex*/)
-    : MapRenderer(pixelRatio, mode, localFontFamily) {}
 #endif
 
 MapRenderer::~MapRenderer() = default;
@@ -206,10 +129,10 @@ void MapRenderer::updateParameters(std::shared_ptr<mbgl::UpdateParameters> param
     m_updateParameters = std::move(parameters);
 }
 
-void MapRenderer::updateFramebuffer(quint32 fbo, const mbgl::Size &size) {
+void MapRenderer::updateRenderer(const mbgl::Size &size, quint32 fbo) {
     MBGL_VERIFY_THREAD(tid);
 
-    m_backend.updateFramebuffer(fbo, size);
+    m_backend.updateRenderer(size, fbo);
 }
 
 void MapRenderer::render() {

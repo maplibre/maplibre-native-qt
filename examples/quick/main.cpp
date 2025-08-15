@@ -2,6 +2,7 @@
 
 // SPDX-License-Identifier: MIT
 
+#include <QtQuick/qquickitem.h>
 #include <QDebug>
 #include <QGuiApplication>
 #include <QLoggingCategory>
@@ -13,6 +14,8 @@
 #include <QVulkanInstance>
 #endif
 
+#include <QMapLibre/Utils>
+
 int main(int argc, char *argv[]) {
     // Enable verbose logging for debugging
     QLoggingCategory::setFilterRules(
@@ -20,23 +23,14 @@ int main(int argc, char *argv[]) {
         "qt.positioning.*.debug=true\n"
         "maplibre.*.debug=true");
     // Set up graphics API and instance for each platform
-#if defined(MLN_WITH_VULKAN)
+    constexpr QMapLibre::RendererType rendererType = QMapLibre::supportedRendererType();
+    auto graphicsApi = static_cast<QSGRendererInterface::GraphicsApi>(rendererType);
+    QQuickWindow::setGraphicsApi(graphicsApi);
 
-    // Let Qt handle Vulkan initialization automatically
-    QQuickWindow::setGraphicsApi(QSGRendererInterface::Vulkan);
-
-    // Enable Vulkan debug output
-    qputenv("QT_VULKAN_DEBUG_OUTPUT", "1");
-
-#elif defined(__APPLE__)
-    // Use Metal on Apple platforms
-    QQuickWindow::setGraphicsApi(QSGRendererInterface::Metal);
-
-#else
-    // Use OpenGL on other platforms
-    QQuickWindow::setGraphicsApi(QSGRendererInterface::OpenGL);
-
-#endif
+    if constexpr (rendererType == QMapLibre::Vulkan) {
+        // Enable Vulkan debug output
+        qputenv("QT_VULKAN_DEBUG_OUTPUT", "1");
+    }
 
     const QGuiApplication app(argc, argv);
 
