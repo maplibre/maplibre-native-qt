@@ -17,6 +17,15 @@ foreach(_comp ${@MLN_QT_NAME@_FIND_COMPONENTS})
         endif()
 
         include("${CMAKE_CURRENT_LIST_DIR}/@MLN_QT_NAME@${_comp}Targets.cmake")
+    elseif(_comp STREQUAL QuickPrivate)
+        find_dependency(@MLN_QT_NAME@ COMPONENTS Core)
+
+        find_dependency(Qt@QT_VERSION_MAJOR@ COMPONENTS Quick)
+
+        include("${CMAKE_CURRENT_LIST_DIR}/@MLN_QT_NAME@${_comp}Targets.cmake")
+        # include("${CMAKE_CURRENT_LIST_DIR}/@MLN_QT_NAME@${_comp}Macros.cmake")
+        # include("${CMAKE_CURRENT_LIST_DIR}/@MLN_QT_NAME@${_comp}PluginGeoServicesTargets.cmake")
+        # include("${CMAKE_CURRENT_LIST_DIR}/@MLN_QT_NAME@${_comp}PluginQmlTargets.cmake")
     elseif(_comp STREQUAL Location)
         find_dependency(@MLN_QT_NAME@ COMPONENTS Core)
 
@@ -29,11 +38,7 @@ foreach(_comp ${@MLN_QT_NAME@_FIND_COMPONENTS})
     elseif(_comp STREQUAL Widgets)
         find_dependency(@MLN_QT_NAME@ COMPONENTS Core)
 
-        if(@QT_VERSION_MAJOR@ EQUAL 6)
-            find_dependency(Qt@QT_VERSION_MAJOR@ COMPONENTS OpenGLWidgets Widgets)
-        else()
-            find_dependency(Qt@QT_VERSION_MAJOR@ COMPONENTS OpenGL Widgets)
-        endif()
+        find_dependency(Qt@QT_VERSION_MAJOR@ COMPONENTS OpenGLWidgets Widgets)
 
         include("${CMAKE_CURRENT_LIST_DIR}/@MLN_QT_NAME@${_comp}Targets.cmake")
     endif()

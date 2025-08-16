@@ -1,7 +1,7 @@
 // Copyright (C) 2023 MapLibre contributors
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "texture_node_vulkan.hpp"
+#include "texture_node_vulkan_p.hpp"
 
 #include <mbgl/vulkan/texture2d.hpp>
 
@@ -17,11 +17,8 @@ constexpr int DefaultSize{64};
 
 namespace QMapLibre {
 
-TextureNodeVulkan::TextureNodeVulkan(const Settings &settings,
-                                     const QSize &size,
-                                     qreal pixelRatio,
-                                     QGeoMapMapLibre *geoMap)
-    : TextureNodeBase(settings, size, pixelRatio, geoMap) {
+TextureNodeVulkan::TextureNodeVulkan(const Settings &settings, const QSize &size, qreal pixelRatio)
+    : TextureNodeBase(settings, size, pixelRatio) {
     // Vulkan has inverted Y-axis compared to OpenGL, so we don't need to mirror
     setTextureCoordinatesTransform(QSGSimpleTextureNode::NoTransform);
 }

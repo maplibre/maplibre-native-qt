@@ -39,11 +39,11 @@ add_test(
 set_tests_properties(
     test_mln_qml
     PROPERTIES
-        ENVIRONMENT "$<$<PLATFORM_ID:macOS>:DYLD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/src/core:${CMAKE_BINARY_DIR}/src/location;>QSG_RHI_BACKEND=${MLN_QT_TEST_RENDERER};QML_IMPORT_PATH=${CMAKE_BINARY_DIR}/src/location/plugins;QT_PLUGIN_PATH=${CMAKE_BINARY_DIR}/src/location/plugins"
+        ENVIRONMENT "$<$<PLATFORM_ID:macOS>:DYLD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/src/core:${CMAKE_BINARY_DIR}/src/quick:${CMAKE_BINARY_DIR}/src/location;>QSG_RHI_BACKEND=${MLN_QT_TEST_RENDERER};QML_IMPORT_PATH=${CMAKE_BINARY_DIR}/src/location/plugins;QT_PLUGIN_PATH=${CMAKE_BINARY_DIR}/src/location/plugins"
 )
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set_tests_properties(
         test_mln_qml
         PROPERTIES
-            ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:$<TARGET_FILE_DIR:MLNQtCore>;PATH=path_list_prepend:$<TARGET_FILE_DIR:MLNQtLocation>")
+            ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:$<TARGET_FILE_DIR:MLNQtCore>;PATH=path_list_prepend:$<TARGET_FILE_DIR:MLNQtQuickPrivate>;PATH=path_list_prepend:$<TARGET_FILE_DIR:MLNQtLocation>")
 endif()

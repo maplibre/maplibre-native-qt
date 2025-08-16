@@ -3,18 +3,19 @@
 
 #pragma once
 
+#include "export_quick_p.hpp"
+
 #include <QMapLibre/Map>
+
 #include <QtQuick/QQuickWindow>
 #include <QtQuick/QSGSimpleTextureNode>
 
 namespace QMapLibre {
 
-class QGeoMapMapLibre;
-
 // Base class for backend-specific texture nodes
-class TextureNodeBase : public QSGSimpleTextureNode {
+class Q_MAPLIBRE_QUICKPRIVATE_EXPORT TextureNodeBase : public QSGSimpleTextureNode {
 public:
-    TextureNodeBase(const Settings &settings, const QSize &size, qreal pixelRatio, QGeoMapMapLibre *geoMap);
+    TextureNodeBase(const Settings &settings, const QSize &size, qreal pixelRatio);
     ~TextureNodeBase() override = default;
 
     [[nodiscard]] Map *map() const { return m_map.get(); }

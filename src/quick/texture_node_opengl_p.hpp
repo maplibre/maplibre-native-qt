@@ -3,23 +3,24 @@
 
 #pragma once
 
-#include "texture_node_base.hpp"
+#include "export_quick_p.hpp"
+#include "texture_node_base_p.hpp"
+
+#include <QtGui/qopengl.h>
 
 namespace QMapLibre {
 
-class TextureNodeMetal final : public TextureNodeBase {
+class Q_MAPLIBRE_QUICKPRIVATE_EXPORT TextureNodeOpenGL final : public TextureNodeBase {
 public:
     using TextureNodeBase::TextureNodeBase;
-    ~TextureNodeMetal() final;
+    ~TextureNodeOpenGL() final;
 
     void resize(const QSize &size, qreal pixelRatio, QQuickWindow *window) final;
     void render(QQuickWindow *window) final;
 
 private:
     bool m_rendererBound{};
-    void *m_layerPtr{};
-    const void *m_currentDrawable{};
-    bool m_ownsLayer{};
+    GLuint m_fbo{};
 };
 
 } // namespace QMapLibre

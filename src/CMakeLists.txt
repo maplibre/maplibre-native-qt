@@ -5,8 +5,12 @@ set(CMAKECONFIG_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/${MLN_QT_NAME}/)
 
 # Components
 add_subdirectory(core)
-
 set(MLN_QT_SUPPORTED_COMPONENTS "Core")
+
+if(MLN_QT_WITH_QUICK_PLUGIN OR MLN_QT_WITH_LOCATION)
+    add_subdirectory(quick)
+    list(APPEND MLN_QT_SUPPORTED_COMPONENTS "QuickPrivate")
+endif()
 
 if(MLN_QT_WITH_LOCATION)
     add_subdirectory(location)
@@ -19,9 +23,6 @@ if(MLN_QT_WITH_WIDGETS AND MLN_WITH_OPENGL)
     list(APPEND MLN_QT_SUPPORTED_COMPONENTS "Widgets")
     message(STATUS "Building widgets module")
 endif()
-
-# Always build Quick plugin
-add_subdirectory(quick)
 
 # Windows metadata
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")

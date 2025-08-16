@@ -1,8 +1,8 @@
 // Copyright (C) 2023 MapLibre contributors
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "texture_node_opengl.hpp"
-#include <QtQuick/qsgtexture_platform.h>
+#include "texture_node_opengl_p.hpp"
+
 #include <QtGui/QOpenGLContext>
 #include <QtGui/QOpenGLFunctions>
 #include <QtQuick/QQuickOpenGLUtils>
@@ -12,12 +12,6 @@ constexpr int DefaultSize = 64;
 } // namespace
 
 namespace QMapLibre {
-
-TextureNodeOpenGL::TextureNodeOpenGL(const Settings &settings,
-                                     const QSize &size,
-                                     qreal pixelRatio,
-                                     QGeoMapMapLibre *geoMap)
-    : TextureNodeBase(settings, size, pixelRatio, geoMap) {}
 
 TextureNodeOpenGL::~TextureNodeOpenGL() {
     // Clean up framebuffer

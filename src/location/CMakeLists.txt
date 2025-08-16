@@ -12,16 +12,8 @@ target_sources(
         qgeomap.cpp qgeomap.hpp qgeomap_p.hpp
         qt_mapping_engine.cpp qt_mapping_engine.hpp
         style_change_utils.cpp style_change_utils_p.hpp
-        texture_node_base.cpp texture_node_base.hpp
 
         $<$<PLATFORM_ID:Windows>:${CMAKE_BINARY_DIR}/version_info.rc>
-
-        $<$<BOOL:${MLN_WITH_OPENGL}>:texture_node_opengl.cpp>
-        $<$<BOOL:${MLN_WITH_OPENGL}>:texture_node_opengl.hpp>
-        $<$<BOOL:${MLN_WITH_VULKAN}>:texture_node_vulkan.cpp>
-        $<$<BOOL:${MLN_WITH_VULKAN}>:texture_node_vulkan.hpp>
-        $<$<BOOL:${MLN_WITH_METAL}>:texture_node_metal.mm>
-        $<$<BOOL:${MLN_WITH_METAL}>:texture_node_metal.hpp>
 )
 
 # Linux/Mac: Set framework, version and headers
@@ -55,14 +47,8 @@ target_include_directories(
         ${CMAKE_CURRENT_BINARY_DIR}/include
         ${CMAKE_SOURCE_DIR}/src/core
         ${CMAKE_SOURCE_DIR}/src/core/style
+        ${CMAKE_SOURCE_DIR}/src/quick
         ${CMAKE_BINARY_DIR}/src/core/include
-        ${MLN_CORE_PATH}/include
-        ${MLN_CORE_PATH}/src
-        ${MLN_CORE_PATH}/vendor/maplibre-native-base/include
-        ${MLN_CORE_PATH}/vendor/maplibre-native-base/deps/geometry.hpp/include
-        ${MLN_CORE_PATH}/vendor/maplibre-native-base/deps/variant/include
-        $<$<BOOL:${MLN_WITH_VULKAN}>:${MLN_CORE_PATH}/vendor/Vulkan-Headers/include>
-        $<$<BOOL:${MLN_WITH_VULKAN}>:${MLN_CORE_PATH}/vendor/VulkanMemoryAllocator/include>
 )
 
 # Common link libraries
@@ -71,21 +57,13 @@ target_link_libraries(
     PUBLIC
         MLNQtCore
     PRIVATE
-        $<$<BOOL:${Qt6_FOUND}>:Qt${QT_VERSION_MAJOR}::OpenGL>
+        MLNQtQuickPrivate
+        # $<$<BOOL:${Qt6_FOUND}>:Qt${QT_VERSION_MAJOR}::OpenGL>
         Qt${QT_VERSION_MAJOR}::Network
         Qt${QT_VERSION_MAJOR}::LocationPrivate
         $<BUILD_INTERFACE:mbgl-compiler-options>
         $<BUILD_INTERFACE:MLNQtCompilerOptions>
 )
-
-# Add QuartzCore framework for Metal support on Apple platforms
-if(APPLE AND MLN_WITH_METAL)
-    target_link_libraries(
-        MLNQtLocation
-        PRIVATE
-            "-framework QuartzCore"
-    )
-endif()
 
 # Apple specifics
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")

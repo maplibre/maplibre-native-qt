@@ -1,149 +1,140 @@
-# Build the MapLibre Quick plugin providing MapLibreView item
-set(Plugin_Sources
-    maplibre_quick_item.hpp
-    plugin.cpp
+# Make a Qt library
+if(MLN_QT_STATIC)
+    qt_add_library(MLNQtQuickPrivate STATIC)
+else()
+    qt_add_library(MLNQtQuickPrivate)
+endif()
+add_library(${MLN_QT_NAME}::QuickPrivate ALIAS MLNQtQuickPrivate)
+
+target_sources(
+    MLNQtQuickPrivate
+    PRIVATE
+        texture_node_base.cpp texture_node_base_p.hpp
+
+        $<$<BOOL:${MLN_WITH_OPENGL}>:texture_node_opengl.cpp>
+        $<$<BOOL:${MLN_WITH_OPENGL}>:texture_node_opengl_p.hpp>
+        $<$<BOOL:${MLN_WITH_VULKAN}>:texture_node_vulkan.cpp>
+        $<$<BOOL:${MLN_WITH_VULKAN}>:texture_node_vulkan_p.hpp>
+        $<$<BOOL:${MLN_WITH_METAL}>:texture_node_metal.mm>
+        $<$<BOOL:${MLN_WITH_METAL}>:texture_node_metal_p.hpp>
+
+        $<$<PLATFORM_ID:Windows>:${CMAKE_BINARY_DIR}/version_info.rc>
 )
 
-set(CMAKE_AUTOMOC ON)
-
-if(MLN_QT_STATIC)
-    qt_add_qml_module(${MLN_QT_QUICK_MODULE}
-        STATIC
-        URI MapLibre.Quick
-        VERSION ${PROJECT_VERSION}
-        NO_PLUGIN_OPTIONAL
-        CLASS_NAME MapLibreQuickModule
-        RESOURCE_PREFIX "/"
-        OUTPUT_DIRECTORY "MapLibre/Quick"
-        SOURCES ${Plugin_Sources}
-        RESOURCES
-            plugin.json
-    )
-else()
-    qt_add_qml_module(${MLN_QT_QUICK_MODULE}
-        URI MapLibre.Quick
-        VERSION ${PROJECT_VERSION}
-        NO_PLUGIN_OPTIONAL
-        CLASS_NAME MapLibreQuickModule
-        RESOURCE_PREFIX "/"
-        OUTPUT_DIRECTORY "MapLibre/Quick"
-        SOURCES ${Plugin_Sources}
-        RESOURCES
-            plugin.json
-    )
-endif()
-
+# Linux/Mac: Set framework, version and headers
 set_target_properties(
-    ${MLN_QT_QUICK_MODULE}
+    MLNQtQuickPrivate
     PROPERTIES
         AUTOMOC ON
+        OUTPUT_NAME ${MLN_QT_NAME}QuickPrivate
+        EXPORT_NAME QuickPrivate
+        VERSION ${MLN_QT_VERSION}
+        SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
-# Add backend-specific sources based on the selected backend
-if(MLN_WITH_OPENGL)
-    target_sources(${MLN_QT_QUICK_MODULE} PRIVATE
-        maplibre_quick_item_opengl.hpp
-        maplibre_quick_item_opengl.cpp
-    )
-elseif(MLN_WITH_METAL AND APPLE)
-    target_sources(${MLN_QT_QUICK_MODULE} PRIVATE
-        maplibre_quick_item_metal.hpp
-        maplibre_quick_item_metal.mm
-    )
-elseif(MLN_WITH_VULKAN)
-    target_sources(${MLN_QT_QUICK_MODULE} PRIVATE
-        maplibre_quick_item_vulkan.hpp
-        maplibre_quick_item_vulkan.cpp
-    )
-    target_include_directories(${MLN_QT_QUICK_MODULE} SYSTEM PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native/vendor/Vulkan-Headers/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native/vendor/VulkanMemoryAllocator/include
-    )
-    # Add RHI include path for Qt 6.10+
-    target_include_directories(${MLN_QT_QUICK_MODULE} PRIVATE
-        ${Qt6Gui_INCLUDE_DIRS}/QtGui/${Qt6_VERSION}/QtGui
-    )
-else()
-    # Default to OpenGL backend
-    target_sources(${MLN_QT_QUICK_MODULE} PRIVATE
-        maplibre_quick_item_opengl.hpp
-        maplibre_quick_item_opengl.cpp
+# Qt MOC
+if(Qt6_FOUND AND COMMAND qt_enable_autogen_tool)
+    qt_enable_autogen_tool(MLNQtQuickPrivate "moc" ON)
+endif()
+
+# Common compile definitions
+target_compile_definitions(
+    MLNQtQuickPrivate
+    PRIVATE
+        QT_BUILD_MAPLIBRE_QUICKPRIVATE_LIB
+)
+
+# Common include directories
+target_include_directories(
+    MLNQtQuickPrivate
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_BINARY_DIR}/include
+        ${CMAKE_SOURCE_DIR}/src/core
+        ${CMAKE_BINARY_DIR}/src/core/include
+        ${MLN_CORE_PATH}/include
+        ${MLN_CORE_PATH}/src
+        ${MLN_CORE_PATH}/vendor/maplibre-native-base/include
+        ${MLN_CORE_PATH}/vendor/maplibre-native-base/deps/geometry.hpp/include
+        ${MLN_CORE_PATH}/vendor/maplibre-native-base/deps/variant/include
+        $<$<BOOL:${MLN_WITH_VULKAN}>:${MLN_CORE_PATH}/vendor/Vulkan-Headers/include>
+        $<$<BOOL:${MLN_WITH_VULKAN}>:${MLN_CORE_PATH}/vendor/VulkanMemoryAllocator/include>
+)
+
+# Common link libraries
+target_link_libraries(
+    MLNQtQuickPrivate
+    PUBLIC
+        MLNQtCore
+    PRIVATE
+        $<$<BOOL:${MLN_WITH_OPENGL}>:Qt${QT_VERSION_MAJOR}::OpenGL>
+        Qt${QT_VERSION_MAJOR}::Network
+        Qt${QT_VERSION_MAJOR}::Quick
+        $<BUILD_INTERFACE:mbgl-compiler-options>
+        $<BUILD_INTERFACE:MLNQtCompilerOptions>
+)
+
+# Add QuartzCore framework for Metal support on Apple platforms
+if(APPLE AND MLN_WITH_METAL)
+    target_link_libraries(
+        MLNQtQuickPrivate
+        PRIVATE
+            "-framework QuartzCore"
     )
 endif()
 
-target_link_libraries(${MLN_QT_QUICK_MODULE} PRIVATE
-    Qt6::Quick
-    Qt6::Gui
-    QMapLibre::Core
-)
-
-# Add platform-specific frameworks
-if(APPLE)
-    target_link_libraries(${MLN_QT_QUICK_MODULE} PRIVATE
-        "-framework QuartzCore"
+# Apple specifics
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set_target_properties(
+        MLNQtQuickPrivate
+        PROPERTIES
+            FRAMEWORK ON
+            FRAMEWORK_VERSION A
+            MACOSX_FRAMEWORK_IDENTIFIER org.maplibre.${MLN_QT_NAME}QuickPrivate
+            MACOSX_FRAMEWORK_BUNDLE_VERSION ${MLN_QT_VERSION}
+            MACOSX_FRAMEWORK_SHORT_VERSION_STRING ${MLN_QT_VERSION}
+    )
+    target_include_directories(
+        MLNQtQuickPrivate
+        INTERFACE
+            $<INSTALL_INTERFACE:lib/${MLN_QT_NAME}QuickPrivate.framework>
     )
 endif()
 
-target_include_directories(${MLN_QT_QUICK_MODULE} PRIVATE
-    ${PROJECT_SOURCE_DIR}/src/platform/src
-    ${PROJECT_SOURCE_DIR}/vendor/maplibre-native/include
-    ${PROJECT_SOURCE_DIR}/vendor/maplibre-native/vendor
-    ${PROJECT_SOURCE_DIR}/vendor/maplibre-native/vendor/maplibre-native-base/include
-    ${PROJECT_SOURCE_DIR}/vendor/maplibre-native/vendor/maplibre-native-base/deps/geometry.hpp/include
-    ${PROJECT_SOURCE_DIR}/vendor/maplibre-native/vendor/maplibre-native-base/deps/variant/include
-    ${PROJECT_SOURCE_DIR}/vendor/maplibre-native/vendor/metal-cpp
-    ${PROJECT_SOURCE_DIR}/vendor/maplibre-native/src
-)
-
-# QtQuick QML extension plugin development specifics
+# Development specifics
 if(MLN_QT_WITH_CLANG_TIDY)
-    set_target_properties(${MLN_QT_QUICK_MODULE} PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
+    set_target_properties(MLNQtQuickPrivate PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
 endif()
 
-# QtLocation QML extension plugin installation
-# Skip export installation for iOS build to avoid resource target issues
-if(NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
-    install(
-        EXPORT ${MLN_QT_NAME}QuickModuleTargets
-        NAMESPACE ${MLN_QT_NAMESPACE}
-        DESTINATION ${CMAKECONFIG_INSTALL_DIR}
-    )
-endif()
-# Get the list of resource targets that qt_add_qml_module creates
-set(_resource_targets)
-if(TARGET quick_maplibre_resources_1)
-    list(APPEND _resource_targets quick_maplibre_resources_1)
-endif()
-if(TARGET quick_maplibre_resources_2)
-    list(APPEND _resource_targets quick_maplibre_resources_2)
-endif()
+# Export and installation
+install(
+    EXPORT ${MLN_QT_NAME}QuickPrivateTargets
+    NAMESPACE ${MLN_QT_NAMESPACE}
+    DESTINATION ${CMAKECONFIG_INSTALL_DIR}
+)
 
-# Install main target
 install(
-    TARGETS ${MLN_QT_QUICK_MODULE}
-    EXPORT ${MLN_QT_NAME}QuickModuleTargets
-    ARCHIVE DESTINATION "qml/MapLibre/Quick"
-    LIBRARY DESTINATION "qml/MapLibre/Quick"
-    OBJECTS DESTINATION "qml/MapLibre/Quick"
-    RUNTIME DESTINATION "qml/MapLibre/Quick"
+    TARGETS MLNQtQuickPrivate
+    EXPORT ${MLN_QT_NAME}QuickPrivateTargets
+    # Explicit set of DESTINATION is needed for older CMake versions.
+    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+    FRAMEWORK DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+    PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${MLN_QT_NAME}QuickPrivate"
 )
-# Install resource targets separately (without export)
-if(_resource_targets)
-    install(
-        TARGETS ${_resource_targets}
-        ARCHIVE DESTINATION "qml/MapLibre/Quick"
-        LIBRARY DESTINATION "qml/MapLibre/Quick"
-        OBJECTS DESTINATION "qml/MapLibre/Quick"
-        RUNTIME DESTINATION "qml/MapLibre/Quick"
-    )
-endif()
-install(
-    FILES
-        "${CMAKE_CURRENT_BINARY_DIR}/MapLibre/Quick/qmldir"
-    DESTINATION "qml/MapLibre/Quick"
-)
-install(
-    FILES
-        "${CMAKE_CURRENT_BINARY_DIR}/MapLibre/Quick/${MLN_QT_QUICK_MODULE}.qmltypes"
-    DESTINATION "qml/MapLibre/Quick"
-)
+
+# configure_file(
+#     "${CMAKE_CURRENT_SOURCE_DIR}/macros.cmake"
+#     "${CMAKE_CURRENT_BINARY_DIR}/${MLN_QT_NAME}QuickMacros.cmake"
+#     COPYONLY
+# )
+# install(
+#     FILES
+#         ${CMAKE_CURRENT_BINARY_DIR}/${MLN_QT_NAME}QuickMacros.cmake
+#     DESTINATION ${CMAKECONFIG_INSTALL_DIR}
+# )
+
+# plugins
+# add_subdirectory(plugins)

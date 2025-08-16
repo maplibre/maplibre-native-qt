@@ -1,7 +1,7 @@
 // Copyright (C) 2023 MapLibre contributors
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "texture_node_metal.hpp"
+#include "texture_node_metal_p.hpp"
 
 #include <QtCore/QDebug>
 #include <QtQuick/QQuickWindow>

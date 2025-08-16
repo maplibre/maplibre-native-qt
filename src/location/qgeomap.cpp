@@ -10,15 +10,15 @@
 #include "source_style_change_p.hpp"
 #include "style_change_p.hpp"
 #include "style_change_utils_p.hpp"
-#include "texture_node_base.hpp"
+#include "texture_node_base_p.hpp"
 #ifdef MLN_RENDER_BACKEND_OPENGL
-#include "texture_node_opengl.hpp"
+#include "texture_node_opengl_p.hpp"
 #endif
 #ifdef MLN_RENDER_BACKEND_METAL
-#include "texture_node_metal.hpp"
+#include "texture_node_metal_p.hpp"
 #endif
 #ifdef MLN_RENDER_BACKEND_VULKAN
-#include "texture_node_vulkan.hpp"
+#include "texture_node_vulkan_p.hpp"
 #endif
 
 #include <QMapLibre/Types>
@@ -91,14 +91,15 @@ QSGNode *QGeoMapMapLibrePrivate::updateSceneGraph(QSGNode *node, QQuickWindow *w
         }
 
         std::unique_ptr<TextureNodeBase> mbglNode = std::make_unique<TextureNodeOpenGL>(
-            m_settings, m_viewportSize, window->devicePixelRatio(), q);
+            m_settings, m_viewportSize, window->devicePixelRatio());
 #elif defined(MLN_RENDER_BACKEND_METAL)
         std::unique_ptr<TextureNodeBase> mbglNode = std::make_unique<TextureNodeMetal>(
-            m_settings, m_viewportSize, window->devicePixelRatio(), q);
+            m_settings, m_viewportSize, window->devicePixelRatio());
 #elif defined(MLN_RENDER_BACKEND_VULKAN)
         std::unique_ptr<TextureNodeBase> mbglNode = std::make_unique<TextureNodeVulkan>(
-            m_settings, m_viewportSize, window->devicePixelRatio(), q);
+            m_settings, m_viewportSize, window->devicePixelRatio());
 #endif
+        QObject::connect(mbglNode->map(), &Map::needsRendering, q, &QGeoMap::sgNodeChanged);
 
         QObject::connect(mbglNode->map(), &Map::mapChanged, q, &QGeoMapMapLibre::onMapChanged);
         m_syncState = MapTypeSync | CameraDataSync | ViewportSync | VisibleAreaSync;
