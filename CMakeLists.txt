@@ -11,12 +11,12 @@ project(
     maplibre-native-qt
     VERSION "${MLN_QT_VERSION}"
     DESCRIPTION "MapLibre Native Qt Bindings"
-    LANGUAGES CXX
+    LANGUAGES CXX C
 )
 
 # Common CMake definitions
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -28,6 +28,7 @@ set(MLN_QT_NAME QMapLibre)
 set(MLN_QT_NAMESPACE ${MLN_QT_NAME}::)
 set(MLN_QT_GEOSERVICES_PLUGIN qtgeoservices_maplibre)
 set(MLN_QT_QML_PLUGIN declarative_locationplugin_maplibre)
+set(MLN_QT_QUICK_MODULE quick_maplibre)
 
 include(cmake/helpers.cmake)
 
@@ -52,7 +53,7 @@ endif()
 
 # Find Qt
 if("${QT_VERSION_MAJOR}" STREQUAL "")
-    find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
+    find_package(QT NAMES Qt6 COMPONENTS Core REQUIRED)
 else()
     find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
 endif()

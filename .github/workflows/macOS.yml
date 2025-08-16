@@ -23,24 +23,24 @@ on:
       - ".github/workflows/source-tarball.yml"
       - ".github/workflows/Windows.yml"
 
-  pull_request:
-    branches:
-      - main
-    paths-ignore:
-      - ".gitignore"
-      - "README.md"
-      - "docs/**"
-      # ignore CI for other platforms
-      - ".github/FUNDING.yml"
-      - ".github/actions/**"
-      - ".github/workflows/Android.yml"
-      - ".github/workflows/CI-cache-cleanup.yml"
-      - ".github/workflows/docs-test.yml"
-      - ".github/workflows/gh-pages-docs.yml"
-      - ".github/workflows/iOS.yml"
-      - ".github/workflows/Linux.yml"
-      - ".github/workflows/source-tarball.yml"
-      - ".github/workflows/Windows.yml"
+  # pull_request:
+  #   branches:
+  #     - main
+  #   paths-ignore:
+  #     - ".gitignore"
+  #     - "README.md"
+  #     - "docs/**"
+  #     # ignore CI for other platforms
+  #     - ".github/FUNDING.yml"
+  #     - ".github/actions/**"
+  #     - ".github/workflows/Android.yml"
+  #     - ".github/workflows/CI-cache-cleanup.yml"
+  #     - ".github/workflows/docs-test.yml"
+  #     - ".github/workflows/gh-pages-docs.yml"
+  #     - ".github/workflows/iOS.yml"
+  #     - ".github/workflows/Linux.yml"
+  #     - ".github/workflows/source-tarball.yml"
+  #     - ".github/workflows/Windows.yml"
 
 concurrency:
   # cancel jobs on PRs only
@@ -54,12 +54,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - qt_series: 5
-            qt_version: 5.15.2
-            qt_modules: ""
-            preset: macOS-legacy-ccache
-            compiler: default
-            runs_on: macos-13
           - qt_series: 6
             qt_version: 6.8.3
             qt_modules: qtlocation qtpositioning

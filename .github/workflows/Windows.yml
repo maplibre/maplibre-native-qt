@@ -23,24 +23,24 @@ on:
       - ".github/workflows/macOS.yml"
       - ".github/workflows/source-tarball.yml"
 
-  pull_request:
-    branches:
-      - main
-    paths-ignore:
-      - ".gitignore"
-      - "README.md"
-      - "docs/**"
-      # ignore CI for other platforms
-      - ".github/FUNDING.yml"
-      - ".github/actions/**"
-      - ".github/workflows/Android.yml"
-      - ".github/workflows/CI-cache-cleanup.yml"
-      - ".github/workflows/docs-test.yml"
-      - ".github/workflows/gh-pages-docs.yml"
-      - ".github/workflows/iOS.yml"
-      - ".github/workflows/Linux.yml"
-      - ".github/workflows/macOS.yml"
-      - ".github/workflows/source-tarball.yml"
+  # pull_request:
+  #   branches:
+  #     - main
+  #   paths-ignore:
+  #     - ".gitignore"
+  #     - "README.md"
+  #     - "docs/**"
+  #     # ignore CI for other platforms
+  #     - ".github/FUNDING.yml"
+  #     - ".github/actions/**"
+  #     - ".github/workflows/Android.yml"
+  #     - ".github/workflows/CI-cache-cleanup.yml"
+  #     - ".github/workflows/docs-test.yml"
+  #     - ".github/workflows/gh-pages-docs.yml"
+  #     - ".github/workflows/iOS.yml"
+  #     - ".github/workflows/Linux.yml"
+  #     - ".github/workflows/macOS.yml"
+  #     - ".github/workflows/source-tarball.yml"
 
 concurrency:
   # cancel jobs on PRs only

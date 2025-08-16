@@ -1,0 +1,31 @@
+// Copyright (C) 2023 MapLibre contributors
+// SPDX-License-Identifier: BSD-2-Clause
+
+#pragma once
+
+#include <QMapLibre/Map>
+#include <QtQuick/QQuickWindow>
+#include <QtQuick/QSGSimpleTextureNode>
+
+namespace QMapLibre {
+
+class QGeoMapMapLibre;
+
+// Base class for backend-specific texture nodes
+class TextureNodeBase : public QSGSimpleTextureNode {
+public:
+    TextureNodeBase(const Settings &settings, const QSize &size, qreal pixelRatio, QGeoMapMapLibre *geoMap);
+    ~TextureNodeBase() override = default;
+
+    [[nodiscard]] Map *map() const { return m_map.get(); }
+
+    virtual void resize(const QSize &size, qreal pixelRatio, QQuickWindow *window) = 0;
+    virtual void render(QQuickWindow *window) = 0;
+
+protected:
+    std::unique_ptr<Map> m_map;
+    QSize m_size;
+    qreal m_pixelRatio{1.0};
+};
+
+} // namespace QMapLibre
