@@ -13,6 +13,11 @@
 #include <QtGui/QWheelEvent>
 #include <QtOpenGL/QOpenGLShaderProgram>
 
+namespace {
+constexpr int DepthBufferSize{24};
+constexpr int StencilBufferSize{8};
+} // namespace
+
 namespace QMapLibre {
 
 /*!
@@ -63,8 +68,8 @@ GLWidget::GLWidget(const Settings &settings)
     fmt.setVersion(3, 2);
     fmt.setProfile(QSurfaceFormat::CoreProfile);
 #endif
-    fmt.setDepthBufferSize(24);
-    fmt.setStencilBufferSize(8);
+    fmt.setDepthBufferSize(DepthBufferSize);
+    fmt.setStencilBufferSize(StencilBufferSize);
     setFormat(fmt);
 }
 
@@ -73,19 +78,19 @@ GLWidget::~GLWidget() {
     // can delete the Map and OpenGL resources.
     makeCurrent();
 
-    if (d_ptr->m_vao) {
+    if (d_ptr->m_vao != 0) {
         auto *f = QOpenGLContext::currentContext()->extraFunctions();
         f->glDeleteVertexArrays(1, &d_ptr->m_vao);
     }
-    if (d_ptr->m_vertexBuffer) {
+    if (d_ptr->m_vertexBuffer != 0) {
         auto *f = QOpenGLContext::currentContext()->extraFunctions();
         f->glDeleteBuffers(1, &d_ptr->m_vertexBuffer);
     }
-    if (d_ptr->m_mapFramebuffer) {
+    if (d_ptr->m_mapFramebuffer != 0) {
         auto *f = QOpenGLContext::currentContext()->extraFunctions();
         f->glDeleteFramebuffers(1, &d_ptr->m_mapFramebuffer);
     }
-    if (d_ptr->m_mapTexture) {
+    if (d_ptr->m_mapTexture != 0) {
         auto *f = QOpenGLContext::currentContext()->extraFunctions();
         f->glDeleteTextures(1, &d_ptr->m_mapTexture);
     }
@@ -270,7 +275,7 @@ void GLWidget::initializeGL() {
 
     f->glGenVertexArrays(1, &d_ptr->m_vao);
     f->glGenBuffers(1, &d_ptr->m_vertexBuffer);
-    unsigned int ebo;
+    GLuint ebo{};
     f->glGenBuffers(1, &ebo);
 
     f->glBindVertexArray(d_ptr->m_vao);
@@ -301,13 +306,13 @@ void GLWidget::initializeGL() {
 */
 void GLWidget::paintGL() {
     const qreal dpr = devicePixelRatioF();
-    const QSize mapSize(static_cast<int>(width()), static_cast<int>(height()));
+    const QSize mapSize(width(), height());
 
     qDebug() << "GLWidget::paintGL - DPR:" << dpr << "Map size:" << mapSize << "Widget size:" << width() << "x"
              << height();
 
     // Resize map if needed
-    d_ptr->m_map->resize(mapSize);
+    d_ptr->m_map->resize(mapSize, dpr);
 
     auto *f = QOpenGLContext::currentContext()->extraFunctions();
 
@@ -320,10 +325,7 @@ void GLWidget::paintGL() {
     // Update map size if needed
 
     // For zero-copy rendering, get the texture from OpenGL backend
-    GLuint textureId = 0;
-#ifdef MLN_RENDER_BACKEND_OPENGL
-    textureId = d_ptr->m_map->getFramebufferTextureId();
-#endif
+    GLuint textureId = d_ptr->m_map->getFramebufferTextureId();
 
     // Fallback to hardcoded ID if backend method not available
     if (textureId == 0) {
@@ -364,7 +366,9 @@ void GLWidget::paintGL() {
         static bool textureLogged = false;
         if (!textureLogged && textureId > 0) {
 #if !defined(Q_OS_IOS) && !defined(Q_OS_ANDROID)
-            GLint texWidth, texHeight, texFormat;
+            GLint texWidth{};
+            GLint texHeight{};
+            GLint texFormat{};
             f->glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &texWidth);
             f->glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &texHeight);
             f->glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &texFormat);

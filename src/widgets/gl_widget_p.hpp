@@ -31,15 +31,15 @@ public:
     void handleMouseMoveEvent(QMouseEvent *event);
     void handleWheelEvent(QWheelEvent *event) const;
 
-    std::unique_ptr<Map> m_map{};
+    std::unique_ptr<Map> m_map;
     Settings m_settings;
 
     // Zero-copy texture rendering members
-    std::unique_ptr<QOpenGLShaderProgram> m_shaderProgram{};
-    unsigned int m_vertexBuffer{0};
-    unsigned int m_vao{0};
-    unsigned int m_mapFramebuffer{0};
-    unsigned int m_mapTexture{0};
+    std::unique_ptr<QOpenGLShaderProgram> m_shaderProgram;
+    unsigned int m_vertexBuffer{};
+    unsigned int m_vao{};
+    unsigned int m_mapFramebuffer{};
+    unsigned int m_mapTexture{};
 
 private:
     Q_DISABLE_COPY(GLWidgetPrivate);
