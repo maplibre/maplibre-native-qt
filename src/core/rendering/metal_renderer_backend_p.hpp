@@ -41,7 +41,7 @@ public:
     [[nodiscard]] void* currentDrawable() const { return m_currentDrawable; }
     void setCurrentDrawable(void* tex) { m_currentDrawable = tex; }
 
-    void updateRenderer(const mbgl::Size& size, quint32 /* fbo */) { setSize(size); };
+    void updateRenderer(const mbgl::Size& size, uint32_t /* fbo */) { setSize(size); };
 
 private:
     void* m_currentDrawable{nullptr}; // id<MTLTexture>

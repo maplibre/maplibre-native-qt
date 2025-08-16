@@ -177,7 +177,7 @@ public:
     [[nodiscard]] QVariant getFilter(const QString &layerId) const;
     // When rendering on a different thread,
     // should be called on the render thread.
-    void createRenderer(void *nativeLayerPtr);
+    void createRenderer(void *nativeTargetPtr);
 #ifdef MLN_RENDER_BACKEND_VULKAN
     // Vulkan-specific: create the renderer using Qt's Vulkan device
     void createRendererWithQtVulkanDevice(void *windowPtr,
@@ -185,7 +185,7 @@ public:
                                           void *device,
                                           uint32_t graphicsQueueIndex);
 #endif
-    void updateRenderer(const QSize &size, quint32 fbo = 0);
+    void updateRenderer(const QSize &size, qreal pixelRatio, quint32 fbo = 0);
     void destroyRenderer();
 
     /*!
@@ -222,17 +222,7 @@ public slots:
     // and renders the map when completed.
     void startStaticRender();
 
-    /*!
-        \brief Returns the native color texture for backend-specific rendering.
-
-        This method provides access to the underlying native texture used by Metal
-        and Vulkan backends for Qt Quick integration. Returns nullptr if no texture
-        is available or if the backend doesn't support native texture access.
-
-        \return A pointer to the native texture, or nullptr if unavailable.
-        \note This is backend-specific and primarily used for Qt Quick texture nodes.
-    */
-    void *nativeColorTexture() const;
+    [[nodiscard]] void *nativeColorTexture() const;
 
 signals:
     void needsRendering();

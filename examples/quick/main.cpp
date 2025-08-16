@@ -23,11 +23,11 @@ int main(int argc, char *argv[]) {
         "qt.positioning.*.debug=true\n"
         "maplibre.*.debug=true");
     // Set up graphics API and instance for each platform
-    constexpr QMapLibre::RendererType rendererType = QMapLibre::supportedRendererType();
+    const QMapLibre::RendererType rendererType = QMapLibre::supportedRendererType();
     auto graphicsApi = static_cast<QSGRendererInterface::GraphicsApi>(rendererType);
     QQuickWindow::setGraphicsApi(graphicsApi);
 
-    if constexpr (rendererType == QMapLibre::Vulkan) {
+    if (rendererType == QMapLibre::Vulkan) {
         // Enable Vulkan debug output
         qputenv("QT_VULKAN_DEBUG_OUTPUT", "1");
     }
@@ -36,6 +36,7 @@ int main(int argc, char *argv[]) {
 
     qDebug() << "Platform:" << QGuiApplication::platformName();
     qDebug() << "Graphics API:" << QQuickWindow::graphicsApi();
+    qDebug() << "Renderer Type:" << rendererType;
 
     // Check if location services are available
     QQmlApplicationEngine engine;

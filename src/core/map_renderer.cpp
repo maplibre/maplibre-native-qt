@@ -129,10 +129,14 @@ void MapRenderer::updateParameters(std::shared_ptr<mbgl::UpdateParameters> param
     m_updateParameters = std::move(parameters);
 }
 
-void MapRenderer::updateRenderer(const mbgl::Size &size, quint32 fbo) {
+void MapRenderer::updateRenderer(const mbgl::Size &size, qreal pixelRatio, quint32 fbo) {
     MBGL_VERIFY_THREAD(tid);
 
-    m_backend.updateRenderer(size, fbo);
+    // Compute actual renderer size based on pixel ratio
+    mbgl::Size actualSize{static_cast<uint32_t>(size.width * pixelRatio),
+                          static_cast<uint32_t>(size.height * pixelRatio)};
+
+    m_backend.updateRenderer(actualSize, fbo);
 }
 
 void MapRenderer::render() {

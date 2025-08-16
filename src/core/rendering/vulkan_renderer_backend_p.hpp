@@ -52,7 +52,7 @@ public:
 
     // Qt Widgets path still expects this hook even though Vulkan doesn't use an
     // OpenGL FBO. Update the size for Vulkan rendering.
-    void updateRenderer(const mbgl::Size& newSize, quint32 /* fbo */) { setSize(newSize); }
+    void updateRenderer(const mbgl::Size& newSize, uint32_t /* fbo */) { setSize(newSize); }
 
     // Helper method to get the texture object for pixel data extraction
     mbgl::vulkan::Texture2D* getOffscreenTexture() const;

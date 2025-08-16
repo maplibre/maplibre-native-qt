@@ -36,7 +36,7 @@ public:
     void updateRenderer(const mbgl::Size& newSize, uint32_t fbo);
 
     // Get the current framebuffer texture ID for direct texture sharing
-    unsigned int getFramebufferTextureId() const;
+    [[nodiscard]] unsigned int getFramebufferTextureId() const;
 
 private:
     uint32_t m_fbo{0};

@@ -129,7 +129,8 @@ QSGNode *MapLibreQuickItemOpenGL::updatePaintNode(QSGNode *node, UpdatePaintNode
                         qDebug() << "OPENGL TEXTURE RENDERING: Created new framebuffer" << m_fbo;
                     }
 
-                    m_map->updateRenderer(mapSize, m_fbo);
+                    // TODO pixel ratio handling
+                    m_map->updateRenderer(mapSize, 1.0, m_fbo);
                     qDebug() << "OPENGL TEXTURE RENDERING: Configured framebuffer" << m_fbo << "with size" << mapSize;
 
                     // Don't clear - let MapLibre handle its own clearing

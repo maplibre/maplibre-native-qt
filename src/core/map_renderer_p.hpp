@@ -52,7 +52,7 @@ public:
     ~MapRenderer() override;
 
     void render();
-    void updateRenderer(const mbgl::Size &size, quint32 fbo = 0);
+    void updateRenderer(const mbgl::Size &size, qreal pixelRatio, quint32 fbo = 0);
     void setObserver(mbgl::RendererObserver *observer);
 
     // Thread-safe, called by the Frontend

@@ -478,13 +478,7 @@ QString Map::styleUrl() const {
     signal with Map::MapChangeDidFailLoadingMap as argument.
 */
 void Map::setStyleUrl(const QString &url) {
-    try {
-        d_ptr->mapObj->getStyle().loadURL(url.toStdString());
-
-        startStaticRender();
-    } catch (const std::exception &e) {
-        qDebug() << "Map::setStyleUrl - Exception during style loading:" << e.what();
-    }
+    d_ptr->mapObj->getStyle().loadURL(url.toStdString());
 }
 
 /*!
@@ -1061,7 +1055,7 @@ void Map::resize(const QSize &size) {
     }
 
     // Always update the backend renderer size (works for all backends: OpenGL, Metal, Vulkan)
-    updateRenderer(size);
+    updateRenderer(size, d_ptr->mapObj->getMapOptions().pixelRatio());
 }
 
 /*!
@@ -1572,10 +1566,11 @@ void Map::render() {
 /*!
     \brief Update the framebuffer size for the rendering backend.
     \param size The framebuffer size.
+    \param pixelRatio The pixel ratio of the screen.
     \param fbo The framebuffer object ID (OpenGL only, ignored for Metal/Vulkan).
 
-    The \a size is the size of the framebuffer, which on high DPI screens
-    is usually bigger than the map size.
+    The \a size is the size of the display surface, which on high DPI screens
+    is usually smaller than the rendered map size.
 
     Updates the framebuffer configuration for the current rendering backend.
     For OpenGL: The \a fbo parameter specifies the framebuffer object ID to use.
@@ -1583,8 +1578,8 @@ void Map::render() {
 
     Must be called on the render thread.
 */
-void Map::updateRenderer(const QSize &size, quint32 fbo) {
-    d_ptr->updateRenderer(size, fbo);
+void Map::updateRenderer(const QSize &size, qreal pixelRatio, quint32 fbo) {
+    d_ptr->updateRenderer(size, pixelRatio, fbo);
 }
 
 /*!
@@ -1716,7 +1711,7 @@ void MapPrivate::update(std::shared_ptr<mbgl::UpdateParameters> parameters) {
 }
 
 void MapPrivate::setObserver(mbgl::RendererObserver &observer) {
-    m_rendererObserver = std::make_shared<RendererObserver>(*mbgl::util::RunLoop::Get(), observer);
+    m_rendererObserver = std::make_unique<RendererObserver>(*mbgl::util::RunLoop::Get(), observer);
 
     const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
 
@@ -1741,7 +1736,8 @@ void MapPrivate::createRenderer(void *nativeTargetPtr) {
     // Propagate current map size to the renderer
     if (mapObj) {
         auto currentSize = mapObj->getMapOptions().size();
-        m_mapRenderer->updateRenderer(currentSize);
+        auto currentPixelRatio = mapObj->getMapOptions().pixelRatio();
+        m_mapRenderer->updateRenderer(currentSize, currentPixelRatio);
     }
 
     if (m_updateParameters != nullptr) {
@@ -1770,7 +1766,8 @@ void MapPrivate::createRendererWithQtVulkanDevice(void *windowPtr,
 
     if (mapObj) {
         auto currentSize = mapObj->getMapOptions().size();
-        m_mapRenderer->updateRenderer(currentSize);
+        auto currentPixelRatio = mapObj->getMapOptions().pixelRatio();
+        m_mapRenderer->updateRenderer(currentSize, currentPixelRatio);
     }
 
     if (m_updateParameters != nullptr) {
@@ -1799,10 +1796,10 @@ void MapPrivate::render() {
     qDebug() << "Clearing render queue and calling renderer->render()";
     m_renderQueued.clear();
     m_mapRenderer->render();
-    qDebug() << "MapRenderer::render() completed";
+    qDebug() << "MapPrivate::render() completed";
 }
 
-void MapPrivate::updateRenderer(const QSize &size, quint32 fbo) {
+void MapPrivate::updateRenderer(const QSize &size, qreal pixelRatio, quint32 fbo) {
     const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
 
     if (m_mapRenderer == nullptr) {
@@ -1810,7 +1807,8 @@ void MapPrivate::updateRenderer(const QSize &size, quint32 fbo) {
         return;
     }
 
-    m_mapRenderer->updateRenderer(sanitizeSize(size), fbo);
+    // Need to add pixel ratio to the size, as the renderer expects the full size
+    m_mapRenderer->updateRenderer(sanitizeSize(size), pixelRatio, fbo);
 }
 
 void MapPrivate::requestRendering() {
@@ -1862,6 +1860,16 @@ bool MapPrivate::setProperty(const PropertySetter &setter,
 
 /*! \endcond */
 
+/*!
+    \brief Returns the native color texture for backend-specific rendering.
+
+    This method provides access to the underlying native texture used by Metal
+    and Vulkan backends for Qt Quick integration. Returns nullptr if no texture
+    is available or if the backend doesn't support native texture access.
+
+    \return A pointer to the native texture, or nullptr if unavailable.
+    \note This is backend-specific and primarily used for Qt Quick texture nodes.
+*/
 void *Map::nativeColorTexture() const {
 #if defined(MLN_RENDER_BACKEND_METAL) || defined(MLN_RENDER_BACKEND_VULKAN)
     return d_ptr->currentDrawableTexture();

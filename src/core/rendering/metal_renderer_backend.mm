@@ -31,9 +31,16 @@ public:
           commandQueue(NS::TransferPtr(backend.getDevice()->newCommandQueue())) {
         assert(layer);
         layer->setDevice(backend.getDevice().get());
+
+        qDebug() << "MapLibre Metal: Created renderable resource with size" << layer->drawableSize().width << "x"
+                 << layer->drawableSize().height;
     }
 
     void setBackendSize(mbgl::Size size_) {
+        if (size_.width == size.width && size_.height == size.height) {
+            return; // No change in size, nothing to do.
+        }
+
         qDebug() << "MapLibre Metal: Setting backend size to" << size_.width << "x" << size_.height;
         size = size_;
         layer->setDrawableSize({static_cast<CGFloat>(size.width), static_cast<CGFloat>(size.height)});

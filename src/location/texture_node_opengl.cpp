@@ -63,10 +63,8 @@ void TextureNodeOpenGL::render(QQuickWindow *window) {
             gl->glGenFramebuffers(1, &m_fbo);
         }
 
-        // Calculate physical size for framebuffer
-        const QSize physicalSize(static_cast<int>(m_size.width() * m_pixelRatio),
-                                 static_cast<int>(m_size.height() * m_pixelRatio));
-        m_map->updateRenderer(physicalSize, m_fbo);
+        // Update the size
+        m_map->updateRenderer(m_size, m_pixelRatio, m_fbo);
 
         // Save and restore OpenGL state to prevent conflicts
         GLint prevFbo;

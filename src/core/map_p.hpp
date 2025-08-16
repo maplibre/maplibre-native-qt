@@ -8,6 +8,7 @@
 #include "map.hpp"
 #include "map_observer_p.hpp"
 #include "map_renderer_p.hpp"
+#include "rendering/renderer_observer_p.hpp"
 
 #include <mbgl/actor/actor.hpp>
 #include <mbgl/actor/scheduler.hpp>
@@ -45,7 +46,7 @@ public:
                                           void *device,
                                           uint32_t graphicsQueueIndex);
 #endif
-    void updateRenderer(const QSize &size, quint32 fbo = 0);
+    void updateRenderer(const QSize &size, qreal pixelRatio, quint32 fbo = 0);
     void destroyRenderer();
     void render();
 
@@ -86,7 +87,7 @@ private:
     Q_DISABLE_COPY(MapPrivate)
 
     mutable std::recursive_mutex m_mapRendererMutex;
-    std::shared_ptr<mbgl::RendererObserver> m_rendererObserver;
+    std::unique_ptr<RendererObserver> m_rendererObserver;
     std::shared_ptr<mbgl::UpdateParameters> m_updateParameters;
 
     std::unique_ptr<MapObserver> m_mapObserver;

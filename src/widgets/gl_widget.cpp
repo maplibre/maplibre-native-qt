@@ -301,7 +301,7 @@ void GLWidget::initializeGL() {
 */
 void GLWidget::paintGL() {
     const qreal dpr = devicePixelRatioF();
-    const QSize mapSize(static_cast<int>(width() * dpr), static_cast<int>(height() * dpr));
+    const QSize mapSize(static_cast<int>(width()), static_cast<int>(height()));
 
     qDebug() << "GLWidget::paintGL - DPR:" << dpr << "Map size:" << mapSize << "Widget size:" << width() << "x"
              << height();
@@ -312,7 +312,7 @@ void GLWidget::paintGL() {
     auto *f = QOpenGLContext::currentContext()->extraFunctions();
 
     // Update framebuffer for MapLibre to render into
-    d_ptr->m_map->updateRenderer(mapSize, d_ptr->m_mapFramebuffer);
+    d_ptr->m_map->updateRenderer(mapSize, dpr, d_ptr->m_mapFramebuffer);
 
     // Render the map to FBO
     d_ptr->m_map->render();

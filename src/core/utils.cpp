@@ -59,9 +59,9 @@ namespace QMapLibre {
     Returns the \ref RendererType the library was built with.
 */
 RendererType supportedRendererType() {
-#if defined(MLN_WITH_VULKAN)
+#if defined(MLN_RENDER_BACKEND_VULKAN)
     return RendererType::Vulkan;
-#elif defined(MLN_WITH_METAL)
+#elif defined(MLN_RENDER_BACKEND_METAL)
     return RendererType::Metal;
 #else
     return RendererType::OpenGL;
