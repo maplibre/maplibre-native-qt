@@ -168,11 +168,6 @@ MetalRendererBackend::MetalRendererBackend(CA::MetalLayer *layer)
                                        static_cast<uint32_t>(layer->drawableSize().height)},
                             std::make_unique<QtMetalRenderableResource>(*this, layer)) {}
 
-// Convenience constructor that allocates its own CAMetalLayer. Used when only a
-// ContextMode is available (e.g. MapRenderer's default path).
-MetalRendererBackend::MetalRendererBackend(mbgl::gfx::ContextMode /* mode */)
-    : MetalRendererBackend(CA::MetalLayer::layer()) {}
-
 MetalRendererBackend::~MetalRendererBackend() = default;
 
 void MetalRendererBackend::setSize(mbgl::Size size_) {

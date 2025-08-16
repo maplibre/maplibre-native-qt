@@ -4,21 +4,20 @@
 
 #pragma once
 
-#include <QtCore/QtGlobal>
-#include <QtGui/QVulkanInstance>
-#include <QtGui/QWindow>
 #include <mbgl/gfx/context.hpp>
 #include <mbgl/gfx/texture2d.hpp>
 #include <mbgl/vulkan/renderable_resource.hpp>
 #include <mbgl/vulkan/renderer_backend.hpp>
 
-class QVulkanWindow;
+#include <QtCore/QtGlobal>
 
-namespace mbgl {
-namespace vulkan {
+class QVulkanInstance;
+class QVulkanWindow;
+class QWindow;
+
+namespace mbgl::vulkan {
 class Texture2D;
-}
-} // namespace mbgl
+} // namespace mbgl::vulkan
 
 namespace QMapLibre {
 
@@ -31,8 +30,6 @@ public:
                           VkPhysicalDevice qtPhysicalDevice,
                           VkDevice qtDevice,
                           uint32_t qtGraphicsQueueIndex);
-    // Fallback ctor used by MapRenderer when only a ContextMode is provided.
-    explicit VulkanRendererBackend(mbgl::gfx::ContextMode /*mode*/);
     VulkanRendererBackend(const VulkanRendererBackend&) = delete;
     VulkanRendererBackend& operator=(const VulkanRendererBackend&) = delete;
     ~VulkanRendererBackend() override;
@@ -44,10 +41,10 @@ public:
 
     // Qt-specific --------------------------------------------------------------
     void setSize(mbgl::Size size_);
-    mbgl::Size getSize() const;
+    [[nodiscard]] mbgl::Size getSize() const;
 
     // Returns the color texture of the drawable rendered in the last frame.
-    void* currentDrawable() const { return m_currentDrawable; }
+    [[nodiscard]] void* currentDrawable() const { return m_currentDrawable; }
     void setCurrentDrawable(void* tex) { m_currentDrawable = static_cast<mbgl::gfx::Texture2D*>(tex); }
 
     // Qt Widgets path still expects this hook even though Vulkan doesn't use an
@@ -55,7 +52,7 @@ public:
     void updateRenderer(const mbgl::Size& newSize, uint32_t /* fbo */) { setSize(newSize); }
 
     // Helper method to get the texture object for pixel data extraction
-    mbgl::vulkan::Texture2D* getOffscreenTexture() const;
+    [[nodiscard]] mbgl::vulkan::Texture2D* getOffscreenTexture() const;
 
 protected:
     // Override base class methods to use external Vulkan resources
@@ -69,8 +66,8 @@ protected:
 private:
     mbgl::gfx::Texture2D* m_currentDrawable{nullptr};
     QVulkanInstance* m_qtInstance{nullptr};
-    QVulkanInstance* m_ownedInstance{nullptr}; // Instance we created and own
-    QWindow* m_window{nullptr};                // Qt Quick window
+    std::unique_ptr<QVulkanInstance> m_ownedInstance; // Instance we created and own
+    QWindow* m_window{nullptr};                       // Qt Quick window
 
     // Qt device info
     VkPhysicalDevice m_qtPhysicalDevice{VK_NULL_HANDLE};
@@ -79,7 +76,7 @@ private:
     bool m_useQtDevice{false};
 
     void initializeWithQtInstance(QVulkanInstance* qtInstance);
-    static QVulkanInstance* createQVulkanInstance();
+    static std::unique_ptr<QVulkanInstance> createQVulkanInstance();
 };
 
 } // namespace QMapLibre

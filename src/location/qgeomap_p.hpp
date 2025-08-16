@@ -28,10 +28,6 @@ class StyleChange;
 class QGeoMapMapLibrePrivate : public QGeoMapPrivate {
     Q_DECLARE_PUBLIC(QGeoMapMapLibre)
 
-    friend class QGeoMapMapLibreOpenGL;
-    friend class QGeoMapMapLibreVulkan;
-    friend class QGeoMapMapLibreMetal;
-
 public:
     explicit QGeoMapMapLibrePrivate(QGeoMappingManagerEngine *engine);
     ~QGeoMapMapLibrePrivate() override;
@@ -83,11 +79,11 @@ protected:
     void setVisibleArea(const QRectF &visibleArea) override;
     QRectF visibleArea() const override;
 
-    void syncStyleChanges(Map *map);
-    void threadedRenderingHack(QQuickWindow *window, Map *map);
-
 private:
     Q_DISABLE_COPY(QGeoMapMapLibrePrivate);
+
+    void syncStyleChanges(Map *map);
+    void threadedRenderingHack(QQuickWindow *window, Map *map);
 
     QRectF m_visibleArea;
 };

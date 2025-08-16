@@ -140,67 +140,25 @@ void MapRenderer::updateRenderer(const mbgl::Size &size, qreal pixelRatio, quint
 }
 
 void MapRenderer::render() {
-    try {
-        MBGL_VERIFY_THREAD(tid);
-    } catch (const std::exception &e) {
-        qWarning() << "Thread verification failed:" << e.what();
-        return;
-    } catch (...) {
-        qWarning() << "Unknown exception in thread verification";
-        return;
-    }
+    MBGL_VERIFY_THREAD(tid);
 
     std::shared_ptr<mbgl::UpdateParameters> params;
-    try {
+    {
         // Lock on the parameters
         const std::lock_guard<std::mutex> lock(m_updateMutex);
 
         // UpdateParameters should always be available when rendering.
-        if (!m_updateParameters) {
-            qWarning() << "MapRenderer::render() called without update parameters, skipping render";
-            return;
-        }
+        assert(m_updateParameters);
 
         // Hold on to the update parameters during render
         params = m_updateParameters;
-    } catch (const std::exception &e) {
-        qWarning() << "Exception getting update parameters:" << e.what();
-        return;
-    } catch (...) {
-        qWarning() << "Unknown exception getting update parameters";
-        return;
     }
 
     // The OpenGL implementation automatically enables the OpenGL context for us.
     // For Vulkan, we need to ensure the backend is properly initialized
-    try {
-        const mbgl::gfx::BackendScope scope(m_backend, mbgl::gfx::BackendScope::ScopeType::Implicit);
+    const mbgl::gfx::BackendScope scope(m_backend, mbgl::gfx::BackendScope::ScopeType::Implicit);
 
-        // Add safety checks before calling render
-        if (!m_renderer) {
-            qWarning() << "MapRenderer::render() - m_renderer is null!";
-            return;
-        }
-
-        if (!params) {
-            qWarning() << "MapRenderer::render() - params is null!";
-            return;
-        }
-
-        try {
-            m_renderer->render(params);
-        } catch (const std::exception &e) {
-            qWarning() << "Exception in m_renderer->render():" << e.what();
-        } catch (...) {
-            qWarning() << "Unknown exception in m_renderer->render()";
-        }
-    } catch (const std::exception &e) {
-        qWarning() << "Exception creating backend scope:" << e.what();
-        return;
-    } catch (...) {
-        qWarning() << "Unknown exception creating backend scope";
-        return;
-    }
+    m_renderer->render(params);
 
     if (m_forceScheduler) {
         getScheduler()->processEvents();

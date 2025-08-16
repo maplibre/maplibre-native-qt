@@ -16,7 +16,7 @@ class OpenGLRendererBackend : public mbgl::gl::RendererBackend, public mbgl::gfx
     friend class RenderableResource;
 
 public:
-    explicit OpenGLRendererBackend(const mbgl::gfx::ContextMode mode = mbgl::gfx::ContextMode::Unique);
+    explicit OpenGLRendererBackend(mbgl::gfx::ContextMode mode = mbgl::gfx::ContextMode::Unique);
     ~OpenGLRendererBackend() override;
 
     // mbgl::gfx::RendererBackend -------------------------------------------------
@@ -28,7 +28,7 @@ public:
     void deactivate() override;
 
 protected:
-    mbgl::gl::ProcAddress getExtensionFunctionPointer(const char*) override;
+    mbgl::gl::ProcAddress getExtensionFunctionPointer(const char* name) override;
 
 public:
     // Qt integration helpers -----------------------------------------------------
@@ -39,9 +39,9 @@ public:
     [[nodiscard]] unsigned int getFramebufferTextureId() const;
 
 private:
-    uint32_t m_fbo{0};
-    uint32_t m_colorTexture{0};   // OpenGL texture ID for the framebuffer's color attachment
-    uint32_t m_depthStencilRB{0}; // OpenGL renderbuffer ID for depth-stencil attachment
+    uint32_t m_fbo{};
+    uint32_t m_colorTexture{};   // OpenGL texture ID for the framebuffer's color attachment
+    uint32_t m_depthStencilRB{}; // OpenGL renderbuffer ID for depth-stencil attachment
 };
 
 } // namespace QMapLibre

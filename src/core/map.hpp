@@ -142,7 +142,7 @@ public:
     void scaleBy(double scale, const QPointF &center = QPointF());
     void rotateBy(const QPointF &first, const QPointF &second);
 
-    void resize(const QSize &size);
+    void resize(const QSize &size, qreal pixelRatio = 0);
 
     [[nodiscard]] QPointF pixelForCoordinate(const Coordinate &coordinate) const;
     [[nodiscard]] Coordinate coordinateForPixel(const QPointF &pixel) const;
@@ -188,17 +188,6 @@ public:
     void updateRenderer(const QSize &size, qreal pixelRatio, quint32 fbo = 0);
     void destroyRenderer();
 
-    /*!
-        \brief Sets the current drawable texture for backend-specific rendering.
-
-        This method allows external code to provide a drawable texture that the
-        renderer can use. The texture pointer interpretation is backend-specific:
-        - For Metal: CAMetalDrawable object
-        - For Vulkan/OpenGL: Implementation-specific texture handle
-
-        \param texturePtr Pointer to the backend-specific drawable texture.
-        \note This is primarily used internally by the rendering backends.
-    */
     void setCurrentDrawable(void *texturePtr);
 
 #ifdef MLN_RENDER_BACKEND_VULKAN

@@ -7,11 +7,15 @@
 #include <mbgl/gfx/backend_scope.hpp>
 #include <mbgl/gl/renderable_resource.hpp>
 
-#include <QDebug>
-#include <QOpenGLContext>
-#include <QOpenGLFunctions>
-
 #include <QtGlobal>
+
+#include <QtCore/QDebug>
+#include <QtGui/QOpenGLContext>
+#include <QtGui/QOpenGLFunctions>
+
+namespace {
+constexpr GLuint StencilMask{0xFF};
+} // namespace
 
 namespace QMapLibre {
 
@@ -38,7 +42,7 @@ public:
             gl->glEnable(GL_STENCIL_TEST);
             gl->glStencilFunc(GL_EQUAL, 0x00, 0x00); // Initially pass all - will be set by layers
             gl->glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-            gl->glStencilMask(0xFF); // Enable writing to stencil buffer
+            gl->glStencilMask(StencilMask); // Enable writing to stencil buffer
 
             // Enable depth testing for proper layering
             gl->glEnable(GL_DEPTH_TEST);
@@ -65,7 +69,7 @@ OpenGLRendererBackend::OpenGLRendererBackend(const mbgl::gfx::ContextMode mode)
 
 OpenGLRendererBackend::~OpenGLRendererBackend() {
     QOpenGLContext* glContext = QOpenGLContext::currentContext();
-    if (glContext) {
+    if (glContext != nullptr) {
         QOpenGLFunctions* gl = glContext->functions();
 
         // Clean up the color texture if we created one
@@ -94,7 +98,7 @@ void OpenGLRendererBackend::deactivate() {
 
 void OpenGLRendererBackend::updateAssumedState() {
     assumeFramebufferBinding(ImplicitFramebufferBinding);
-    assumeViewport(0, 0, size);
+    assumeViewport(1, 1, size); // Use 1,1 to avoid zero-size viewport issues
 }
 
 void OpenGLRendererBackend::restoreFramebufferBinding() {
@@ -103,6 +107,8 @@ void OpenGLRendererBackend::restoreFramebufferBinding() {
 
 void OpenGLRendererBackend::updateRenderer(const mbgl::Size& newSize, uint32_t fbo) {
     size = newSize;
+    const auto width = static_cast<GLsizei>(newSize.width);
+    const auto height = static_cast<GLsizei>(newSize.height);
 
     qDebug() << "OpenGLRendererBackend::updateRenderer - size:" << newSize.width << "x" << newSize.height
              << "fbo:" << fbo << "current m_fbo:" << m_fbo << "current m_colorTexture:" << m_colorTexture;
@@ -119,7 +125,7 @@ void OpenGLRendererBackend::updateRenderer(const mbgl::Size& newSize, uint32_t f
 
     // Create or recreate the color texture for the framebuffer
     QOpenGLContext* glContext = QOpenGLContext::currentContext();
-    if (glContext && newSize.width > 0 && newSize.height > 0) {
+    if (glContext != nullptr && newSize.width > 0 && newSize.height > 0) {
         QOpenGLFunctions* gl = glContext->functions();
 
         // Delete old texture if it exists
@@ -133,8 +139,7 @@ void OpenGLRendererBackend::updateRenderer(const mbgl::Size& newSize, uint32_t f
 
         // Set up texture parameters for framebuffer use with alpha
         // Use GL_RGBA8 for internal format to ensure full alpha support
-        gl->glTexImage2D(
-            GL_TEXTURE_2D, 0, GL_RGBA8, newSize.width, newSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
         // Use linear filtering for smooth rendering
         // This is especially important for overzooming/underzooming and SDF text
         gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -152,7 +157,7 @@ void OpenGLRendererBackend::updateRenderer(const mbgl::Size& newSize, uint32_t f
                 gl->glGenRenderbuffers(1, &m_depthStencilRB);
             }
             gl->glBindRenderbuffer(GL_RENDERBUFFER, m_depthStencilRB);
-            gl->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, newSize.width, newSize.height);
+            gl->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
             gl->glFramebufferRenderbuffer(
                 GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_depthStencilRB);
 
@@ -175,9 +180,9 @@ void OpenGLRendererBackend::updateRenderer(const mbgl::Size& newSize, uint32_t f
 
             // Enable stencil test for tile clipping support
             gl->glEnable(GL_STENCIL_TEST);
-            gl->glStencilFunc(GL_ALWAYS, 0, 0xFF);
+            gl->glStencilFunc(GL_ALWAYS, 0, StencilMask);
             gl->glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-            gl->glStencilMask(0xFF);
+            gl->glStencilMask(StencilMask);
 
             // Enable depth testing for proper layering
             gl->glEnable(GL_DEPTH_TEST);
@@ -203,10 +208,10 @@ unsigned int OpenGLRendererBackend::getFramebufferTextureId() const {
 
     // Debug: Check if texture is still valid
     QOpenGLContext* glContext = QOpenGLContext::currentContext();
-    if (glContext && m_colorTexture != 0) {
+    if (glContext != nullptr && m_colorTexture != 0) {
         QOpenGLFunctions* gl = glContext->functions();
         GLboolean isTexture = gl->glIsTexture(m_colorTexture);
-        qDebug() << "  Texture" << m_colorTexture << "is valid:" << (isTexture ? "YES" : "NO");
+        qDebug() << "  Texture" << m_colorTexture << "is valid:" << (isTexture != 0 ? "YES" : "NO");
     }
 
     // Always return the texture if we have one, regardless of m_fbo

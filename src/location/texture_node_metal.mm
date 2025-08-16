@@ -1,6 +1,12 @@
 // Copyright (C) 2023 MapLibre contributors
 // SPDX-License-Identifier: BSD-2-Clause
 
+#include "texture_node_metal.hpp"
+
+#include <QtCore/QDebug>
+#include <QtQuick/QQuickWindow>
+#include <QtQuick/QSGRendererInterface>
+
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
 #else
@@ -10,32 +16,30 @@
 #import <Metal/Metal.h>
 #import <QuartzCore/CAMetalLayer.h>
 
-#include <QtQuick/qsgtexture_platform.h>
-#include <QQuickWindow>
-#include <QSGRendererInterface>
-#include <QtCore/QDebug>
-#include "texture_node_metal.hpp"
+namespace {
+constexpr int kMinimumSize{64};
+} // namespace
 
 namespace QMapLibre {
 
 TextureNodeMetal::~TextureNodeMetal() {
-    if (m_currentDrawable) {
+    if (m_currentDrawable != nullptr) {
         CFRelease(m_currentDrawable);
     }
 }
 
 void TextureNodeMetal::resize(const QSize &size, qreal pixelRatio, QQuickWindow * /* window */) {
-    m_size = size.expandedTo(QSize(64, 64));
+    m_size = size.expandedTo(QSize(kMinimumSize, kMinimumSize));
     m_pixelRatio = pixelRatio;
 
     qDebug() << "TextureNodeMetal::resize - size:" << m_size << "pixelRatio:" << m_pixelRatio
              << "physical size:" << (m_size * m_pixelRatio);
 
     // Pass logical size; mbgl::Map handles DPI scaling internally via pixelRatio passed at construction
-    m_map->resize(m_size);
+    m_map->resize(m_size, m_pixelRatio);
 
     // Update Metal layer drawable size if we have one
-    if (m_layerPtr) {
+    if (m_layerPtr != nullptr) {
         auto *layer = (__bridge CAMetalLayer *)m_layerPtr;
         layer.drawableSize = CGSizeMake(m_size.width() * m_pixelRatio, m_size.height() * m_pixelRatio);
     }
@@ -49,15 +53,17 @@ void TextureNodeMetal::render(QQuickWindow *window) {
     }
 
     // Try to get Metal layer from Qt first
-    if (!m_layerPtr) {
+    if (m_layerPtr == nullptr) {
         m_layerPtr = ri->getResource(window, "MetalLayer");
 
         // If Qt doesn't provide a layer, create our own
-        if (!m_layerPtr) {
+        if (m_layerPtr == nullptr) {
 #if TARGET_OS_IPHONE
-            auto *view = (UIView *)window->winId();
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast, performance-no-int-to-ptr)
+            auto *view = reinterpret_cast<UIView *>(window->winId());
 #else
-            auto *view = (NSView *)window->winId();
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast, performance-no-int-to-ptr)
+            auto *view = reinterpret_cast<NSView *>(window->winId());
             if (![view wantsLayer]) {
                 [view setWantsLayer:YES];
             }
@@ -87,14 +93,14 @@ void TextureNodeMetal::render(QQuickWindow *window) {
         }
     }
 
-    if (!m_layerPtr) {
+    if (m_layerPtr == nullptr) {
         qWarning() << "TextureNodeMetal: No Metal layer available";
         return;
     }
 
     // Configure layer if we have one
     auto *layer = (__bridge CAMetalLayer *)m_layerPtr;
-    if (!layer.device) {
+    if (layer.device == nullptr) {
         id<MTLDevice> dev = MTLCreateSystemDefaultDevice();
         layer.device = dev;
         layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
@@ -121,20 +127,20 @@ void TextureNodeMetal::render(QQuickWindow *window) {
     // Handle drawable for owned layers
     if (m_ownsLayer) {
         id<CAMetalDrawable> drawable = [layer nextDrawable];
-        if (!drawable) {
+        if (drawable == nullptr) {
             qWarning() << "TextureNodeMetal: No drawable available";
             return;
         }
         // Keep reference to prevent premature release
-        if (m_currentDrawable) {
+        if (m_currentDrawable != nullptr) {
             CFRelease(m_currentDrawable);
         }
-        m_currentDrawable = const_cast<void *>(CFRetain((__bridge CFTypeRef)drawable));
+        m_currentDrawable = CFRetain((__bridge CFTypeRef)drawable);
         m_map->setCurrentDrawable((void *)drawable.texture);
     } else {
         // Use Qt's current swap-chain texture
         void *qtTexPtr = ri->getResource(window, "CurrentMetalTexture");
-        if (qtTexPtr) {
+        if (qtTexPtr != nullptr) {
             m_map->setCurrentDrawable(qtTexPtr);
         }
     }
@@ -146,7 +152,7 @@ void TextureNodeMetal::render(QQuickWindow *window) {
 
     // Get the native texture from MapLibre
     void *nativeTex = m_map->nativeColorTexture();
-    if (!nativeTex) {
+    if (nativeTex == nullptr) {
         qWarning() << "TextureNodeMetal: No native texture available";
         return;
     }

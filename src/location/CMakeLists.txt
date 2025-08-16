@@ -15,27 +15,14 @@ target_sources(
         texture_node_base.cpp texture_node_base.hpp
 
         $<$<PLATFORM_ID:Windows>:${CMAKE_BINARY_DIR}/version_info.rc>
+
+        $<$<BOOL:${MLN_WITH_OPENGL}>:texture_node_opengl.cpp>
+        $<$<BOOL:${MLN_WITH_OPENGL}>:texture_node_opengl.hpp>
+        $<$<BOOL:${MLN_WITH_VULKAN}>:texture_node_vulkan.cpp>
+        $<$<BOOL:${MLN_WITH_VULKAN}>:texture_node_vulkan.hpp>
+        $<$<BOOL:${MLN_WITH_METAL}>:texture_node_metal.mm>
+        $<$<BOOL:${MLN_WITH_METAL}>:texture_node_metal.hpp>
 )
-
-# Add backend-specific implementations
-if(MLN_WITH_OPENGL)
-    target_sources(MLNQtLocation PRIVATE
-        texture_node_opengl.cpp texture_node_opengl.hpp
-        qgeomap_opengl.cpp qgeomap_opengl.hpp)
-endif()
-
-if(MLN_WITH_VULKAN)
-    target_sources(MLNQtLocation PRIVATE
-        texture_node_vulkan.cpp texture_node_vulkan.hpp
-        qgeomap_vulkan.cpp qgeomap_vulkan.hpp)
-endif()
-
-if(MLN_WITH_METAL AND APPLE)
-    target_sources(MLNQtLocation PRIVATE
-        texture_node_metal.mm texture_node_metal.hpp
-        qgeomap_metal.mm qgeomap_metal.hpp)
-endif()
-
 
 # Linux/Mac: Set framework, version and headers
 set_target_properties(
@@ -69,6 +56,13 @@ target_include_directories(
         ${CMAKE_SOURCE_DIR}/src/core
         ${CMAKE_SOURCE_DIR}/src/core/style
         ${CMAKE_BINARY_DIR}/src/core/include
+        ${MLN_CORE_PATH}/include
+        ${MLN_CORE_PATH}/src
+        ${MLN_CORE_PATH}/vendor/maplibre-native-base/include
+        ${MLN_CORE_PATH}/vendor/maplibre-native-base/deps/geometry.hpp/include
+        ${MLN_CORE_PATH}/vendor/maplibre-native-base/deps/variant/include
+        $<$<BOOL:${MLN_WITH_VULKAN}>:${MLN_CORE_PATH}/vendor/Vulkan-Headers/include>
+        $<$<BOOL:${MLN_WITH_VULKAN}>:${MLN_CORE_PATH}/vendor/VulkanMemoryAllocator/include>
 )
 
 # Common link libraries
@@ -85,28 +79,11 @@ target_link_libraries(
 )
 
 # Add QuartzCore framework for Metal support on Apple platforms
-if(MLN_WITH_METAL AND APPLE)
+if(APPLE AND MLN_WITH_METAL)
     target_link_libraries(
         MLNQtLocation
         PRIVATE
             "-framework QuartzCore"
-    )
-endif()
-
-# Add Vulkan-specific includes
-if(MLN_WITH_VULKAN)
-    target_include_directories(
-        MLNQtLocation
-        PRIVATE
-            ${CMAKE_SOURCE_DIR}/src/platform/src
-            ${CMAKE_SOURCE_DIR}/vendor/maplibre-native/include
-            ${CMAKE_SOURCE_DIR}/vendor/maplibre-native/vendor
-            ${CMAKE_SOURCE_DIR}/vendor/maplibre-native/vendor/maplibre-native-base/include
-            ${CMAKE_SOURCE_DIR}/vendor/maplibre-native/vendor/maplibre-native-base/deps/geometry.hpp/include
-            ${CMAKE_SOURCE_DIR}/vendor/maplibre-native/vendor/maplibre-native-base/deps/variant/include
-            ${CMAKE_SOURCE_DIR}/vendor/maplibre-native/src
-            ${CMAKE_SOURCE_DIR}/vendor/maplibre-native/vendor/VulkanMemoryAllocator/include
-            ${CMAKE_SOURCE_DIR}/vendor/maplibre-native/vendor/Vulkan-Headers/include
     )
 endif()
 

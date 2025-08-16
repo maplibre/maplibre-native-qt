@@ -1041,21 +1041,23 @@ void Map::rotateBy(const QPointF &first, const QPointF &second) {
 /*!
     \brief Resize the map.
     \param size The new size.
+    \param pixelRatio The pixel ratio of the device.
 
     Resize the map to \a size and scale to fit at the framebuffer.
     For high DPI screens, the size will be smaller than the framebuffer.
+
+    \a pixelRatio is optional and defaults to the currently set one.
 */
-void Map::resize(const QSize &size) {
-    auto sanitizedSize = sanitizeSize(size);
-
-    bool sizeChanged = d_ptr->mapObj->getMapOptions().size() != sanitizedSize;
-
-    if (sizeChanged) {
+void Map::resize(const QSize &size, qreal pixelRatio) {
+    const auto sanitizedSize = sanitizeSize(size);
+    if (d_ptr->mapObj->getMapOptions().size() != sanitizedSize) {
         d_ptr->mapObj->setSize(sanitizedSize);
     }
 
+    const qreal currentPixelRatio = pixelRatio > 0 ? pixelRatio : d_ptr->mapObj->getMapOptions().pixelRatio();
+
     // Always update the backend renderer size (works for all backends: OpenGL, Metal, Vulkan)
-    updateRenderer(size, d_ptr->mapObj->getMapOptions().pixelRatio());
+    updateRenderer(size, currentPixelRatio);
 }
 
 /*!
@@ -1878,6 +1880,17 @@ void *Map::nativeColorTexture() const {
 #endif
 }
 
+/*!
+    \brief Sets the current drawable texture for backend-specific rendering.
+
+    This method allows external code to provide a drawable texture that the
+    renderer can use. The texture pointer interpretation is backend-specific:
+    - For Metal: CAMetalDrawable object
+    - For Vulkan/OpenGL: Implementation-specific texture handle
+
+    \param texturePtr Pointer to the backend-specific drawable texture.
+    \note This is primarily used internally by the rendering backends.
+*/
 void Map::setCurrentDrawable(void *texturePtr) {
     d_ptr->setCurrentDrawable(texturePtr);
 }

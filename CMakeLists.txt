@@ -53,18 +53,16 @@ endif()
 
 # Find Qt
 if("${QT_VERSION_MAJOR}" STREQUAL "")
-    set(QT_VERSION_MAJOR 6)
+    find_package(QT NAMES Qt6 COMPONENTS Core REQUIRED)
 else()
-    # QT_VERSION_MAJOR already set
+    find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
 endif()
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Gui Network Quick REQUIRED) # main dependencies
-set(QT_VERSION ${Qt${QT_VERSION_MAJOR}_VERSION})
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Gui Network REQUIRED) # main dependencies
 if(NOT MLN_QT_WITH_INTERNAL_SQLITE)
     find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Sql REQUIRED)
 endif()
 if(MLN_QT_WITH_LOCATION)
     find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Location REQUIRED) # location
-    find_package(Qt${QT_VERSION_MAJOR} COMPONENTS LocationPrivate REQUIRED) # location private headers
 endif()
 if(MLN_QT_WITH_WIDGETS)
     if(Qt6_FOUND)

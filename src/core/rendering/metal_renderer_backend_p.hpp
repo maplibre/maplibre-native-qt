@@ -21,8 +21,6 @@ namespace QMapLibre {
 class MetalRendererBackend final : public mbgl::mtl::RendererBackend, public mbgl::gfx::Renderable {
 public:
     explicit MetalRendererBackend(CA::MetalLayer* layer);
-    // Fallback ctor used by MapRenderer when only a ContextMode is provided.
-    explicit MetalRendererBackend(mbgl::gfx::ContextMode /*mode*/);
     MetalRendererBackend(const MetalRendererBackend&) = delete;
     MetalRendererBackend& operator=(const MetalRendererBackend&) = delete;
     ~MetalRendererBackend() override;

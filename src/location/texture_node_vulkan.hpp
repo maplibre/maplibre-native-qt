@@ -3,8 +3,9 @@
 
 #pragma once
 
-#include <vulkan/vulkan.h>
 #include "texture_node_base.hpp"
+
+#include <vulkan/vulkan.h>
 
 namespace QMapLibre {
 
@@ -17,9 +18,9 @@ public:
     void render(QQuickWindow *window) override;
 
 private:
-    bool m_rendererBound = false;
+    bool m_rendererBound{};
     QPointer<QSGTexture> m_qtTextureWrapper;
-    VkImage m_lastVkImage = VK_NULL_HANDLE;
+    VkImage m_lastVkImage{VK_NULL_HANDLE};
     QSize m_lastTextureSize;
 };
 

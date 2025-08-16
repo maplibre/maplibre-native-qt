@@ -16,10 +16,10 @@ public:
     void render(QQuickWindow *window) final;
 
 private:
-    bool m_rendererBound = false;
-    void *m_layerPtr = nullptr;
-    void *m_currentDrawable = nullptr;
-    bool m_ownsLayer = false;
+    bool m_rendererBound{};
+    void *m_layerPtr{};
+    const void *m_currentDrawable{};
+    bool m_ownsLayer{};
 };
 
 } // namespace QMapLibre
