@@ -17,6 +17,7 @@ private slots:
     void testGLWidgetNoProvider();
     void testGLWidgetMapLibreProvider();
     void testGLWidgetStyle();
+    void testGLWidgetQuery();
 };
 
 void TestWidgets::testGLWidgetNoProvider() {
@@ -67,6 +68,26 @@ void TestWidgets::testGLWidgetStyle() {
     QTest::qWait(100);
     tester->initializeAnimation();
     QTest::qWait(tester->selfTest());
+}
+
+void TestWidgets::testGLWidgetQuery() {
+    const std::unique_ptr<QSurface> surface = QMapLibre::createTestSurface(QSurface::Window);
+    QVERIFY(surface != nullptr);
+
+    QOpenGLContext ctx;
+    QVERIFY(ctx.create());
+    QVERIFY(ctx.makeCurrent(surface.get()));
+
+    QMapLibre::Styles styles;
+    styles.append(QMapLibre::Style("https://demotiles.maplibre.org/style.json", "Demo tiles"));
+
+    QMapLibre::Settings settings;
+    settings.setStyles(styles);
+    auto tester = std::make_unique<QMapLibre::GLTester>(settings);
+    tester->show();
+    QTest::qWait(100);
+    tester->initializeQuery();
+    QTest::qWait(10000);
 }
 
 // NOLINTNEXTLINE(misc-const-correctness)
