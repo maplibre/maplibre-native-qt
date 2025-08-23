@@ -58,7 +58,6 @@ public:
     QList<StyleParameter *> m_mapParameters;
 
     QTimer m_refresh;
-    bool m_shouldRefresh = true;
     bool m_threadedRenderingChecked = false;
     bool m_threadedRendering = false;
     bool m_styleLoaded = false;

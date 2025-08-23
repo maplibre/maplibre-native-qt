@@ -15,7 +15,8 @@ namespace QMapLibre {
 // Base class for backend-specific texture nodes
 class Q_MAPLIBRE_QUICKPRIVATE_EXPORT TextureNodeBase : public QSGSimpleTextureNode {
 public:
-    TextureNodeBase(const Settings &settings, const QSize &size, qreal pixelRatio);
+    explicit TextureNodeBase(const Settings &settings, const QSize &size, qreal pixelRatio);
+    explicit TextureNodeBase(std::shared_ptr<Map> map, const QSize &size, qreal pixelRatio);
     ~TextureNodeBase() override = default;
 
     [[nodiscard]] Map *map() const { return m_map.get(); }
@@ -24,7 +25,7 @@ public:
     virtual void render(QQuickWindow *window) = 0;
 
 protected:
-    std::unique_ptr<Map> m_map;
+    std::shared_ptr<Map> m_map;
     QSize m_size;
     qreal m_pixelRatio{1.0};
 };

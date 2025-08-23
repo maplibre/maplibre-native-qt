@@ -16,4 +16,12 @@ TextureNodeBase::TextureNodeBase(const Settings &settings, const QSize &size, qr
     m_map = std::make_unique<Map>(nullptr, settings, m_size, pixelRatio);
 }
 
-} // namespace QMapLibre
+TextureNodeBase::TextureNodeBase(std::shared_ptr<Map> map, const QSize &size, qreal pixelRatio)
+    : m_map(std::move(map)),
+      m_size(size.expandedTo(minTextureSize)),
+      m_pixelRatio(pixelRatio) {
+    setTextureCoordinatesTransform(QSGSimpleTextureNode::MirrorVertically);
+    setFiltering(QSGTexture::Linear);
+}
+
+}; // namespace QMapLibre

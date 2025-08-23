@@ -31,6 +31,10 @@ Item {
             name: "maplibre.map.styles"
             value: "https://demotiles.maplibre.org/style.json,https://demotiles.maplibre.org/style2.json"
         }
+        PluginParameter {
+            name: "maplibre.cache.memory"
+            value: true
+        }
     }
 
     Rectangle {
@@ -56,10 +60,10 @@ Item {
         name: "Run"
 
         function test_map() {
-            wait(2000)
+            wait(5000)
             root.fullView = true
             mapView.map.center = root.coordinate
-            wait(500)
+            wait(2000)
         }
 
         function test_styles() {

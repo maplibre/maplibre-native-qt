@@ -1,13 +1,14 @@
 #pragma once
 
+#include <QMapLibre/Map>
 #include <QMapLibre/Settings>
 
 #include <QtQuick/QQuickItem>
 #include <QtQuick/QSGNode>
 
-namespace QMapLibre {
+#include <memory>
 
-class Map;
+namespace QMapLibre {
 
 class MapQuickItem : public QQuickItem {
     Q_OBJECT
@@ -18,14 +19,21 @@ public:
     explicit MapQuickItem(QQuickItem *parent = nullptr);
 
 protected:
+    void componentComplete() override;
     void geometryChange(const QRectF &newGeometry, const QRectF &oldGeometry) override;
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *data) override;
 
-private:
-    Settings m_settings;
-    Map *m_map{};
+    void wheelEvent(QWheelEvent *event) override;
 
-    bool m_initialized{};
+private slots:
+    void initialize();
+    void onMapChanged(Map::MapChange change);
+
+private:
+    QSGNode *updateMapNode(QSGNode *node);
+
+    Settings m_settings;
+    std::shared_ptr<Map> m_map;
 };
 
 } // namespace QMapLibre

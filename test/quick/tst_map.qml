@@ -41,7 +41,7 @@ Item {
             wait(5000)
             root.fullView = true
             // map.center = root.coordinate
-            wait(5000)
+            wait(2000)
         }
     }
 }

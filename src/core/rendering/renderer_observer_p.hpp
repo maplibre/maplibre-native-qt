@@ -34,13 +34,28 @@ public:
 
     void onWillStartRenderingFrame() final { delegate.invoke(&mbgl::RendererObserver::onWillStartRenderingFrame); }
 
+    void onDidFinishRenderingFrame(RenderMode mode, bool repaint, bool placementChanged) final {
+        void (mbgl::RendererObserver::*f)(RenderMode, bool, bool) = &mbgl::RendererObserver::onDidFinishRenderingFrame;
+        delegate.invoke(f, mode, repaint, placementChanged);
+    }
+
     void onDidFinishRenderingFrame(RenderMode mode,
-                                   bool repaintNeeded,
+                                   bool repaint,
+                                   bool placementChanged,
+                                   double frameEncodingTime,
+                                   double frameRenderingTime) final {
+        void (mbgl::RendererObserver::*f)(
+            RenderMode, bool, bool, double, double) = &mbgl::RendererObserver::onDidFinishRenderingFrame;
+        delegate.invoke(f, mode, repaint, placementChanged, frameEncodingTime, frameRenderingTime);
+    }
+
+    void onDidFinishRenderingFrame(RenderMode mode,
+                                   bool repaint,
                                    bool placementChanged,
                                    const mbgl::gfx::RenderingStats& stats) final {
         void (mbgl::RendererObserver::*f)(RenderMode, bool, bool, const mbgl::gfx::RenderingStats&) =
             &mbgl::RendererObserver::onDidFinishRenderingFrame;
-        delegate.invoke(f, mode, repaintNeeded, placementChanged, stats);
+        delegate.invoke(f, mode, repaint, placementChanged, stats);
     }
 
     void onDidFinishRenderingMap() final { delegate.invoke(&mbgl::RendererObserver::onDidFinishRenderingMap); }

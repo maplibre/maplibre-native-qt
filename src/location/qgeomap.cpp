@@ -483,6 +483,11 @@ void QGeoMapMapLibre::onMapChanged(Map::MapChange change) {
                                                                                           d->m_mapItemsBefore);
             std::ranges::move(changes, std::back_inserter(d->m_styleChanges));
         }
+    } else if (change == Map::MapChangeDidFinishLoadingMap) {
+        constexpr int refreshInterval{250};
+        // TODO: make it more elegant
+        QTimer::singleShot(refreshInterval, this, &QGeoMapMapLibre::sgNodeChanged);
+        qDebug() << "MapLibre map loaded";
     }
 }
 
