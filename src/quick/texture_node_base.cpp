@@ -14,7 +14,6 @@ TextureNodeBase::TextureNodeBase(const Settings &settings, const QSize &size, qr
     setFiltering(QSGTexture::Linear);
 
     m_map = std::make_unique<Map>(nullptr, settings, m_size, pixelRatio);
-    m_map->setConnectionEstablished();
 }
 
 } // namespace QMapLibre

@@ -1,11 +1,5 @@
 if(COMMAND qt_add_executable)
     qt_add_executable(test_mln_quick test_quick.cpp)
-
-    qt_add_resources(test_mln_quick test_fixtures
-        PREFIX "/"
-        BASE "../../vendor/maplibre-native/metrics/integration/sprites"
-        FILES "../../vendor/maplibre-native/metrics/integration/sprites/1x.png"
-    )
 else()
     add_executable(test_mln_quick test_quick.cpp)
 endif()
@@ -18,12 +12,12 @@ target_link_libraries(
         $<BUILD_INTERFACE:mbgl-compiler-options>
 )
 
-get_target_property(MLNQtCoreTargetType MLNQtCore TYPE)
-if (MLNQtCoreTargetType STREQUAL STATIC_LIBRARY)
+get_target_property(MLNQtQuickPrivateTargetType MLNQtQuickPrivate TYPE)
+if (MLNQtQuickPrivateTargetType STREQUAL STATIC_LIBRARY)
     target_link_libraries(
         test_mln_quick
         PRIVATE
-            ${MLN_QT_QUICK_MODULE}
+            ${MLN_QT_QML_PLUGIN}
     )
 endif()
 
@@ -38,11 +32,11 @@ add_test(
 set_tests_properties(
     test_mln_quick
     PROPERTIES
-        ENVIRONMENT "$<$<PLATFORM_ID:macOS>:DYLD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/src/core>;QSG_RHI_BACKEND=metal;QML_IMPORT_PATH=${CMAKE_BINARY_DIR}/src/quick;"
+        ENVIRONMENT "$<$<PLATFORM_ID:macOS>:DYLD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/src/core,${CMAKE_BINARY_DIR}/src/quick>;QSG_RHI_BACKEND=${MLN_QT_TEST_RENDERER};QML_IMPORT_PATH=${CMAKE_BINARY_DIR}/src/quick/plugins;"
 )
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set_tests_properties(
         test_mln_quick
         PROPERTIES
-            ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:$<TARGET_FILE_DIR:MLNQtCore>")
+            ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:$<TARGET_FILE_DIR:MLNQtCore>;PATH=path_list_prepend:$<TARGET_FILE_DIR:MLNQtQuickPrivate>")
 endif()

@@ -27,8 +27,8 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 set(MLN_QT_NAME QMapLibre)
 set(MLN_QT_NAMESPACE ${MLN_QT_NAME}::)
 set(MLN_QT_GEOSERVICES_PLUGIN qtgeoservices_maplibre)
-set(MLN_QT_QML_PLUGIN declarative_locationplugin_maplibre)
-set(MLN_QT_QUICK_MODULE quick_maplibre)
+set(MLN_QT_QML_PLUGIN declarative_maplibre)
+set(MLN_QT_QML_PLUGIN_LOCATION declarative_maplibre_locationplugin)
 
 include(cmake/helpers.cmake)
 

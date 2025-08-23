@@ -24,7 +24,7 @@ if (MLNQtLocationTargetType STREQUAL STATIC_LIBRARY)
         test_mln_qml
         PRIVATE
             ${MLN_QT_GEOSERVICES_PLUGIN}
-            ${MLN_QT_QML_PLUGIN}
+            ${MLN_QT_QML_PLUGIN_LOCATION}
     )
 endif()
 

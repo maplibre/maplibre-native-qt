@@ -66,10 +66,10 @@ target_link_libraries(
     MLNQtQuickPrivate
     PUBLIC
         MLNQtCore
+        Qt${QT_VERSION_MAJOR}::Quick
     PRIVATE
         $<$<BOOL:${MLN_WITH_OPENGL}>:Qt${QT_VERSION_MAJOR}::OpenGL>
         Qt${QT_VERSION_MAJOR}::Network
-        Qt${QT_VERSION_MAJOR}::Quick
         $<BUILD_INTERFACE:mbgl-compiler-options>
         $<BUILD_INTERFACE:MLNQtCompilerOptions>
 )
@@ -137,4 +137,4 @@ install(
 # )
 
 # plugins
-# add_subdirectory(plugins)
+add_subdirectory(plugins)

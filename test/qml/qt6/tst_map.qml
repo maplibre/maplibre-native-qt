@@ -6,7 +6,7 @@ import QtQuick 2.15
 import QtLocation 6.5
 import QtPositioning 5.15
 
-import MapLibre 3.0
+import MapLibre.Location 3.0
 
 import QtTest 1.0
 

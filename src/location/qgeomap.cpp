@@ -100,6 +100,7 @@ QSGNode *QGeoMapMapLibrePrivate::updateSceneGraph(QSGNode *node, QQuickWindow *w
             m_settings, m_viewportSize, window->devicePixelRatio());
 #endif
         QObject::connect(mbglNode->map(), &Map::needsRendering, q, &QGeoMap::sgNodeChanged);
+        mbglNode->map()->setConnectionEstablished();
 
         QObject::connect(mbglNode->map(), &Map::mapChanged, q, &QGeoMapMapLibre::onMapChanged);
         m_syncState = MapTypeSync | CameraDataSync | ViewportSync | VisibleAreaSync;

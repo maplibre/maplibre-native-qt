@@ -6,7 +6,7 @@ import QtQuick 2.15
 import QtLocation 6.5
 import QtPositioning 6.5
 
-import MapLibre 3.0
+import MapLibre.Location 3.0
 
 import QtTest 1.0
 
@@ -154,7 +154,7 @@ Item {
             let url = "https://tiles.maps.eox.at/wms?service=wms&bbox={bbox-epsg-3857}&format=image/png&service=WMS&version=1.1.1&request=GetMap&srs=EPSG:900913&width=256&height=256&layers=s2cloudless-2021_3857"
 
             let sourceParam = Qt.createQmlObject(`
-                import MapLibre 3.0
+                import MapLibre.Location 3.0
 
                 SourceParameter {
                     styleId: "tileSource"
@@ -169,7 +169,7 @@ Item {
             style.addParameter(sourceParam)
 
             let layerParam = Qt.createQmlObject(`
-                import MapLibre 3.0
+                import MapLibre.Location 3.0
 
                 LayerParameter {
                     styleId: "tileLayer"
@@ -190,7 +190,7 @@ Item {
 
         function test_style_8_image() {
             let imageParam = Qt.createQmlObject(`
-                import MapLibre 3.0
+                import MapLibre.Location 3.0
 
                 ImageParameter {
                     styleId: "locationImage"
@@ -202,7 +202,7 @@ Item {
             style.addParameter(imageParam)
 
             let sourceParam = Qt.createQmlObject(`
-                import MapLibre 3.0
+                import MapLibre.Location 3.0
 
                 SourceParameter {
                     styleId: "pointSource"
@@ -227,7 +227,7 @@ Item {
             style.addParameter(sourceParam)
 
             let layerParam = Qt.createQmlObject(`
-                import MapLibre 3.0
+                import MapLibre.Location 3.0
 
                 LayerParameter {
                     styleId: "pointLayer"
