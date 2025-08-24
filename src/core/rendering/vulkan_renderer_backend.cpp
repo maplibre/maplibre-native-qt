@@ -334,7 +334,7 @@ void VulkanRendererBackend::initInstance() {
         throw std::runtime_error("Qt VkInstance is null");
     }
 
-    vk::Instance vkInstance(rawInstance);
+    const vk::Instance vkInstance(rawInstance);
     instance = vk::UniqueInstance(vkInstance,
                                   vk::ObjectDestroy<vk::NoParent, vk::DispatchLoaderDynamic>(nullptr, dispatcher));
 
@@ -363,7 +363,7 @@ void VulkanRendererBackend::initDevice() {
         // Reuse Qt's existing Vulkan device for zero-copy texture sharing
         physicalDevice = vk::PhysicalDevice(m_qtPhysicalDevice);
 
-        vk::Device vkDevice(m_qtDevice);
+        const vk::Device vkDevice(m_qtDevice);
         device = vk::UniqueDevice(vkDevice,
                                   vk::ObjectDestroy<vk::NoParent, vk::DispatchLoaderDynamic>(nullptr, dispatcher));
 

@@ -83,7 +83,7 @@ void TextureNodeOpenGL::render(QQuickWindow *window) {
     gl->glBindFramebuffer(GL_FRAMEBUFFER, prevFbo);
 
     // Try to get MapLibre's OpenGL framebuffer texture ID for zero-copy sharing
-    GLuint maplibreTextureId = m_map->getFramebufferTextureId();
+    const GLuint maplibreTextureId = m_map->getFramebufferTextureId();
     if (maplibreTextureId > 0) {
         // Wrap it directly as QSGTexture (zero-copy!)
         const QSize physicalSize = m_size * m_pixelRatio;

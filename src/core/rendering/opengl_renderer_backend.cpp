@@ -148,7 +148,7 @@ void OpenGLRendererBackend::updateRenderer(const mbgl::Size& newSize, uint32_t f
                 GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_depthStencilRB);
 
             // Check framebuffer completeness
-            GLenum status = gl->glCheckFramebufferStatus(GL_FRAMEBUFFER);
+            const GLenum status = gl->glCheckFramebufferStatus(GL_FRAMEBUFFER);
             if (status != GL_FRAMEBUFFER_COMPLETE) {
                 qWarning() << "OpenGLRendererBackend::updateRenderer() - Framebuffer not complete, status:" << status;
             } else {

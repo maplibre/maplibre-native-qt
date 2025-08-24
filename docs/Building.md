@@ -83,29 +83,33 @@ For Android, the `ANDROID_ABI` environment variable should be set.
 
 ### Supported release workflows
 
-| Platform | Qt6       | Qt6 with ccache  |
-|----------|-----------|------------------|
-| Linux    | `Linux`   | `Linux-ccache`   |
-| macOS    | `macOS`   | `macOS-ccache`   |
-| Windows  | `Windows` | `Windows-ccache` |
-| iOS      | `iOS`     | `iOS-ccache`     |
-| Android  | `Android` | `Android-ccache` |
-| WASM     | `WASM`    | `WASM-ccache`    |
+| Platform         | Workflow         | Workflow with ccache    |
+|------------------|------------------|-------------------------|
+| Linux (OpenGL)   | `Linux-OpenGL`   | `Linux-OpenGL-ccache`   |
+| Linux (Vulkan)   | `Linux-Vulkan`   | `Linux-Vulkan-ccache`   |
+| macOS (Metal)    | `macOS`          | `macOS-ccache`          |
+| Windows (OpenGL) | `Windows-OpenGL` | `Windows-OpenGL-ccache` |
+| Windows (OpenGL) | `Windows-Vulkan` | `Windows-Vulkan-ccache` |
+| iOS (Metal)      | `iOS`            | `iOS-ccache`            |
+| Android (OpenGL) | `Android-OpenGL` | `Android-ccache`        |
+| Android (Vulkan) | `Android-Vulkan` | `Android-ccache`        |
+| WASM (WebGL 2)   | `WASM`           | `WASM-ccache`           |
 
 ### Special workflows
 
-| Platform | Workflow             | Description                                                         |
-|----------|----------------------|---------------------------------------------------------------------|
-| Linux    | `Linux-coverage`     | Linux build with Qt6, `ccache` and code coverage                    |
-| Linux    | `Linux-internal-icu` | Linux build with Qt6 and internal ICU library (also with `-ccache`) |
-| Linux    | `Linux-CI`           | Linux build with Qt6 and ccache for CI                              |
-| macOS    | `macOS-clang-tidy`   | macOS build with Qt6, `ccache` and `clang-tidy`                     |
+| Platform         | Workflow                  | Description                                              |
+|------------------|---------------------------|----------------------------------------------------------|
+| Linux (OpenGL)   | `Linux-OpenGL-coverage`   | Linux build with Qt6, OpenGL, `ccache` and code coverage |
+| Linux (OpenGL)   | `Linux-OpenGL-clang-tidy` | Linux build with Qt6, OpenGL `ccache` and `clang-tidy`   |
+| Linux (Vulkan)   | `Linux-Vulkan-clang-tidy` | Linux build with Qt6, Vulkan, `ccache` and `clang-tidy`  |
+| macOS (Metal)    | `macOS-clang-tidy`        | macOS build with Qt6, `ccache` and `clang-tidy`          |
 
 ## Platform specific build instructions
 
 ### Linux
 
 #### Installing Qt6 prerequisites
+
 ##### Alpine
 
 ```bash
@@ -119,6 +123,7 @@ sudo apk add \
     qt6-qtlocation-dev \
     samurai
 ```
+
 ##### Archlinux & Manjaro
 
 ```bash
@@ -211,6 +216,7 @@ specific package manager needs to be used to resolve dependencies of Qt.
 ###### Installing Qt dependencies
 
 _Debian `12 Bookworm` /  Linux Mint `22.1 Xia` / Ubuntu `24.04 Noble` or older:_
+
 ```bash
 sudo apt update && sudo apt install -y \
    build-essential \
@@ -246,7 +252,7 @@ sudo apt update && sudo apt install -y \
 
 Installing Qt via `aqt`:
 
-```
+```bash
 python3 -m venv /tmp/qtvenv
 source /tmp/qtvenv/bin/activate
 pip install 'setuptools>=70.1.0' 'py7zr==0.22.*'
@@ -279,16 +285,19 @@ ninja install
 
 #### Building with Vulkan support
 
-MapLibre Native Qt supports Vulkan as a rendering backend on Linux. This provides
-better performance and is the recommended approach for Qt Quick applications.
+MapLibre Native Qt supports Vulkan as a rendering backend on Linux.
+This provides better performance and is the recommended approach for Qt Quick
+applications.
 
 ##### Prerequisites
 
 In addition to the regular Qt build dependencies, you'll need:
 
-- Vulkan development headers (`libvulkan-dev` on Debian/Ubuntu, `vulkan-devel` on Fedora)
+- Vulkan development headers
+  (e.g. `libvulkan-dev` on Debian/Ubuntu, `vulkan-devel` on Fedora)
 - Vulkan ICD (Installable Client Driver) for your graphics hardware
-- Vulkan validation layers for debugging (optional, `vulkan-validationlayers` on Debian/Ubuntu)
+- Vulkan validation layers for debugging
+  (optional, e.g. `vulkan-validationlayers` on Debian/Ubuntu)
 
 ##### Building with Vulkan backend
 
@@ -304,36 +313,6 @@ cmake ../maplibre-native-qt -G Ninja \
   -DMLN_WITH_VULKAN=ON
 ninja
 ninja install
-```
-
-##### Running examples with Vulkan
-
-When running Qt Quick examples with Vulkan support, you need to set the appropriate
-environment variables:
-
-```shell
-# Set the QML import path to find the MapLibre plugin
-export QML2_IMPORT_PATH="path/to/install-vulkan/qml"
-
-# Tell Qt Quick to use Vulkan RHI backend
-export QSG_RHI_BACKEND=vulkan
-
-# Run the example
-./QMapLibreExampleQuick
-```
-
-For the quick example specifically:
-
-```shell
-mkdir examples/quick/build-vulkan && cd examples/quick/build-vulkan
-cmake .. -G Ninja \
-  -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
-  -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
-  -DQMapLibre_DIR="path/to/install-vulkan"
-ninja
-
-# Run with Vulkan
-QML2_IMPORT_PATH="path/to/install-vulkan/qml" QSG_RHI_BACKEND=vulkan ./QMapLibreExampleQuick
 ```
 
 ##### Troubleshooting Vulkan

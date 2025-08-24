@@ -71,7 +71,7 @@ void TextureNodeVulkan::render(QQuickWindow *window) {
             if (qtPhysicalDevice != nullptr && qtDevice != nullptr) {
                 // TODO: We need to get the graphics queue index from Qt
                 // For now, assume it's 0 (common case)
-                uint32_t graphicsQueueIndex{};
+                const uint32_t graphicsQueueIndex{};
 
                 m_map->createRendererWithQtVulkanDevice(window, qtPhysicalDevice, qtDevice, graphicsQueueIndex);
             } else {
