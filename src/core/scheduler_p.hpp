@@ -1,3 +1,7 @@
+// Copyright (C) 2023 MapLibre contributors
+
+// SPDX-License-Identifier: BSD-2-Clause
+
 #pragma once
 
 #include <mbgl/actor/scheduler.hpp>
@@ -19,7 +23,7 @@ public:
     ~Scheduler() override;
 
     // mbgl::Scheduler implementation.
-    void schedule(const mbgl::util::SimpleIdentity, std::function<void()>&& function) final;
+    void schedule(const mbgl::util::SimpleIdentity identity, std::function<void()>&& function) final;
     void schedule(std::function<void()>&& function) final;
 
     void waitForEmpty(const mbgl::util::SimpleIdentity tag = mbgl::util::SimpleIdentity::Empty) override;

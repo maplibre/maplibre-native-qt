@@ -34,6 +34,7 @@ set_target_properties(
     PROPERTIES
         WIN32_EXECUTABLE ON
         MACOSX_BUNDLE ON
+        QT_WASM_PTHREAD_POOL_SIZE 16
 )
 
 target_link_libraries(
@@ -42,6 +43,14 @@ target_link_libraries(
         Qt::Quick
         QMapLibre::Core
 )
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+    target_link_options(
+        QMapLibreExampleQuickStandalone
+        PRIVATE
+            -sTEXTDECODER=0
+    )
+endif()
 
 qmaplibre_quick_setup_plugins(QMapLibreExampleQuickStandalone)
 

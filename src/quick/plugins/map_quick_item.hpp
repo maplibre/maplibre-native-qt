@@ -1,5 +1,10 @@
+// Copyright (C) 2023 MapLibre contributors
+
+// SPDX-License-Identifier: BSD-2-Clause
+
 #pragma once
 
+#include <QtCore/qtmetamacros.h>
 #include <QMapLibre/Map>
 #include <QMapLibre/Settings>
 
@@ -7,6 +12,7 @@
 #include <QtQuick/QSGNode>
 
 #include <memory>
+#include "types.hpp"
 
 namespace QMapLibre {
 
@@ -15,8 +21,28 @@ class MapQuickItem : public QQuickItem {
     QML_NAMED_ELEMENT(MapLibre)
     QML_ADDED_IN_VERSION(3, 0)
 
+    Q_PROPERTY(QString style READ style WRITE setStyle)
+    Q_PROPERTY(QVariantList coordinate READ coordinate WRITE setCoordinate)
+    Q_PROPERTY(double zoom READ zoom WRITE setZoom)
+
 public:
     explicit MapQuickItem(QQuickItem *parent = nullptr);
+
+    [[nodiscard]] QString style() const { return m_style; }
+    void setStyle(const QString &style);
+
+    [[nodiscard]] double zoom() const { return m_zoom; }
+    void setZoom(double zoom);
+
+    [[nodiscard]] QVariantList coordinate() const { return m_coordinate; }
+    void setCoordinate(const QVariantList &coordinate);
+
+    enum SyncState : int {
+        NoSync = 0,
+        ViewportSync = 1 << 0,
+        CameraOptionsSync = 1 << 1,
+    };
+    Q_DECLARE_FLAGS(SyncStates, SyncState);
 
 protected:
     void componentComplete() override;
@@ -34,6 +60,13 @@ private:
 
     Settings m_settings;
     std::shared_ptr<Map> m_map;
+
+    SyncStates m_syncState = NoSync;
+    QVariantList m_coordinate{0, 0};
+    double m_zoom{0};
+    QString m_style;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(MapQuickItem::SyncStates)
 
 } // namespace QMapLibre

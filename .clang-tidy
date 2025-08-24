@@ -20,6 +20,7 @@ Checks: >
     -cppcoreguidelines-pro-type-static-cast-downcast,
     -cppcoreguidelines-pro-type-vararg,
     -cppcoreguidelines-special-member-functions,
+    -google-default-arguments,
     -google-readability-todo,
     -llvm-header-guard,
     -llvm-include-order,

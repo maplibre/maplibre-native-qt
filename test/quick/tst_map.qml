@@ -27,6 +27,11 @@ Item {
 
         MapLibre {
             id: map
+
+            style: "https://demotiles.maplibre.org/style.json"
+            zoom: 4
+            coordinate: [59.91, 10.75]
+
             anchors.fill: parent
             anchors.topMargin: fullView ? 0 : Math.round(parent.height / 6)
             anchors.leftMargin: fullView ? 0 : Math.round(parent.width / 6)

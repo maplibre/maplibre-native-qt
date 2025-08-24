@@ -41,6 +41,10 @@ Window {
             anchors.topMargin: fullWindow ? 0 : Math.round(parent.height / 6)
             anchors.leftMargin: fullWindow ? 0 : Math.round(parent.width / 6)
             focus: true
+
+            style: "https://demotiles.maplibre.org/style.json"
+            zoom: 4
+            coordinate: [59.91, 10.75]
         }
     }
 }

@@ -1,3 +1,7 @@
+// Copyright (C) 2023 MapLibre contributors
+
+// SPDX-License-Identifier: BSD-2-Clause
+
 #include "map_quick_item.hpp"
 
 #include "texture_node_base_p.hpp"
@@ -23,6 +27,7 @@
 #include <memory>
 
 namespace {
+constexpr int minSize{64};
 constexpr int intervalTime{250};
 } // namespace
 
@@ -31,12 +36,7 @@ namespace QMapLibre {
 MapQuickItem::MapQuickItem(QQuickItem *parent)
     : QQuickItem(parent) {
     setFlag(ItemHasContents, true);
-
-    QMapLibre::Styles styles;
-    styles.append(QMapLibre::Style("https://demotiles.maplibre.org/style.json", "Demo tiles"));
-    m_settings.setStyles(styles);
-    m_settings.setDefaultZoom(4);
-    m_settings.setDefaultCoordinate(QMapLibre::Coordinate(59.91, 10.75));
+    // TODO: make configurable
     m_settings.setCacheDatabasePath(QStringLiteral(":memory:"));
 }
 
@@ -53,7 +53,10 @@ void MapQuickItem::initialize() {
     m_map->setConnectionEstablished();
 
     // Set default style
-    if (!m_settings.styles().empty()) {
+    if (!m_style.isEmpty()) {
+        qDebug() << "Setting style URL:" << m_style;
+        m_map->setStyleUrl(m_style);
+    } else if (!m_settings.styles().empty()) {
         qDebug() << "Setting style URL:" << m_settings.styles().front().url;
         m_map->setStyleUrl(m_settings.styles().front().url);
     } else if (!m_settings.providerStyles().empty()) {
@@ -62,6 +65,39 @@ void MapQuickItem::initialize() {
     }
 
     update();
+}
+
+void MapQuickItem::setStyle(const QString &style) {
+    if (m_style == style) {
+        return;
+    }
+    m_style = style;
+}
+
+void MapQuickItem::setZoom(double zoom) {
+    if (m_zoom == zoom) {
+        return;
+    }
+
+    m_zoom = zoom;
+
+    if (m_map) {
+        m_syncState |= CameraOptionsSync;
+        update();
+    }
+}
+
+void MapQuickItem::setCoordinate(const QVariantList &coordinate) {
+    if (m_coordinate == coordinate || coordinate.size() != 2) {
+        return;
+    }
+
+    m_coordinate = coordinate;
+
+    if (m_map) {
+        m_syncState |= CameraOptionsSync;
+        update();
+    }
 }
 
 void MapQuickItem::componentComplete() {
@@ -86,7 +122,8 @@ void MapQuickItem::geometryChange(const QRectF &newGeometry, const QRectF &oldGe
 
     if (newGeometry.size() != oldGeometry.size()) {
         const QSize viewportSize{static_cast<int>(newGeometry.width()), static_cast<int>(newGeometry.height())};
-        m_map->resize(viewportSize.expandedTo({64, 64}), pixelRatio);
+        m_map->resize(viewportSize.expandedTo({minSize, minSize}), pixelRatio);
+        m_syncState |= ViewportSync;
         update();
     }
 }
@@ -95,7 +132,7 @@ QSGNode *MapQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *da
     Q_UNUSED(data);
 
     if (!m_map) {
-        delete oldNode;
+        delete oldNode; // NOLINT(cppcoreguidelines-owning-memory)
         return nullptr;
     }
 
@@ -105,6 +142,7 @@ QSGNode *MapQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *da
     }
 
     root->setRect(boundingRect());
+    // TODO: background color
     // root->setColor(m_color);
 
     QSGNode *content = root->childCount() > 0 ? root->firstChild() : nullptr;
@@ -146,33 +184,34 @@ QSGNode *MapQuickItem::updateMapNode(QSGNode *node) {
             m_map, viewportSize, window()->devicePixelRatio());
 #endif
         QObject::connect(m_map.get(), &Map::needsRendering, this, &QQuickItem::update);
-        QObject::connect(m_map.get(), &Map::needsRendering, [] { qDebug() << "Map needs rendering"; });
-
         QObject::connect(m_map.get(), &Map::mapChanged, this, &MapQuickItem::onMapChanged);
+
+        m_syncState = ViewportSync | CameraOptionsSync;
 
         node = mbglNode.release();
 
         qDebug() << "MapQuickItem::updatePaintNode() - created new node" << node;
+    }
 
-        m_map->setZoom(m_settings.defaultZoom());
-        m_map->setCoordinate(m_settings.defaultCoordinate());
+    if ((m_syncState & CameraOptionsSync) != 0) {
+        m_map->setZoom(m_zoom);
+        m_map->setCoordinate({m_coordinate.size() == 2 ? m_coordinate[0].toDouble() : 0.0,
+                              m_coordinate.size() == 2 ? m_coordinate[1].toDouble() : 0.0});
+    }
 
+    if ((m_syncState & ViewportSync) != 0) {
         static_cast<TextureNodeBase *>(node)->resize(viewportSize, window()->devicePixelRatio(), window());
     }
 
-    static_cast<TextureNodeBase *>(node)->resize(viewportSize, window()->devicePixelRatio(), window());
-
     static_cast<TextureNodeBase *>(node)->render(window());
+
+    m_syncState = NoSync;
 
     return node;
 }
 
 void MapQuickItem::onMapChanged(Map::MapChange change) {
-    if (change == Map::MapChangeDidFinishLoadingStyle || change == Map::MapChangeDidFailLoadingMap) {
-        qDebug() << "MapQuickItem::onMapChanged() - style loaded";
-    } else if (change == Map::MapChangeWillStartLoadingMap) {
-        qDebug() << "MapQuickItem::onMapChanged() - style loading started";
-    } else if (change == Map::MapChangeDidFinishLoadingMap) {
+    if (change == Map::MapChangeDidFinishLoadingMap) {
         // TODO: make it more elegant
         QTimer::singleShot(intervalTime, this, &QQuickItem::update);
         qDebug() << "MapLibre map loaded";
@@ -184,12 +223,12 @@ void MapQuickItem::wheelEvent(QWheelEvent *event) {
         QQuickItem::wheelEvent(event);
         return;
     }
-    qreal angle = event->angleDelta().y();
+    const qreal angle = event->angleDelta().y();
     if (angle == 0) {
         QQuickItem::wheelEvent(event);
         return;
     }
-    double factor = angle > 0 ? 1.05 : 0.95;
+    double factor = angle > 0 ? 1.05 : 0.95; // NOLINT
     m_map->scaleBy(factor, event->position());
     update();
     event->accept();

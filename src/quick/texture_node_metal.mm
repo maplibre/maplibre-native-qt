@@ -1,4 +1,5 @@
 // Copyright (C) 2023 MapLibre contributors
+
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "texture_node_metal_p.hpp"
@@ -40,7 +41,7 @@ void TextureNodeMetal::resize(const QSize &size, qreal pixelRatio, QQuickWindow 
 
     // Update Metal layer drawable size if we have one
     if (m_layerPtr != nullptr) {
-        auto *layer = (__bridge CAMetalLayer *)m_layerPtr;
+        auto *const layer = (__bridge CAMetalLayer *)m_layerPtr;
         layer.drawableSize = CGSizeMake(m_size.width() * m_pixelRatio, m_size.height() * m_pixelRatio);
     }
 }
@@ -63,15 +64,18 @@ void TextureNodeMetal::render(QQuickWindow *window) {
             auto *view = reinterpret_cast<UIView *>(window->winId());
 #else
             // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast, performance-no-int-to-ptr)
-            auto *view = reinterpret_cast<NSView *>(window->winId());
+            auto *const view = reinterpret_cast<NSView *>(window->winId());
             if (![view wantsLayer]) {
                 [view setWantsLayer:YES];
             }
 #endif
 
-            CAMetalLayer *newLayer = [CAMetalLayer layer];
-            id<MTLDevice> dev = MTLCreateSystemDefaultDevice();
-            newLayer.device = dev;
+            CAMetalLayer *const newLayer = [CAMetalLayer layer];
+            const id<MTLDevice> dev = MTLCreateSystemDefaultDevice();
+            if (dev != nil) {
+                newLayer.device = dev;
+                CFRelease((__bridge CFTypeRef)dev);
+            }
             newLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
             newLayer.framebufferOnly = NO;
 #if !TARGET_OS_IPHONE
@@ -99,10 +103,13 @@ void TextureNodeMetal::render(QQuickWindow *window) {
     }
 
     // Configure layer if we have one
-    auto *layer = (__bridge CAMetalLayer *)m_layerPtr;
+    auto *const layer = (__bridge CAMetalLayer *)m_layerPtr;
     if (layer.device == nullptr) {
-        id<MTLDevice> dev = MTLCreateSystemDefaultDevice();
-        layer.device = dev;
+        const id<MTLDevice> dev = MTLCreateSystemDefaultDevice();
+        if (dev != nil) {
+            layer.device = dev;
+            CFRelease((__bridge CFTypeRef)dev);
+        }
         layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
         layer.framebufferOnly = NO;
         layer.drawableSize = CGSizeMake(m_size.width() * m_pixelRatio, m_size.height() * m_pixelRatio);
@@ -126,7 +133,7 @@ void TextureNodeMetal::render(QQuickWindow *window) {
 
     // Handle drawable for owned layers
     if (m_ownsLayer) {
-        id<CAMetalDrawable> drawable = [layer nextDrawable];
+        const id<CAMetalDrawable> drawable = [layer nextDrawable];
         if (drawable == nullptr) {
             qWarning() << "TextureNodeMetal: No drawable available";
             return;

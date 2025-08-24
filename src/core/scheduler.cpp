@@ -1,3 +1,7 @@
+// Copyright (C) 2023 MapLibre contributors
+
+// SPDX-License-Identifier: BSD-2-Clause
+
 #include "scheduler_p.hpp"
 
 #include <mbgl/util/monotonic_timer.hpp>
@@ -13,7 +17,7 @@ Scheduler::~Scheduler() {
     MBGL_VERIFY_THREAD(tid);
 }
 
-void Scheduler::schedule(const mbgl::util::SimpleIdentity, std::function<void()>&& function) {
+void Scheduler::schedule(const mbgl::util::SimpleIdentity /* identity */, std::function<void()>&& function) {
     const std::lock_guard<std::mutex> lock(m_taskQueueMutex);
     m_taskQueue.push(std::move(function));
 
@@ -46,7 +50,7 @@ void Scheduler::processEvents() {
     cvEmpty.notify_all();
 }
 
-void Scheduler::waitForEmpty([[maybe_unused]] const mbgl::util::SimpleIdentity tag) {
+void Scheduler::waitForEmpty(const mbgl::util::SimpleIdentity /* tag */) {
     MBGL_VERIFY_THREAD(tid);
 
     std::unique_lock<std::mutex> lock(m_taskQueueMutex);

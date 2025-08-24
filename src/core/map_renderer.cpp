@@ -133,8 +133,8 @@ void MapRenderer::updateRenderer(const mbgl::Size &size, qreal pixelRatio, quint
     MBGL_VERIFY_THREAD(tid);
 
     // Compute actual renderer size based on pixel ratio
-    mbgl::Size actualSize{static_cast<uint32_t>(size.width * pixelRatio),
-                          static_cast<uint32_t>(size.height * pixelRatio)};
+    const mbgl::Size actualSize{static_cast<uint32_t>(size.width * pixelRatio),
+                                static_cast<uint32_t>(size.height * pixelRatio)};
 
     m_backend.updateRenderer(actualSize, fbo);
 }
