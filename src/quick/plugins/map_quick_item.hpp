@@ -22,8 +22,8 @@ class MapQuickItem : public QQuickItem {
     QML_ADDED_IN_VERSION(3, 0)
 
     Q_PROPERTY(QString style READ style WRITE setStyle)
-    Q_PROPERTY(QVariantList coordinate READ coordinate WRITE setCoordinate)
-    Q_PROPERTY(double zoom READ zoom WRITE setZoom)
+    Q_PROPERTY(QVariantList coordinate READ coordinate WRITE setCoordinate NOTIFY coordinateChanged)
+    Q_PROPERTY(double zoomLevel READ zoomLevel WRITE setZoomLevel NOTIFY zoomLevelChanged)
 
 public:
     explicit MapQuickItem(QQuickItem *parent = nullptr);
@@ -31,11 +31,15 @@ public:
     [[nodiscard]] QString style() const { return m_style; }
     void setStyle(const QString &style);
 
-    [[nodiscard]] double zoom() const { return m_zoom; }
-    void setZoom(double zoom);
+    [[nodiscard]] double zoomLevel() const { return m_zoomLevel; }
+    void setZoomLevel(double zoomLevel);
 
     [[nodiscard]] QVariantList coordinate() const { return m_coordinate; }
     void setCoordinate(const QVariantList &coordinate);
+    Q_INVOKABLE void setCoordinateFromPixel(const QPointF &pixel);
+
+    Q_INVOKABLE void pan(const QPointF &offset);
+    Q_INVOKABLE void scale(double scale, const QPointF &center);
 
     enum SyncState : int {
         NoSync = 0,
@@ -44,12 +48,14 @@ public:
     };
     Q_DECLARE_FLAGS(SyncStates, SyncState);
 
+signals:
+    void coordinateChanged();
+    void zoomLevelChanged();
+
 protected:
     void componentComplete() override;
     void geometryChange(const QRectF &newGeometry, const QRectF &oldGeometry) override;
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *data) override;
-
-    void wheelEvent(QWheelEvent *event) override;
 
 private slots:
     void initialize();
@@ -63,7 +69,7 @@ private:
 
     SyncStates m_syncState = NoSync;
     QVariantList m_coordinate{0, 0};
-    double m_zoom{0};
+    double m_zoomLevel{};
     QString m_style;
 };
 

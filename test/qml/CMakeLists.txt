@@ -34,7 +34,7 @@ endif()
 
 add_test(
     NAME test_mln_qml
-    COMMAND $<TARGET_FILE:test_mln_qml> -input ${CMAKE_CURRENT_SOURCE_DIR}/qt${QT_VERSION_MAJOR}
+    COMMAND $<TARGET_FILE:test_mln_qml> -input ${CMAKE_CURRENT_SOURCE_DIR}
 )
 set_tests_properties(
     test_mln_qml

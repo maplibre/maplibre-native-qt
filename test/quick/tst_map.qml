@@ -29,7 +29,7 @@ Item {
             id: map
 
             style: "https://demotiles.maplibre.org/style.json"
-            zoom: 4
+            zoomLevel: 4
             coordinate: [59.91, 10.75]
 
             anchors.fill: parent
@@ -43,7 +43,7 @@ Item {
         name: "Run"
 
         function test_map() {
-            wait(5000)
+            wait(2000)
             root.fullView = true
             // map.center = root.coordinate
             wait(2000)

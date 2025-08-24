@@ -29,6 +29,9 @@
 namespace {
 constexpr int minSize{64};
 constexpr int intervalTime{250};
+
+constexpr double minZoomLevel{0.0};
+constexpr double maxZoomLevel{20.0};
 } // namespace
 
 namespace QMapLibre {
@@ -74,17 +77,25 @@ void MapQuickItem::setStyle(const QString &style) {
     m_style = style;
 }
 
-void MapQuickItem::setZoom(double zoom) {
-    if (m_zoom == zoom) {
+void MapQuickItem::setZoomLevel(double zoomLevel) {
+    if (zoomLevel < minZoomLevel) {
+        zoomLevel = minZoomLevel;
+    } else if (zoomLevel > maxZoomLevel) {
+        zoomLevel = maxZoomLevel;
+    }
+
+    if (m_zoomLevel == zoomLevel) {
         return;
     }
 
-    m_zoom = zoom;
+    m_zoomLevel = zoomLevel;
 
-    if (m_map) {
+    if (m_map != nullptr) {
         m_syncState |= CameraOptionsSync;
         update();
     }
+
+    emit zoomLevelChanged();
 }
 
 void MapQuickItem::setCoordinate(const QVariantList &coordinate) {
@@ -94,10 +105,47 @@ void MapQuickItem::setCoordinate(const QVariantList &coordinate) {
 
     m_coordinate = coordinate;
 
-    if (m_map) {
+    if (m_map != nullptr) {
         m_syncState |= CameraOptionsSync;
         update();
     }
+
+    emit coordinateChanged();
+}
+
+void MapQuickItem::setCoordinateFromPixel(const QPointF &pixel) {
+    if (m_map == nullptr) {
+        return;
+    }
+
+    const Coordinate coordinate = m_map->coordinateForPixel(pixel);
+    setCoordinate({coordinate.first, coordinate.second});
+}
+
+void MapQuickItem::pan(const QPointF &offset) {
+    if (m_map == nullptr) {
+        return;
+    }
+
+    m_map->moveBy(offset);
+    const Coordinate coordinate = m_map->coordinate();
+    m_coordinate = {coordinate.first, coordinate.second};
+    update();
+    emit coordinateChanged();
+}
+
+void MapQuickItem::scale(double scale, const QPointF &center) {
+    if (m_map == nullptr) {
+        return;
+    }
+
+    m_map->scaleBy(scale, center);
+    const Coordinate coordinate = m_map->coordinate();
+    m_coordinate = {coordinate.first, coordinate.second};
+    m_zoomLevel = m_map->zoom();
+    update();
+    emit coordinateChanged();
+    emit zoomLevelChanged();
 }
 
 void MapQuickItem::componentComplete() {
@@ -194,9 +242,9 @@ QSGNode *MapQuickItem::updateMapNode(QSGNode *node) {
     }
 
     if ((m_syncState & CameraOptionsSync) != 0) {
-        m_map->setZoom(m_zoom);
-        m_map->setCoordinate({m_coordinate.size() == 2 ? m_coordinate[0].toDouble() : 0.0,
-                              m_coordinate.size() == 2 ? m_coordinate[1].toDouble() : 0.0});
+        m_map->setCoordinateZoom({m_coordinate.size() == 2 ? m_coordinate[0].toDouble() : 0.0,
+                                  m_coordinate.size() == 2 ? m_coordinate[1].toDouble() : 0.0},
+                                 m_zoomLevel);
     }
 
     if ((m_syncState & ViewportSync) != 0) {
@@ -216,22 +264,6 @@ void MapQuickItem::onMapChanged(Map::MapChange change) {
         QTimer::singleShot(intervalTime, this, &QQuickItem::update);
         qDebug() << "MapLibre map loaded";
     }
-}
-
-void MapQuickItem::wheelEvent(QWheelEvent *event) {
-    if (m_map == nullptr) {
-        QQuickItem::wheelEvent(event);
-        return;
-    }
-    const qreal angle = event->angleDelta().y();
-    if (angle == 0) {
-        QQuickItem::wheelEvent(event);
-        return;
-    }
-    double factor = angle > 0 ? 1.05 : 0.95; // NOLINT
-    m_map->scaleBy(factor, event->position());
-    update();
-    event->accept();
 }
 
 } // namespace QMapLibre

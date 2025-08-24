@@ -43,8 +43,24 @@ Window {
             focus: true
 
             style: "https://demotiles.maplibre.org/style.json"
-            zoom: 4
+            zoomLevel: 4
             coordinate: [59.91, 10.75]
+
+            DragHandler {
+                id: drag
+                target: null
+                onTranslationChanged: (delta) => map.pan(delta)
+            }
+
+            WheelHandler {
+                id: wheel
+                acceptedDevices: Qt.platform.pluginName === "cocoa" || Qt.platform.pluginName === "wayland"
+                                ? PointerDevice.Mouse | PointerDevice.TouchPad
+                                : PointerDevice.Mouse
+                onWheel: (event) => {
+                    map.scale(Math.pow(2.0, event.angleDelta.y / 120), wheel.point.position)
+                }
+            }
         }
     }
 }
