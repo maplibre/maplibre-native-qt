@@ -7,7 +7,7 @@
     \snippet{trimleft} snippets_Map.qml Map plugin
 
     Additional style properties can be attached to the map.
-    For that <tt>import MapLibre 3.0</tt> is needed.
+    For that <tt>import MapLibre.Location 3.0</tt> is needed.
     See \ref Style for more details.
 
     \snippet{trimleft} snippets_Map.qml Style attachment

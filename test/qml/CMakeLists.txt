@@ -24,7 +24,7 @@ if (MLNQtLocationTargetType STREQUAL STATIC_LIBRARY)
         test_mln_qml
         PRIVATE
             ${MLN_QT_GEOSERVICES_PLUGIN}
-            ${MLN_QT_QML_PLUGIN}
+            ${MLN_QT_QML_PLUGIN_LOCATION}
     )
 endif()
 
@@ -34,16 +34,16 @@ endif()
 
 add_test(
     NAME test_mln_qml
-    COMMAND $<TARGET_FILE:test_mln_qml> -input ${CMAKE_CURRENT_SOURCE_DIR}/qt${QT_VERSION_MAJOR}
+    COMMAND $<TARGET_FILE:test_mln_qml> -input ${CMAKE_CURRENT_SOURCE_DIR}
 )
 set_tests_properties(
     test_mln_qml
     PROPERTIES
-        ENVIRONMENT "$<$<PLATFORM_ID:macOS>:DYLD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/src/core:${CMAKE_BINARY_DIR}/src/location;>QSG_RHI_BACKEND=opengl;QML_IMPORT_PATH=${CMAKE_BINARY_DIR}/src/location/plugins;QML2_IMPORT_PATH=${CMAKE_BINARY_DIR}/src/location/plugins;QT_PLUGIN_PATH=${CMAKE_BINARY_DIR}/src/location/plugins"
+        ENVIRONMENT "$<$<PLATFORM_ID:macOS>:DYLD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/src/core:${CMAKE_BINARY_DIR}/src/quick:${CMAKE_BINARY_DIR}/src/location;>QSG_RHI_BACKEND=${MLN_QT_TEST_RENDERER};QML_IMPORT_PATH=${CMAKE_BINARY_DIR}/src/location/plugins;QT_PLUGIN_PATH=${CMAKE_BINARY_DIR}/src/location/plugins"
 )
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set_tests_properties(
         test_mln_qml
         PROPERTIES
-            ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:$<TARGET_FILE_DIR:MLNQtCore>;PATH=path_list_prepend:$<TARGET_FILE_DIR:MLNQtLocation>")
+            ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:$<TARGET_FILE_DIR:MLNQtCore>;PATH=path_list_prepend:$<TARGET_FILE_DIR:MLNQtQuickPrivate>;PATH=path_list_prepend:$<TARGET_FILE_DIR:MLNQtLocation>")
 endif()

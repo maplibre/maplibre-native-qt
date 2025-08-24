@@ -34,7 +34,7 @@ public:
     void onDidFinishLoadingMap() final;
     void onDidFailLoadingMap(mbgl::MapLoadError error, const std::string &what) final;
     void onWillStartRenderingFrame() final;
-    void onDidFinishRenderingFrame(mbgl::MapObserver::RenderFrameStatus status) final;
+    void onDidFinishRenderingFrame(const mbgl::MapObserver::RenderFrameStatus &status) final;
     void onWillStartRenderingMap() final;
     void onDidFinishRenderingMap(mbgl::MapObserver::RenderMode mode) final;
     void onDidFinishLoadingStyle() final;

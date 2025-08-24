@@ -66,14 +66,14 @@ For Android, the `ANDROID_ABI` environment variable should be set.
 
 ### Supported release workflows
 
-| Platform | Qt6       | Qt6 with ccache  | Qt5              | Qt5 with ccache         |
-|----------|-----------|------------------|------------------|-------------------------|
-| Linux    | `Linux`   | `Linux-ccache`   | `Linux-legacy`   | `Linux-legacy-ccache`   |
-| macOS    | `macOS`   | `macOS-ccache`   | `macOS-legacy`   | `macOS-legacy-ccache`   |
-| Windows  | `Windows` | `Windows-ccache` | `Windows-legacy` | `Windows-legacy-ccache` |
-| iOS      | `iOS`     | `iOS-ccache`     |                  |                         |
-| Android  | `Android` | `Android-ccache` |                  |                         |
-| WASM     | `WASM`    | `WASM-ccache`    |                  |                         |
+| Platform | Qt6       | Qt6 with ccache  |
+|----------|-----------|------------------|
+| Linux    | `Linux`   | `Linux-ccache`   |
+| macOS    | `macOS`   | `macOS-ccache`   |
+| Windows  | `Windows` | `Windows-ccache` |
+| iOS      | `iOS`     | `iOS-ccache`     |
+| Android  | `Android` | `Android-ccache` |
+| WASM     | `WASM`    | `WASM-ccache`    |
 
 ### Special workflows
 
@@ -82,7 +82,6 @@ For Android, the `ANDROID_ABI` environment variable should be set.
 | Linux    | `Linux-coverage`     | Linux build with Qt6, `ccache` and code coverage                    |
 | Linux    | `Linux-internal-icu` | Linux build with Qt6 and internal ICU library (also with `-ccache`) |
 | Linux    | `Linux-CI`           | Linux build with Qt6 and ccache for CI                              |
-| Linux    | `Linux-legacy-CI`    | Linux build with Qt5 and ccache for CI                              |
 | macOS    | `macOS-clang-tidy`   | macOS build with Qt6, `ccache` and `clang-tidy`                     |
 
 ## Platform specific build instructions
@@ -260,6 +259,80 @@ cmake ../maplibre-native-qt -G Ninja \
 ninja
 ninja install
 ```
+
+#### Building with Vulkan support
+
+MapLibre Native Qt supports Vulkan as a rendering backend on Linux. This provides
+better performance and is the recommended approach for Qt Quick applications.
+
+##### Prerequisites
+
+In addition to the regular Qt build dependencies, you'll need:
+
+- Vulkan development headers (`libvulkan-dev` on Debian/Ubuntu, `vulkan-devel` on Fedora)
+- Vulkan ICD (Installable Client Driver) for your graphics hardware
+- Vulkan validation layers for debugging (optional, `vulkan-validationlayers` on Debian/Ubuntu)
+
+##### Building with Vulkan backend
+
+To build MapLibre Native Qt with Vulkan support, use the `-DMLN_WITH_VULKAN=ON` CMake option:
+
+```shell
+mkdir build-vulkan && cd build-vulkan
+cmake ../maplibre-native-qt -G Ninja \
+  -DCMAKE_BUILD_TYPE="Release" \
+  -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
+  -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
+  -DCMAKE_INSTALL_PREFIX="../install-vulkan" \
+  -DMLN_WITH_VULKAN=ON
+ninja
+ninja install
+```
+
+##### Running examples with Vulkan
+
+When running Qt Quick examples with Vulkan support, you need to set the appropriate
+environment variables:
+
+```shell
+# Set the QML import path to find the MapLibre plugin
+export QML2_IMPORT_PATH="path/to/install-vulkan/qml"
+
+# Tell Qt Quick to use Vulkan RHI backend
+export QSG_RHI_BACKEND=vulkan
+
+# Run the example
+./QMapLibreExampleQuick
+```
+
+For the quick example specifically:
+
+```shell
+mkdir examples/quick/build-vulkan && cd examples/quick/build-vulkan
+cmake .. -G Ninja \
+  -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
+  -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
+  -DQMapLibre_DIR="path/to/install-vulkan"
+ninja
+
+# Run with Vulkan
+QML2_IMPORT_PATH="path/to/install-vulkan/qml" QSG_RHI_BACKEND=vulkan ./QMapLibreExampleQuick
+```
+
+##### Troubleshooting Vulkan
+
+If you encounter issues with Vulkan:
+
+1. **Check Vulkan support**: Use `vulkaninfo` to verify your system supports Vulkan
+2. **Verify drivers**: Ensure your graphics drivers support Vulkan
+3. **Validation layers**: Enable validation layers for debugging:
+   ```shell
+   export VK_LAYER_PATH=/usr/share/vulkan/explicit_layer.d
+   ```
+4. **Debug output**: Run with debug logging:
+   ```shell
+   QT_LOGGING_RULES="qt.vulkan.debug=true" ./QMapLibreExampleQuick
+   ```
 
 ### macOS
 

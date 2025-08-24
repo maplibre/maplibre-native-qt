@@ -12,8 +12,9 @@ function(qmaplibre_location_setup_plugins target)
     get_target_property(_ImportedLocationGeoServices QMapLibre::PluginGeoServices IMPORTED_LOCATION_${_Configuration})
     get_filename_component(_ImportedLocationPathGeoServices ${_ImportedLocationGeoServices} DIRECTORY)
 
-    get_target_property(_ImportedLocationQml QMapLibre::PluginQml IMPORTED_LOCATION_${_Configuration})
+    get_target_property(_ImportedLocationQml QMapLibre::PluginQmlLocation IMPORTED_LOCATION_${_Configuration})
     get_filename_component(_ImportedLocationPathQml ${_ImportedLocationQml} DIRECTORY)
+    get_filename_component(_ImportedLocationPathQml ${_ImportedLocationPathQml} DIRECTORY)
     get_filename_component(_ImportedLocationPathQml ${_ImportedLocationPathQml} DIRECTORY)
 
     get_property(_targetName TARGET ${target} PROPERTY OUTPUT_NAME)
@@ -42,7 +43,7 @@ function(qmaplibre_location_setup_plugins target)
             ${target}
             PRIVATE
                 QMapLibre::PluginGeoServices
-                QMapLibre::PluginQml
+                QMapLibre::PluginQmlLocation
         )
         return()
     endif()
