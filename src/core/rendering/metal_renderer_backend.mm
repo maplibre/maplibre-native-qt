@@ -31,9 +31,6 @@ public:
           commandQueue(NS::TransferPtr(backend.getDevice()->newCommandQueue())) {
         assert(layer);
         layer->setDevice(backend.getDevice().get());
-
-        qDebug() << "MapLibre Metal: Created renderable resource with size" << layer->drawableSize().width << "x"
-                 << layer->drawableSize().height;
     }
 
     void setBackendSize(mbgl::Size size_) {
@@ -41,7 +38,10 @@ public:
             return; // No change in size, nothing to do.
         }
 
-        qDebug() << "MapLibre Metal: Setting backend size to" << size_.width << "x" << size_.height;
+#ifdef MLN_RENDERER_DEBUGGING
+        qDebug() << "QtMetalRenderableResource::setBackendSize() -" << size_.width << "x" << size_.height;
+#endif
+
         size = size_;
         layer->setDrawableSize({static_cast<CGFloat>(size.width), static_cast<CGFloat>(size.height)});
         buffersInvalid = true;
@@ -51,17 +51,20 @@ public:
 
     // — mbgl::mtl::RenderableResource -----------------------------------
     void bind() override {
+#ifdef MLN_RENDERER_DEBUGGING
+        qDebug() << "QtMetalRenderableResource::bind() - Binding renderable resource with size" << size.width << "x"
+                 << size.height;
+#endif
+
         // Qt Quick may supply us with the current swap-chain texture via
         // MetalRendererBackend::setCurrentDrawable().  Use that texture if
         // present to avoid contending for a second drawable from the same
         // CAMetalLayer.
-        qDebug() << "MapLibre Metal: Binding renderable resource with size" << size.width << "x" << size.height;
-
         auto *externalTex = static_cast<MTL::Texture *>(backend.currentDrawable());
         if (externalTex == nullptr) {
             auto *tmpDrawable = layer->nextDrawable();
             if (tmpDrawable == nullptr) {
-                qWarning() << "MapLibre Metal: nextDrawable() returned nil."
+                qWarning() << "QtMetalRenderableResource::bind() - nextDrawable() returned nil."
                            << "drawableSize=" << layer->drawableSize().width << "x" << layer->drawableSize().height
                            << ", device=" << (void *)layer->device()
                            << ", pixelFormat=" << static_cast<int>(layer->pixelFormat());
@@ -86,8 +89,10 @@ public:
         renderPassDescriptor->colorAttachments()->object(0)->setTexture(externalTex);
 
         if (buffersInvalid || !depthTexture || !stencilTexture) {
-            qDebug() << "MapLibre Metal: Allocating depth/stencil textures with size" << texSize.width << "x"
-                     << texSize.height;
+#ifdef MLN_RENDERER_DEBUGGING
+            qDebug() << "QtMetalRenderableResource::bind() -  Allocating depth/stencil textures with size"
+                     << texSize.width << "x" << texSize.height;
+#endif
             buffersInvalid = false;
             depthTexture = backend.getContext().createTexture2D();
             depthTexture->setSize(texSize);
@@ -111,16 +116,12 @@ public:
 
         if (depthTexture) {
             depthTexture->create();
-            qDebug() << "MapLibre Metal: Using depth texture" << depthTexture->getSize().width << "x"
-                     << depthTexture->getSize().height;
             if (auto *depthTarget = renderPassDescriptor->depthAttachment()) {
                 depthTarget->setTexture(static_cast<mbgl::mtl::Texture2D *>(depthTexture.get())->getMetalTexture());
             }
         }
         if (stencilTexture) {
             stencilTexture->create();
-            qDebug() << "MapLibre Metal: Using stencil texture" << stencilTexture->getSize().width << "x"
-                     << stencilTexture->getSize().height;
             if (auto *stencilTarget = renderPassDescriptor->stencilAttachment()) {
                 stencilTarget->setTexture(static_cast<mbgl::mtl::Texture2D *>(stencilTexture.get())->getMetalTexture());
             }

@@ -11,7 +11,8 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_POLICY_VERSION_MINIMUM": "3.19",
-        "QT_VERSION_MAJOR": "6"
+        "QT_VERSION_MAJOR": "6",
+        "MLN_QT_WITH_RENDERER_DEBUGGING": "OFF"
       }
     },
     {
@@ -25,7 +26,8 @@
         "CMAKE_POLICY_VERSION_MINIMUM": "3.19",
         "QT_VERSION_MAJOR": "6",
         "MLN_WITH_VULKAN": "ON",
-        "MLN_WITH_OPENGL": "OFF"
+        "MLN_WITH_OPENGL": "OFF",
+        "MLN_QT_WITH_RENDERER_DEBUGGING": "OFF"
       }
     },
     {

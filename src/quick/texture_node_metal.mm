@@ -33,8 +33,10 @@ void TextureNodeMetal::resize(const QSize &size, qreal pixelRatio, QQuickWindow 
     m_size = size.expandedTo(QSize(kMinimumSize, kMinimumSize));
     m_pixelRatio = pixelRatio;
 
-    qDebug() << "TextureNodeMetal::resize - size:" << m_size << "pixelRatio:" << m_pixelRatio
+#ifdef MLN_RENDERER_DEBUGGING
+    qDebug() << "TextureNodeMetal::resize() - size:" << m_size << "pixelRatio:" << m_pixelRatio
              << "physical size:" << (m_size * m_pixelRatio);
+#endif
 
     // Pass logical size; mbgl::Map handles DPI scaling internally via pixelRatio passed at construction
     m_map->resize(m_size, m_pixelRatio);
@@ -49,7 +51,7 @@ void TextureNodeMetal::resize(const QSize &size, qreal pixelRatio, QQuickWindow 
 void TextureNodeMetal::render(QQuickWindow *window) {
     QSGRendererInterface *ri = window->rendererInterface();
     if (ri == nullptr) {
-        qWarning() << "TextureNodeMetal: No renderer interface";
+        qWarning() << "TextureNodeMetal::render() - No renderer interface";
         return;
     }
 
@@ -92,13 +94,16 @@ void TextureNodeMetal::render(QQuickWindow *window) {
             m_layerPtr = (__bridge void *)newLayer;
             m_ownsLayer = true;
 
-            qDebug() << "TextureNodeMetal: Created Metal layer with frame:" << m_size.width() << "x" << m_size.height()
-                     << "drawable size:" << (m_size.width() * m_pixelRatio) << "x" << (m_size.height() * m_pixelRatio);
+#ifdef MLN_RENDERER_DEBUGGING
+            qDebug() << "TextureNodeMetal::render() - Created Metal layer with frame:" << m_size.width() << "x"
+                     << m_size.height() << "drawable size:" << (m_size.width() * m_pixelRatio) << "x"
+                     << (m_size.height() * m_pixelRatio);
+#endif
         }
     }
 
     if (m_layerPtr == nullptr) {
-        qWarning() << "TextureNodeMetal: No Metal layer available";
+        qWarning() << "TextureNodeMetal::render() - No Metal layer available";
         return;
     }
 
@@ -135,7 +140,7 @@ void TextureNodeMetal::render(QQuickWindow *window) {
     if (m_ownsLayer) {
         const id<CAMetalDrawable> drawable = [layer nextDrawable];
         if (drawable == nullptr) {
-            qWarning() << "TextureNodeMetal: No drawable available";
+            qWarning() << "TextureNodeMetal::render() - No drawable available";
             return;
         }
         // Keep reference to prevent premature release
@@ -160,7 +165,7 @@ void TextureNodeMetal::render(QQuickWindow *window) {
     // Get the native texture from MapLibre
     void *nativeTex = m_map->nativeColorTexture();
     if (nativeTex == nullptr) {
-        qWarning() << "TextureNodeMetal: No native texture available";
+        qWarning() << "TextureNodeMetal::render() - No native texture available";
         return;
     }
 
@@ -170,9 +175,11 @@ void TextureNodeMetal::render(QQuickWindow *window) {
 
     auto mtlTex = (__bridge id<MTLTexture>)nativeTex;
 
+#ifdef MLN_RENDERER_DEBUGGING
     // Debug: check actual Metal texture dimensions
-    qDebug() << "TextureNodeMetal: Metal texture actual size:" << mtlTex.width << "x" << mtlTex.height
+    qDebug() << "TextureNodeMetal::render() - actual size:" << mtlTex.width << "x" << mtlTex.height
              << "expected:" << texWidth << "x" << texHeight;
+#endif
 
     QSGTexture *qtTex = QNativeInterface::QSGMetalTexture::fromNative(
         mtlTex, window, QSize(texWidth, texHeight), QQuickWindow::TextureHasAlphaChannel);
@@ -186,8 +193,10 @@ void TextureNodeMetal::render(QQuickWindow *window) {
 
     markDirty(QSGNode::DirtyMaterial | QSGNode::DirtyGeometry);
 
-    qDebug() << "Rendered TextureNodeMetal with size:" << m_size << "pixelRatio:" << m_pixelRatio
+#ifdef MLN_RENDERER_DEBUGGING
+    qDebug() << "TextureNodeMetal::render() - Rendered with size:" << m_size << "pixelRatio:" << m_pixelRatio
              << "drawable size:" << (m_size.width() * m_pixelRatio) << "x" << (m_size.height() * m_pixelRatio);
+#endif
 }
 
 } // namespace QMapLibre

@@ -1788,24 +1788,36 @@ void MapPrivate::destroyRenderer() {
 void MapPrivate::render() {
     const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
 
-    qDebug() << "MapPrivate::render() called";
+#ifdef MLN_RENDERER_DEBUGGING
+    qDebug() << "MapPrivate::render() - Called";
+#endif
 
     if (m_mapRenderer == nullptr) {
-        qDebug() << "MapRenderer is null, not rendering";
+#ifdef MLN_RENDERER_DEBUGGING
+        qDebug() << "MapPrivate::render() - MapRenderer is null, not rendering";
+#endif
         return;
     }
 
-    qDebug() << "Clearing render queue and calling renderer->render()";
+#ifdef MLN_RENDERER_DEBUGGING
+    qDebug() << "MapPrivate::render() - Clearing render queue and rendering";
+#endif
+
     m_renderQueued.clear();
     m_mapRenderer->render();
-    qDebug() << "MapPrivate::render() completed";
+
+#ifdef MLN_RENDERER_DEBUGGING
+    qDebug() << "MapPrivate::render() - Completed";
+#endif
 }
 
 void MapPrivate::updateRenderer(const QSize &size, qreal pixelRatio, quint32 fbo) {
     const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
 
     if (m_mapRenderer == nullptr) {
-        qDebug() << "MapRenderer is null, skipping renderer update";
+#ifdef MLN_RENDERER_DEBUGGING
+        qDebug() << "MapPrivate::updateRenderer() - MapRenderer is null, skipping renderer update";
+#endif
         return;
     }
 

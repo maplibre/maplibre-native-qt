@@ -40,6 +40,7 @@ option(MLN_QT_STATIC "Build QMapLibre staticaly (force static build with Qt6)" O
 option(MLN_QT_WITH_COVERAGE "Build QMapLibre with code coverage collection" OFF)
 option(MLN_QT_WITH_CLANG_TIDY "Build QMapLibre with clang-tidy checks enabled" OFF)
 option(MLN_QT_WITH_LTO "Build QMapLibre with Link-Time Optimization" OFF)
+option(MLN_QT_WITH_RENDERER_DEBUGGING "Build QMapLibre with renderer debugging" OFF)
 
 if(MLN_QT_WITH_LTO)
     include(CheckIPOSupported)

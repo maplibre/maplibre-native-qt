@@ -48,8 +48,6 @@ void MapQuickItem::initialize() {
         return;
     }
 
-    qDebug() << "MapQuickItem::initialize()";
-
     const QSize viewportSize{static_cast<int>(width()), static_cast<int>(height())};
     const qreal pixelRatio = window() != nullptr ? window()->devicePixelRatio() : 1.0;
     m_map = std::make_unique<Map>(nullptr, m_settings, viewportSize, pixelRatio);
@@ -57,13 +55,10 @@ void MapQuickItem::initialize() {
 
     // Set default style
     if (!m_style.isEmpty()) {
-        qDebug() << "Setting style URL:" << m_style;
         m_map->setStyleUrl(m_style);
     } else if (!m_settings.styles().empty()) {
-        qDebug() << "Setting style URL:" << m_settings.styles().front().url;
         m_map->setStyleUrl(m_settings.styles().front().url);
     } else if (!m_settings.providerStyles().empty()) {
-        qDebug() << "Setting provider style URL:" << m_settings.providerStyles().front().url;
         m_map->setStyleUrl(m_settings.providerStyles().front().url);
     }
 
@@ -151,8 +146,6 @@ void MapQuickItem::scale(double scale, const QPointF &center) {
 void MapQuickItem::componentComplete() {
     QQuickItem::componentComplete();
 
-    qDebug() << "MapQuickItem::componentComplete()";
-
     QTimer::singleShot(intervalTime, this, &MapQuickItem::initialize);
 }
 
@@ -163,13 +156,9 @@ void MapQuickItem::geometryChange(const QRectF &newGeometry, const QRectF &oldGe
         return;
     }
 
-    const qreal pixelRatio = window() != nullptr ? window()->devicePixelRatio() : 1.0;
-
-    qDebug() << "MapQuickItem::geometryChange" << newGeometry.width() << "x" << newGeometry.height()
-             << "pixelRatio:" << pixelRatio;
-
     if (newGeometry.size() != oldGeometry.size()) {
         const QSize viewportSize{static_cast<int>(newGeometry.width()), static_cast<int>(newGeometry.height())};
+        const qreal pixelRatio = window() != nullptr ? window()->devicePixelRatio() : 1.0;
         m_map->resize(viewportSize.expandedTo({minSize, minSize}), pixelRatio);
         m_syncState |= ViewportSync;
         update();
@@ -206,7 +195,10 @@ QSGNode *MapQuickItem::updateMapNode(QSGNode *node) {
     const QSize viewportSize{static_cast<int>(width()), static_cast<int>(height())};
 
     if (node == nullptr) {
-        qDebug() << "MapQuickItem::updatePaintNode() - creating new node for size" << viewportSize;
+#ifdef MLN_RENDERER_DEBUGGING
+        qDebug() << "MapQuickItem::updatePaintNode() - Creating new node for size" << viewportSize;
+#endif
+
 #if defined(MLN_RENDER_BACKEND_OPENGL)
         // OpenGL context check
         QOpenGLContext *currentCtx = QOpenGLContext::currentContext();
@@ -238,7 +230,9 @@ QSGNode *MapQuickItem::updateMapNode(QSGNode *node) {
 
         node = mbglNode.release();
 
-        qDebug() << "MapQuickItem::updatePaintNode() - created new node" << node;
+#ifdef MLN_RENDERER_DEBUGGING
+        qDebug() << "MapQuickItem::updatePaintNode() - Created new node" << node;
+#endif
     }
 
     if ((m_syncState & CameraOptionsSync) != 0) {
@@ -262,7 +256,6 @@ void MapQuickItem::onMapChanged(Map::MapChange change) {
     if (change == Map::MapChangeDidFinishLoadingMap) {
         // TODO: make it more elegant
         QTimer::singleShot(intervalTime, this, &QQuickItem::update);
-        qDebug() << "MapLibre map loaded";
     }
 }
 

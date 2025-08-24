@@ -490,7 +490,6 @@ void QGeoMapMapLibre::onMapChanged(Map::MapChange change) {
         constexpr int refreshInterval{250};
         // TODO: make it more elegant
         QTimer::singleShot(refreshInterval, this, &QGeoMapMapLibre::sgNodeChanged);
-        qDebug() << "MapLibre map loaded";
     }
 }
 
