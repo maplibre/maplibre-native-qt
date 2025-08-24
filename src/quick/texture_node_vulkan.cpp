@@ -23,6 +23,12 @@ TextureNodeVulkan::TextureNodeVulkan(const Settings &settings, const QSize &size
     setTextureCoordinatesTransform(QSGSimpleTextureNode::NoTransform);
 }
 
+TextureNodeVulkan::TextureNodeVulkan(std::shared_ptr<Map> map, const QSize &size, qreal pixelRatio)
+    : TextureNodeBase(std::move(map), size, pixelRatio) {
+    // Vulkan has inverted Y-axis compared to OpenGL, so we don't need to mirror
+    setTextureCoordinatesTransform(QSGSimpleTextureNode::NoTransform);
+}
+
 TextureNodeVulkan::~TextureNodeVulkan() {
     // Clean up texture wrapper if needed
     if (m_qtTextureWrapper) {

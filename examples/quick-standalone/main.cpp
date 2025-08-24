@@ -2,8 +2,10 @@
 
 // SPDX-License-Identifier: MIT
 
+#include <QtQuick/qquickitem.h>
 #include <QDebug>
 #include <QGuiApplication>
+#include <QLoggingCategory>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQuickWindow>
@@ -12,48 +14,54 @@
 #include <QVulkanInstance>
 #endif
 
-// Declaration for QML type registration
-extern void qml_register_types_MapLibre_Quick();
+#include <QMapLibre/Utils>
 
 int main(int argc, char *argv[]) {
+    // Enable verbose logging for debugging
+    QLoggingCategory::setFilterRules(
+        "qt.location.*.debug=true\n"
+        "qt.positioning.*.debug=true\n"
+        "maplibre.*.debug=true");
     // Set up graphics API and instance for each platform
-#if defined(MLN_WITH_VULKAN)
+    const QMapLibre::RendererType rendererType = QMapLibre::supportedRendererType();
+    auto graphicsApi = static_cast<QSGRendererInterface::GraphicsApi>(rendererType);
+    QQuickWindow::setGraphicsApi(graphicsApi);
 
-    // Let Qt handle Vulkan initialization automatically
-    QQuickWindow::setGraphicsApi(QSGRendererInterface::Vulkan);
+    if (rendererType == QMapLibre::Vulkan) {
+        // Enable Vulkan debug output
+        qputenv("QT_VULKAN_DEBUG_OUTPUT", "1");
+    }
 
-    // Enable Vulkan debug output
-    qputenv("QT_VULKAN_DEBUG_OUTPUT", "1");
-
-#elif defined(__APPLE__)
-    // Use Metal on Apple platforms
-    QQuickWindow::setGraphicsApi(QSGRendererInterface::Metal);
-
-#else
-    // Use OpenGL on other platforms
-    QQuickWindow::setGraphicsApi(QSGRendererInterface::OpenGL);
-
-#endif
-
-    QGuiApplication app(argc, argv);
+    const QGuiApplication app(argc, argv);
 
     qDebug() << "Platform:" << QGuiApplication::platformName();
+    qDebug() << "Graphics API:" << QQuickWindow::graphicsApi();
+    qDebug() << "Renderer Type:" << rendererType;
 
-    // Register MapLibre Quick QML types
-    qml_register_types_MapLibre_Quick();
-
+    // Check if location services are available
     QQmlApplicationEngine engine;
 
-    // Add QML import path for MapLibre.Quick module
-    engine.addImportPath(QStringLiteral("qrc:/"));
+    qDebug() << "Starting QML engine...";
 
     // Try to load test file if provided as argument
     if (argc > 1) {
+        qDebug() << "Loading file:" << argv[1];
         engine.load(QUrl::fromLocalFile(argv[1]));
     } else {
-        engine.load(QUrl(QStringLiteral("qrc:/minimal/main.qml")));
+        qDebug() << "Loading QML from resources...";
+        engine.load(QUrl(QStringLiteral("qrc:/Example/main.qml")));
     }
-    if (engine.rootObjects().isEmpty()) return -1;
+
+    qDebug() << "Checking root objects...";
+    if (engine.rootObjects().isEmpty()) {
+        qDebug() << "ERROR: No root objects found!";
+
+        // Check for errors
+        const auto errors = engine.outputWarningsToStandardError();
+        qDebug() << "QML Loading failed. Check above for errors.";
+        return -1;
+    }
+    qDebug() << "Root objects loaded successfully";
 
     return app.exec();
 }

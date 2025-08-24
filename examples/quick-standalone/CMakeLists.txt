@@ -13,7 +13,7 @@ if(QT_KNOWN_POLICY_QTP0002)
     qt_policy(SET QTP0002 NEW)
 endif()
 
-find_package(QMapLibre COMPONENTS Core REQUIRED)
+find_package(QMapLibre COMPONENTS Core Quick REQUIRED)
 
 qt_add_executable(
     QMapLibreExampleQuickStandalone
@@ -36,45 +36,14 @@ set_target_properties(
         MACOSX_BUNDLE ON
 )
 
-# iOS-specific configuration
-if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
-    set_target_properties(
-        QMapLibreExampleQuickStandalone
-        PROPERTIES
-            MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist.ios"
-            MACOSX_BUNDLE_GUI_IDENTIFIER "com.maplibre.QMapLibreExampleQuickStandalone"
-            MACOSX_BUNDLE_BUNDLE_VERSION "1.0"
-            MACOSX_BUNDLE_SHORT_VERSION_STRING "1.0"
-    )
-endif()
-
 target_link_libraries(
     QMapLibreExampleQuickStandalone
     PRIVATE
-        Qt6::Quick
-        Qt6::Gui
+        Qt::Quick
         QMapLibre::Core
 )
 
-# Check if Vulkan is enabled
-if(MLN_WITH_VULKAN)
-    target_compile_definitions(QMapLibreExampleQuickStandalone PRIVATE MLN_WITH_VULKAN)
-endif()
-
-target_include_directories(
-    QMapLibreExampleQuickStandalone
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../src/core
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native/platform/qt/src
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native/vendor
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native/vendor/maplibre-native-base/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native/vendor/maplibre-native-base/deps/variant/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native/vendor/maplibre-native-base/deps/geometry.hpp/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native/vendor/metal-cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/maplibre-native/src
-)
+qmaplibre_quick_setup_plugins(QMapLibreExampleQuickStandalone)
 
 install(
     TARGETS QMapLibreExampleQuickStandalone

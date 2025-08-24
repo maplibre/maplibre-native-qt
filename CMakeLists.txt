@@ -62,6 +62,9 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Gui Network REQUIRED) # main depen
 if(NOT MLN_QT_WITH_INTERNAL_SQLITE)
     find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Sql REQUIRED)
 endif()
+if(MLN_QT_WITH_QUICK_PLUGIN)
+    find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Quick REQUIRED) # quick
+endif()
 if(MLN_QT_WITH_LOCATION)
     find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Location REQUIRED) # location
 endif()

@@ -32,14 +32,13 @@
 
 #include <QtCore/QByteArray>
 #include <QtCore/QCoreApplication>
-#include <QtGui/QOpenGLContext>
-#ifdef MLN_RENDER_BACKEND_OPENGL
-#include <QtOpenGL/QOpenGLFramebufferObject>
-#endif
-#include <QtQuick/private/qsgcontext_p.h> // for debugging the context name
 #include <QtQuick/QQuickWindow>
 #include <QtQuick/QSGImageNode>
 #include <QtQuick/QSGRendererInterface>
+#ifdef MLN_RENDER_BACKEND_OPENGL
+#include <QtQuick/private/qsgcontext_p.h> // for debugging the context name
+#include <QtGui/QOpenGLContext>
+#endif
 
 #include <algorithm>
 #include <cmath>
@@ -392,6 +391,7 @@ void QGeoMapMapLibrePrivate::threadedRenderingHack(QQuickWindow *window, Map *ma
     // to set a timer to update the map until all the resources are loaded,
     // which is not exactly battery friendly, because might trigger more paints
     // than we need.
+#ifdef MLN_RENDER_BACKEND_OPENGL
     if (!m_threadedRenderingChecked) {
         m_threadedRendering = static_cast<QOpenGLContext *>(window->rendererInterface()->getResource(
                                                                 window, QSGRendererInterface::OpenGLContextResource))
@@ -399,6 +399,9 @@ void QGeoMapMapLibrePrivate::threadedRenderingHack(QQuickWindow *window, Map *ma
 
         m_threadedRenderingChecked = true;
     }
+#else
+    Q_UNUSED(window);
+#endif
 
     // Fallback timer to keep updating until map fully loaded when threaded rendering is active.
     if (m_threadedRendering) {

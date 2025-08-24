@@ -125,16 +125,16 @@ install(
     PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${MLN_QT_NAME}QuickPrivate"
 )
 
-# configure_file(
-#     "${CMAKE_CURRENT_SOURCE_DIR}/macros.cmake"
-#     "${CMAKE_CURRENT_BINARY_DIR}/${MLN_QT_NAME}QuickMacros.cmake"
-#     COPYONLY
-# )
-# install(
-#     FILES
-#         ${CMAKE_CURRENT_BINARY_DIR}/${MLN_QT_NAME}QuickMacros.cmake
-#     DESTINATION ${CMAKECONFIG_INSTALL_DIR}
-# )
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/macros.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/${MLN_QT_NAME}QuickMacros.cmake"
+    COPYONLY
+)
+install(
+    FILES
+        ${CMAKE_CURRENT_BINARY_DIR}/${MLN_QT_NAME}QuickMacros.cmake
+    DESTINATION ${CMAKECONFIG_INSTALL_DIR}
+)
 
 # plugins
 add_subdirectory(plugins)

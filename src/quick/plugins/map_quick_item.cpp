@@ -16,6 +16,9 @@
 #include <QtCore/QTimer>
 #include <QtQuick/QQuickWindow>
 #include <QtQuick/QSGRectangleNode>
+#ifdef MLN_RENDER_BACKEND_OPENGL
+#include <QtGui/QOpenGLContext>
+#endif
 
 #include <memory>
 
@@ -123,7 +126,7 @@ QSGNode *MapQuickItem::updateMapNode(QSGNode *node) {
         QOpenGLContext *currentCtx = QOpenGLContext::currentContext();
         if (currentCtx == nullptr) {
             qWarning("QOpenGLContext is NULL!");
-            qWarning() << "You are running on QSG backend " << QSGContext::backend();
+            // qWarning() << "You are running on QSG backend " << QSGContext::backend();
             qWarning("The MapLibre plugin works with both Desktop and ES 2.0+ OpenGL versions.");
             qWarning("Verify that your Qt is built with OpenGL, and what kind of OpenGL.");
             qWarning(

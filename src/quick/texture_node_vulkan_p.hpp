@@ -12,7 +12,8 @@ namespace QMapLibre {
 
 class Q_MAPLIBRE_QUICKPRIVATE_EXPORT TextureNodeVulkan final : public TextureNodeBase {
 public:
-    TextureNodeVulkan(const Settings &settings, const QSize &size, qreal pixelRatio);
+    explicit TextureNodeVulkan(const Settings &settings, const QSize &size, qreal pixelRatio);
+    explicit TextureNodeVulkan(std::shared_ptr<Map> map, const QSize &size, qreal pixelRatio);
     ~TextureNodeVulkan() final;
 
     void resize(const QSize &size, qreal pixelRatio, QQuickWindow *window) final;
