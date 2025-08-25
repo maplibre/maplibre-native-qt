@@ -17,15 +17,30 @@ Window {
         anchors.fill: parent
         focus: true
 
+        Text {
+            text: "Press 'F' or tap here to toggle full map"
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top: parent.top
+            anchors.topMargin: 10
+            color: "white"
+            font.pixelSize: 16
+        }
+
+        MouseArea {
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+            height: window.fullWindow ? 0 : Math.round(parent.height / 3)
+            enabled: !window.fullWindow
+            onClicked: {
+                window.fullWindow = !window.fullWindow
+            }
+        }
+
         Shortcut {
             sequence: 'F'
-            onActivated: function() {
-                console.log('F')
-                if (window.fullWindow) {
-                    window.fullWindow = false
-                } else {
-                    window.fullWindow = true
-                }
+            onActivated: {
+                window.fullWindow = !window.fullWindow
             }
         }
     }
@@ -45,6 +60,15 @@ Window {
             style: "https://demotiles.maplibre.org/style.json"
             zoomLevel: 4
             coordinate: [59.91, 10.75]
+
+            PinchHandler {
+                id: pinch
+                target: null
+                onScaleChanged: (delta) => {
+                    map.scale(delta, pinch.centroid.position)
+                }
+                grabPermissions: PointerHandler.TakeOverForbidden
+            }
 
             DragHandler {
                 id: drag
