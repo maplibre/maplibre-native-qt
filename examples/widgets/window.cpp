@@ -15,7 +15,7 @@ Window::Window(MainWindow *mainWindow)
     : QWidget(mainWindow),
       m_mainWindowRef(mainWindow) {
     QMapLibre::Styles styles;
-    styles.emplace_back("https://tiles.openfreemap.org/styles/liberty", "Liberty Style");
+    styles.emplace_back("https://demotiles.maplibre.org/style.json", "MapLibre Demo Style");
 
     QMapLibre::Settings settings;
     settings.setStyles(styles);

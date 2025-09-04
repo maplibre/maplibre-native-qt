@@ -5,6 +5,7 @@
 #include "gl_widget.hpp"
 #include "gl_widget_p.hpp"
 
+#include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QOpenGLContext>
@@ -230,11 +231,11 @@ void GLWidget::initializeGL() {
         void main() {
             // Flip Y coordinate to correct upside-down rendering
             vec2 flippedTexCoord = vec2(TexCoord.x, 1.0 - TexCoord.y);
-            vec4 texColor = texture(mapTexture, flippedTexCoord);
-
-            // Pass through the color as-is
-            // MapLibre already handles all the rendering correctly including premultiplied alpha
-            FragColor = texColor;
+            vec4 color = texture(mapTexture, flippedTexCoord);
+            
+            // Output the texture as-is
+            // MapLibre has already done all compositing
+            FragColor = color;
         }
     )";
 
@@ -319,6 +320,10 @@ void GLWidget::paintGL() {
     // Update framebuffer for MapLibre to render into
     d_ptr->m_map->updateRenderer(mapSize, dpr, d_ptr->m_mapFramebuffer);
 
+    // Process events to allow MapLibre's background threads to work
+    // This helps with tile loading, especially at low zoom levels
+    QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents, 1);
+
     // Render the map to FBO
     d_ptr->m_map->render();
 
@@ -348,7 +353,8 @@ void GLWidget::paintGL() {
         f->glViewport(0, 0, fbSize.width(), fbSize.height());
         // Set viewport to match the framebuffer size
 
-        // Clear the screen with black background
+        // Clear the screen with opaque black background
+        // Since we're using premultiplied alpha blending
         f->glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         f->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
@@ -359,8 +365,8 @@ void GLWidget::paintGL() {
         f->glActiveTexture(GL_TEXTURE0);
         f->glBindTexture(GL_TEXTURE_2D, textureId);
 
-        // Don't set texture parameters - MapLibre has already configured them correctly
-        // The texture is already set up for proper rendering including SDF fonts
+        // Don't override texture parameters - MapLibre has already set them up correctly
+        // Setting them here might interfere with how MapLibre configured the texture
 
         // Debug texture properties only once
         static bool textureLogged = false;
@@ -383,13 +389,13 @@ void GLWidget::paintGL() {
         // Ensure proper pixel alignment for text rendering
         f->glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-        // Disable depth test for fullscreen quad
+        // Disable depth and stencil tests for fullscreen quad
         f->glDisable(GL_DEPTH_TEST);
+        f->glDisable(GL_STENCIL_TEST);
 
-        // Set proper blending for rendering MapLibre's premultiplied alpha texture
+        // Enable standard alpha blending
         f->glEnable(GL_BLEND);
-        // MapLibre uses premultiplied alpha, so we need to use the correct blend function
-        f->glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+        f->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         // Draw fullscreen quad
         f->glBindVertexArray(d_ptr->m_vao);
@@ -398,8 +404,9 @@ void GLWidget::paintGL() {
 
         d_ptr->m_shaderProgram->release();
 
-        // Re-enable depth test
+        // Re-enable depth and stencil tests
         f->glEnable(GL_DEPTH_TEST);
+        f->glEnable(GL_STENCIL_TEST);
     }
 }
 
