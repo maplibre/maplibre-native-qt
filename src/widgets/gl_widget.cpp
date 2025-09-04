@@ -232,7 +232,7 @@ void GLWidget::initializeGL() {
             // Flip Y coordinate to correct upside-down rendering
             vec2 flippedTexCoord = vec2(TexCoord.x, 1.0 - TexCoord.y);
             vec4 color = texture(mapTexture, flippedTexCoord);
-            
+
             // Output the texture as-is
             // MapLibre has already done all compositing
             FragColor = color;
