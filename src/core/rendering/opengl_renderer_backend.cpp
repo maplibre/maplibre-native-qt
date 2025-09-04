@@ -28,34 +28,18 @@ public:
         assert(mbgl::gfx::BackendScope::exists());
         backend.restoreFramebufferBinding();
         backend.setViewport(0, 0, backend.getSize());
-
-        // Ensure the framebuffer is properly cleared before rendering
+        
+        // Clear to prevent artifacts - scissor disable needed to ensure full clear
         QOpenGLContext* context = QOpenGLContext::currentContext();
         if (context != nullptr) {
             QOpenGLFunctions* gl = context->functions();
-
-            // Clear to opaque black background
+            
+            // Disable scissor test to ensure full framebuffer is cleared
+            gl->glDisable(GL_SCISSOR_TEST);
+            
+            // Clear the framebuffer
             gl->glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-            // Enable stencil test for tile clipping
-            gl->glEnable(GL_STENCIL_TEST);
-            gl->glStencilFunc(GL_EQUAL, 0x00, 0x00); // Initially pass all - will be set by layers
-            gl->glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-            gl->glStencilMask(StencilMask); // Enable writing to stencil buffer
-
-            // Enable depth testing for proper layering
-            gl->glEnable(GL_DEPTH_TEST);
-            gl->glDepthFunc(GL_LEQUAL);
-            gl->glDepthMask(GL_TRUE);
-
-            // Set up blending for proper rendering
-            gl->glEnable(GL_BLEND);
-            // Always use premultiplied alpha for consistency with MapLibre's rendering
-            gl->glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-
-            // Disable scissor test for full rendering
-            gl->glDisable(GL_SCISSOR_TEST);
         }
     }
 
@@ -169,25 +153,10 @@ void OpenGLRendererBackend::updateRenderer(const mbgl::Size& newSize, uint32_t f
                 // Framebuffer is ready
             }
 
-            // Clear the framebuffer to opaque black
+            // Initial clear when creating the framebuffer
+            gl->glViewport(0, 0, width, height);
             gl->glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-            // Set up rendering state optimized for tile rendering
-            gl->glEnable(GL_BLEND);
-            // Use premultiplied alpha blending to avoid edge artifacts
-            gl->glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-
-            // Enable stencil test for tile clipping support
-            gl->glEnable(GL_STENCIL_TEST);
-            gl->glStencilFunc(GL_ALWAYS, 0, StencilMask);
-            gl->glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-            gl->glStencilMask(StencilMask);
-
-            // Enable depth testing for proper layering
-            gl->glEnable(GL_DEPTH_TEST);
-            gl->glDepthFunc(GL_LEQUAL);
-            gl->glDepthMask(GL_TRUE);
         }
 
         // Restore default texture binding
