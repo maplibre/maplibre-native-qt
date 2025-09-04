@@ -28,15 +28,15 @@ public:
         assert(mbgl::gfx::BackendScope::exists());
         backend.restoreFramebufferBinding();
         backend.setViewport(0, 0, backend.getSize());
-        
+
         // Clear to prevent artifacts - scissor disable needed to ensure full clear
         QOpenGLContext* context = QOpenGLContext::currentContext();
         if (context != nullptr) {
             QOpenGLFunctions* gl = context->functions();
-            
+
             // Disable scissor test to ensure full framebuffer is cleared
             gl->glDisable(GL_SCISSOR_TEST);
-            
+
             // Clear the framebuffer
             gl->glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
