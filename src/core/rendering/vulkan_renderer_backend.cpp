@@ -26,7 +26,6 @@ VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 namespace {
 constexpr uint32_t DefaultSize{256};
 
-
 class QtVulkanRenderableResource final : public mbgl::vulkan::SurfaceRenderableResource {
 public:
     QtVulkanRenderableResource(QMapLibre::VulkanRendererBackend& backend_, mbgl::Size initialSize)
