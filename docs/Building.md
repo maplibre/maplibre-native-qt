@@ -41,6 +41,23 @@ See [below](#platform-specific-build-instructions) for platform-specific instruc
 @note It is recommended to use [CMake workflows](#using-cmake-workflows) as they
 are always up-to-date and cover all supported platforms.
 
+## Graphics backend support
+
+MapLibre Native Qt supports multiple graphics backends for rendering. You need to enable
+the appropriate backend during build time using CMake options:
+
+- **OpenGL**: `-DMLN_WITH_OPENGL=ON` (available on Linux, Windows, and Android)
+- **Vulkan**: `-DMLN_WITH_VULKAN=ON` (available on Linux, Windows, and Android)
+- **Metal**: `-DMLN_WITH_METAL=ON` (available on macOS and iOS)
+
+@note A graphics backend must be enabled for the library to build successfully.
+
+```bash
+cmake ../maplibre-native-qt -G Ninja \
+  -DMLN_WITH_OPENGL=ON \
+  -DCMAKE_INSTALL_PREFIX="../install"
+```
+
 ## Using CMake workflows
 
 CMake workflow presets are provided for all supported platforms.
@@ -340,6 +357,11 @@ Release binaries contain debug symbols.
 Additionally both Intel and ARM versions are supported and included.
 OS deployment target version is set to 12.0 for Qt 6 and 10.13 for Qt 5.
 
+#### Building with Metal support
+
+Metal is the required graphics backend for macOS as OpenGL is not supported on Apple platforms.
+To build with Metal support, use the `-DMLN_WITH_METAL=ON` CMake option.
+
 To replicate run:
 
 ```shell
@@ -359,6 +381,12 @@ ninja install
 
 Two separate release binaries are provided, one with release build and one
 with debug build. To achieve that `Ninja Multi-Config` generator is used.
+
+#### Graphics backend support
+
+Windows supports both OpenGL and Vulkan backends. To enable OpenGL support,
+add `-DMLN_WITH_OPENGL=ON` to your CMake configuration. To enable Vulkan support,
+add `-DMLN_WITH_VULKAN=ON`.
 
 To replicate, run:
 
@@ -381,6 +409,11 @@ with debug build. To achieve that `Ninja Multi-Config` generator is used.
 Both device and simulator builds are supported.
 OS deployment target version is set to 16.0.
 
+#### Metal support
+
+Metal is the required graphics backend for iOS as OpenGL is not supported on Apple platforms.
+To build with Metal support, use the `-DMLN_WITH_METAL=ON` CMake option.
+
 To replicate, run:
 
 ```shell
@@ -400,6 +433,12 @@ ninja install
 ### Android
 
 Release binaries contain debug symbols. Each ABI is built separately.
+
+#### Graphics backend support
+
+Android supports both OpenGL and Vulkan backends. To enable OpenGL support,
+add `-DMLN_WITH_OPENGL=ON` to your CMake configuration. To enable Vulkan support
+(requires Android API level 24 or higher), add `-DMLN_WITH_VULKAN=ON`.
 
 To replicate, run:
 
