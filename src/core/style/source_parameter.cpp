@@ -20,7 +20,7 @@ namespace QMapLibre {
 /*!
     \brief Default constructor
 */
-SourceParameter::SourceParameter(QObject *parent)
+SourceParameter::SourceParameter(QObject* parent)
     : StyleParameter(parent) {}
 
 SourceParameter::~SourceParameter() = default;
@@ -37,7 +37,7 @@ QString SourceParameter::type() const {
     \brief Set source type.
     \param type Source type as \c QString.
 */
-void SourceParameter::setType(const QString &type) {
+void SourceParameter::setType(const QString& type) {
     if (m_type.isEmpty()) {
         m_type = type;
     }

@@ -73,17 +73,17 @@ public:
         NorthLeftwards,
     };
 
-    explicit Map(QObject *parent = nullptr,
-                 const Settings &settings = Settings(),
-                 const QSize &size = QSize(),
+    explicit Map(QObject* parent = nullptr,
+                 const Settings& settings = Settings(),
+                 const QSize& size = QSize(),
                  qreal pixelRatio = 1);
     ~Map() override;
 
     [[nodiscard]] QString styleJson() const;
     [[nodiscard]] QString styleUrl() const;
 
-    void setStyleJson(const QString &);
-    void setStyleUrl(const QString &);
+    void setStyleJson(const QString&);
+    void setStyleUrl(const QString&);
 
     [[nodiscard]] double latitude() const;
     void setLatitude(double latitude);
@@ -92,7 +92,7 @@ public:
     void setLongitude(double longitude);
 
     [[nodiscard]] double scale() const;
-    void setScale(double scale, const QPointF &center = QPointF());
+    void setScale(double scale, const QPointF& center = QPointF());
 
     [[nodiscard]] double zoom() const;
     void setZoom(double zoom);
@@ -102,7 +102,7 @@ public:
 
     [[nodiscard]] double bearing() const;
     void setBearing(double degrees);
-    void setBearing(double degrees, const QPointF &center);
+    void setBearing(double degrees, const QPointF& center);
 
     [[nodiscard]] double pitch() const;
     void setPitch(double pitch);
@@ -112,68 +112,68 @@ public:
     void setNorthOrientation(NorthOrientation);
 
     [[nodiscard]] Coordinate coordinate() const;
-    void setCoordinate(const Coordinate &coordinate);
-    void setCoordinateZoom(const Coordinate &coordinate, double zoom);
+    void setCoordinate(const Coordinate& coordinate);
+    void setCoordinateZoom(const Coordinate& coordinate, double zoom);
 
-    void jumpTo(const CameraOptions &);
+    void jumpTo(const CameraOptions&);
 
     void setGestureInProgress(bool inProgress);
 
     void setTransitionOptions(qint64 duration, qint64 delay = 0);
 
-    void addAnnotationIcon(const QString &name, const QImage &sprite);
+    void addAnnotationIcon(const QString& name, const QImage& sprite);
 
-    AnnotationID addAnnotation(const Annotation &annotation);
-    void updateAnnotation(AnnotationID id, const Annotation &annotation);
+    AnnotationID addAnnotation(const Annotation& annotation);
+    void updateAnnotation(AnnotationID id, const Annotation& annotation);
     void removeAnnotation(AnnotationID id);
 
-    bool setLayoutProperty(const QString &layerId, const QString &propertyName, const QVariant &value);
-    bool setPaintProperty(const QString &layerId, const QString &propertyName, const QVariant &value);
+    bool setLayoutProperty(const QString& layerId, const QString& propertyName, const QVariant& value);
+    bool setPaintProperty(const QString& layerId, const QString& propertyName, const QVariant& value);
 
     [[nodiscard]] bool isFullyLoaded() const;
 
-    void moveBy(const QPointF &offset);
-    void scaleBy(double scale, const QPointF &center = QPointF());
-    void rotateBy(const QPointF &first, const QPointF &second);
+    void moveBy(const QPointF& offset);
+    void scaleBy(double scale, const QPointF& center = QPointF());
+    void rotateBy(const QPointF& first, const QPointF& second);
 
-    void resize(const QSize &size);
+    void resize(const QSize& size);
 
-    [[nodiscard]] QPointF pixelForCoordinate(const Coordinate &coordinate) const;
-    [[nodiscard]] Coordinate coordinateForPixel(const QPointF &pixel) const;
+    [[nodiscard]] QPointF pixelForCoordinate(const Coordinate& coordinate) const;
+    [[nodiscard]] Coordinate coordinateForPixel(const QPointF& pixel) const;
 
-    [[nodiscard]] CoordinateZoom coordinateZoomForBounds(const Coordinate &sw, const Coordinate &ne) const;
-    [[nodiscard]] CoordinateZoom coordinateZoomForBounds(const Coordinate &sw,
-                                                         const Coordinate &ne,
+    [[nodiscard]] CoordinateZoom coordinateZoomForBounds(const Coordinate& sw, const Coordinate& ne) const;
+    [[nodiscard]] CoordinateZoom coordinateZoomForBounds(const Coordinate& sw,
+                                                         const Coordinate& ne,
                                                          double bearing,
                                                          double pitch);
 
-    void setMargins(const QMargins &margins);
+    void setMargins(const QMargins& margins);
     [[nodiscard]] QMargins margins() const;
 
-    void addSource(const QString &id, const QVariantMap &params);
-    bool sourceExists(const QString &id);
-    void updateSource(const QString &id, const QVariantMap &params);
-    void removeSource(const QString &id);
+    void addSource(const QString& id, const QVariantMap& params);
+    bool sourceExists(const QString& id);
+    void updateSource(const QString& id, const QVariantMap& params);
+    void removeSource(const QString& id);
 
-    void addImage(const QString &id, const QImage &sprite);
-    void removeImage(const QString &id);
+    void addImage(const QString& id, const QImage& sprite);
+    void removeImage(const QString& id);
 
-    void addCustomLayer(const QString &id,
+    void addCustomLayer(const QString& id,
                         std::unique_ptr<CustomLayerHostInterface> host,
-                        const QString &before = QString());
-    void addLayer(const QString &id, const QVariantMap &params, const QString &before = QString());
-    bool layerExists(const QString &id);
-    void removeLayer(const QString &id);
+                        const QString& before = QString());
+    void addLayer(const QString& id, const QVariantMap& params, const QString& before = QString());
+    bool layerExists(const QString& id);
+    void removeLayer(const QString& id);
 
     [[nodiscard]] QVector<QString> layerIds() const;
 
-    void setFilter(const QString &layerId, const QVariant &filter);
-    [[nodiscard]] QVariant getFilter(const QString &layerId) const;
+    void setFilter(const QString& layerId, const QVariant& filter);
+    [[nodiscard]] QVariant getFilter(const QString& layerId) const;
     // When rendering on a different thread,
     // should be called on the render thread.
     void createRenderer();
     void destroyRenderer();
-    void setOpenGLFramebufferObject(quint32 fbo, const QSize &size);
+    void setOpenGLFramebufferObject(quint32 fbo, const QSize& size);
 
 public slots:
     void render();
@@ -186,10 +186,10 @@ public slots:
 signals:
     void needsRendering();
     void mapChanged(Map::MapChange);
-    void mapLoadingFailed(Map::MapLoadingFailure, const QString &reason);
-    void copyrightsChanged(const QString &copyrightsHtml);
+    void mapLoadingFailed(Map::MapLoadingFailure, const QString& reason);
+    void copyrightsChanged(const QString& copyrightsHtml);
 
-    void staticRenderFinished(const QString &error);
+    void staticRenderFinished(const QString& error);
 
 private:
     Q_DISABLE_COPY(Map)

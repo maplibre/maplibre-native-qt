@@ -25,10 +25,10 @@ class DeclarativeSourceParameter : public SourceParameter, public QQmlParserStat
     Q_PROPERTY(QString type READ type WRITE setType)
     // this type must not declare any additional properties
 public:
-    explicit DeclarativeSourceParameter(QObject *parent = nullptr);
+    explicit DeclarativeSourceParameter(QObject* parent = nullptr);
     ~DeclarativeSourceParameter() override = default;
 
-    [[nodiscard]] QVariant parsedProperty(const char *propertyName) const override;
+    [[nodiscard]] QVariant parsedProperty(const char* propertyName) const override;
 
 private:
     // QQmlParserStatus implementation

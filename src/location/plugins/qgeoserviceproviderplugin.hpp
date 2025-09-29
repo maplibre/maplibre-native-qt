@@ -19,16 +19,16 @@ class QGeoServiceProviderFactoryMapLibre : public QObject, public QGeoServicePro
 public:
     QGeoServiceProviderFactoryMapLibre();
 
-    QGeoCodingManagerEngine *createGeocodingManagerEngine(const QVariantMap &parameters,
-                                                          QGeoServiceProvider::Error *error,
-                                                          QString *errorString) const override;
-    QGeoMappingManagerEngine *createMappingManagerEngine(const QVariantMap &parameters,
-                                                         QGeoServiceProvider::Error *error,
-                                                         QString *errorString) const override;
-    QGeoRoutingManagerEngine *createRoutingManagerEngine(const QVariantMap &parameters,
-                                                         QGeoServiceProvider::Error *error,
-                                                         QString *errorString) const override;
-    QPlaceManagerEngine *createPlaceManagerEngine(const QVariantMap &parameters,
-                                                  QGeoServiceProvider::Error *error,
-                                                  QString *errorString) const override;
+    QGeoCodingManagerEngine* createGeocodingManagerEngine(const QVariantMap& parameters,
+                                                          QGeoServiceProvider::Error* error,
+                                                          QString* errorString) const override;
+    QGeoMappingManagerEngine* createMappingManagerEngine(const QVariantMap& parameters,
+                                                         QGeoServiceProvider::Error* error,
+                                                         QString* errorString) const override;
+    QGeoRoutingManagerEngine* createRoutingManagerEngine(const QVariantMap& parameters,
+                                                         QGeoServiceProvider::Error* error,
+                                                         QString* errorString) const override;
+    QPlaceManagerEngine* createPlaceManagerEngine(const QVariantMap& parameters,
+                                                  QGeoServiceProvider::Error* error,
+                                                  QString* errorString) const override;
 };

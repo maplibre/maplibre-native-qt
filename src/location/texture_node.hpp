@@ -23,16 +23,16 @@ class QGeoMapMapLibre;
 
 class TextureNode : public QSGSimpleTextureNode {
 public:
-    TextureNode(const Settings &setting, const QSize &size, qreal pixelRatio, QGeoMapMapLibre *geoMap);
+    TextureNode(const Settings& setting, const QSize& size, qreal pixelRatio, QGeoMapMapLibre* geoMap);
 
-    [[nodiscard]] Map *map() const;
+    [[nodiscard]] Map* map() const;
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    void resize(const QSize &size, qreal pixelRatio, QQuickWindow *window);
+    void resize(const QSize& size, qreal pixelRatio, QQuickWindow* window);
 #else
-    void resize(const QSize &size, qreal pixelRatio);
+    void resize(const QSize& size, qreal pixelRatio);
 #endif
-    void render(QQuickWindow *);
+    void render(QQuickWindow*);
 
 private:
     std::unique_ptr<Map> m_map{};

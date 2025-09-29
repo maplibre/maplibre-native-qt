@@ -18,10 +18,10 @@ class Map;
 
 class Q_MAPLIBRE_CORE_EXPORT StyleAddSource : public StyleChange {
 public:
-    explicit StyleAddSource(const Feature &feature);
-    explicit StyleAddSource(const SourceParameter *parameter);
+    explicit StyleAddSource(const Feature& feature);
+    explicit StyleAddSource(const SourceParameter* parameter);
 
-    void apply(Map *map) override;
+    void apply(Map* map) override;
 
 private:
     QString m_id;
@@ -31,10 +31,10 @@ private:
 class Q_MAPLIBRE_CORE_EXPORT StyleRemoveSource : public StyleChange {
 public:
     explicit StyleRemoveSource(QString id);
-    explicit StyleRemoveSource(const Feature &feature);
-    explicit StyleRemoveSource(const SourceParameter *parameter);
+    explicit StyleRemoveSource(const Feature& feature);
+    explicit StyleRemoveSource(const SourceParameter* parameter);
 
-    void apply(Map *map) override;
+    void apply(Map* map) override;
 
 private:
     QString m_id;

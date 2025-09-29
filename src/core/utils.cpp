@@ -64,7 +64,7 @@ double metersPerPixelAtLatitude(double latitude, double zoom) {
 /*!
     Returns the projected meters for a given \a coordinate object.
 */
-ProjectedMeters projectedMetersForCoordinate(const Coordinate &coordinate) {
+ProjectedMeters projectedMetersForCoordinate(const Coordinate& coordinate) {
     auto projectedMeters = mbgl::Projection::projectedMetersForLatLng(
         mbgl::LatLng{coordinate.first, coordinate.second});
     return {projectedMeters.northing(), projectedMeters.easting()};
@@ -73,7 +73,7 @@ ProjectedMeters projectedMetersForCoordinate(const Coordinate &coordinate) {
 /*!
     Returns the \ref Coordinate for a given \a projectedMeters object.
 */
-Coordinate coordinateForProjectedMeters(const ProjectedMeters &projectedMeters) {
+Coordinate coordinateForProjectedMeters(const ProjectedMeters& projectedMeters) {
     auto latLng = mbgl::Projection::latLngForProjectedMeters(
         mbgl::ProjectedMeters{projectedMeters.first, projectedMeters.second});
     return {latLng.latitude(), latLng.longitude()};

@@ -23,7 +23,7 @@ class MapObserver : public QObject, public mbgl::MapObserver {
     Q_OBJECT
 
 public:
-    explicit MapObserver(MapPrivate *ptr);
+    explicit MapObserver(MapPrivate* ptr);
     ~MapObserver() override;
 
     // mbgl::MapObserver implementation.
@@ -32,23 +32,23 @@ public:
     void onCameraDidChange(mbgl::MapObserver::CameraChangeMode mode) final;
     void onWillStartLoadingMap() final;
     void onDidFinishLoadingMap() final;
-    void onDidFailLoadingMap(mbgl::MapLoadError error, const std::string &what) final;
+    void onDidFailLoadingMap(mbgl::MapLoadError error, const std::string& what) final;
     void onWillStartRenderingFrame() final;
     void onDidFinishRenderingFrame(mbgl::MapObserver::RenderFrameStatus status) final;
     void onWillStartRenderingMap() final;
     void onDidFinishRenderingMap(mbgl::MapObserver::RenderMode mode) final;
     void onDidFinishLoadingStyle() final;
-    void onSourceChanged(mbgl::style::Source &source) final;
+    void onSourceChanged(mbgl::style::Source& source) final;
 
 signals:
     void mapChanged(Map::MapChange);
-    void mapLoadingFailed(Map::MapLoadingFailure, const QString &reason);
-    void copyrightsChanged(const QString &copyrightsHtml);
+    void mapLoadingFailed(Map::MapLoadingFailure, const QString& reason);
+    void copyrightsChanged(const QString& copyrightsHtml);
 
 private:
     Q_DISABLE_COPY(MapObserver)
 
-    MapPrivate *d_ptrRef;
+    MapPrivate* d_ptrRef;
 };
 
 } // namespace QMapLibre

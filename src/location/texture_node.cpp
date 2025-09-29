@@ -22,7 +22,7 @@ namespace QMapLibre {
 
 static const QSize minTextureSize = QSize(64, 64);
 
-TextureNode::TextureNode(const Settings &settings, const QSize &size, qreal pixelRatio, QGeoMapMapLibre *geoMap) {
+TextureNode::TextureNode(const Settings& settings, const QSize& size, qreal pixelRatio, QGeoMapMapLibre* geoMap) {
     setTextureCoordinatesTransform(QSGSimpleTextureNode::MirrorVertically);
     setFiltering(QSGTexture::Linear);
 
@@ -32,12 +32,12 @@ TextureNode::TextureNode(const Settings &settings, const QSize &size, qreal pixe
 }
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-void TextureNode::resize(const QSize &size, qreal pixelRatio, QQuickWindow *window)
+void TextureNode::resize(const QSize& size, qreal pixelRatio, QQuickWindow* window)
 #else
-void TextureNode::resize(const QSize &size, qreal pixelRatio)
+void TextureNode::resize(const QSize& size, qreal pixelRatio)
 #endif
 {
-    const QSize &minSize = size.expandedTo(minTextureSize);
+    const QSize& minSize = size.expandedTo(minTextureSize);
     const QSize fbSize = minSize * pixelRatio;
 
     m_map->resize(minSize);
@@ -50,7 +50,7 @@ void TextureNode::resize(const QSize &size, qreal pixelRatio)
         m_fbo->texture(), window, fbSize, QQuickWindow::TextureHasAlphaChannel));
     setOwnsTexture(true);
 #else
-    auto *fboTexture = static_cast<QSGPlainTexture *>(texture());
+    auto* fboTexture = static_cast<QSGPlainTexture*>(texture());
     if (fboTexture == nullptr) {
         fboTexture = new QSGPlainTexture;
         fboTexture->setHasAlphaChannel(true);
@@ -69,13 +69,13 @@ void TextureNode::resize(const QSize &size, qreal pixelRatio)
     markDirty(QSGNode::DirtyGeometry);
 }
 
-void TextureNode::render(QQuickWindow *window) {
+void TextureNode::render(QQuickWindow* window) {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    QOpenGLFunctions *f = static_cast<QOpenGLContext *>(window->rendererInterface()->getResource(
-                                                            window, QSGRendererInterface::OpenGLContextResource))
+    QOpenGLFunctions* f = static_cast<QOpenGLContext*>(window->rendererInterface()->getResource(
+                                                           window, QSGRendererInterface::OpenGLContextResource))
                               ->functions();
 #else
-    QOpenGLFunctions *f = window->openglContext()->functions();
+    QOpenGLFunctions* f = window->openglContext()->functions();
 #endif
 
     f->glViewport(0, 0, m_fbo->width(), m_fbo->height());
@@ -112,7 +112,7 @@ void TextureNode::render(QQuickWindow *window) {
     markDirty(QSGNode::DirtyMaterial);
 }
 
-Map *TextureNode::map() const {
+Map* TextureNode::map() const {
     return m_map.get();
 }
 

@@ -50,12 +50,12 @@ double zoomLevelFrom256(double zoomLevelFor256, double tileSize) {
 
 namespace QMapLibre {
 
-QGeoMapMapLibrePrivate::QGeoMapMapLibrePrivate(QGeoMappingManagerEngine *engine)
+QGeoMapMapLibrePrivate::QGeoMapMapLibrePrivate(QGeoMappingManagerEngine* engine)
     : QGeoMapPrivate(engine, new QGeoProjectionWebMercator) {}
 
 QGeoMapMapLibrePrivate::~QGeoMapMapLibrePrivate() = default;
 
-QSGNode *QGeoMapMapLibrePrivate::updateSceneGraph(QSGNode *node, QQuickWindow *window) {
+QSGNode* QGeoMapMapLibrePrivate::updateSceneGraph(QSGNode* node, QQuickWindow* window) {
     Q_Q(QGeoMapMapLibre);
 
     if (m_viewportSize.isEmpty()) {
@@ -63,9 +63,9 @@ QSGNode *QGeoMapMapLibrePrivate::updateSceneGraph(QSGNode *node, QQuickWindow *w
         return nullptr;
     }
 
-    Map *map{};
+    Map* map{};
     if (node == nullptr) {
-        QOpenGLContext *currentCtx = QOpenGLContext::currentContext();
+        QOpenGLContext* currentCtx = QOpenGLContext::currentContext();
         if (currentCtx == nullptr) {
             qWarning("QOpenGLContext is NULL!");
             qWarning() << "You are running on QSG backend " << QSGContext::backend();
@@ -83,7 +83,7 @@ QSGNode *QGeoMapMapLibrePrivate::updateSceneGraph(QSGNode *node, QQuickWindow *w
         m_syncState = MapTypeSync | CameraDataSync | ViewportSync | VisibleAreaSync;
         node = mbglNode.release();
     }
-    map = static_cast<TextureNode *>(node)->map();
+    map = static_cast<TextureNode*>(node)->map();
 
     if ((m_syncState & MapTypeSync) != 0 && m_activeMapType.metadata().contains(QStringLiteral("url"))) {
         map->setStyleUrl(m_activeMapType.metadata()[QStringLiteral("url")].toString());
@@ -113,9 +113,9 @@ QSGNode *QGeoMapMapLibrePrivate::updateSceneGraph(QSGNode *node, QQuickWindow *w
 
     if ((m_syncState & ViewportSync) != 0) {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-        static_cast<TextureNode *>(node)->resize(m_viewportSize, window->devicePixelRatio(), window);
+        static_cast<TextureNode*>(node)->resize(m_viewportSize, window->devicePixelRatio(), window);
 #else
-        static_cast<TextureNode *>(node)->resize(m_viewportSize, window->devicePixelRatio());
+        static_cast<TextureNode*>(node)->resize(m_viewportSize, window->devicePixelRatio());
 #endif
     }
 
@@ -123,7 +123,7 @@ QSGNode *QGeoMapMapLibrePrivate::updateSceneGraph(QSGNode *node, QQuickWindow *w
         syncStyleChanges(map);
     }
 
-    static_cast<TextureNode *>(node)->render(window);
+    static_cast<TextureNode*>(node)->render(window);
 
     threadedRenderingHack(window, map);
 
@@ -136,7 +136,7 @@ QGeoMap::ItemTypes QGeoMapMapLibrePrivate::supportedMapItemTypes() const {
     return QGeoMap::MapRectangle | QGeoMap::MapCircle | QGeoMap::MapPolygon | QGeoMap::MapPolyline;
 }
 
-void QGeoMapMapLibrePrivate::addMapItem(QDeclarativeGeoMapItemBase *item) {
+void QGeoMapMapLibrePrivate::addMapItem(QDeclarativeGeoMapItemBase* item) {
     Q_Q(QGeoMapMapLibre);
 
     switch (item->itemType()) {
@@ -145,7 +145,7 @@ void QGeoMapMapLibrePrivate::addMapItem(QDeclarativeGeoMapItemBase *item) {
         case QGeoMap::CustomMapItem:
             return;
         case QGeoMap::MapRectangle: {
-            auto *mapItem = static_cast<QDeclarativeRectangleMapItem *>(item);
+            auto* mapItem = static_cast<QDeclarativeRectangleMapItem*>(item);
             QObject::connect(mapItem, &QQuickItem::visibleChanged, q, &QGeoMapMapLibre::onMapItemPropertyChanged);
             QObject::connect(mapItem,
                              &QDeclarativeGeoMapItemBase::mapItemOpacityChanged,
@@ -169,7 +169,7 @@ void QGeoMapMapLibrePrivate::addMapItem(QDeclarativeGeoMapItemBase *item) {
                              &QGeoMapMapLibre::onMapItemUnsupportedPropertyChanged);
         } break;
         case QGeoMap::MapCircle: {
-            auto *mapItem = static_cast<QDeclarativeCircleMapItem *>(item);
+            auto* mapItem = static_cast<QDeclarativeCircleMapItem*>(item);
             QObject::connect(mapItem, &QQuickItem::visibleChanged, q, &QGeoMapMapLibre::onMapItemPropertyChanged);
             QObject::connect(mapItem,
                              &QDeclarativeGeoMapItemBase::mapItemOpacityChanged,
@@ -191,7 +191,7 @@ void QGeoMapMapLibrePrivate::addMapItem(QDeclarativeGeoMapItemBase *item) {
                              &QGeoMapMapLibre::onMapItemUnsupportedPropertyChanged);
         } break;
         case QGeoMap::MapPolygon: {
-            auto *mapItem = static_cast<QDeclarativePolygonMapItem *>(item);
+            auto* mapItem = static_cast<QDeclarativePolygonMapItem*>(item);
             QObject::connect(mapItem, &QQuickItem::visibleChanged, q, &QGeoMapMapLibre::onMapItemPropertyChanged);
             QObject::connect(mapItem,
                              &QDeclarativeGeoMapItemBase::mapItemOpacityChanged,
@@ -211,7 +211,7 @@ void QGeoMapMapLibrePrivate::addMapItem(QDeclarativeGeoMapItemBase *item) {
                              &QGeoMapMapLibre::onMapItemUnsupportedPropertyChanged);
         } break;
         case QGeoMap::MapPolyline: {
-            auto *mapItem = static_cast<QDeclarativePolylineMapItem *>(item);
+            auto* mapItem = static_cast<QDeclarativePolylineMapItem*>(item);
             QObject::connect(mapItem, &QQuickItem::visibleChanged, q, &QGeoMapMapLibre::onMapItemPropertyChanged);
             QObject::connect(mapItem,
                              &QDeclarativeGeoMapItemBase::mapItemOpacityChanged,
@@ -242,7 +242,7 @@ void QGeoMapMapLibrePrivate::addMapItem(QDeclarativeGeoMapItemBase *item) {
     emit q->sgNodeChanged();
 }
 
-void QGeoMapMapLibrePrivate::removeMapItem(QDeclarativeGeoMapItemBase *item) {
+void QGeoMapMapLibrePrivate::removeMapItem(QDeclarativeGeoMapItemBase* item) {
     Q_Q(QGeoMapMapLibre);
 
     switch (item->itemType()) {
@@ -251,16 +251,16 @@ void QGeoMapMapLibrePrivate::removeMapItem(QDeclarativeGeoMapItemBase *item) {
         case QGeoMap::CustomMapItem:
             return;
         case QGeoMap::MapRectangle:
-            q->disconnect(static_cast<QDeclarativeRectangleMapItem *>(item)->border());
+            q->disconnect(static_cast<QDeclarativeRectangleMapItem*>(item)->border());
             break;
         case QGeoMap::MapCircle:
-            q->disconnect(static_cast<QDeclarativeCircleMapItem *>(item)->border());
+            q->disconnect(static_cast<QDeclarativeCircleMapItem*>(item)->border());
             break;
         case QGeoMap::MapPolygon:
-            q->disconnect(static_cast<QDeclarativePolygonMapItem *>(item)->border());
+            q->disconnect(static_cast<QDeclarativePolygonMapItem*>(item)->border());
             break;
         case QGeoMap::MapPolyline:
-            q->disconnect(static_cast<QDeclarativePolylineMapItem *>(item)->line());
+            q->disconnect(static_cast<QDeclarativePolylineMapItem*>(item)->line());
             break;
     }
 
@@ -273,7 +273,7 @@ void QGeoMapMapLibrePrivate::removeMapItem(QDeclarativeGeoMapItemBase *item) {
     emit q->sgNodeChanged();
 }
 
-void QGeoMapMapLibrePrivate::addStyleParameter(StyleParameter *parameter) {
+void QGeoMapMapLibrePrivate::addStyleParameter(StyleParameter* parameter) {
     Q_Q(QGeoMapMapLibre);
 
     if (m_mapParameters.contains(parameter)) {
@@ -291,7 +291,7 @@ void QGeoMapMapLibrePrivate::addStyleParameter(StyleParameter *parameter) {
     }
 }
 
-void QGeoMapMapLibrePrivate::removeStyleParameter(StyleParameter *parameter) {
+void QGeoMapMapLibrePrivate::removeStyleParameter(StyleParameter* parameter) {
     Q_Q(QGeoMapMapLibre);
 
     q->disconnect(parameter);
@@ -306,19 +306,19 @@ void QGeoMapMapLibrePrivate::removeStyleParameter(StyleParameter *parameter) {
 }
 
 void QGeoMapMapLibrePrivate::clearStyleParameters() {
-    for (StyleParameter *parameter : m_mapParameters) {
+    for (StyleParameter* parameter : m_mapParameters) {
         removeStyleParameter(parameter);
     }
 }
 
-void QGeoMapMapLibrePrivate::changeViewportSize(const QSize & /* size */) {
+void QGeoMapMapLibrePrivate::changeViewportSize(const QSize& /* size */) {
     Q_Q(QGeoMapMapLibre);
 
     m_syncState = m_syncState | ViewportSync;
     emit q->sgNodeChanged();
 }
 
-void QGeoMapMapLibrePrivate::changeCameraData(const QGeoCameraData & /* data */) {
+void QGeoMapMapLibrePrivate::changeCameraData(const QGeoCameraData& /* data */) {
     Q_Q(QGeoMapMapLibre);
 
     m_syncState = m_syncState | CameraDataSync;
@@ -326,7 +326,7 @@ void QGeoMapMapLibrePrivate::changeCameraData(const QGeoCameraData & /* data */)
 }
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
-void QGeoMapMapLibrePrivate::changeActiveMapType(const QGeoMapType & /* mapType */)
+void QGeoMapMapLibrePrivate::changeActiveMapType(const QGeoMapType& /* mapType */)
 #else
 void QGeoMapMapLibrePrivate::changeActiveMapType(const QGeoMapType /* mapType */)
 #endif
@@ -337,7 +337,7 @@ void QGeoMapMapLibrePrivate::changeActiveMapType(const QGeoMapType /* mapType */
     emit q->sgNodeChanged();
 }
 
-void QGeoMapMapLibrePrivate::setVisibleArea(const QRectF &visibleArea) {
+void QGeoMapMapLibrePrivate::setVisibleArea(const QRectF& visibleArea) {
     Q_Q(QGeoMapMapLibre);
     const QRectF va = clampVisibleArea(visibleArea);
     if (va == m_visibleArea) {
@@ -355,8 +355,8 @@ QRectF QGeoMapMapLibrePrivate::visibleArea() const {
     return m_visibleArea;
 }
 
-void QGeoMapMapLibrePrivate::syncStyleChanges(Map *map) {
-    for (const auto &change : m_styleChanges) {
+void QGeoMapMapLibrePrivate::syncStyleChanges(Map* map) {
+    for (const auto& change : m_styleChanges) {
         if (change->isValid()) {
             change->apply(map);
         }
@@ -365,15 +365,15 @@ void QGeoMapMapLibrePrivate::syncStyleChanges(Map *map) {
     m_styleChanges.clear();
 }
 
-void QGeoMapMapLibrePrivate::threadedRenderingHack(QQuickWindow *window, Map *map) {
+void QGeoMapMapLibrePrivate::threadedRenderingHack(QQuickWindow* window, Map* map) {
     // FIXME: Optimal support for threaded rendering needs core changes
     // in MapLibre Native. Meanwhile we need to set a timer to update
     // the map until all the resources are loaded, which is not exactly
     // battery friendly, because might trigger more paints than we need.
     if (!m_threadedRenderingChecked) {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-        m_threadedRendering = static_cast<QOpenGLContext *>(window->rendererInterface()->getResource(
-                                                                window, QSGRendererInterface::OpenGLContextResource))
+        m_threadedRendering = static_cast<QOpenGLContext*>(window->rendererInterface()->getResource(
+                                                               window, QSGRendererInterface::OpenGLContextResource))
                                   ->thread() != QCoreApplication::instance()->thread();
 #else
         m_threadedRendering = window->openglContext()->thread() != QCoreApplication::instance()->thread();
@@ -395,7 +395,7 @@ void QGeoMapMapLibrePrivate::threadedRenderingHack(QQuickWindow *window, Map *ma
  * QGeoMapMapLibre implementation
  */
 
-QGeoMapMapLibre::QGeoMapMapLibre(QGeoMappingManagerEngine *engine, QObject *parent)
+QGeoMapMapLibre::QGeoMapMapLibre(QGeoMappingManagerEngine* engine, QObject* parent)
     : QGeoMap(*new QGeoMapMapLibrePrivate(engine), parent) {
     Q_D(QGeoMapMapLibre);
 
@@ -407,23 +407,23 @@ QGeoMapMapLibre::QGeoMapMapLibre(QGeoMappingManagerEngine *engine, QObject *pare
 
 QGeoMapMapLibre::~QGeoMapMapLibre() = default;
 
-void QGeoMapMapLibre::setSettings(const Settings &settings) {
+void QGeoMapMapLibre::setSettings(const Settings& settings) {
     Q_D(QGeoMapMapLibre);
 
     d->m_settings = settings;
 }
 
-void QGeoMapMapLibre::setMapItemsBefore(const QString &before) {
+void QGeoMapMapLibre::setMapItemsBefore(const QString& before) {
     Q_D(QGeoMapMapLibre);
     d->m_mapItemsBefore = before;
 }
 
-void QGeoMapMapLibre::addStyleParameter(StyleParameter *parameter) {
+void QGeoMapMapLibre::addStyleParameter(StyleParameter* parameter) {
     Q_D(QGeoMapMapLibre);
     d->addStyleParameter(parameter);
 }
 
-void QGeoMapMapLibre::removeStyleParameter(StyleParameter *parameter) {
+void QGeoMapMapLibre::removeStyleParameter(StyleParameter* parameter) {
     Q_D(QGeoMapMapLibre);
     d->removeStyleParameter(parameter);
 }
@@ -437,7 +437,7 @@ QGeoMap::Capabilities QGeoMapMapLibre::capabilities() const {
     return {SupportsVisibleRegion | SupportsSetBearing | SupportsAnchoringCoordinate | SupportsVisibleArea};
 }
 
-QSGNode *QGeoMapMapLibre::updateSceneGraph(QSGNode *oldNode, QQuickWindow *window) {
+QSGNode* QGeoMapMapLibre::updateSceneGraph(QSGNode* oldNode, QQuickWindow* window) {
     Q_D(QGeoMapMapLibre);
     return d->updateSceneGraph(oldNode, window);
 }
@@ -451,7 +451,7 @@ void QGeoMapMapLibre::onMapChanged(Map::MapChange change) {
         d->m_styleLoaded = false;
         d->m_styleChanges.clear();
 
-        for (QDeclarativeGeoMapItemBase *item : d->m_mapItems) {
+        for (QDeclarativeGeoMapItemBase* item : d->m_mapItems) {
             std::vector<std::unique_ptr<StyleChange>> changes = StyleChange::addFeature(
                 StyleChangeUtils::featureFromMapItem(item),
                 StyleChangeUtils::featurePropertiesFromMapItem(item),
@@ -459,7 +459,7 @@ void QGeoMapMapLibre::onMapChanged(Map::MapChange change) {
             std::move(changes.begin(), changes.end(), std::back_inserter(d->m_styleChanges));
         }
 
-        for (StyleParameter *parameter : d->m_mapParameters) {
+        for (StyleParameter* parameter : d->m_mapParameters) {
             std::vector<std::unique_ptr<StyleChange>> changes = StyleChange::addParameter(parameter,
                                                                                           d->m_mapItemsBefore);
             std::move(changes.begin(), changes.end(), std::back_inserter(d->m_styleChanges));
@@ -470,9 +470,9 @@ void QGeoMapMapLibre::onMapChanged(Map::MapChange change) {
 void QGeoMapMapLibre::onMapItemPropertyChanged() {
     Q_D(QGeoMapMapLibre);
 
-    auto *item = static_cast<QDeclarativeGeoMapItemBase *>(sender());
+    auto* item = static_cast<QDeclarativeGeoMapItemBase*>(sender());
     const QString id = StyleChangeUtils::featureId(item);
-    for (const FeatureProperty &property : StyleChangeUtils::featurePropertiesFromMapItem(item)) {
+    for (const FeatureProperty& property : StyleChangeUtils::featurePropertiesFromMapItem(item)) {
         if (property.type == FeatureProperty::LayoutProperty) {
             d->m_styleChanges.emplace_back(
                 std::make_unique<StyleSetLayoutProperties>(id, property.name, property.value));
@@ -488,9 +488,9 @@ void QGeoMapMapLibre::onMapItemPropertyChanged() {
 void QGeoMapMapLibre::onMapItemSubPropertyChanged() {
     Q_D(QGeoMapMapLibre);
 
-    auto *item = static_cast<QDeclarativeGeoMapItemBase *>(sender()->parent());
+    auto* item = static_cast<QDeclarativeGeoMapItemBase*>(sender()->parent());
     const QString id = StyleChangeUtils::featureId(item);
-    for (const FeatureProperty &property : StyleChangeUtils::featurePropertiesFromMapItem(item)) {
+    for (const FeatureProperty& property : StyleChangeUtils::featurePropertiesFromMapItem(item)) {
         // only paint properties should be handled
         if (property.type == FeatureProperty::PaintProperty) {
             d->m_styleChanges.emplace_back(
@@ -509,13 +509,13 @@ void QGeoMapMapLibre::onMapItemUnsupportedPropertyChanged() {
 void QGeoMapMapLibre::onMapItemGeometryChanged() {
     Q_D(QGeoMapMapLibre);
 
-    auto *item = static_cast<QDeclarativeGeoMapItemBase *>(sender());
+    auto* item = static_cast<QDeclarativeGeoMapItemBase*>(sender());
     d->m_styleChanges.push_back(std::make_unique<StyleAddSource>(StyleChangeUtils::featureFromMapItem(item)));
 
     emit sgNodeChanged();
 }
 
-void QGeoMapMapLibre::onStyleParameterUpdated(StyleParameter *parameter) {
+void QGeoMapMapLibre::onStyleParameterUpdated(StyleParameter* parameter) {
     Q_D(QGeoMapMapLibre);
 
     std::vector<std::unique_ptr<StyleChange>> changes = StyleChange::addParameter(parameter, d->m_mapItemsBefore);

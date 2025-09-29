@@ -16,7 +16,7 @@ class GLTester : public GLWidget {
     Q_OBJECT
 
 public:
-    explicit GLTester(const QMapLibre::Settings &);
+    explicit GLTester(const QMapLibre::Settings&);
 
     void initializeAnimation();
     int selfTest();

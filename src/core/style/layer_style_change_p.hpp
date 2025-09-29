@@ -20,10 +20,10 @@ class Map;
 
 class Q_MAPLIBRE_CORE_EXPORT StyleAddLayer : public StyleChange {
 public:
-    explicit StyleAddLayer(const Feature &feature, const std::vector<FeatureProperty> &properties, QString before);
-    explicit StyleAddLayer(const LayerParameter *parameter, QString before);
+    explicit StyleAddLayer(const Feature& feature, const std::vector<FeatureProperty>& properties, QString before);
+    explicit StyleAddLayer(const LayerParameter* parameter, QString before);
 
-    void apply(Map *map) override;
+    void apply(Map* map) override;
 
 private:
     QString m_id;
@@ -36,10 +36,10 @@ private:
 class Q_MAPLIBRE_CORE_EXPORT StyleRemoveLayer : public StyleChange {
 public:
     explicit StyleRemoveLayer(QString id);
-    explicit StyleRemoveLayer(const Feature &feature);
-    explicit StyleRemoveLayer(const LayerParameter *parameter);
+    explicit StyleRemoveLayer(const Feature& feature);
+    explicit StyleRemoveLayer(const LayerParameter* parameter);
 
-    void apply(Map *map) override;
+    void apply(Map* map) override;
 
 private:
     QString m_id;
@@ -47,11 +47,11 @@ private:
 
 class Q_MAPLIBRE_CORE_EXPORT StyleSetLayoutProperties : public StyleChange {
 public:
-    explicit StyleSetLayoutProperties(QString layerId, const QString &propertyName, const QVariant &value);
-    explicit StyleSetLayoutProperties(QString layerId, const std::vector<FeatureProperty> &properties);
-    explicit StyleSetLayoutProperties(const LayerParameter *parameter);
+    explicit StyleSetLayoutProperties(QString layerId, const QString& propertyName, const QVariant& value);
+    explicit StyleSetLayoutProperties(QString layerId, const std::vector<FeatureProperty>& properties);
+    explicit StyleSetLayoutProperties(const LayerParameter* parameter);
 
-    void apply(Map *map) override;
+    void apply(Map* map) override;
 
 private:
     QString m_layerId;
@@ -60,11 +60,11 @@ private:
 
 class Q_MAPLIBRE_CORE_EXPORT StyleSetPaintProperties : public StyleChange {
 public:
-    explicit StyleSetPaintProperties(QString layerId, const QString &propertyName, const QVariant &value);
-    explicit StyleSetPaintProperties(QString layerId, const std::vector<FeatureProperty> &properties);
-    explicit StyleSetPaintProperties(const LayerParameter *parameter);
+    explicit StyleSetPaintProperties(QString layerId, const QString& propertyName, const QVariant& value);
+    explicit StyleSetPaintProperties(QString layerId, const std::vector<FeatureProperty>& properties);
+    explicit StyleSetPaintProperties(const LayerParameter* parameter);
 
-    void apply(Map *map) override;
+    void apply(Map* map) override;
 
 private:
     QString m_layerId;
@@ -74,9 +74,9 @@ private:
 class Q_MAPLIBRE_CORE_EXPORT StyleSetFilter : public StyleChange {
 public:
     explicit StyleSetFilter(QString layerId, QVariantList expression);
-    explicit StyleSetFilter(const FilterParameter *parameter);
+    explicit StyleSetFilter(const FilterParameter* parameter);
 
-    void apply(Map *map) override;
+    void apply(Map* map) override;
 
 private:
     QString m_layerId;

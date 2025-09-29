@@ -6,7 +6,7 @@
 
 namespace QMapLibre {
 
-DeclarativeFilterParameter::DeclarativeFilterParameter(QObject *parent)
+DeclarativeFilterParameter::DeclarativeFilterParameter(QObject* parent)
     : FilterParameter(parent) {}
 
 } // namespace QMapLibre

@@ -11,8 +11,8 @@
 
 namespace QMapLibre::StyleChangeUtils {
 
-QList<QByteArray> allPropertyNamesList(const QObject *object);
-QByteArray formatPropertyName(const QString &name);
-QByteArray formatPropertyName(const QByteArray &name);
+QList<QByteArray> allPropertyNamesList(const QObject* object);
+QByteArray formatPropertyName(const QString& name);
+QByteArray formatPropertyName(const QByteArray& name);
 
 } // namespace QMapLibre::StyleChangeUtils

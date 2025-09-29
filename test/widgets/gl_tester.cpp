@@ -12,7 +12,7 @@ constexpr int kAnimationDuration = 5000;
 
 namespace QMapLibre {
 
-GLTester::GLTester(const QMapLibre::Settings &settings)
+GLTester::GLTester(const QMapLibre::Settings& settings)
     : GLWidget(settings) {}
 
 void GLTester::initializeAnimation() {

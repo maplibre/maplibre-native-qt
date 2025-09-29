@@ -27,7 +27,7 @@ class DeclarativeLayerParameter : public LayerParameter, public QQmlParserStatus
     Q_PROPERTY(QJsonObject paint READ paint WRITE setPaint NOTIFY paintUpdated)
     // this type must not declare any additional properties
 public:
-    explicit DeclarativeLayerParameter(QObject *parent = nullptr);
+    explicit DeclarativeLayerParameter(QObject* parent = nullptr);
     ~DeclarativeLayerParameter() override = default;
 
 private:

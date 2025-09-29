@@ -14,30 +14,30 @@
 class MapLibreStyleAttached : public QObject {
     Q_OBJECT
     QML_ANONYMOUS
-    Q_PROPERTY(QMapLibre::DeclarativeStyle *style READ style WRITE setStyle NOTIFY styleChanged)
+    Q_PROPERTY(QMapLibre::DeclarativeStyle* style READ style WRITE setStyle NOTIFY styleChanged)
 public:
-    explicit MapLibreStyleAttached(QObject *parent)
+    explicit MapLibreStyleAttached(QObject* parent)
         : QObject(parent) {}
 
-    [[nodiscard]] QMapLibre::DeclarativeStyle *style() const { return m_style; }
+    [[nodiscard]] QMapLibre::DeclarativeStyle* style() const { return m_style; }
 
-    void setStyle(QMapLibre::DeclarativeStyle *style) {
+    void setStyle(QMapLibre::DeclarativeStyle* style) {
         m_style = style;
         Q_EMIT styleChanged(m_style);
 
         // Check for QQuickItem
-        auto *quickItem = qobject_cast<QQuickItem *>(parent());
+        auto* quickItem = qobject_cast<QQuickItem*>(parent());
         if (quickItem == nullptr) {
             qWarning() << "Not a QQuickItem!";
             return;
         }
 
         // Check for MapView
-        QDeclarativeGeoMap *declarativeMap{};
+        QDeclarativeGeoMap* declarativeMap{};
         if (QString(quickItem->metaObject()->className()).startsWith("MapView")) {
-            declarativeMap = QQmlProperty::read(quickItem, "map").value<QDeclarativeGeoMap *>();
+            declarativeMap = QQmlProperty::read(quickItem, "map").value<QDeclarativeGeoMap*>();
         } else {
-            declarativeMap = qobject_cast<QDeclarativeGeoMap *>(parent());
+            declarativeMap = qobject_cast<QDeclarativeGeoMap*>(parent());
         }
 
         if (declarativeMap == nullptr) {
@@ -49,10 +49,10 @@ public:
     }
 
 Q_SIGNALS:
-    void styleChanged(QMapLibre::DeclarativeStyle *style);
+    void styleChanged(QMapLibre::DeclarativeStyle* style);
 
 private:
-    QMapLibre::DeclarativeStyle *m_style{};
+    QMapLibre::DeclarativeStyle* m_style{};
 };
 
 class MapLibreStyleProperties : public QObject {
@@ -62,7 +62,7 @@ class MapLibreStyleProperties : public QObject {
 
 public:
     // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
-    static MapLibreStyleAttached *qmlAttachedProperties(QObject *object) { return new MapLibreStyleAttached(object); }
+    static MapLibreStyleAttached* qmlAttachedProperties(QObject* object) { return new MapLibreStyleAttached(object); }
 };
 
 #endif // QMAPLIBREQMLTYPES_H

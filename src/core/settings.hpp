@@ -54,14 +54,14 @@ public:
         MapboxProvider
     };
 
-    using ResourceTransformFunction = std::function<std::string(const std::string &)>;
+    using ResourceTransformFunction = std::function<std::string(const std::string&)>;
 
     explicit Settings(ProviderTemplate provider = NoProvider);
     ~Settings();
-    Settings(const Settings &s);
-    Settings(Settings &&s) noexcept;
-    Settings &operator=(const Settings &s);
-    Settings &operator=(Settings &&s) noexcept;
+    Settings(const Settings& s);
+    Settings(Settings&& s) noexcept;
+    Settings& operator=(const Settings& s);
+    Settings& operator=(Settings&& s) noexcept;
 
     [[nodiscard]] GLContextMode contextMode() const;
     void setContextMode(GLContextMode);
@@ -79,42 +79,42 @@ public:
     void setCacheDatabaseMaximumSize(unsigned);
 
     [[nodiscard]] QString cacheDatabasePath() const;
-    void setCacheDatabasePath(const QString &path);
+    void setCacheDatabasePath(const QString& path);
 
     [[nodiscard]] QString assetPath() const;
-    void setAssetPath(const QString &path);
+    void setAssetPath(const QString& path);
 
     [[nodiscard]] QString apiKey() const;
-    void setApiKey(const QString &key);
+    void setApiKey(const QString& key);
 
     [[nodiscard]] QString apiBaseUrl() const;
-    void setApiBaseUrl(const QString &url);
+    void setApiBaseUrl(const QString& url);
 
     [[nodiscard]] QString localFontFamily() const;
-    void setLocalFontFamily(const QString &family);
+    void setLocalFontFamily(const QString& family);
 
     [[nodiscard]] QString clientName() const;
-    void setClientName(const QString &name);
+    void setClientName(const QString& name);
 
     [[nodiscard]] QString clientVersion() const;
-    void setClientVersion(const QString &version);
+    void setClientVersion(const QString& version);
 
     [[nodiscard]] ResourceTransformFunction resourceTransform() const;
-    void setResourceTransform(const ResourceTransformFunction &transform);
+    void setResourceTransform(const ResourceTransformFunction& transform);
 
     void setProviderTemplate(ProviderTemplate providerTemplate);
-    void setStyles(const Styles &styles);
+    void setStyles(const Styles& styles);
 
-    [[nodiscard]] const Styles &styles() const;
+    [[nodiscard]] const Styles& styles() const;
     [[nodiscard]] Styles providerStyles() const;
 
     [[nodiscard]] Coordinate defaultCoordinate() const;
-    void setDefaultCoordinate(const Coordinate &coordinate);
+    void setDefaultCoordinate(const Coordinate& coordinate);
     [[nodiscard]] double defaultZoom() const;
     void setDefaultZoom(double zoom);
 
     [[nodiscard]] bool customTileServerOptions() const;
-    [[nodiscard]] const mbgl::TileServerOptions &tileServerOptions() const;
+    [[nodiscard]] const mbgl::TileServerOptions& tileServerOptions() const;
 
 private:
     std::unique_ptr<SettingsPrivate> d_ptr;

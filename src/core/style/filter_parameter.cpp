@@ -19,7 +19,7 @@ namespace QMapLibre {
 /*!
     \brief Default constructor
 */
-FilterParameter::FilterParameter(QObject *parent)
+FilterParameter::FilterParameter(QObject* parent)
     : StyleParameter(parent) {}
 
 FilterParameter::~FilterParameter() = default;
@@ -43,7 +43,7 @@ QVariantList FilterParameter::expression() const {
 
     \ref expressionUpdated() signal is emitted when the expression is updated.
 */
-void FilterParameter::setExpression(const QVariantList &expression) {
+void FilterParameter::setExpression(const QVariantList& expression) {
     if (m_expression == expression) {
         return;
     }

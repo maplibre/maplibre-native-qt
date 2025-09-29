@@ -25,7 +25,7 @@
 
 namespace {
 
-void parseStyleJsonObject(QMapLibre::Styles &styles, const QJsonObject &obj) {
+void parseStyleJsonObject(QMapLibre::Styles& styles, const QJsonObject& obj) {
     if (!obj.contains(QStringLiteral("url"))) {
         return;
     }
@@ -58,9 +58,9 @@ void parseStyleJsonObject(QMapLibre::Styles &styles, const QJsonObject &obj) {
 
 namespace QMapLibre {
 
-QtMappingEngine::QtMappingEngine(const QVariantMap &parameters,
-                                 QGeoServiceProvider::Error *error,
-                                 QString *errorString) {
+QtMappingEngine::QtMappingEngine(const QVariantMap& parameters,
+                                 QGeoServiceProvider::Error* error,
+                                 QString* errorString) {
     *error = QGeoServiceProvider::NoError;
     errorString->clear();
 
@@ -93,7 +93,7 @@ QtMappingEngine::QtMappingEngine(const QVariantMap &parameters,
                                        QStringLiteral("maplibre.items.insert_before"),
                                        QStringLiteral("maplibre.client.name"),
                                        QStringLiteral("maplibre.client.version")};
-    for (const QString &key : parameters.keys()) {
+    for (const QString& key : parameters.keys()) {
         if (!supportedOptions.contains(key)) {
             qWarning() << "Unsupported option" << key;
         }
@@ -134,7 +134,7 @@ QtMappingEngine::QtMappingEngine(const QVariantMap &parameters,
             if (jsonDoc.isObject()) {
                 parseStyleJsonObject(styles, jsonDoc.object());
             } else if (jsonDoc.isArray()) {
-                for (const auto &value : jsonDoc.array()) {
+                for (const auto& value : jsonDoc.array()) {
                     if (value.isObject()) {
                         parseStyleJsonObject(styles, value.toObject());
                     } else if (value.isString()) {
@@ -150,7 +150,7 @@ QtMappingEngine::QtMappingEngine(const QVariantMap &parameters,
             const QString urls = parameters.value(QStringLiteral("maplibre.map.styles")).toString();
             const QStringList urlsList = urls.split(',', Qt::SkipEmptyParts);
 
-            for (const QString &url : urlsList) {
+            for (const QString& url : urlsList) {
                 if (url.isEmpty()) {
                     continue;
                 }
@@ -160,7 +160,7 @@ QtMappingEngine::QtMappingEngine(const QVariantMap &parameters,
 
         m_settings.setStyles(styles);
 
-        for (const Style &style : styles) {
+        for (const Style& style : styles) {
             QVariantMap mapMetadata;
             mapMetadata[QStringLiteral("url")] = style.url;
             mapMetadata[QStringLiteral("isHTTPS")] = style.url.startsWith(QStringLiteral("https:"));
@@ -178,7 +178,7 @@ QtMappingEngine::QtMappingEngine(const QVariantMap &parameters,
     }
 
     // load provider styles if available
-    for (const Style &style : m_settings.providerStyles()) {
+    for (const Style& style : m_settings.providerStyles()) {
         QVariantMap mapMetadata;
         mapMetadata[QStringLiteral("url")] = style.url;
         mapMetadata[QStringLiteral("isHTTPS")] = true;
@@ -243,7 +243,7 @@ QtMappingEngine::QtMappingEngine(const QVariantMap &parameters,
     engineInitialized();
 }
 
-QGeoMap *QtMappingEngine::createMap() {
+QGeoMap* QtMappingEngine::createMap() {
     auto map = std::make_unique<QGeoMapMapLibre>(this);
     map->setSettings(m_settings);
     map->setMapItemsBefore(m_mapItemsBefore);

@@ -28,16 +28,16 @@ class DeclarativeStyle : public QQuickItem {
 #endif
 
 public:
-    explicit DeclarativeStyle(QQuickItem *parent = nullptr);
+    explicit DeclarativeStyle(QQuickItem* parent = nullptr);
     ~DeclarativeStyle() override = default;
 
-    void setDeclarativeMap(QDeclarativeGeoMap *map);
-    void setMap(QGeoMapMapLibre *map);
+    void setDeclarativeMap(QDeclarativeGeoMap* map);
+    void setMap(QGeoMapMapLibre* map);
 
-    Q_INVOKABLE void addParameter(StyleParameter *parameter);
-    Q_INVOKABLE void removeParameter(StyleParameter *parameter);
+    Q_INVOKABLE void addParameter(StyleParameter* parameter);
+    Q_INVOKABLE void removeParameter(StyleParameter* parameter);
     Q_INVOKABLE void clearParameters();
-    QList<QObject *> parameters();
+    QList<QObject*> parameters();
 
 protected:
     void componentComplete() override;
@@ -45,9 +45,9 @@ protected:
 private:
     void populateParameters();
 
-    QGeoMapMapLibre *m_map{};
+    QGeoMapMapLibre* m_map{};
 
-    QList<StyleParameter *> m_parameters;
+    QList<StyleParameter*> m_parameters;
 };
 
 } // namespace QMapLibre

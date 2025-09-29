@@ -17,11 +17,11 @@ namespace QMapLibre {
 class Q_MAPLIBRE_CORE_EXPORT ImageParameter : public StyleParameter {
     Q_OBJECT
 public:
-    explicit ImageParameter(QObject *parent = nullptr);
+    explicit ImageParameter(QObject* parent = nullptr);
     ~ImageParameter() override;
 
     [[nodiscard]] QString source() const;
-    void setSource(const QString &source);
+    void setSource(const QString& source);
 
 Q_SIGNALS:
     void sourceUpdated();

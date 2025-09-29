@@ -25,7 +25,7 @@ class DeclarativeImageParameter : public ImageParameter, public QQmlParserStatus
     Q_PROPERTY(QString source READ source WRITE setSource NOTIFY sourceUpdated)
     // this type must not declare any additional properties
 public:
-    explicit DeclarativeImageParameter(QObject *parent = nullptr);
+    explicit DeclarativeImageParameter(QObject* parent = nullptr);
     ~DeclarativeImageParameter() override = default;
 
 private:

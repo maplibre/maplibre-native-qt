@@ -18,15 +18,15 @@ constexpr double halfCircle{180.0};
 // MapLibre Native supports geometry segments that spans above 180 degrees in
 // longitude. To keep visual expectations in parity with Qt, we need to adapt
 // the coordinates to always use the shortest path when in ambiguity.
-bool geoRectangleCrossesDateLine(const QGeoRectangle &rect) {
+bool geoRectangleCrossesDateLine(const QGeoRectangle& rect) {
     return rect.topLeft().longitude() > rect.bottomRight().longitude();
 }
 
-QMapLibre::Coordinates qgeocoordinate2mapboxcoordinate(const QList<QGeoCoordinate> &crds,
+QMapLibre::Coordinates qgeocoordinate2mapboxcoordinate(const QList<QGeoCoordinate>& crds,
                                                        const bool crossesDateline,
                                                        bool closed = false) {
     QMapLibre::Coordinates coordinates;
-    for (const QGeoCoordinate &coordinate : crds) {
+    for (const QGeoCoordinate& coordinate : crds) {
         if (!coordinates.empty() && crossesDateline &&
             qAbs(coordinate.longitude() - coordinates.last().second) > halfCircle) {
             coordinates << QMapLibre::Coordinate{
@@ -46,14 +46,14 @@ QMapLibre::Coordinates qgeocoordinate2mapboxcoordinate(const QList<QGeoCoordinat
 
 namespace QMapLibre::StyleChangeUtils {
 
-QString featureId(QDeclarativeGeoMapItemBase *item) {
+QString featureId(QDeclarativeGeoMapItemBase* item) {
     return QStringLiteral("QtLocation-") + ((item->objectName().isEmpty())
                                                 ? QString::number(quint64(item)) // NOLINT(google-readability-casting)
                                                 : item->objectName());
 }
 
-Feature featureFromMapRectangle(QDeclarativeRectangleMapItem *item) {
-    const auto *rect = static_cast<const QGeoRectangle *>(&item->geoShape());
+Feature featureFromMapRectangle(QDeclarativeRectangleMapItem* item) {
+    const auto* rect = static_cast<const QGeoRectangle*>(&item->geoShape());
     Coordinate bottomLeft{rect->bottomLeft().latitude(), rect->bottomLeft().longitude()};
     Coordinate topLeft{rect->topLeft().latitude(), rect->topLeft().longitude()};
     Coordinate bottomRight{rect->bottomRight().latitude(), rect->bottomRight().longitude()};
@@ -67,9 +67,9 @@ Feature featureFromMapRectangle(QDeclarativeRectangleMapItem *item) {
     return Feature(Feature::PolygonType, geometry, {}, featureId(item));
 }
 
-Feature featureFromMapCircle(QDeclarativeCircleMapItem *item) {
+Feature featureFromMapCircle(QDeclarativeCircleMapItem* item) {
     constexpr int circleSamples{128};
-    const auto &p = static_cast<const QGeoProjectionWebMercator &>(item->map()->geoProjection());
+    const auto& p = static_cast<const QGeoProjectionWebMercator&>(item->map()->geoProjection());
 #if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
     QList<QGeoCoordinate> path;
     QGeoCoordinate leftBound;
@@ -85,24 +85,24 @@ Feature featureFromMapCircle(QDeclarativeCircleMapItem *item) {
     //     QDeclarativeCircleMapItemPrivateCPU::preserveCircleGeometry(pathProjected, item->center(),
     //     item->radius(), p);
     QList<QGeoCoordinate> path;
-    for (const QDoubleVector2D &c : std::as_const(pathProjected)) {
+    for (const QDoubleVector2D& c : std::as_const(pathProjected)) {
         path << p.mapProjectionToGeo(c);
     }
 #elif QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
     QDeclarativeCircleMapItemPrivate::calculatePeripheralPoints(
         pathProjected, item->center(), item->radius(), p, circleSamples);
     QList<QGeoCoordinate> path;
-    for (const QDoubleVector2D &c : std::as_const(pathProjected)) path << p.mapProjectionToGeo(c);
+    for (const QDoubleVector2D& c : std::as_const(pathProjected)) path << p.mapProjectionToGeo(c);
 #else
-    for (const QGeoCoordinate &c : qAsConst(path)) pathProjected << p.geoToMapProjection(c);
+    for (const QGeoCoordinate& c : qAsConst(path)) pathProjected << p.geoToMapProjection(c);
     if (QDeclarativeCircleMapItemPrivateCPU::crossEarthPole(item->center(), item->radius()))
         QDeclarativeCircleMapItemPrivateCPU::preserveCircleGeometry(pathProjected, item->center(), item->radius(), p);
     path.clear();
-    for (const QDoubleVector2D &c : qAsConst(pathProjected)) path << p.mapProjectionToGeo(c);
+    for (const QDoubleVector2D& c : qAsConst(pathProjected)) path << p.mapProjectionToGeo(c);
 #endif
 
     Coordinates coordinates;
-    for (const QGeoCoordinate &coordinate : path) {
+    for (const QGeoCoordinate& coordinate : path) {
         coordinates << Coordinate{coordinate.latitude(), coordinate.longitude()};
     }
     coordinates.append(coordinates.first()); // closing the path
@@ -110,8 +110,8 @@ Feature featureFromMapCircle(QDeclarativeCircleMapItem *item) {
     return Feature(Feature::PolygonType, geometry, {}, featureId(item));
 }
 
-Feature featureFromMapPolygon(QDeclarativePolygonMapItem *item) {
-    const auto *polygon = static_cast<const QGeoPolygon *>(&item->geoShape());
+Feature featureFromMapPolygon(QDeclarativePolygonMapItem* item) {
+    const auto* polygon = static_cast<const QGeoPolygon*>(&item->geoShape());
     const bool crossesDateline = geoRectangleCrossesDateLine(polygon->boundingGeoRectangle());
     CoordinatesCollections geometry;
     CoordinatesCollection poly;
@@ -130,11 +130,11 @@ Feature featureFromMapPolygon(QDeclarativePolygonMapItem *item) {
     return Feature(Feature::PolygonType, geometry, {}, featureId(item));
 }
 
-Feature featureFromMapPolyline(QDeclarativePolylineMapItem *item) {
-    const auto *path = static_cast<const QGeoPath *>(&item->geoShape());
+Feature featureFromMapPolyline(QDeclarativePolylineMapItem* item) {
+    const auto* path = static_cast<const QGeoPath*>(&item->geoShape());
     Coordinates coordinates;
     const bool crossesDateline = geoRectangleCrossesDateLine(path->boundingGeoRectangle());
-    for (const QGeoCoordinate &coordinate : path->path()) {
+    for (const QGeoCoordinate& coordinate : path->path()) {
         if (!coordinates.empty() && crossesDateline &&
             qAbs(coordinate.longitude() - coordinates.last().second) > halfCircle) {
             coordinates << Coordinate{
@@ -149,23 +149,23 @@ Feature featureFromMapPolyline(QDeclarativePolylineMapItem *item) {
     return Feature(Feature::LineStringType, geometry, {}, featureId(item));
 }
 
-Feature featureFromMapItem(QDeclarativeGeoMapItemBase *item) {
+Feature featureFromMapItem(QDeclarativeGeoMapItemBase* item) {
     switch (item->itemType()) {
         case QGeoMap::MapRectangle:
-            return featureFromMapRectangle(static_cast<QDeclarativeRectangleMapItem *>(item));
+            return featureFromMapRectangle(static_cast<QDeclarativeRectangleMapItem*>(item));
         case QGeoMap::MapCircle:
-            return featureFromMapCircle(static_cast<QDeclarativeCircleMapItem *>(item));
+            return featureFromMapCircle(static_cast<QDeclarativeCircleMapItem*>(item));
         case QGeoMap::MapPolygon:
-            return featureFromMapPolygon(static_cast<QDeclarativePolygonMapItem *>(item));
+            return featureFromMapPolygon(static_cast<QDeclarativePolygonMapItem*>(item));
         case QGeoMap::MapPolyline:
-            return featureFromMapPolyline(static_cast<QDeclarativePolylineMapItem *>(item));
+            return featureFromMapPolyline(static_cast<QDeclarativePolylineMapItem*>(item));
         default:
             qWarning() << "Unsupported QGeoMap item type: " << item->itemType();
             return Feature();
     }
 }
 
-std::vector<FeatureProperty> featureLayoutPropertiesFromMapPolyline(QDeclarativePolylineMapItem * /* item */) {
+std::vector<FeatureProperty> featureLayoutPropertiesFromMapPolyline(QDeclarativePolylineMapItem* /* item */) {
     std::vector<FeatureProperty> properties;
     properties.reserve(2);
 
@@ -175,12 +175,12 @@ std::vector<FeatureProperty> featureLayoutPropertiesFromMapPolyline(QDeclarative
     return properties;
 }
 
-std::vector<FeatureProperty> featureLayoutPropertiesFromMapItem(QDeclarativeGeoMapItemBase *item) {
+std::vector<FeatureProperty> featureLayoutPropertiesFromMapItem(QDeclarativeGeoMapItemBase* item) {
     std::vector<FeatureProperty> properties;
 
     switch (item->itemType()) {
         case QGeoMap::MapPolyline:
-            properties = featureLayoutPropertiesFromMapPolyline(static_cast<QDeclarativePolylineMapItem *>(item));
+            properties = featureLayoutPropertiesFromMapPolyline(static_cast<QDeclarativePolylineMapItem*>(item));
         default:
             break;
     }
@@ -192,7 +192,7 @@ std::vector<FeatureProperty> featureLayoutPropertiesFromMapItem(QDeclarativeGeoM
     return properties;
 }
 
-std::vector<FeatureProperty> featurePaintPropertiesFromMapRectangle(QDeclarativeRectangleMapItem *item) {
+std::vector<FeatureProperty> featurePaintPropertiesFromMapRectangle(QDeclarativeRectangleMapItem* item) {
     std::vector<FeatureProperty> properties;
     properties.reserve(3);
 
@@ -206,7 +206,7 @@ std::vector<FeatureProperty> featurePaintPropertiesFromMapRectangle(QDeclarative
     return properties;
 }
 
-std::vector<FeatureProperty> featurePaintPropertiesFromMapCircle(QDeclarativeCircleMapItem *item) {
+std::vector<FeatureProperty> featurePaintPropertiesFromMapCircle(QDeclarativeCircleMapItem* item) {
     std::vector<FeatureProperty> properties;
     properties.reserve(3);
 
@@ -220,7 +220,7 @@ std::vector<FeatureProperty> featurePaintPropertiesFromMapCircle(QDeclarativeCir
     return properties;
 }
 
-std::vector<FeatureProperty> featurePaintPropertiesFromMapPolygon(QDeclarativePolygonMapItem *item) {
+std::vector<FeatureProperty> featurePaintPropertiesFromMapPolygon(QDeclarativePolygonMapItem* item) {
     std::vector<FeatureProperty> properties;
     properties.reserve(3);
 
@@ -234,7 +234,7 @@ std::vector<FeatureProperty> featurePaintPropertiesFromMapPolygon(QDeclarativePo
     return properties;
 }
 
-std::vector<FeatureProperty> featurePaintPropertiesFromMapPolyline(QDeclarativePolylineMapItem *item) {
+std::vector<FeatureProperty> featurePaintPropertiesFromMapPolyline(QDeclarativePolylineMapItem* item) {
     std::vector<FeatureProperty> properties;
     properties.reserve(3);
 
@@ -247,23 +247,23 @@ std::vector<FeatureProperty> featurePaintPropertiesFromMapPolyline(QDeclarativeP
     return properties;
 }
 
-std::vector<FeatureProperty> featurePaintPropertiesFromMapItem(QDeclarativeGeoMapItemBase *item) {
+std::vector<FeatureProperty> featurePaintPropertiesFromMapItem(QDeclarativeGeoMapItemBase* item) {
     switch (item->itemType()) {
         case QGeoMap::MapRectangle:
-            return featurePaintPropertiesFromMapRectangle(static_cast<QDeclarativeRectangleMapItem *>(item));
+            return featurePaintPropertiesFromMapRectangle(static_cast<QDeclarativeRectangleMapItem*>(item));
         case QGeoMap::MapCircle:
-            return featurePaintPropertiesFromMapCircle(static_cast<QDeclarativeCircleMapItem *>(item));
+            return featurePaintPropertiesFromMapCircle(static_cast<QDeclarativeCircleMapItem*>(item));
         case QGeoMap::MapPolygon:
-            return featurePaintPropertiesFromMapPolygon(static_cast<QDeclarativePolygonMapItem *>(item));
+            return featurePaintPropertiesFromMapPolygon(static_cast<QDeclarativePolygonMapItem*>(item));
         case QGeoMap::MapPolyline:
-            return featurePaintPropertiesFromMapPolyline(static_cast<QDeclarativePolylineMapItem *>(item));
+            return featurePaintPropertiesFromMapPolyline(static_cast<QDeclarativePolylineMapItem*>(item));
         default:
             qWarning() << "Unsupported QGeoMap item type: " << item->itemType();
             return {};
     }
 }
 
-std::vector<FeatureProperty> featurePropertiesFromMapItem(QDeclarativeGeoMapItemBase *item) {
+std::vector<FeatureProperty> featurePropertiesFromMapItem(QDeclarativeGeoMapItemBase* item) {
     std::vector<FeatureProperty> layoutProperties = featureLayoutPropertiesFromMapItem(item);
     std::vector<FeatureProperty> paintProperties = featurePaintPropertiesFromMapItem(item);
 

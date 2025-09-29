@@ -6,7 +6,7 @@
 
 namespace QMapLibre {
 
-DeclarativeLayerParameter::DeclarativeLayerParameter(QObject *parent)
+DeclarativeLayerParameter::DeclarativeLayerParameter(QObject* parent)
     : LayerParameter(parent) {}
 
 } // namespace QMapLibre

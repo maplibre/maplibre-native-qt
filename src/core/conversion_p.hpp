@@ -18,14 +18,14 @@
 
 namespace mbgl::style::conversion {
 
-std::string convertColor(const QColor &color);
+std::string convertColor(const QColor& color);
 
 template <>
 class ConversionTraits<QVariant> {
 public:
-    static bool isUndefined(const QVariant &value) { return value.isNull() || !value.isValid(); }
+    static bool isUndefined(const QVariant& value) { return value.isNull() || !value.isValid(); }
 
-    static bool isArray(const QVariant &value) {
+    static bool isArray(const QVariant& value) {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         if (value.metaType() == QMetaType(QMetaType::QString)) {
             return false;
@@ -36,11 +36,11 @@ public:
 #endif
     }
 
-    static std::size_t arrayLength(const QVariant &value) { return value.toList().size(); }
+    static std::size_t arrayLength(const QVariant& value) { return value.toList().size(); }
 
-    static QVariant arrayMember(const QVariant &value, std::size_t i) { return value.toList()[static_cast<int>(i)]; }
+    static QVariant arrayMember(const QVariant& value, std::size_t i) { return value.toList()[static_cast<int>(i)]; }
 
-    static bool isObject(const QVariant &value) {
+    static bool isObject(const QVariant& value) {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         return QMetaType::canConvert(value.metaType(), QMetaType(QMetaType::QVariantMap)) ||
                value.typeId() == QMetaType::QByteArray
@@ -53,7 +53,7 @@ public:
                value.userType() == qMetaTypeId<std::list<QMapLibre::Feature>>();
     }
 
-    static std::optional<QVariant> objectMember(const QVariant &value, const char *key) {
+    static std::optional<QVariant> objectMember(const QVariant& value, const char* key) {
         auto map = value.toMap();
         auto iter = map.constFind(key);
 
@@ -65,7 +65,7 @@ public:
     }
 
     template <class Fn>
-    static std::optional<Error> eachMember(const QVariant &value, Fn &&fn) {
+    static std::optional<Error> eachMember(const QVariant& value, Fn&& fn) {
         auto map = value.toMap();
         auto iter = map.constBegin();
 
@@ -81,7 +81,7 @@ public:
         return {};
     }
 
-    static std::optional<bool> toBool(const QVariant &value) {
+    static std::optional<bool> toBool(const QVariant& value) {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         if (value.typeId() == QMetaType::Bool) {
 #else
@@ -93,7 +93,7 @@ public:
         return {};
     }
 
-    static std::optional<float> toNumber(const QVariant &value) {
+    static std::optional<float> toNumber(const QVariant& value) {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         if (value.typeId() == QMetaType::Int || value.typeId() == QMetaType::Double ||
             value.typeId() == QMetaType::Long || value.typeId() == QMetaType::LongLong ||
@@ -108,7 +108,7 @@ public:
         return {};
     }
 
-    static std::optional<double> toDouble(const QVariant &value) {
+    static std::optional<double> toDouble(const QVariant& value) {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         if (value.typeId() == QMetaType::Int || value.typeId() == QMetaType::Double ||
             value.typeId() == QMetaType::Long || value.typeId() == QMetaType::LongLong ||
@@ -123,7 +123,7 @@ public:
         return {};
     }
 
-    static std::optional<std::string> toString(const QVariant &value) {
+    static std::optional<std::string> toString(const QVariant& value) {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         if (value.typeId() == QMetaType::QString) {
             return value.toString().toStdString();
@@ -144,7 +144,7 @@ public:
         return {};
     }
 
-    static std::optional<Value> toValue(const QVariant &value) {
+    static std::optional<Value> toValue(const QVariant& value) {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         if (value.typeId() == QMetaType::Bool) {
             return {value.toBool()};
@@ -189,7 +189,7 @@ public:
         return {};
     }
 
-    static std::optional<GeoJSON> toGeoJSON(const QVariant &value, Error &error) {
+    static std::optional<GeoJSON> toGeoJSON(const QVariant& value, Error& error) {
         if (value.typeName() == QStringLiteral("QMapLibre::Feature")) {
             return GeoJSON{QMapLibre::GeoJSON::asFeature(value.value<QMapLibre::Feature>())};
         }
@@ -221,10 +221,10 @@ public:
 
 private:
     template <typename T>
-    static GeoJSON featureCollectionToGeoJSON(const T &features) {
+    static GeoJSON featureCollectionToGeoJSON(const T& features) {
         mapbox::feature::feature_collection<double> collection;
         collection.reserve(static_cast<std::size_t>(features.size()));
-        for (const auto &feature : features) {
+        for (const auto& feature : features) {
             collection.push_back(QMapLibre::GeoJSON::asFeature(feature));
         }
         return GeoJSON{std::move(collection)};
@@ -232,11 +232,11 @@ private:
 };
 
 template <class T, class... Args>
-std::optional<T> convert(const QVariant &value, Error &error, Args &&...args) {
+std::optional<T> convert(const QVariant& value, Error& error, Args&&... args) {
     return convert<T>(Convertible(value), error, std::forward<Args>(args)...);
 }
 
-inline std::string convertColor(const QColor &color) {
+inline std::string convertColor(const QColor& color) {
     return QString::asprintf("rgba(%d,%d,%d,%lf)", color.red(), color.green(), color.blue(), color.alphaF())
         .toStdString();
 }

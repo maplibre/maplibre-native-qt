@@ -213,18 +213,18 @@ Settings::~Settings() = default;
 /*!
     \brief Copy constructor.
 */
-Settings::Settings(const Settings &s)
+Settings::Settings(const Settings& s)
     : d_ptr(std::make_unique<SettingsPrivate>(*s.d_ptr)) {}
 
 /*!
     \brief Move constructor.
 */
-Settings::Settings(Settings &&s) noexcept = default;
+Settings::Settings(Settings&& s) noexcept = default;
 
 /*!
     \brief Copy assignment operator.
 */
-Settings &Settings::operator=(const Settings &s) {
+Settings& Settings::operator=(const Settings& s) {
     if (this == &s) {
         return *this;
     }
@@ -236,7 +236,7 @@ Settings &Settings::operator=(const Settings &s) {
 /*!
     \brief Move assignment operator.
 */
-Settings &Settings::operator=(Settings &&s) noexcept = default;
+Settings& Settings::operator=(Settings&& s) noexcept = default;
 
 /*!
     \brief Get the OpenGL context mode.
@@ -374,7 +374,7 @@ QString Settings::cacheDatabasePath() const {
 
     Setting the \a path to `:memory:` will create an in-memory cache.
 */
-void Settings::setCacheDatabasePath(const QString &path) {
+void Settings::setCacheDatabasePath(const QString& path) {
     d_ptr->m_cacheDatabasePath = path;
 }
 
@@ -397,7 +397,7 @@ QString Settings::assetPath() const {
     \brief Set the asset path.
     \param path The asset path.
 */
-void Settings::setAssetPath(const QString &path) {
+void Settings::setAssetPath(const QString& path) {
     d_ptr->m_assetPath = path;
 }
 
@@ -419,7 +419,7 @@ QString Settings::apiKey() const {
     MapTiler-hosted and Mapbox-hosted vector tiles and styles require an API
     key or access token.
 */
-void Settings::setApiKey(const QString &key) {
+void Settings::setApiKey(const QString& key) {
     d_ptr->m_apiKey = key;
 }
 
@@ -447,7 +447,7 @@ QString Settings::apiBaseUrl() const {
     be resolved to. It defaults to `https://api.mapbox.com` but can be
     changed, for instance, to a tile cache server address.
 */
-void Settings::setApiBaseUrl(const QString &url) {
+void Settings::setApiBaseUrl(const QString& url) {
     d_ptr->setProviderApiBaseUrl(url);
 }
 
@@ -471,7 +471,7 @@ QString Settings::localFontFamily() const {
     to speed up map load times by using locally available fonts instead
     of font data fetched from the server.
 */
-void Settings::setLocalFontFamily(const QString &family) {
+void Settings::setLocalFontFamily(const QString& family) {
     d_ptr->m_localFontFamily = family;
 }
 
@@ -489,7 +489,7 @@ QString Settings::clientName() const {
     \brief Set the client name.
     \param name The client name.
 */
-void Settings::setClientName(const QString &name) {
+void Settings::setClientName(const QString& name) {
     d_ptr->m_clientName = name;
 }
 
@@ -507,7 +507,7 @@ QString Settings::clientVersion() const {
     \brief Set the client version.
     \param version The client version.
 */
-void Settings::setClientVersion(const QString &version) {
+void Settings::setClientVersion(const QString& version) {
     d_ptr->m_clientVersion = version;
 }
 
@@ -528,7 +528,7 @@ Settings::ResourceTransformFunction Settings::resourceTransform() const {
     used add or remove custom parameters, or reroute certain requests to other
     servers or endpoints.
 */
-void Settings::setResourceTransform(const ResourceTransformFunction &transform) {
+void Settings::setResourceTransform(const ResourceTransformFunction& transform) {
     d_ptr->m_resourceTransform = transform;
 }
 
@@ -555,7 +555,7 @@ void Settings::setProviderTemplate(ProviderTemplate providerTemplate) {
     The styles are a list of type Style (wrapped in the helper \ref Styles).
     Each style is a pair of URL and name/label.
 */
-const Styles &Settings::styles() const {
+const Styles& Settings::styles() const {
     return d_ptr->m_styles;
 }
 
@@ -566,7 +566,7 @@ const Styles &Settings::styles() const {
     The styles are a list type Style (wrapped in the helper \ref Styles).
     Each style is a pair of URL and name/label.
 */
-void Settings::setStyles(const Styles &styles) {
+void Settings::setStyles(const Styles& styles) {
     d_ptr->m_styles = styles;
 }
 
@@ -582,7 +582,7 @@ Styles Settings::providerStyles() const {
         return styles;
     }
 
-    for (const auto &style : tileServerOptions().defaultStyles()) {
+    for (const auto& style : tileServerOptions().defaultStyles()) {
         styles.append(Style(QString::fromStdString(style.getUrl()), QString::fromStdString(style.getName())));
     }
     return styles;
@@ -600,7 +600,7 @@ Coordinate Settings::defaultCoordinate() const {
     \brief Set the default coordinate.
     \param coordinate The default coordinate.
 */
-void Settings::setDefaultCoordinate(const Coordinate &coordinate) {
+void Settings::setDefaultCoordinate(const Coordinate& coordinate) {
     d_ptr->m_defaultCoordinate = coordinate;
 }
 
@@ -633,7 +633,7 @@ bool Settings::customTileServerOptions() const {
 
     \warning Mainly for internal use.
 */
-const mbgl::TileServerOptions &Settings::tileServerOptions() const {
+const mbgl::TileServerOptions& Settings::tileServerOptions() const {
     return d_ptr->m_tileServerOptions;
 }
 
@@ -664,7 +664,7 @@ void SettingsPrivate::setProviderTemplate(Settings::ProviderTemplate providerTem
     }
 }
 
-void SettingsPrivate::setProviderApiBaseUrl(const QString &url) {
+void SettingsPrivate::setProviderApiBaseUrl(const QString& url) {
     if (!m_customTileServerOptions) {
         qWarning() << "No provider set so not setting API URL.";
         return;

@@ -20,8 +20,8 @@ Q_MAPLIBRE_CORE_EXPORT NetworkMode networkMode();
 Q_MAPLIBRE_CORE_EXPORT void setNetworkMode(NetworkMode mode);
 
 Q_MAPLIBRE_CORE_EXPORT double metersPerPixelAtLatitude(double latitude, double zoom);
-Q_MAPLIBRE_CORE_EXPORT ProjectedMeters projectedMetersForCoordinate(const Coordinate &coordinate);
-Q_MAPLIBRE_CORE_EXPORT Coordinate coordinateForProjectedMeters(const ProjectedMeters &projectedMeters);
+Q_MAPLIBRE_CORE_EXPORT ProjectedMeters projectedMetersForCoordinate(const Coordinate& coordinate);
+Q_MAPLIBRE_CORE_EXPORT Coordinate coordinateForProjectedMeters(const ProjectedMeters& projectedMeters);
 
 } // namespace QMapLibre
 

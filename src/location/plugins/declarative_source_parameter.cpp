@@ -8,10 +8,10 @@
 
 namespace QMapLibre {
 
-DeclarativeSourceParameter::DeclarativeSourceParameter(QObject *parent)
+DeclarativeSourceParameter::DeclarativeSourceParameter(QObject* parent)
     : SourceParameter(parent) {}
 
-QVariant DeclarativeSourceParameter::parsedProperty(const char *propertyName) const {
+QVariant DeclarativeSourceParameter::parsedProperty(const char* propertyName) const {
     if (!hasProperty(propertyName)) {
         return StyleParameter::parsedProperty(propertyName);
     }

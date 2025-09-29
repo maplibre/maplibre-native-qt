@@ -21,7 +21,7 @@ namespace QMapLibre {
 /*!
     \brief Default constructor
 */
-LayerParameter::LayerParameter(QObject *parent)
+LayerParameter::LayerParameter(QObject* parent)
     : StyleParameter(parent) {}
 
 LayerParameter::~LayerParameter() = default;
@@ -48,7 +48,7 @@ QString LayerParameter::type() const {
     \brief Set layer type.
     \param type Layer type as \c QString.
 */
-void LayerParameter::setType(const QString &type) {
+void LayerParameter::setType(const QString& type) {
     if (m_type.isEmpty()) {
         m_type = type;
     }
@@ -68,7 +68,7 @@ QJsonObject LayerParameter::layout() const {
 
     \ref layoutUpdated() signal is emitted when the layout is updated.
 */
-void LayerParameter::setLayout(const QJsonObject &layout) {
+void LayerParameter::setLayout(const QJsonObject& layout) {
     if (m_layout == layout) {
         return;
     }
@@ -85,7 +85,7 @@ void LayerParameter::setLayout(const QJsonObject &layout) {
 
     \ref layoutUpdated() signal is emitted when the layout is updated.
 */
-void LayerParameter::setLayoutProperty(const QString &key, const QVariant &value) {
+void LayerParameter::setLayoutProperty(const QString& key, const QVariant& value) {
     m_layout[key] = value.toJsonValue();
 
     Q_EMIT layoutUpdated();
@@ -105,7 +105,7 @@ QJsonObject LayerParameter::paint() const {
 
     \ref paintUpdated() signal is emitted when the paint is updated.
 */
-void LayerParameter::setPaint(const QJsonObject &paint) {
+void LayerParameter::setPaint(const QJsonObject& paint) {
     if (m_paint == paint) {
         return;
     }
@@ -122,7 +122,7 @@ void LayerParameter::setPaint(const QJsonObject &paint) {
 
     \ref paintUpdated() signal is emitted when the paint is updated.
 */
-void LayerParameter::setPaintProperty(const QString &key, const QVariant &value) {
+void LayerParameter::setPaintProperty(const QString& key, const QVariant& value) {
     m_paint[key] = value.toJsonValue();
 
     Q_EMIT paintUpdated();
