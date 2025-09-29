@@ -129,7 +129,7 @@ struct Q_MAPLIBRE_CORE_EXPORT LineAnnotation {
     explicit LineAnnotation(ShapeAnnotationGeometry geometry_ = ShapeAnnotationGeometry(),
                             float opacity_ = 1.0f,
                             float width_ = 1.0f,
-                            const QColor &color_ = Qt::black)
+                            const QColor& color_ = Qt::black)
         : geometry(std::move(geometry_)),
           opacity(opacity_),
           width(width_),
@@ -145,7 +145,7 @@ struct Q_MAPLIBRE_CORE_EXPORT FillAnnotation {
     /*! Class constructor. */
     explicit FillAnnotation(ShapeAnnotationGeometry geometry_ = ShapeAnnotationGeometry(),
                             float opacity_ = 1.0f,
-                            const QColor &color_ = Qt::black,
+                            const QColor& color_ = Qt::black,
                             QVariant outlineColor_ = QVariant())
         : geometry(std::move(geometry_)),
           opacity(opacity_),
@@ -186,7 +186,7 @@ class Q_MAPLIBRE_CORE_EXPORT CustomLayerHostInterface {
 public:
     virtual ~CustomLayerHostInterface() = default;
     virtual void initialize() = 0;
-    virtual void render(const CustomLayerRenderParameters &) = 0;
+    virtual void render(const CustomLayerRenderParameters&) = 0;
     virtual void deinitialize() = 0;
 };
 

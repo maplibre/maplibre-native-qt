@@ -16,11 +16,11 @@ class Map;
 
 class Q_MAPLIBRE_CORE_EXPORT StyleAddImage : public StyleChange {
 public:
-    explicit StyleAddImage(QString id, const QString &spriteUrl);
+    explicit StyleAddImage(QString id, const QString& spriteUrl);
     explicit StyleAddImage(QString id, QImage sprite);
-    explicit StyleAddImage(const ImageParameter *parameter);
+    explicit StyleAddImage(const ImageParameter* parameter);
 
-    void apply(Map *map) override;
+    void apply(Map* map) override;
 
 private:
     QString m_id;
@@ -30,9 +30,9 @@ private:
 class Q_MAPLIBRE_CORE_EXPORT StyleRemoveImage : public StyleChange {
 public:
     explicit StyleRemoveImage(QString id);
-    explicit StyleRemoveImage(const ImageParameter *parameter);
+    explicit StyleRemoveImage(const ImageParameter* parameter);
 
-    void apply(Map *map) override;
+    void apply(Map* map) override;
 
 private:
     QString m_id;

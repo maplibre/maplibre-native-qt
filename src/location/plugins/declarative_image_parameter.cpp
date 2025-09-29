@@ -6,7 +6,7 @@
 
 namespace QMapLibre {
 
-DeclarativeImageParameter::DeclarativeImageParameter(QObject *parent)
+DeclarativeImageParameter::DeclarativeImageParameter(QObject* parent)
     : ImageParameter(parent) {}
 
 } // namespace QMapLibre

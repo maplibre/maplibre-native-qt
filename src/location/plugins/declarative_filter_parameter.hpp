@@ -25,7 +25,7 @@ class DeclarativeFilterParameter : public FilterParameter, public QQmlParserStat
     Q_PROPERTY(QVariantList expression READ expression WRITE setExpression NOTIFY expressionUpdated)
     // this type must not declare any additional properties
 public:
-    explicit DeclarativeFilterParameter(QObject *parent = nullptr);
+    explicit DeclarativeFilterParameter(QObject* parent = nullptr);
     ~DeclarativeFilterParameter() override = default;
 
 private:

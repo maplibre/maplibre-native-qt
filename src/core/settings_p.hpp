@@ -27,7 +27,7 @@ public:
     SettingsPrivate();
 
     void setProviderTemplate(Settings::ProviderTemplate providerTemplate);
-    void setProviderApiBaseUrl(const QString &url);
+    void setProviderApiBaseUrl(const QString& url);
 
     Settings::GLContextMode m_contextMode{Settings::SharedGLContext};
     Settings::MapMode m_mapMode{Settings::Continuous};
@@ -48,7 +48,7 @@ public:
 
     Styles m_styles;
 
-    std::function<std::string(const std::string &)> m_resourceTransform;
+    std::function<std::string(const std::string&)> m_resourceTransform;
 
     bool m_customTileServerOptions{};
     mbgl::TileServerOptions m_tileServerOptions{};

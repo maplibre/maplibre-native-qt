@@ -17,11 +17,11 @@ namespace QMapLibre {
 class Q_MAPLIBRE_CORE_EXPORT SourceParameter : public StyleParameter {
     Q_OBJECT
 public:
-    explicit SourceParameter(QObject *parent = nullptr);
+    explicit SourceParameter(QObject* parent = nullptr);
     ~SourceParameter() override;
 
     [[nodiscard]] QString type() const;
-    void setType(const QString &type);
+    void setType(const QString& type);
 
 protected:
     QString m_type;

@@ -11,7 +11,7 @@
 
 MainWindow::MainWindow() {
     m_menuBar = std::make_unique<QMenuBar>(this);
-    QMenu *menuWindow = m_menuBar->addMenu(tr("&Window"));
+    QMenu* menuWindow = m_menuBar->addMenu(tr("&Window"));
     m_actionAddNew = std::make_unique<QAction>(menuWindow);
     m_actionAddNew->setText(tr("Add new"));
     menuWindow->addAction(m_actionAddNew.get());

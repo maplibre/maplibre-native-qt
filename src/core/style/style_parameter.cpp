@@ -22,7 +22,7 @@ namespace QMapLibre {
 /*!
     \brief Default constructor
 */
-StyleParameter::StyleParameter(QObject *parent)
+StyleParameter::StyleParameter(QObject* parent)
     : QObject(parent) {}
 
 StyleParameter::~StyleParameter() = default;
@@ -30,7 +30,7 @@ StyleParameter::~StyleParameter() = default;
 /*!
     \brief Comparison operator
 */
-bool StyleParameter::operator==(const StyleParameter &other) const {
+bool StyleParameter::operator==(const StyleParameter& other) const {
     return (other.toVariantMap() == toVariantMap());
 }
 
@@ -60,7 +60,7 @@ bool StyleParameter::operator==(const StyleParameter &other) const {
     By default this directly reads the property value from the object.
     It can be reimplemented from subclasses to provide custom parsing.
 */
-QVariant StyleParameter::parsedProperty(const char *propertyName) const {
+QVariant StyleParameter::parsedProperty(const char* propertyName) const {
     return property(propertyName);
 }
 
@@ -69,7 +69,7 @@ QVariant StyleParameter::parsedProperty(const char *propertyName) const {
     \param propertyName Name of the property to check.
     \return \c true if the property exists, \c false otherwise.
 */
-bool StyleParameter::hasProperty(const char *propertyName) const {
+bool StyleParameter::hasProperty(const char* propertyName) const {
     return metaObject()->indexOfProperty(propertyName) != -1 ||
            dynamicPropertyNames().indexOf(QByteArray(propertyName)) != -1;
 }
@@ -79,7 +79,7 @@ bool StyleParameter::hasProperty(const char *propertyName) const {
     \param propertyName Name of the property to update.
     \param value The new value of the property.
 */
-void StyleParameter::updateProperty(const char *propertyName, const QVariant &value) {
+void StyleParameter::updateProperty(const char* propertyName, const QVariant& value) {
     const QMetaProperty property = metaObject()->property(metaObject()->indexOfProperty(propertyName));
     property.write(this, value);
     updateNotify();
@@ -91,9 +91,9 @@ void StyleParameter::updateProperty(const char *propertyName, const QVariant &va
 */
 QVariantMap StyleParameter::toVariantMap() const {
     QVariantMap res;
-    const QMetaObject *metaObj = metaObject();
+    const QMetaObject* metaObj = metaObject();
     for (int i = m_initialPropertyCount; i < metaObj->propertyCount(); ++i) {
-        const char *propName = metaObj->property(i).name();
+        const char* propName = metaObj->property(i).name();
         res[QLatin1String(propName)] = property(propName);
     }
     return res;
@@ -111,7 +111,7 @@ QString StyleParameter::styleId() const {
     \brief Set style identifier.
     \param id The style identifier to set.
 */
-void StyleParameter::setStyleId(const QString &id) {
+void StyleParameter::setStyleId(const QString& id) {
     if (m_styleId.isEmpty()) {
         m_styleId = id;
     }

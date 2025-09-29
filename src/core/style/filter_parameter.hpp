@@ -18,11 +18,11 @@ namespace QMapLibre {
 class Q_MAPLIBRE_CORE_EXPORT FilterParameter : public StyleParameter {
     Q_OBJECT
 public:
-    explicit FilterParameter(QObject *parent = nullptr);
+    explicit FilterParameter(QObject* parent = nullptr);
     ~FilterParameter() override;
 
     [[nodiscard]] QVariantList expression() const;
-    void setExpression(const QVariantList &expression);
+    void setExpression(const QVariantList& expression);
 
 Q_SIGNALS:
     void expressionUpdated();

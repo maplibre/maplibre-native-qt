@@ -29,17 +29,17 @@ class QGeoMapMapLibrePrivate : public QGeoMapPrivate {
     Q_DECLARE_PUBLIC(QGeoMapMapLibre)
 
 public:
-    explicit QGeoMapMapLibrePrivate(QGeoMappingManagerEngine *engine);
+    explicit QGeoMapMapLibrePrivate(QGeoMappingManagerEngine* engine);
     ~QGeoMapMapLibrePrivate() override;
 
-    QSGNode *updateSceneGraph(QSGNode *oldNode, QQuickWindow *window);
+    QSGNode* updateSceneGraph(QSGNode* oldNode, QQuickWindow* window);
 
     QGeoMap::ItemTypes supportedMapItemTypes() const override;
-    void addMapItem(QDeclarativeGeoMapItemBase *item) override;
-    void removeMapItem(QDeclarativeGeoMapItemBase *item) override;
+    void addMapItem(QDeclarativeGeoMapItemBase* item) override;
+    void removeMapItem(QDeclarativeGeoMapItemBase* item) override;
 
-    void addStyleParameter(StyleParameter *parameter);
-    void removeStyleParameter(StyleParameter *parameter);
+    void addStyleParameter(StyleParameter* parameter);
+    void removeStyleParameter(StyleParameter* parameter);
     void clearStyleParameters();
 
     /* Data members */
@@ -55,7 +55,7 @@ public:
     Settings m_settings;
     QString m_mapItemsBefore;
 
-    QList<StyleParameter *> m_mapParameters;
+    QList<StyleParameter*> m_mapParameters;
 
     QTimer m_refresh;
     bool m_shouldRefresh = true;
@@ -68,22 +68,22 @@ public:
     std::vector<std::unique_ptr<StyleChange>> m_styleChanges;
 
 protected:
-    void changeViewportSize(const QSize &size) override;
-    void changeCameraData(const QGeoCameraData &data) override;
+    void changeViewportSize(const QSize& size) override;
+    void changeCameraData(const QGeoCameraData& data) override;
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
-    void changeActiveMapType(const QGeoMapType &mapType) override;
+    void changeActiveMapType(const QGeoMapType& mapType) override;
 #else
     void changeActiveMapType(const QGeoMapType mapType) override;
 #endif
 
-    void setVisibleArea(const QRectF &visibleArea) override;
+    void setVisibleArea(const QRectF& visibleArea) override;
     QRectF visibleArea() const override;
 
 private:
     Q_DISABLE_COPY(QGeoMapMapLibrePrivate);
 
-    void syncStyleChanges(Map *map);
-    void threadedRenderingHack(QQuickWindow *window, Map *map);
+    void syncStyleChanges(Map* map);
+    void threadedRenderingHack(QQuickWindow* window, Map* map);
 
     QRectF m_visibleArea;
 };

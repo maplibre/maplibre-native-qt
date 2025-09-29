@@ -23,7 +23,7 @@ bool needsToForceScheduler() {
     return force.localData();
 };
 
-auto *getScheduler() {
+auto* getScheduler() {
     static QThreadStorage<std::shared_ptr<QMapLibre::Scheduler>> scheduler;
 
     if (!scheduler.hasLocalData()) {
@@ -39,7 +39,7 @@ namespace QMapLibre {
 
 /*! \cond PRIVATE */
 
-MapRenderer::MapRenderer(qreal pixelRatio, Settings::GLContextMode mode, const QString &localFontFamily)
+MapRenderer::MapRenderer(qreal pixelRatio, Settings::GLContextMode mode, const QString& localFontFamily)
     : m_backend(static_cast<mbgl::gfx::ContextMode>(mode)),
       m_renderer(std::make_unique<mbgl::Renderer>(
           m_backend,
@@ -51,7 +51,7 @@ MapRenderer::MapRenderer(qreal pixelRatio, Settings::GLContextMode mode, const Q
     // dummy scheduler that needs to be explicitly forced to
     // process events.
     if (m_forceScheduler) {
-        Scheduler *scheduler = getScheduler();
+        Scheduler* scheduler = getScheduler();
 
         if (mbgl::Scheduler::GetCurrent() == nullptr) {
             mbgl::Scheduler::SetCurrent(scheduler);
@@ -70,7 +70,7 @@ void MapRenderer::updateParameters(std::shared_ptr<mbgl::UpdateParameters> param
     m_updateParameters = std::move(parameters);
 }
 
-void MapRenderer::updateFramebuffer(quint32 fbo, const mbgl::Size &size) {
+void MapRenderer::updateFramebuffer(quint32 fbo, const mbgl::Size& size) {
     MBGL_VERIFY_THREAD(tid);
 
     m_backend.updateFramebuffer(fbo, size);
@@ -101,7 +101,7 @@ void MapRenderer::render() {
     }
 }
 
-void MapRenderer::setObserver(mbgl::RendererObserver *observer) {
+void MapRenderer::setObserver(mbgl::RendererObserver* observer) {
     m_renderer->setObserver(observer);
 }
 

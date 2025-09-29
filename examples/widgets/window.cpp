@@ -11,7 +11,7 @@
 #include <QMessageBox>
 #include <QVBoxLayout>
 
-Window::Window(MainWindow *mainWindow)
+Window::Window(MainWindow* mainWindow)
     : QWidget(mainWindow),
       m_mainWindowRef(mainWindow) {
     QMapLibre::Styles styles;
@@ -35,7 +35,7 @@ Window::Window(MainWindow *mainWindow)
     setWindowTitle(tr("Hello QMapLibre"));
 }
 
-void Window::keyPressEvent(QKeyEvent *e) {
+void Window::keyPressEvent(QKeyEvent* e) {
     if (e->key() == Qt::Key_Escape) {
         close();
     } else {

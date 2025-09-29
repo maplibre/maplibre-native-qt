@@ -15,7 +15,7 @@ namespace QMapLibre {
 
 /*! \cond PRIVATE */
 
-MapObserver::MapObserver(MapPrivate *ptr)
+MapObserver::MapObserver(MapPrivate* ptr)
     : d_ptrRef(ptr) {}
 
 MapObserver::~MapObserver() = default;
@@ -48,7 +48,7 @@ void MapObserver::onDidFinishLoadingMap() {
     emit mapChanged(Map::MapChangeDidFinishLoadingMap);
 }
 
-void MapObserver::onDidFailLoadingMap(mbgl::MapLoadError error, const std::string &what) {
+void MapObserver::onDidFailLoadingMap(mbgl::MapLoadError error, const std::string& what) {
     emit mapChanged(Map::MapChangeDidFailLoadingMap);
 
     Map::MapLoadingFailure type = Map::MapLoadingFailure::UnknownFailure;
@@ -99,11 +99,11 @@ void MapObserver::onDidFinishLoadingStyle() {
     emit mapChanged(Map::MapChangeDidFinishLoadingStyle);
 }
 
-void MapObserver::onSourceChanged(mbgl::style::Source & /* source */) {
+void MapObserver::onSourceChanged(mbgl::style::Source& /* source */) {
     std::string attribution;
-    for (const auto &source : d_ptrRef->mapObj->getStyle().getSources()) {
+    for (const auto& source : d_ptrRef->mapObj->getStyle().getSources()) {
         // Avoid duplicates by using the most complete attribution HTML snippet.
-        const std::optional<std::string> &sourceAttribution = source->getAttribution();
+        const std::optional<std::string>& sourceAttribution = source->getAttribution();
         if (sourceAttribution.has_value() && (attribution.size() < sourceAttribution->size())) {
             attribution = *sourceAttribution;
         }

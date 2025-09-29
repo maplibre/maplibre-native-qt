@@ -18,19 +18,19 @@ namespace QMapLibre {
 class Q_MAPLIBRE_CORE_EXPORT LayerParameter : public StyleParameter {
     Q_OBJECT
 public:
-    explicit LayerParameter(QObject *parent = nullptr);
+    explicit LayerParameter(QObject* parent = nullptr);
     ~LayerParameter() override;
 
     [[nodiscard]] QString type() const;
-    void setType(const QString &type);
+    void setType(const QString& type);
 
     [[nodiscard]] QJsonObject layout() const;
-    void setLayout(const QJsonObject &layout);
-    Q_INVOKABLE void setLayoutProperty(const QString &key, const QVariant &value);
+    void setLayout(const QJsonObject& layout);
+    Q_INVOKABLE void setLayoutProperty(const QString& key, const QVariant& value);
 
     [[nodiscard]] QJsonObject paint() const;
-    void setPaint(const QJsonObject &paint);
-    Q_INVOKABLE void setPaintProperty(const QString &key, const QVariant &value);
+    void setPaint(const QJsonObject& paint);
+    Q_INVOKABLE void setPaintProperty(const QString& key, const QVariant& value);
 
 Q_SIGNALS:
     void layoutUpdated();

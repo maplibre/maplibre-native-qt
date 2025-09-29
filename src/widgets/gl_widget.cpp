@@ -39,7 +39,7 @@ namespace QMapLibre {
 */
 
 /*! Default constructor */
-GLWidget::GLWidget(const Settings &settings)
+GLWidget::GLWidget(const Settings& settings)
     : d_ptr(std::make_unique<GLWidgetPrivate>(this, settings)) {}
 
 GLWidget::~GLWidget() {
@@ -52,18 +52,18 @@ GLWidget::~GLWidget() {
 /*!
     \brief Get the QMapLibre::Map instance.
 */
-Map *GLWidget::map() {
+Map* GLWidget::map() {
     return d_ptr->m_map.get();
 }
 
 /*!
     \brief Mouse press event handler.
 */
-void GLWidget::mousePressEvent(QMouseEvent *event) {
+void GLWidget::mousePressEvent(QMouseEvent* event) {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    const QPointF &position = event->position();
+    const QPointF& position = event->position();
 #else
-    const QPointF &position = event->localPos();
+    const QPointF& position = event->localPos();
 #endif
     emit onMousePressEvent(d_ptr->m_map->coordinateForPixel(position));
     if (event->type() == QEvent::MouseButtonDblClick) {
@@ -76,11 +76,11 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
 /*!
     \brief Mouse release event handler.
 */
-void GLWidget::mouseReleaseEvent(QMouseEvent *event) {
+void GLWidget::mouseReleaseEvent(QMouseEvent* event) {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    const QPointF &position = event->position();
+    const QPointF& position = event->position();
 #else
-    const QPointF &position = event->localPos();
+    const QPointF& position = event->localPos();
 #endif
     emit onMouseReleaseEvent(d_ptr->m_map->coordinateForPixel(position));
 }
@@ -88,11 +88,11 @@ void GLWidget::mouseReleaseEvent(QMouseEvent *event) {
 /*!
     \brief Mouse move event handler.
 */
-void GLWidget::mouseMoveEvent(QMouseEvent *event) {
+void GLWidget::mouseMoveEvent(QMouseEvent* event) {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    const QPointF &position = event->position();
+    const QPointF& position = event->position();
 #else
-    const QPointF &position = event->localPos();
+    const QPointF& position = event->localPos();
 #endif
     emit onMouseMoveEvent(d_ptr->m_map->coordinateForPixel(position));
 
@@ -102,7 +102,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
 /*!
     \brief Mouse wheel event handler.
 */
-void GLWidget::wheelEvent(QWheelEvent *event) {
+void GLWidget::wheelEvent(QWheelEvent* event) {
     d_ptr->handleWheelEvent(event);
 }
 
@@ -140,13 +140,13 @@ void GLWidget::paintGL() {
 /*! \cond PRIVATE */
 
 // GLWidgetPrivate
-GLWidgetPrivate::GLWidgetPrivate(QObject *parent, Settings settings)
+GLWidgetPrivate::GLWidgetPrivate(QObject* parent, Settings settings)
     : QObject(parent),
       m_settings(std::move(settings)) {}
 
 GLWidgetPrivate::~GLWidgetPrivate() = default;
 
-void GLWidgetPrivate::handleMousePressEvent(QMouseEvent *event) {
+void GLWidgetPrivate::handleMousePressEvent(QMouseEvent* event) {
     constexpr double zoomInScale{2.0};
     constexpr double zoomOutScale{0.5};
 
@@ -167,11 +167,11 @@ void GLWidgetPrivate::handleMousePressEvent(QMouseEvent *event) {
     event->accept();
 }
 
-void GLWidgetPrivate::handleMouseMoveEvent(QMouseEvent *event) {
+void GLWidgetPrivate::handleMouseMoveEvent(QMouseEvent* event) {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    const QPointF &position = event->position();
+    const QPointF& position = event->position();
 #else
-    const QPointF &position = event->localPos();
+    const QPointF& position = event->localPos();
 #endif
 
     const QPointF delta = position - m_lastPos;
@@ -189,7 +189,7 @@ void GLWidgetPrivate::handleMouseMoveEvent(QMouseEvent *event) {
     event->accept();
 }
 
-void GLWidgetPrivate::handleWheelEvent(QWheelEvent *event) const {
+void GLWidgetPrivate::handleWheelEvent(QWheelEvent* event) const {
     if (event->angleDelta().y() == 0) {
         return;
     }

@@ -33,12 +33,12 @@ class MapRenderer : public QObject {
     Q_OBJECT
 
 public:
-    MapRenderer(qreal pixelRatio, Settings::GLContextMode, const QString &localFontFamily);
+    MapRenderer(qreal pixelRatio, Settings::GLContextMode, const QString& localFontFamily);
     ~MapRenderer() override;
 
     void render();
-    void updateFramebuffer(quint32 fbo, const mbgl::Size &size);
-    void setObserver(mbgl::RendererObserver *observer);
+    void updateFramebuffer(quint32 fbo, const mbgl::Size& size);
+    void setObserver(mbgl::RendererObserver* observer);
 
     // Thread-safe, called by the Frontend
     void updateParameters(std::shared_ptr<mbgl::UpdateParameters> parameters);

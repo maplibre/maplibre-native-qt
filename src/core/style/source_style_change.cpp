@@ -15,13 +15,13 @@ namespace QMapLibre {
 /*! \cond PRIVATE */
 
 // StyleAddSource
-StyleAddSource::StyleAddSource(const Feature &feature)
+StyleAddSource::StyleAddSource(const Feature& feature)
     : m_id(feature.id.toString()) {
     m_params[QStringLiteral("type")] = QStringLiteral("geojson");
     m_params[QStringLiteral("data")] = QVariant::fromValue<Feature>(feature);
 }
 
-StyleAddSource::StyleAddSource(const SourceParameter *parameter)
+StyleAddSource::StyleAddSource(const SourceParameter* parameter)
     : m_id(parameter->styleId()) {
     static const QStringList acceptedSourceTypes = QStringList()
                                                    << QStringLiteral("vector") << QStringLiteral("raster")
@@ -70,7 +70,7 @@ StyleAddSource::StyleAddSource(const SourceParameter *parameter)
     }
 }
 
-void StyleAddSource::apply(Map *map) {
+void StyleAddSource::apply(Map* map) {
     if (map == nullptr) {
         return;
     }
@@ -82,15 +82,15 @@ void StyleAddSource::apply(Map *map) {
 StyleRemoveSource::StyleRemoveSource(QString id)
     : m_id(std::move(id)) {}
 
-StyleRemoveSource::StyleRemoveSource(const Feature &feature)
+StyleRemoveSource::StyleRemoveSource(const Feature& feature)
     : m_id(feature.id.toString()) {}
 
-StyleRemoveSource::StyleRemoveSource(const SourceParameter *parameter)
+StyleRemoveSource::StyleRemoveSource(const SourceParameter* parameter)
     : m_id(parameter->styleId()) {
     Q_UNUSED(parameter)
 }
 
-void StyleRemoveSource::apply(Map *map) {
+void StyleRemoveSource::apply(Map* map) {
     if (map == nullptr) {
         return;
     }

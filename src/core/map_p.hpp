@@ -27,26 +27,26 @@ class MapPrivate : public QObject, public mbgl::RendererFrontend {
     Q_OBJECT
 
 public:
-    explicit MapPrivate(Map *map, const Settings &settings, const QSize &size, qreal pixelRatio);
+    explicit MapPrivate(Map* map, const Settings& settings, const QSize& size, qreal pixelRatio);
     ~MapPrivate() override;
 
     // mbgl::RendererFrontend implementation.
     void reset() final {}
-    void setObserver(mbgl::RendererObserver &observer) final;
+    void setObserver(mbgl::RendererObserver& observer) final;
     void update(std::shared_ptr<mbgl::UpdateParameters> parameters) final;
 
     // These need to be called on the same thread.
     void createRenderer();
     void destroyRenderer();
     void render();
-    void setOpenGLFramebufferObject(quint32 fbo, const QSize &size);
+    void setOpenGLFramebufferObject(quint32 fbo, const QSize& size);
 
     using PropertySetter = std::optional<mbgl::style::conversion::Error> (mbgl::style::Layer::*)(
-        const std::string &, const mbgl::style::conversion::Convertible &);
-    [[nodiscard]] bool setProperty(const PropertySetter &setter,
-                                   const QString &layerId,
-                                   const QString &name,
-                                   const QVariant &value) const;
+        const std::string&, const mbgl::style::conversion::Convertible&);
+    [[nodiscard]] bool setProperty(const PropertySetter& setter,
+                                   const QString& layerId,
+                                   const QString& name,
+                                   const QVariant& value) const;
 
     mbgl::EdgeInsets margins;
     std::unique_ptr<mbgl::Map> mapObj{};

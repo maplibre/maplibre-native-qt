@@ -30,10 +30,10 @@ class Q_MAPLIBRE_WIDGETS_EXPORT GLWidget : public QOpenGLWidget {
     Q_OBJECT
 
 public:
-    explicit GLWidget(const Settings &);
+    explicit GLWidget(const Settings&);
     ~GLWidget() override;
 
-    Map *map();
+    Map* map();
 
 signals:
     void onMouseDoubleClickEvent(QMapLibre::Coordinate coordinate);
@@ -43,10 +43,10 @@ signals:
 
 protected:
     // QWidget implementation.
-    void mousePressEvent(QMouseEvent *event) override;
-    void mouseReleaseEvent(QMouseEvent *event) override;
-    void mouseMoveEvent(QMouseEvent *event) override;
-    void wheelEvent(QWheelEvent *event) override;
+    void mousePressEvent(QMouseEvent* event) override;
+    void mouseReleaseEvent(QMouseEvent* event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
+    void wheelEvent(QWheelEvent* event) override;
 
     // Q{,Open}GLWidget implementation.
     void initializeGL() override;

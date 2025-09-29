@@ -8,8 +8,8 @@
 
 QGeoServiceProviderFactoryMapLibre::QGeoServiceProviderFactoryMapLibre() = default;
 
-QGeoCodingManagerEngine *QGeoServiceProviderFactoryMapLibre::createGeocodingManagerEngine(
-    const QVariantMap &parameters, QGeoServiceProvider::Error *error, QString *errorString) const {
+QGeoCodingManagerEngine* QGeoServiceProviderFactoryMapLibre::createGeocodingManagerEngine(
+    const QVariantMap& parameters, QGeoServiceProvider::Error* error, QString* errorString) const {
     Q_UNUSED(parameters);
     Q_UNUSED(error);
     Q_UNUSED(errorString);
@@ -17,14 +17,14 @@ QGeoCodingManagerEngine *QGeoServiceProviderFactoryMapLibre::createGeocodingMana
     return nullptr;
 }
 
-QGeoMappingManagerEngine *QGeoServiceProviderFactoryMapLibre::createMappingManagerEngine(
-    const QVariantMap &parameters, QGeoServiceProvider::Error *error, QString *errorString) const {
+QGeoMappingManagerEngine* QGeoServiceProviderFactoryMapLibre::createMappingManagerEngine(
+    const QVariantMap& parameters, QGeoServiceProvider::Error* error, QString* errorString) const {
     // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
     return new QMapLibre::QtMappingEngine(parameters, error, errorString);
 }
 
-QGeoRoutingManagerEngine *QGeoServiceProviderFactoryMapLibre::createRoutingManagerEngine(
-    const QVariantMap &parameters, QGeoServiceProvider::Error *error, QString *errorString) const {
+QGeoRoutingManagerEngine* QGeoServiceProviderFactoryMapLibre::createRoutingManagerEngine(
+    const QVariantMap& parameters, QGeoServiceProvider::Error* error, QString* errorString) const {
     Q_UNUSED(parameters);
     Q_UNUSED(error);
     Q_UNUSED(errorString);
@@ -32,9 +32,9 @@ QGeoRoutingManagerEngine *QGeoServiceProviderFactoryMapLibre::createRoutingManag
     return nullptr;
 }
 
-QPlaceManagerEngine *QGeoServiceProviderFactoryMapLibre::createPlaceManagerEngine(const QVariantMap &parameters,
-                                                                                  QGeoServiceProvider::Error *error,
-                                                                                  QString *errorString) const {
+QPlaceManagerEngine* QGeoServiceProviderFactoryMapLibre::createPlaceManagerEngine(const QVariantMap& parameters,
+                                                                                  QGeoServiceProvider::Error* error,
+                                                                                  QString* errorString) const {
     Q_UNUSED(parameters);
     Q_UNUSED(error);
     Q_UNUSED(errorString);

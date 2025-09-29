@@ -15,20 +15,20 @@
 
 namespace QMapLibre::StyleChangeUtils {
 
-Feature featureFromMapRectangle(QDeclarativeRectangleMapItem *item);
-Feature featureFromMapCircle(QDeclarativeCircleMapItem *item);
-Feature featureFromMapPolygon(QDeclarativePolygonMapItem *item);
-Feature featureFromMapPolyline(QDeclarativePolylineMapItem *item);
-Feature featureFromMapItem(QDeclarativeGeoMapItemBase *item);
+Feature featureFromMapRectangle(QDeclarativeRectangleMapItem* item);
+Feature featureFromMapCircle(QDeclarativeCircleMapItem* item);
+Feature featureFromMapPolygon(QDeclarativePolygonMapItem* item);
+Feature featureFromMapPolyline(QDeclarativePolylineMapItem* item);
+Feature featureFromMapItem(QDeclarativeGeoMapItemBase* item);
 
-QString featureId(QDeclarativeGeoMapItemBase *item);
-std::vector<FeatureProperty> featureLayoutPropertiesFromMapPolyline(QDeclarativePolylineMapItem *item);
-std::vector<FeatureProperty> featureLayoutPropertiesFromMapItem(QDeclarativeGeoMapItemBase *item);
-std::vector<FeatureProperty> featurePaintPropertiesFromMapRectangle(QDeclarativeRectangleMapItem *item);
-std::vector<FeatureProperty> featurePaingPropertiesFromMapCircle(QDeclarativeCircleMapItem *item);
-std::vector<FeatureProperty> featurePaintPropertiesFromMapPolygon(QDeclarativePolygonMapItem *item);
-std::vector<FeatureProperty> featurePaintPropertiesFromMapPolyline(QDeclarativePolylineMapItem *item);
-std::vector<FeatureProperty> featurePaintPropertiesFromMapItem(QDeclarativeGeoMapItemBase *item);
-std::vector<FeatureProperty> featurePropertiesFromMapItem(QDeclarativeGeoMapItemBase *item);
+QString featureId(QDeclarativeGeoMapItemBase* item);
+std::vector<FeatureProperty> featureLayoutPropertiesFromMapPolyline(QDeclarativePolylineMapItem* item);
+std::vector<FeatureProperty> featureLayoutPropertiesFromMapItem(QDeclarativeGeoMapItemBase* item);
+std::vector<FeatureProperty> featurePaintPropertiesFromMapRectangle(QDeclarativeRectangleMapItem* item);
+std::vector<FeatureProperty> featurePaingPropertiesFromMapCircle(QDeclarativeCircleMapItem* item);
+std::vector<FeatureProperty> featurePaintPropertiesFromMapPolygon(QDeclarativePolygonMapItem* item);
+std::vector<FeatureProperty> featurePaintPropertiesFromMapPolyline(QDeclarativePolylineMapItem* item);
+std::vector<FeatureProperty> featurePaintPropertiesFromMapItem(QDeclarativeGeoMapItemBase* item);
+std::vector<FeatureProperty> featurePropertiesFromMapItem(QDeclarativeGeoMapItemBase* item);
 
 } // namespace QMapLibre::StyleChangeUtils

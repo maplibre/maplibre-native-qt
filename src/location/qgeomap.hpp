@@ -22,16 +22,16 @@ class Q_MAPLIBRE_LOCATION_EXPORT QGeoMapMapLibre : public QGeoMap {
     Q_DECLARE_PRIVATE(QGeoMapMapLibre)
 
 public:
-    explicit QGeoMapMapLibre(QGeoMappingManagerEngine *engine, QObject *parent = nullptr);
+    explicit QGeoMapMapLibre(QGeoMappingManagerEngine* engine, QObject* parent = nullptr);
     ~QGeoMapMapLibre() override;
 
     [[nodiscard]] Capabilities capabilities() const override;
 
-    void setSettings(const Settings &settings);
-    void setMapItemsBefore(const QString &mapItemsBefore);
+    void setSettings(const Settings& settings);
+    void setMapItemsBefore(const QString& mapItemsBefore);
 
-    void addStyleParameter(StyleParameter *parameter);
-    void removeStyleParameter(StyleParameter *parameter);
+    void addStyleParameter(StyleParameter* parameter);
+    void removeStyleParameter(StyleParameter* parameter);
     void clearStyleParameters();
 
 private Q_SLOTS:
@@ -45,10 +45,10 @@ private Q_SLOTS:
     void onMapItemGeometryChanged();
 
     // StyleParameter
-    void onStyleParameterUpdated(StyleParameter *parameter);
+    void onStyleParameterUpdated(StyleParameter* parameter);
 
 private:
-    QSGNode *updateSceneGraph(QSGNode *oldNode, QQuickWindow *window) override;
+    QSGNode* updateSceneGraph(QSGNode* oldNode, QQuickWindow* window) override;
 };
 
 } // namespace QMapLibre

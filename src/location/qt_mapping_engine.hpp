@@ -19,9 +19,9 @@ class Q_MAPLIBRE_LOCATION_EXPORT QtMappingEngine : public QGeoMappingManagerEngi
     Q_OBJECT
 
 public:
-    QtMappingEngine(const QVariantMap &parameters, QGeoServiceProvider::Error *error, QString *errorString);
+    QtMappingEngine(const QVariantMap& parameters, QGeoServiceProvider::Error* error, QString* errorString);
 
-    QGeoMap *createMap() override;
+    QGeoMap* createMap() override;
 
 private:
     Settings m_settings;

@@ -6,7 +6,7 @@
 
 #include <QApplication>
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
     const QApplication app(argc, argv);
 
     MainWindow window;

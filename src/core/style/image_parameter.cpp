@@ -19,7 +19,7 @@ namespace QMapLibre {
 /*!
     \brief Default constructor
 */
-ImageParameter::ImageParameter(QObject *parent)
+ImageParameter::ImageParameter(QObject* parent)
     : StyleParameter(parent) {}
 
 ImageParameter::~ImageParameter() = default;
@@ -43,7 +43,7 @@ QString ImageParameter::source() const {
 
     \ref sourceUpdated() signal is emitted when the image source is updated.
 */
-void ImageParameter::setSource(const QString &source) {
+void ImageParameter::setSource(const QString& source) {
     if (m_source == source) {
         return;
     }

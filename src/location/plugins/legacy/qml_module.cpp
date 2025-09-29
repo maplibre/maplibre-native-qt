@@ -11,7 +11,7 @@ class MapLibreQmlModule : public QQmlEngineExtensionPlugin {
     Q_PLUGIN_METADATA(IID QQmlEngineExtensionInterface_iid)
 
 public:
-    MapLibreQmlModule(QObject *parent = nullptr)
+    MapLibreQmlModule(QObject* parent = nullptr)
         : QQmlEngineExtensionPlugin(parent) {
         volatile auto registration = &qml_register_types_MapLibre;
         Q_UNUSED(registration)
