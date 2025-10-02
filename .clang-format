@@ -11,6 +11,7 @@ IncludeBlocks: Preserve
 IndentWidth: 4
 PackConstructorInitializers: Never
 PenaltyBreakAssignment: 80
+PointerAlignment: Right
 SortIncludes: true
 SpacesBeforeTrailingComments: 1
 Standard: c++20

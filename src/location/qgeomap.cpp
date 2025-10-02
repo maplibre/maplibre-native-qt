@@ -65,7 +65,7 @@ QGeoMapMapLibrePrivate::QGeoMapMapLibrePrivate(QGeoMappingManagerEngine *engine)
 QGeoMapMapLibrePrivate::~QGeoMapMapLibrePrivate() = default;
 
 QSGNode *QGeoMapMapLibrePrivate::updateSceneGraph(QSGNode *node, QQuickWindow *window) {
-    Q_Q(QGeoMapMapLibre);
+    const Q_Q(QGeoMapMapLibre);
 
     if (m_viewportSize.isEmpty()) {
         delete node; // NOLINT(cppcoreguidelines-owning-memory)
@@ -74,7 +74,7 @@ QSGNode *QGeoMapMapLibrePrivate::updateSceneGraph(QSGNode *node, QQuickWindow *w
 
     Map *map{};
     if (node == nullptr) {
-#if defined(MLN_RENDER_BACKEND_OPENGL)
+#ifdef MLN_RENDER_BACKEND_OPENGL
         // OpenGL context check
         QOpenGLContext *currentCtx = QOpenGLContext::currentContext();
         if (currentCtx == nullptr) {
@@ -481,7 +481,7 @@ void QGeoMapMapLibre::onMapChanged(Map::MapChange change) {
             std::ranges::move(changes, std::back_inserter(d->m_styleChanges));
         }
 
-        for (StyleParameter *parameter : d->m_mapParameters) {
+        for (const StyleParameter *parameter : d->m_mapParameters) {
             std::vector<std::unique_ptr<StyleChange>> changes = StyleChange::addParameter(parameter,
                                                                                           d->m_mapItemsBefore);
             std::ranges::move(changes, std::back_inserter(d->m_styleChanges));

@@ -13,15 +13,11 @@
 #include <QtGui/QOpenGLContext>
 #include <QtGui/QOpenGLFunctions>
 
-namespace {
-constexpr GLuint StencilMask{0xFF};
-} // namespace
-
 namespace QMapLibre {
 
 class QtOpenGLRenderableResource final : public mbgl::gl::RenderableResource {
 public:
-    explicit QtOpenGLRenderableResource(OpenGLRendererBackend& backend_)
+    explicit QtOpenGLRenderableResource(OpenGLRendererBackend &backend_)
         : backend(backend_) {}
 
     void bind() override {
@@ -30,9 +26,9 @@ public:
         backend.setViewport(0, 0, backend.getSize());
 
         // Clear to prevent artifacts - scissor disable needed to ensure full clear
-        QOpenGLContext* context = QOpenGLContext::currentContext();
+        QOpenGLContext *context = QOpenGLContext::currentContext();
         if (context != nullptr) {
-            QOpenGLFunctions* gl = context->functions();
+            QOpenGLFunctions *gl = context->functions();
 
             // Disable scissor test to ensure full framebuffer is cleared
             gl->glDisable(GL_SCISSOR_TEST);
@@ -44,7 +40,7 @@ public:
     }
 
 private:
-    OpenGLRendererBackend& backend;
+    OpenGLRendererBackend &backend;
 };
 
 OpenGLRendererBackend::OpenGLRendererBackend(const mbgl::gfx::ContextMode mode)
@@ -52,9 +48,9 @@ OpenGLRendererBackend::OpenGLRendererBackend(const mbgl::gfx::ContextMode mode)
       mbgl::gfx::Renderable({0, 0}, std::make_unique<QtOpenGLRenderableResource>(*this)) {}
 
 OpenGLRendererBackend::~OpenGLRendererBackend() {
-    QOpenGLContext* glContext = QOpenGLContext::currentContext();
+    QOpenGLContext *glContext = QOpenGLContext::currentContext();
     if (glContext != nullptr) {
-        QOpenGLFunctions* gl = glContext->functions();
+        QOpenGLFunctions *gl = glContext->functions();
 
         // Clean up the color texture if we created one
         if (m_colorTexture != 0) {
@@ -89,7 +85,7 @@ void OpenGLRendererBackend::restoreFramebufferBinding() {
     setFramebufferBinding(m_fbo);
 }
 
-void OpenGLRendererBackend::updateRenderer(const mbgl::Size& newSize, uint32_t fbo) {
+void OpenGLRendererBackend::updateRenderer(const mbgl::Size &newSize, uint32_t fbo) {
     size = newSize;
     const auto width = static_cast<GLsizei>(newSize.width);
     const auto height = static_cast<GLsizei>(newSize.height);
@@ -110,9 +106,9 @@ void OpenGLRendererBackend::updateRenderer(const mbgl::Size& newSize, uint32_t f
     m_fbo = fbo;
 
     // Create or recreate the color texture for the framebuffer
-    QOpenGLContext* glContext = QOpenGLContext::currentContext();
+    QOpenGLContext *glContext = QOpenGLContext::currentContext();
     if (glContext != nullptr && newSize.width > 0 && newSize.height > 0) {
-        QOpenGLFunctions* gl = glContext->functions();
+        QOpenGLFunctions *gl = glContext->functions();
 
         // Delete old texture if it exists
         if (m_colorTexture != 0) {
@@ -166,8 +162,8 @@ void OpenGLRendererBackend::updateRenderer(const mbgl::Size& newSize, uint32_t f
     }
 }
 
-mbgl::gl::ProcAddress OpenGLRendererBackend::getExtensionFunctionPointer(const char* name) {
-    QOpenGLContext* thisContext = QOpenGLContext::currentContext();
+mbgl::gl::ProcAddress OpenGLRendererBackend::getExtensionFunctionPointer(const char *name) {
+    QOpenGLContext *thisContext = QOpenGLContext::currentContext();
     return thisContext->getProcAddress(name);
 }
 
@@ -180,9 +176,9 @@ unsigned int OpenGLRendererBackend::getFramebufferTextureId() const {
              << "m_colorTexture:" << m_colorTexture;
 
     // Check if texture is still valid
-    QOpenGLContext* glContext = QOpenGLContext::currentContext();
+    QOpenGLContext *glContext = QOpenGLContext::currentContext();
     if (glContext != nullptr && m_colorTexture != 0) {
-        QOpenGLFunctions* gl = glContext->functions();
+        QOpenGLFunctions *gl = glContext->functions();
         GLboolean isTexture = gl->glIsTexture(m_colorTexture);
         qDebug() << "OpenGLRendererBackend::getFramebufferTextureId() - Texture" << m_colorTexture
                  << "is valid:" << (isTexture != 0 ? "YES" : "NO");

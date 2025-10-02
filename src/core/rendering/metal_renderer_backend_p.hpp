@@ -20,13 +20,13 @@ namespace QMapLibre {
 
 class MetalRendererBackend final : public mbgl::mtl::RendererBackend, public mbgl::gfx::Renderable {
 public:
-    explicit MetalRendererBackend(CA::MetalLayer* layer);
-    MetalRendererBackend(const MetalRendererBackend&) = delete;
-    MetalRendererBackend& operator=(const MetalRendererBackend&) = delete;
+    explicit MetalRendererBackend(CA::MetalLayer *layer);
+    MetalRendererBackend(const MetalRendererBackend &) = delete;
+    MetalRendererBackend &operator=(const MetalRendererBackend &) = delete;
     ~MetalRendererBackend() override;
 
     // mbgl::gfx::RendererBackend ------------------------------------------------
-    mbgl::gfx::Renderable& getDefaultRenderable() override { return static_cast<mbgl::gfx::Renderable&>(*this); }
+    mbgl::gfx::Renderable &getDefaultRenderable() override { return static_cast<mbgl::gfx::Renderable &>(*this); }
     void activate() override {}
     void deactivate() override {}
     void updateAssumedState() override {}
@@ -36,13 +36,13 @@ public:
     [[nodiscard]] mbgl::Size getSize() const;
 
     // Returns the color texture of the drawable rendered in the last frame.
-    [[nodiscard]] void* currentDrawable() const { return m_currentDrawable; }
-    void setCurrentDrawable(void* tex) { m_currentDrawable = tex; }
+    [[nodiscard]] void *currentDrawable() const { return m_currentDrawable; }
+    void setCurrentDrawable(void *tex) { m_currentDrawable = tex; }
 
-    void updateRenderer(const mbgl::Size& size, uint32_t /* fbo */) { setSize(size); };
+    void updateRenderer(const mbgl::Size &size, uint32_t /* fbo */) { setSize(size); };
 
 private:
-    void* m_currentDrawable{nullptr}; // id<MTLTexture>
+    void *m_currentDrawable{nullptr}; // id<MTLTexture>
 
     friend class QtMetalRenderableResource;
 };

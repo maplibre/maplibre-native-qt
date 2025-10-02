@@ -18,7 +18,7 @@ namespace QMapLibre {
 // Delegate RendererObserver on the given RunLoop
 class RendererObserver final : public mbgl::RendererObserver {
 public:
-    RendererObserver(mbgl::util::RunLoop& mapRunLoop, mbgl::RendererObserver& delegate_)
+    RendererObserver(mbgl::util::RunLoop &mapRunLoop, mbgl::RendererObserver &delegate_)
         : mailbox(std::make_shared<mbgl::Mailbox>(mapRunLoop)),
           delegate(delegate_, mailbox) {}
 
@@ -52,53 +52,53 @@ public:
     void onDidFinishRenderingFrame(RenderMode mode,
                                    bool repaint,
                                    bool placementChanged,
-                                   const mbgl::gfx::RenderingStats& stats) final {
-        void (mbgl::RendererObserver::*f)(RenderMode, bool, bool, const mbgl::gfx::RenderingStats&) =
+                                   const mbgl::gfx::RenderingStats &stats) final {
+        void (mbgl::RendererObserver::*f)(RenderMode, bool, bool, const mbgl::gfx::RenderingStats &) =
             &mbgl::RendererObserver::onDidFinishRenderingFrame;
         delegate.invoke(f, mode, repaint, placementChanged, stats);
     }
 
     void onDidFinishRenderingMap() final { delegate.invoke(&mbgl::RendererObserver::onDidFinishRenderingMap); }
 
-    void onStyleImageMissing(const std::string& id, const StyleImageMissingCallback& done) override {
+    void onStyleImageMissing(const std::string &id, const StyleImageMissingCallback &done) override {
         delegate.invoke(&mbgl::RendererObserver::onStyleImageMissing, id, done);
     }
 
-    void onRemoveUnusedStyleImages(const std::vector<std::string>& ids) override {
+    void onRemoveUnusedStyleImages(const std::vector<std::string> &ids) override {
         delegate.invoke(&mbgl::RendererObserver::onRemoveUnusedStyleImages, ids);
     }
 
     void onPreCompileShader(mbgl::shaders::BuiltIn id,
                             mbgl::gfx::Backend::Type type,
-                            const std::string& additionalDefines) override {
+                            const std::string &additionalDefines) override {
         delegate.invoke(&mbgl::RendererObserver::onPreCompileShader, id, type, additionalDefines);
     }
 
     void onPostCompileShader(mbgl::shaders::BuiltIn id,
                              mbgl::gfx::Backend::Type type,
-                             const std::string& additionalDefines) override {
+                             const std::string &additionalDefines) override {
         delegate.invoke(&mbgl::RendererObserver::onPostCompileShader, id, type, additionalDefines);
     }
 
     void onShaderCompileFailed(mbgl::shaders::BuiltIn id,
                                mbgl::gfx::Backend::Type type,
-                               const std::string& additionalDefines) override {
+                               const std::string &additionalDefines) override {
         delegate.invoke(&mbgl::RendererObserver::onShaderCompileFailed, id, type, additionalDefines);
     }
 
-    void onGlyphsLoaded(const mbgl::FontStack& stack, const mbgl::GlyphRange& range) override {
+    void onGlyphsLoaded(const mbgl::FontStack &stack, const mbgl::GlyphRange &range) override {
         delegate.invoke(&mbgl::RendererObserver::onGlyphsLoaded, stack, range);
     }
 
-    void onGlyphsError(const mbgl::FontStack& stack, const mbgl::GlyphRange& range, std::exception_ptr ex) override {
+    void onGlyphsError(const mbgl::FontStack &stack, const mbgl::GlyphRange &range, std::exception_ptr ex) override {
         delegate.invoke(&mbgl::RendererObserver::onGlyphsError, stack, range, ex);
     }
 
-    void onGlyphsRequested(const mbgl::FontStack& stack, const mbgl::GlyphRange& range) override {
+    void onGlyphsRequested(const mbgl::FontStack &stack, const mbgl::GlyphRange &range) override {
         delegate.invoke(&mbgl::RendererObserver::onGlyphsRequested, stack, range);
     }
 
-    void onTileAction(mbgl::TileOperation op, const mbgl::OverscaledTileID& id, const std::string& sourceID) override {
+    void onTileAction(mbgl::TileOperation op, const mbgl::OverscaledTileID &id, const std::string &sourceID) override {
         delegate.invoke(&mbgl::RendererObserver::onTileAction, op, id, sourceID);
     }
 

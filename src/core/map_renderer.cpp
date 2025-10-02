@@ -11,15 +11,15 @@
 
 #include <QtCore/QThreadStorage>
 
-#if defined(__APPLE__)
+#ifdef __APPLE__
 #include <TargetConditionals.h>
 #endif
 
-#if defined(MLN_RENDER_BACKEND_METAL)
+#ifdef MLN_RENDER_BACKEND_METAL
 #include <QuartzCore/CAMetalLayer.hpp>
 #endif
 
-#if defined(MLN_RENDER_BACKEND_VULKAN)
+#ifdef MLN_RENDER_BACKEND_VULKAN
 #include <vulkan/vulkan.h>
 #include <QtGui/QWindow>
 #endif
@@ -56,7 +56,7 @@ MapRenderer::MapRenderer(qreal pixelRatio,
                          Settings::GLContextMode mode,
                          const QString &localFontFamily,
                          void *nativeTargetPtr)
-#if defined(MLN_RENDER_BACKEND_VULKAN)
+#ifdef MLN_RENDER_BACKEND_VULKAN
     : m_backend(static_cast<QWindow *>(nativeTargetPtr)),
 #elif defined(MLN_RENDER_BACKEND_METAL)
     : m_backend(static_cast<CA::MetalLayer *>(nativeTargetPtr)),
@@ -85,7 +85,7 @@ MapRenderer::MapRenderer(qreal pixelRatio,
     }
 }
 
-#if defined(MLN_RENDER_BACKEND_VULKAN)
+#ifdef MLN_RENDER_BACKEND_VULKAN
 // Constructor that uses Qt's Vulkan device for proper resource sharing
 MapRenderer::MapRenderer(qreal pixelRatio,
                          Settings::GLContextMode /* mode */,
@@ -125,7 +125,7 @@ MapRenderer::~MapRenderer() = default;
 // time. Skip the thread guard here to avoid false assertion failures.
 
 void MapRenderer::updateParameters(std::shared_ptr<mbgl::UpdateParameters> parameters) {
-    const std::lock_guard<std::mutex> lock(m_updateMutex);
+    const std::scoped_lock lock(m_updateMutex);
     m_updateParameters = std::move(parameters);
 }
 
@@ -145,7 +145,7 @@ void MapRenderer::render() {
     std::shared_ptr<mbgl::UpdateParameters> params;
     {
         // Lock on the parameters
-        const std::lock_guard<std::mutex> lock(m_updateMutex);
+        const std::scoped_lock lock(m_updateMutex);
 
         // UpdateParameters should always be available when rendering.
         assert(m_updateParameters);

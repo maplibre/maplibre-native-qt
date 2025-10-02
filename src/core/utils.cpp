@@ -59,7 +59,7 @@ namespace QMapLibre {
     Returns the \ref RendererType the library was built with.
 */
 RendererType supportedRendererType() {
-#if defined(MLN_RENDER_BACKEND_VULKAN)
+#ifdef MLN_RENDER_BACKEND_VULKAN
     return RendererType::Vulkan;
 #elif defined(MLN_RENDER_BACKEND_METAL)
     return RendererType::Metal;

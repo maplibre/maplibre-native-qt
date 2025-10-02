@@ -1477,7 +1477,7 @@ void Map::setFilter(const QString &layerId, const QVariant &filter) {
     <a href="https://maplibre.org/maplibre-style-spec/types/">MapLibre Style Spec</a>.
 */
 QVariant Map::getFilter(const QString &layerId) const {
-    mbgl::style::Layer *layer = d_ptr->mapObj->getStyle().getLayer(layerId.toStdString());
+    const mbgl::style::Layer *layer = d_ptr->mapObj->getStyle().getLayer(layerId.toStdString());
     if (layer == nullptr) {
         qWarning() << "Layer not found:" << layerId;
         return {};
@@ -1699,7 +1699,7 @@ MapPrivate::MapPrivate(Map *map, const Settings &settings, const QSize &size, qr
 MapPrivate::~MapPrivate() = default;
 
 void MapPrivate::update(std::shared_ptr<mbgl::UpdateParameters> parameters) {
-    const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
+    const std::scoped_lock lock(m_mapRendererMutex);
 
     m_updateParameters = std::move(parameters);
 
@@ -1715,7 +1715,7 @@ void MapPrivate::update(std::shared_ptr<mbgl::UpdateParameters> parameters) {
 void MapPrivate::setObserver(mbgl::RendererObserver &observer) {
     m_rendererObserver = std::make_unique<RendererObserver>(*mbgl::util::RunLoop::Get(), observer);
 
-    const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
+    const std::scoped_lock lock(m_mapRendererMutex);
 
     if (m_mapRenderer != nullptr) {
         m_mapRenderer->setObserver(m_rendererObserver.get());
@@ -1723,7 +1723,7 @@ void MapPrivate::setObserver(mbgl::RendererObserver &observer) {
 }
 
 void MapPrivate::createRenderer(void *nativeTargetPtr) {
-    const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
+    const std::scoped_lock lock(m_mapRendererMutex);
 
     if (m_mapRenderer != nullptr) {
         return;
@@ -1753,7 +1753,7 @@ void MapPrivate::createRendererWithQtVulkanDevice(void *windowPtr,
                                                   void *physicalDevice,
                                                   void *device,
                                                   uint32_t graphicsQueueIndex) {
-    const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
+    const std::scoped_lock lock(m_mapRendererMutex);
 
     if (m_mapRenderer != nullptr) {
         return; // already created
@@ -1780,13 +1780,13 @@ void MapPrivate::createRendererWithQtVulkanDevice(void *windowPtr,
 #endif
 
 void MapPrivate::destroyRenderer() {
-    const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
+    const std::scoped_lock lock(m_mapRendererMutex);
 
     m_mapRenderer.reset();
 }
 
 void MapPrivate::render() {
-    const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
+    const std::scoped_lock lock(m_mapRendererMutex);
 
 #ifdef MLN_RENDERER_DEBUGGING
     qDebug() << "MapPrivate::render() - Called";
@@ -1812,7 +1812,7 @@ void MapPrivate::render() {
 }
 
 void MapPrivate::updateRenderer(const QSize &size, qreal pixelRatio, quint32 fbo) {
-    const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
+    const std::scoped_lock lock(m_mapRendererMutex);
 
     if (m_mapRenderer == nullptr) {
 #ifdef MLN_RENDERER_DEBUGGING

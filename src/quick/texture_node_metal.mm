@@ -49,7 +49,7 @@ void TextureNodeMetal::resize(const QSize &size, qreal pixelRatio, QQuickWindow 
 }
 
 void TextureNodeMetal::render(QQuickWindow *window) {
-    QSGRendererInterface *ri = window->rendererInterface();
+    const QSGRendererInterface *ri = window->rendererInterface();
     if (ri == nullptr) {
         qWarning() << "TextureNodeMetal::render() - No renderer interface";
         return;
@@ -163,7 +163,7 @@ void TextureNodeMetal::render(QQuickWindow *window) {
     window->endExternalCommands();
 
     // Get the native texture from MapLibre
-    void *nativeTex = m_map->nativeColorTexture();
+    const void *nativeTex = m_map->nativeColorTexture();
     if (nativeTex == nullptr) {
         qWarning() << "TextureNodeMetal::render() - No native texture available";
         return;

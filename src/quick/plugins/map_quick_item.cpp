@@ -199,7 +199,7 @@ QSGNode *MapQuickItem::updateMapNode(QSGNode *node) {
         qDebug() << "MapQuickItem::updatePaintNode() - Creating new node for size" << viewportSize;
 #endif
 
-#if defined(MLN_RENDER_BACKEND_OPENGL)
+#ifdef MLN_RENDER_BACKEND_OPENGL
         // OpenGL context check
         QOpenGLContext *currentCtx = QOpenGLContext::currentContext();
         if (currentCtx == nullptr) {

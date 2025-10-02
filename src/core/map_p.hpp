@@ -105,12 +105,12 @@ private:
 };
 
 inline void *MapPrivate::currentDrawableTexture() const {
-    std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
+    std::scoped_lock lock(m_mapRendererMutex);
     return m_mapRenderer ? m_mapRenderer->currentDrawableTexture() : nullptr;
 }
 
 inline void MapPrivate::setCurrentDrawable(void *tex) {
-    std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
+    std::scoped_lock lock(m_mapRendererMutex);
     if (m_mapRenderer) {
         m_mapRenderer->setCurrentDrawable(tex);
     }
@@ -118,14 +118,14 @@ inline void MapPrivate::setCurrentDrawable(void *tex) {
 
 #if defined(MLN_RENDER_BACKEND_VULKAN)
 inline mbgl::vulkan::Texture2D *MapPrivate::getVulkanTexture() const {
-    std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
+    std::scoped_lock lock(m_mapRendererMutex);
     return m_mapRenderer ? m_mapRenderer->getVulkanTexture() : nullptr;
 }
 #endif
 
 #if defined(MLN_RENDER_BACKEND_OPENGL)
 inline unsigned int MapPrivate::getFramebufferTextureId() const {
-    std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
+    std::scoped_lock lock(m_mapRendererMutex);
     return m_mapRenderer ? m_mapRenderer->getFramebufferTextureId() : 0;
 }
 #endif

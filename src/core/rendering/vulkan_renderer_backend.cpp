@@ -28,7 +28,7 @@ constexpr uint32_t DefaultSize{256};
 
 class QtVulkanRenderableResource final : public mbgl::vulkan::SurfaceRenderableResource {
 public:
-    QtVulkanRenderableResource(QMapLibre::VulkanRendererBackend& backend_, mbgl::Size initialSize)
+    QtVulkanRenderableResource(QMapLibre::VulkanRendererBackend &backend_, mbgl::Size initialSize)
         : mbgl::vulkan::SurfaceRenderableResource(backend_),
           backend(backend_),
           size(initialSize) {
@@ -73,7 +73,7 @@ public:
 
     [[nodiscard]] mbgl::Size getSize() const { return size; }
     [[nodiscard]] mbgl::Size getBackendSize() const {
-        return static_cast<const mbgl::gfx::Renderable&>(backend).getSize();
+        return static_cast<const mbgl::gfx::Renderable &>(backend).getSize();
     }
 
     // Override bind to ensure we have an offscreen texture
@@ -117,7 +117,7 @@ public:
         }
     }
 
-    [[nodiscard]] const vk::UniqueFramebuffer& getFramebuffer() const override { return framebuffer; }
+    [[nodiscard]] const vk::UniqueFramebuffer &getFramebuffer() const override { return framebuffer; }
 
     void swap() override {
         // For offscreen rendering, we need to ensure commands are submitted
@@ -129,7 +129,7 @@ public:
             auto texture = offscreenTexture->getTexture();
             if (texture) {
                 // The barrier will be added by the texture itself when needed
-                (void)static_cast<mbgl::vulkan::Texture2D&>(*texture);
+                (void)static_cast<mbgl::vulkan::Texture2D &>(*texture);
             }
         }
 
@@ -147,7 +147,7 @@ private:
             return;
         }
 
-        auto& vulkanTexture = static_cast<mbgl::vulkan::Texture2D&>(*texture);
+        auto &vulkanTexture = static_cast<mbgl::vulkan::Texture2D &>(*texture);
 
         // Initialize depth/stencil resources if needed
         initDepthStencil();
@@ -189,7 +189,7 @@ private:
             renderPassCreateInfo, nullptr, backend.getDispatcher());
 
         // Create framebuffer with both color and depth attachments
-        const auto& colorImageView = vulkanTexture.getVulkanImageView();
+        const auto &colorImageView = vulkanTexture.getVulkanImageView();
         const std::array<vk::ImageView, 2> imageViews = {colorImageView.get(), depthAllocation->imageView.get()};
 
         // Use texture actual size for framebuffer (which might be 1x1 if size was 0x0)
@@ -214,7 +214,7 @@ private:
         // No surface needed for offscreen rendering
     }
 
-    QMapLibre::VulkanRendererBackend& backend;
+    QMapLibre::VulkanRendererBackend &backend;
     std::unique_ptr<mbgl::gfx::OffscreenTexture> offscreenTexture;
     vk::UniqueFramebuffer framebuffer;
     mbgl::Size size{DefaultSize, DefaultSize};
@@ -224,7 +224,7 @@ private:
 
 namespace QMapLibre {
 
-VulkanRendererBackend::VulkanRendererBackend(QWindow* window)
+VulkanRendererBackend::VulkanRendererBackend(QWindow *window)
     : mbgl::vulkan::RendererBackend(mbgl::gfx::ContextMode::Shared),
       mbgl::vulkan::Renderable(
           mbgl::Size{DefaultSize, DefaultSize},
@@ -234,7 +234,7 @@ VulkanRendererBackend::VulkanRendererBackend(QWindow* window)
         throw std::runtime_error("Window is null");
     }
 
-    QVulkanInstance* qtInstance = window->vulkanInstance();
+    QVulkanInstance *qtInstance = window->vulkanInstance();
 
     if (qtInstance == nullptr) {
         // Create our own instance for Qt Quick windows
@@ -245,7 +245,7 @@ VulkanRendererBackend::VulkanRendererBackend(QWindow* window)
     initializeWithQtInstance(qtInstance);
 }
 
-VulkanRendererBackend::VulkanRendererBackend(QVulkanInstance* qtInstance)
+VulkanRendererBackend::VulkanRendererBackend(QVulkanInstance *qtInstance)
     : mbgl::vulkan::RendererBackend(mbgl::gfx::ContextMode::Unique),
       mbgl::vulkan::Renderable(
           mbgl::Size{DefaultSize, DefaultSize},
@@ -255,7 +255,7 @@ VulkanRendererBackend::VulkanRendererBackend(QVulkanInstance* qtInstance)
 }
 
 // Constructor that reuses Qt's Vulkan device for zero-copy texture sharing
-VulkanRendererBackend::VulkanRendererBackend(QWindow* window,
+VulkanRendererBackend::VulkanRendererBackend(QWindow *window,
                                              VkPhysicalDevice qtPhysicalDevice,
                                              VkDevice qtDevice,
                                              uint32_t qtGraphicsQueueIndex)
@@ -272,7 +272,7 @@ VulkanRendererBackend::VulkanRendererBackend(QWindow* window,
         throw std::runtime_error("Invalid Qt Vulkan resources");
     }
 
-    QVulkanInstance* qtInstance = window->vulkanInstance();
+    QVulkanInstance *qtInstance = window->vulkanInstance();
     if (qtInstance == nullptr) {
         throw std::runtime_error("Window does not have a Vulkan instance");
     }
@@ -282,7 +282,7 @@ VulkanRendererBackend::VulkanRendererBackend(QWindow* window,
 
 VulkanRendererBackend::~VulkanRendererBackend() = default;
 
-void VulkanRendererBackend::initializeWithQtInstance(QVulkanInstance* qtInstance) {
+void VulkanRendererBackend::initializeWithQtInstance(QVulkanInstance *qtInstance) {
     m_qtInstance = qtInstance;
 
     VkInstance rawInstance = qtInstance->vkInstance();
@@ -300,7 +300,7 @@ void VulkanRendererBackend::init() {
     }
 
     // Initialize dispatcher with Qt's function resolution
-    QVulkanFunctions* f = m_qtInstance->functions();
+    QVulkanFunctions *f = m_qtInstance->functions();
     if (f != nullptr) {
         auto vkGetInstanceProcAddr = m_qtInstance->getInstanceProcAddr("vkGetInstanceProcAddr");
         if (vkGetInstanceProcAddr != nullptr) {
@@ -339,17 +339,17 @@ void VulkanRendererBackend::initInstance() {
                                   vk::ObjectDestroy<vk::NoParent, vk::DispatchLoaderDynamic>(nullptr, dispatcher));
 
     // Check if debug utils extension is available
-    const auto& extensions = m_qtInstance->supportedExtensions();
+    const auto &extensions = m_qtInstance->supportedExtensions();
     debugUtilsEnabled = std::ranges::any_of(
-        extensions, [](const auto& ext) { return ext.name == VK_EXT_DEBUG_UTILS_EXTENSION_NAME; });
+        extensions, [](const auto &ext) { return ext.name == VK_EXT_DEBUG_UTILS_EXTENSION_NAME; });
 }
 
 void VulkanRendererBackend::initSurface() {
     // For offscreen rendering, we don't need a surface
 }
 
-std::vector<const char*> VulkanRendererBackend::getDeviceExtensions() {
-    std::vector<const char*> extensions;
+std::vector<const char *> VulkanRendererBackend::getDeviceExtensions() {
+    std::vector<const char *> extensions;
 
 #ifdef __APPLE__
     extensions.push_back("VK_KHR_portability_subset");
@@ -402,10 +402,10 @@ mbgl::Size VulkanRendererBackend::getSize() const {
     return this->getResource<QtVulkanRenderableResource>().getSize();
 }
 
-mbgl::vulkan::Texture2D* VulkanRendererBackend::getOffscreenTexture() const {
+mbgl::vulkan::Texture2D *VulkanRendererBackend::getOffscreenTexture() const {
     // Try to return the current drawable if it's a Texture2D
     if (m_currentDrawable != nullptr) {
-        return static_cast<mbgl::vulkan::Texture2D*>(m_currentDrawable);
+        return static_cast<mbgl::vulkan::Texture2D *>(m_currentDrawable);
     }
     return nullptr;
 }
