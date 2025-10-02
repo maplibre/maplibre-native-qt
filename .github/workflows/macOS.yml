@@ -23,24 +23,24 @@ on:
       - ".github/workflows/source-tarball.yml"
       - ".github/workflows/Windows.yml"
 
-  # pull_request:
-  #   branches:
-  #     - main
-  #   paths-ignore:
-  #     - ".gitignore"
-  #     - "README.md"
-  #     - "docs/**"
-  #     # ignore CI for other platforms
-  #     - ".github/FUNDING.yml"
-  #     - ".github/actions/**"
-  #     - ".github/workflows/Android.yml"
-  #     - ".github/workflows/CI-cache-cleanup.yml"
-  #     - ".github/workflows/docs-test.yml"
-  #     - ".github/workflows/gh-pages-docs.yml"
-  #     - ".github/workflows/iOS.yml"
-  #     - ".github/workflows/Linux.yml"
-  #     - ".github/workflows/source-tarball.yml"
-  #     - ".github/workflows/Windows.yml"
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - ".gitignore"
+      - "README.md"
+      - "docs/**"
+      # ignore CI for other platforms
+      - ".github/FUNDING.yml"
+      - ".github/actions/**"
+      - ".github/workflows/Android.yml"
+      - ".github/workflows/CI-cache-cleanup.yml"
+      - ".github/workflows/docs-test.yml"
+      - ".github/workflows/gh-pages-docs.yml"
+      - ".github/workflows/iOS.yml"
+      - ".github/workflows/Linux.yml"
+      - ".github/workflows/source-tarball.yml"
+      - ".github/workflows/Windows.yml"
 
 concurrency:
   # cancel jobs on PRs only
@@ -55,28 +55,28 @@ jobs:
       matrix:
         include:
           - qt_series: 6
-            qt_version: 6.8.3
+            qt_version: 6.9.3
             qt_modules: qtlocation qtpositioning
             preset: macOS-ccache
             compiler: default
-            runs_on: macos-14
+            runs_on: macos-15
           - qt_series: 6
-            qt_version: 6.9.1
+            qt_version: 6.10.0
             qt_modules: qtlocation qtpositioning
             preset: macOS-ccache
             compiler: default
-            runs_on: macos-14
+            runs_on: macos-15
           - qt_series: 6
-            qt_version: 6.9.1
+            qt_version: 6.10.0
             preset: macOS-ccache
             compiler: static
-            runs_on: macos-14
-          - qt_series: 6
-            qt_version: 6.9.1
-            qt_modules: qtlocation qtpositioning
-            preset: macOS-clang-tidy
-            compiler: llvm
-            runs_on: macos-14
+            runs_on: macos-15
+          # - qt_series: 6
+          #   qt_version: 6.10.0
+          #   qt_modules: qtlocation qtpositioning
+          #   preset: macOS-clang-tidy
+          #   compiler: llvm
+          #   runs_on: macos-15
 
     env:
       COMPILER: ${{ matrix.compiler }}
@@ -159,12 +159,19 @@ jobs:
           export QMapLibre_DIR="$GITHUB_WORKSPACE/install/maplibre-native-qt"
           cmake --workflow --preset default
 
-      - name: Build QtWidgets Example
+      - name: Build QtQuick Standalone Example
         if: matrix.qt_series == 6 && matrix.compiler == 'default'
-        working-directory: source/examples/widgets
+        working-directory: source/examples/quick-standalone
         run: |
           export QMapLibre_DIR="$GITHUB_WORKSPACE/install/maplibre-native-qt"
           cmake --workflow --preset default
+
+      # - name: Build QtWidgets Example
+      #   if: matrix.qt_series == 6 && matrix.compiler == 'default'
+      #   working-directory: source/examples/widgets
+      #   run: |
+      #     export QMapLibre_DIR="$GITHUB_WORKSPACE/install/maplibre-native-qt"
+      #     cmake --workflow --preset default
 
       - name: Upload installation
         if: matrix.compiler == 'default' || matrix.compiler == 'static'
@@ -183,23 +190,20 @@ jobs:
   release:
     name: Release
     if: github.ref_type == 'tag'
-    runs-on: macos-14
+    runs-on: macos-15
     needs: build-and-test
     permissions:
       contents: write
     strategy:
       matrix:
         include:
-          - qt_version: 5.15.2
+          - qt_version: 6.9.3
             compiler: default
             suffix: ""
-          - qt_version: 6.8.3
+          - qt_version: 6.10.0
             compiler: default
             suffix: ""
-          - qt_version: 6.9.1
-            compiler: default
-            suffix: ""
-          - qt_version: 6.9.1
+          - qt_version: 6.10.0
             compiler: static
             suffix: "_static"
 

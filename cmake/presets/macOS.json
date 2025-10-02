@@ -14,7 +14,6 @@
         "CMAKE_OSX_DEPLOYMENT_TARGET": "12.0",
         "CMAKE_POLICY_VERSION_MINIMUM": "3.19",
         "MLN_WITH_METAL": "ON",
-        "MLN_WITH_OPENGL": "OFF",
         "MLN_QT_WITH_RENDERER_DEBUGGING": "OFF"
       }
     },
