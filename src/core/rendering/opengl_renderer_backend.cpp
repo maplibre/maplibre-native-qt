@@ -15,6 +15,8 @@
 
 namespace QMapLibre {
 
+/*! \cond PRIVATE */
+
 class QtOpenGLRenderableResource final : public mbgl::gl::RenderableResource {
 public:
     explicit QtOpenGLRenderableResource(OpenGLRendererBackend &backend_)
@@ -188,5 +190,7 @@ unsigned int OpenGLRendererBackend::getFramebufferTextureId() const {
     // Always return the texture if we have one, regardless of m_fbo
     return m_colorTexture;
 }
+
+/*! \endcond PRIVATE */
 
 } // namespace QMapLibre

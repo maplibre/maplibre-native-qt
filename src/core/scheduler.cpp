@@ -11,6 +11,8 @@
 
 namespace QMapLibre {
 
+/*! \cond PRIVATE */
+
 Scheduler::Scheduler() = default;
 
 Scheduler::~Scheduler() {
@@ -64,5 +66,7 @@ void Scheduler::waitForEmpty(const mbgl::util::SimpleIdentity /* tag */) {
 
     assert(m_taskQueue.size() + pendingItems == 0);
 }
+
+/*! \endcond PRIVATE */
 
 } // namespace QMapLibre
