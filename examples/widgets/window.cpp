@@ -15,12 +15,12 @@ Window::Window(MainWindow *mainWindow)
     : QWidget(mainWindow),
       m_mainWindowRef(mainWindow) {
     QMapLibre::Styles styles;
-    styles.emplace_back("https://demotiles.maplibre.org/style.json", "MapLibre Demo Style");
+    styles.emplace_back("https://demotiles.maplibre.org/style.json", "Demo Tiles");
 
     QMapLibre::Settings settings;
     settings.setStyles(styles);
-    settings.setDefaultZoom(1);
-    settings.setDefaultCoordinate(QMapLibre::Coordinate(10.0, 50.0));
+    settings.setDefaultZoom(5);
+    settings.setDefaultCoordinate(QMapLibre::Coordinate(43, 21));
 
     m_glWidget = std::make_unique<QMapLibre::GLWidget>(settings);
 
