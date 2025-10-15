@@ -5,8 +5,10 @@
 #include "texture_node_vulkan_p.hpp"
 
 #ifdef Q_OS_ANDROID
+#define VK_USE_PLATFORM_ANDROID_KHR
 #include <vulkan/vulkan_android.h>
 #endif
+#include <vulkan/vulkan.hpp>
 
 #include <mbgl/vulkan/texture2d.hpp>
 
@@ -62,13 +64,13 @@ void TextureNodeVulkan::render(QQuickWindow *window) {
         auto *ri = window->rendererInterface();
         if (ri != nullptr) {
             // Qt returns pointers to the handles, not the handles themselves
-            auto *qtPhysicalDevicePtr = reinterpret_cast<VkPhysicalDevice *>(
+            auto *qtPhysicalDevicePtr = reinterpret_cast<vk::PhysicalDevice *>(
                 ri->getResource(window, QSGRendererInterface::PhysicalDeviceResource));
-            auto *qtDevicePtr = reinterpret_cast<VkDevice *>(
+            auto *qtDevicePtr = reinterpret_cast<vk::Device *>(
                 ri->getResource(window, QSGRendererInterface::DeviceResource));
 
-            VkPhysicalDevice qtPhysicalDevice = qtPhysicalDevicePtr != nullptr ? *qtPhysicalDevicePtr : VK_NULL_HANDLE;
-            VkDevice qtDevice = qtDevicePtr != nullptr ? *qtDevicePtr : VK_NULL_HANDLE;
+            vk::PhysicalDevice qtPhysicalDevice = qtPhysicalDevicePtr != nullptr ? *qtPhysicalDevicePtr : nullptr;
+            vk::Device qtDevice = qtDevicePtr != nullptr ? *qtDevicePtr : nullptr;
 
             if (qtPhysicalDevice != nullptr && qtDevice != nullptr) {
                 // TODO: We need to get the graphics queue index from Qt
@@ -105,26 +107,27 @@ void TextureNodeVulkan::render(QQuickWindow *window) {
     auto *vulkanTexture = m_map->getVulkanTexture();
     if (vulkanTexture != nullptr) {
         // Get Vulkan image and layout
-        VkImage vkImage = vulkanTexture->getVulkanImage();
-        auto imageLayout = static_cast<VkImageLayout>(vulkanTexture->getVulkanImageLayout());
+        VkImage vulkanImage{vulkanTexture->getVulkanImage()};
+        const auto imageLayout = static_cast<VkImageLayout>(vulkanTexture->getVulkanImageLayout());
 
-        // Check if we have a valid VkImage
-        if (vkImage != VK_NULL_HANDLE) {
+        // Check if we have a valid vk::Image
+        if (vulkanImage != VK_NULL_HANDLE) {
             QSGTexture *qtTexture = nullptr;
 
             // Check if we can reuse existing texture wrapper
-            if (m_lastVkImage == vkImage && m_qtTextureWrapper && m_lastTextureSize.width() == physicalSize.width() &&
+            if (m_lastVulkanImage == vulkanImage && m_qtTextureWrapper &&
+                m_lastTextureSize.width() == physicalSize.width() &&
                 m_lastTextureSize.height() == physicalSize.height()) {
                 // Reuse existing wrapper for better performance
                 qtTexture = m_qtTextureWrapper;
             } else {
                 // Create new wrapper
                 qtTexture = QNativeInterface::QSGVulkanTexture::fromNative(
-                    vkImage, imageLayout, window, physicalSize, QQuickWindow::TextureHasAlphaChannel);
+                    vulkanImage, imageLayout, window, physicalSize, QQuickWindow::TextureHasAlphaChannel);
                 if (qtTexture != nullptr) {
                     // Store for reuse
                     m_qtTextureWrapper = qtTexture;
-                    m_lastVkImage = vkImage;
+                    m_lastVulkanImage = vulkanImage;
                     m_lastTextureSize = physicalSize;
                 }
             }

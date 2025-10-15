@@ -27,8 +27,8 @@ public:
     explicit VulkanRendererBackend(QVulkanInstance *instance);
     // Constructor that uses Qt's Vulkan device
     VulkanRendererBackend(QWindow *window,
-                          VkPhysicalDevice qtPhysicalDevice,
-                          VkDevice qtDevice,
+                          vk::PhysicalDevice qtPhysicalDevice,
+                          vk::Device qtDevice,
                           uint32_t qtGraphicsQueueIndex);
     VulkanRendererBackend(const VulkanRendererBackend &) = delete;
     VulkanRendererBackend &operator=(const VulkanRendererBackend &) = delete;
@@ -70,8 +70,8 @@ private:
     QWindow *m_window{nullptr};                       // Qt Quick window
 
     // Qt device info
-    VkPhysicalDevice m_qtPhysicalDevice{VK_NULL_HANDLE};
-    VkDevice m_qtDevice{VK_NULL_HANDLE};
+    vk::PhysicalDevice m_qtPhysicalDevice{nullptr};
+    vk::Device m_qtDevice{nullptr};
     uint32_t m_qtGraphicsQueueIndex{0};
     bool m_useQtDevice{false};
 

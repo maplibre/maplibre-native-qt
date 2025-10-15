@@ -23,7 +23,7 @@ public:
 private:
     bool m_rendererBound{};
     QPointer<QSGTexture> m_qtTextureWrapper;
-    VkImage m_lastVkImage{VK_NULL_HANDLE};
+    VkImage m_lastVulkanImage{VK_NULL_HANDLE};
     QSize m_lastTextureSize;
 };
 

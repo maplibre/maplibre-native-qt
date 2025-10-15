@@ -20,8 +20,8 @@
 #endif
 
 #ifdef MLN_RENDER_BACKEND_VULKAN
-#include <vulkan/vulkan.h>
 #include <QtGui/QWindow>
+#include <vulkan/vulkan.hpp>
 #endif
 
 namespace {
