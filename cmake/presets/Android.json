@@ -3,63 +3,120 @@
   "include": ["common.json"],
   "configurePresets": [
     {
-      "name": "Android",
-      "displayName": "Android configuration using Qt6",
+      "name": "Android-OpenGL",
+      "displayName": "Android configuration using Qt6 and OpenGL",
       "generator": "Ninja",
-      "binaryDir": "${sourceParentDir}/build/qt6-Android",
+      "binaryDir": "${sourceParentDir}/build/qt6-Android-OpenGL",
       "toolchainFile": "$penv{QT_ROOT_DIR}/lib/cmake/Qt6/qt.toolchain.cmake",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "RelWithDebInfo",
         "CMAKE_POLICY_VERSION_MINIMUM": "3.19",
-        "ANDROID_ABI": "$penv{ANDROID_ABI}"
+        "ANDROID_ABI": "$penv{ANDROID_ABI}",
+        "MLN_WITH_OPENGL": "ON"
       }
     },
     {
-      "name": "Android-ccache",
-      "displayName": "Android configuration using Qt6 and ccache",
-      "inherits": ["dev", "ccache", "Android"]
+      "name": "Android-Vulkan",
+      "displayName": "Android configuration using Qt6 and Vulkan",
+      "generator": "Ninja",
+      "binaryDir": "${sourceParentDir}/build/qt6-Android-Vulkan",
+      "toolchainFile": "$penv{QT_ROOT_DIR}/lib/cmake/Qt6/qt.toolchain.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_POLICY_VERSION_MINIMUM": "3.19",
+        "ANDROID_ABI": "$penv{ANDROID_ABI}",
+        "MLN_WITH_VULKAN": "ON"
+      }
+    },
+    {
+      "name": "Android-OpenGL-ccache",
+      "displayName": "Android configuration using Qt6, OpenGL and ccache",
+      "inherits": ["dev", "ccache", "Android-OpenGL"]
+    },
+    {
+      "name": "Android-Vulkan-ccache",
+      "displayName": "Android configuration using Qt6, Vulkan and ccache",
+      "inherits": ["dev", "ccache", "Android-Vulkan"]
     }
   ],
   "buildPresets": [
     {
-      "name": "Android",
-      "displayName": "Android build using Qt6",
-      "configurePreset": "Android"
+      "name": "Android-OpenGL",
+      "displayName": "Android build using Qt6 and OpenGL",
+      "configurePreset": "Android-OpenGL"
     },
     {
-      "name": "Android-ccache",
-      "displayName": "Android build using Qt6 and ccache",
-      "configurePreset": "Android-ccache"
+      "name": "Android-Vulkan",
+      "displayName": "Android build using Qt6 and Vulkan",
+      "configurePreset": "Android-Vulkan"
+    },
+    {
+      "name": "Android-OpenGL-ccache",
+      "displayName": "Android build using Qt6, OpenGL and ccache",
+      "configurePreset": "Android-OpenGL-ccache"
+    },
+    {
+      "name": "Android-Vulkan-ccache",
+      "displayName": "Android build using Qt6, Vulkan and ccache",
+      "configurePreset": "Android-Vulkan-ccache"
     }
   ],
   "packagePresets": [
     {
-      "name": "Android",
-      "displayName": "Android package using Qt6",
-      "configurePreset": "Android"
+      "name": "Android-OpenGL",
+      "displayName": "Android package using Qt6 and OpenGL",
+      "configurePreset": "Android-OpenGL"
     },
     {
-      "name": "Android-ccache",
-      "displayName": "Android package using Qt6 and ccache",
-      "configurePreset": "Android-ccache"
+      "name": "Android-Vulkan",
+      "displayName": "Android package using Qt6 and Vulkan",
+      "configurePreset": "Android-Vulkan"
+    },
+    {
+      "name": "Android-OpenGL-ccache",
+      "displayName": "Android package using Qt6, OpenGL and ccache",
+      "configurePreset": "Android-OpenGL-ccache"
+    },
+    {
+      "name": "Android-Vulkan-ccache",
+      "displayName": "Android package using Qt6, Vulkan and ccache",
+      "configurePreset": "Android-Vulkan-ccache"
     }
   ],
   "workflowPresets": [
     {
-      "name": "Android-ccache",
-      "displayName": "Android workflow using Qt6 and ccache",
+      "name": "Android-OpenGL-ccache",
+      "displayName": "Android workflow using Qt6, OpenGL and ccache",
       "steps": [
         {
           "type": "configure",
-          "name": "Android-ccache"
+          "name": "Android-OpenGL-ccache"
         },
         {
           "type": "build",
-          "name": "Android-ccache"
+          "name": "Android-OpenGL-ccache"
         },
         {
           "type": "package",
-          "name": "Android-ccache"
+          "name": "Android-OpenGL-ccache"
+        }
+      ]
+    },
+    {
+      "name": "Android-Vulkan-ccache",
+      "displayName": "Android workflow using Qt6, Vulkan and ccache",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "Android-Vulkan-ccache"
+        },
+        {
+          "type": "build",
+          "name": "Android-Vulkan-ccache"
+        },
+        {
+          "type": "package",
+          "name": "Android-Vulkan-ccache"
         }
       ]
     }

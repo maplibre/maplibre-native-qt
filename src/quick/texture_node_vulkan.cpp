@@ -4,13 +4,15 @@
 
 #include "texture_node_vulkan_p.hpp"
 
+#ifdef Q_OS_ANDROID
+#include <vulkan/vulkan_android.h>
+#endif
+
 #include <mbgl/vulkan/texture2d.hpp>
 
 #include <QtCore/QDebug>
 #include <QtCore/QPointer>
 #include <QtQuick/QSGRendererInterface>
-
-#include <vulkan/vulkan.h>
 
 namespace {
 constexpr int DefaultSize{64};

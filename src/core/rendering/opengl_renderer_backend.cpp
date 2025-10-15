@@ -122,8 +122,13 @@ void OpenGLRendererBackend::updateRenderer(const mbgl::Size &newSize, uint32_t f
         gl->glBindTexture(GL_TEXTURE_2D, m_colorTexture);
 
         // Set up texture parameters for framebuffer use with alpha
-        // Use GL_RGBA8 for internal format to ensure full alpha support
+        // Prefer GL_RGBA8 for desktop or OpenGL ES 3.0+, but fall back to
+        // GL_RGBA when GL_RGBA8 is not available (e.g. GLES2 on Android).
+#ifdef GL_RGBA8
         gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+#else
+        gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+#endif
         // Use linear filtering for smooth rendering
         // This is especially important for overzooming/underzooming and SDF text
         gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -141,9 +146,18 @@ void OpenGLRendererBackend::updateRenderer(const mbgl::Size &newSize, uint32_t f
                 gl->glGenRenderbuffers(1, &m_depthStencilRB);
             }
             gl->glBindRenderbuffer(GL_RENDERBUFFER, m_depthStencilRB);
+#ifdef GL_DEPTH24_STENCIL8
             gl->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+#else
+            gl->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8_OES, width, height);
+#endif
+#ifdef GL_DEPTH_STENCIL_ATTACHMENT
             gl->glFramebufferRenderbuffer(
                 GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_depthStencilRB);
+#else
+            gl->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_depthStencilRB);
+            gl->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_depthStencilRB);
+#endif
 
             // Check framebuffer completeness
             const GLenum status = gl->glCheckFramebufferStatus(GL_FRAMEBUFFER);
