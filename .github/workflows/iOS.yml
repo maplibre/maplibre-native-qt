@@ -112,7 +112,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: iOS_${{ matrix.qt_version }}
-          path: build/qt6-iOS/maplibre-native-qt_*_iOS.tar.bz2
+          path: build/qt6-iOS/maplibre-native-qt_*_iOS_Metal.tar.bz2
 
   release:
     name: Release
@@ -134,6 +134,6 @@ jobs:
       - name: Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: maplibre-native-qt_${{ github.ref_name }}_Qt${{ matrix.qt_version }}_iOS.tar.bz2
+          artifacts: maplibre-native-qt_${{ github.ref_name }}_Qt${{ matrix.qt_version }}_iOS_Metal.tar.bz2
           allowUpdates: true
           draft: true

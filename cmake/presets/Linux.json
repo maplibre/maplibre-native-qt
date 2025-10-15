@@ -7,11 +7,13 @@
       "displayName": "Linux configuration using Qt6 and OpenGL",
       "generator": "Ninja",
       "binaryDir": "${sourceParentDir}/build/qt6-Linux-OpenGL",
-      "toolchainFile": "$penv{QT_ROOT_DIR}/lib64/cmake/Qt6/qt.toolchain.cmake",
+      "toolchainFile": "$penv{QT_ROOT_DIR}/lib/cmake/Qt6/qt.toolchain.cmake",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_POLICY_VERSION_MINIMUM": "3.19",
         "QT_VERSION_MAJOR": "6",
+        "MLN_WITH_OPENGL": "ON",
+        "MLN_QT_WITH_INTERNAL_ICU": "ON",
         "MLN_QT_WITH_RENDERER_DEBUGGING": "OFF"
       }
     },
@@ -20,13 +22,13 @@
       "displayName": "Linux configuration using Qt6 and Vulkan",
       "generator": "Ninja",
       "binaryDir": "${sourceParentDir}/build/qt6-Linux-Vulkan",
-      "toolchainFile": "$penv{QT_ROOT_DIR}/lib64/cmake/Qt6/qt.toolchain.cmake",
+      "toolchainFile": "$penv{QT_ROOT_DIR}/lib/cmake/Qt6/qt.toolchain.cmake",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_POLICY_VERSION_MINIMUM": "3.19",
         "QT_VERSION_MAJOR": "6",
         "MLN_WITH_VULKAN": "ON",
-        "MLN_WITH_OPENGL": "OFF",
+        "MLN_QT_WITH_INTERNAL_ICU": "ON",
         "MLN_QT_WITH_RENDERER_DEBUGGING": "OFF"
       }
     },
@@ -46,6 +48,7 @@
       "inherits": ["Linux-OpenGL-ccache"],
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_MAKE_PROGRAM": "$penv{CMAKE_MAKE_PROGRAM}",
         "MLN_QT_WITH_COVERAGE": "ON",
         "GCOV_PATH": "$penv{GCOV_PATH}"
       }
@@ -239,6 +242,42 @@
         },
         {
           "type": "test",
+          "name": "Linux-Vulkan-ccache"
+        },
+        {
+          "type": "package",
+          "name": "Linux-Vulkan-ccache"
+        }
+      ]
+    },
+    {
+      "name": "Linux-OpenGL-ccache-CI",
+      "displayName": "Linux workflow using Qt6, OpenGL and ccache (no test)",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "Linux-OpenGL-ccache"
+        },
+        {
+          "type": "build",
+          "name": "Linux-OpenGL-ccache"
+        },
+        {
+          "type": "package",
+          "name": "Linux-OpenGL-ccache"
+        }
+      ]
+    },
+    {
+      "name": "Linux-Vulkan-ccache-CI",
+      "displayName": "Linux workflow using Qt6, Vulkan and ccache (no test)",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "Linux-Vulkan-ccache"
+        },
+        {
+          "type": "build",
           "name": "Linux-Vulkan-ccache"
         },
         {
