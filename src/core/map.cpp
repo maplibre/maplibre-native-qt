@@ -12,6 +12,10 @@
 
 #include "rendering/renderer_observer_p.hpp"
 
+#if defined(Q_OS_WINDOWS) && defined(GetObject)
+#undef GetObject
+#endif
+
 #include <mbgl/actor/scheduler.hpp>
 #include <mbgl/annotation/annotation.hpp>
 #include <mbgl/map/camera.hpp>

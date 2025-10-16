@@ -120,6 +120,7 @@ target_compile_definitions(
         $<$<BOOL:${MLN_QT_WITH_RENDERER_DEBUGGING}>:MLN_RENDERER_DEBUGGING=1>
     PRIVATE
         QT_BUILD_MAPLIBRE_CORE_LIB
+        $<$<PLATFORM_ID:Windows>:NOMINMAX>
 )
 
 # Common include directories

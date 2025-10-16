@@ -23,24 +23,24 @@ on:
       - ".github/workflows/macOS.yml"
       - ".github/workflows/source-tarball.yml"
 
-  # pull_request:
-  #   branches:
-  #     - main
-  #   paths-ignore:
-  #     - ".gitignore"
-  #     - "README.md"
-  #     - "docs/**"
-  #     # ignore CI for other platforms
-  #     - ".github/FUNDING.yml"
-  #     - ".github/actions/**"
-  #     - ".github/workflows/Android.yml"
-  #     - ".github/workflows/CI-cache-cleanup.yml"
-  #     - ".github/workflows/docs-test.yml"
-  #     - ".github/workflows/gh-pages-docs.yml"
-  #     - ".github/workflows/iOS.yml"
-  #     - ".github/workflows/Linux.yml"
-  #     - ".github/workflows/macOS.yml"
-  #     - ".github/workflows/source-tarball.yml"
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - ".gitignore"
+      - "README.md"
+      - "docs/**"
+      # ignore CI for other platforms
+      - ".github/FUNDING.yml"
+      - ".github/actions/**"
+      - ".github/workflows/Android.yml"
+      - ".github/workflows/CI-cache-cleanup.yml"
+      - ".github/workflows/docs-test.yml"
+      - ".github/workflows/gh-pages-docs.yml"
+      - ".github/workflows/iOS.yml"
+      - ".github/workflows/Linux.yml"
+      - ".github/workflows/macOS.yml"
+      - ".github/workflows/source-tarball.yml"
 
 concurrency:
   # cancel jobs on PRs only
@@ -52,29 +52,51 @@ env:
 
 jobs:
   build-and-test:
-    name: Build (Qt${{ matrix.qt_version}}, ${{ matrix.arch }})
+    name: Build (Qt${{ matrix.qt_version }}, ${{ matrix.renderer }}, ${{ matrix.arch }})
     runs-on: ${{ matrix.platform }}
     strategy:
       matrix:
         include:
           - qt_series: 6
-            qt_version: 6.8.3
+            qt_version: 6.9.3
             qt_arch: win64_msvc2022_64
             qt_modules: qtlocation qtpositioning
             platform: windows-2022
             arch: msvc2022_64
             compiler: x64
             vsversion: 2022
-            preset: Windows-ccache
+            preset: Windows-OpenGL-ccache
+            renderer: OpenGL
           - qt_series: 6
-            qt_version: 6.9.1
+            qt_version: 6.9.3
             qt_arch: win64_msvc2022_64
             qt_modules: qtlocation qtpositioning
             platform: windows-2022
             arch: msvc2022_64
             compiler: x64
             vsversion: 2022
-            preset: Windows-ccache
+            preset: Windows-Vulkan-ccache
+            renderer: Vulkan
+          - qt_series: 6
+            qt_version: 6.10.0
+            qt_arch: win64_msvc2022_64
+            qt_modules: qtlocation qtpositioning
+            platform: windows-2022
+            arch: msvc2022_64
+            compiler: x64
+            vsversion: 2022
+            preset: Windows-OpenGL-ccache
+            renderer: OpenGL
+          - qt_series: 6
+            qt_version: 6.10.0
+            qt_arch: win64_msvc2022_64
+            qt_modules: qtlocation qtpositioning
+            platform: windows-2022
+            arch: msvc2022_64
+            compiler: x64
+            vsversion: 2022
+            preset: Windows-Vulkan-ccache
+            renderer: Vulkan
 
     env:
       PRESET: ${{ matrix.preset }}
@@ -150,25 +172,33 @@ jobs:
           export QMapLibre_DIR="$GITHUB_WORKSPACE/install/maplibre-native-qt"
           cmake --workflow --preset default
 
-      - name: Build QtWidgets Example
+      - name: Build QtQuick Standalone Example
         if: matrix.qt_series == 6
         shell: bash
-        working-directory: source/examples/widgets
+        working-directory: source/examples/quick-standalone
         run: |
           export QMapLibre_DIR="$GITHUB_WORKSPACE/install/maplibre-native-qt"
           cmake --workflow --preset default
 
+      # - name: Build QtWidgets Example
+      #   if: matrix.qt_series == 6
+      #   shell: bash
+      #   working-directory: source/examples/widgets
+      #   run: |
+      #     export QMapLibre_DIR="$GITHUB_WORKSPACE/install/maplibre-native-qt"
+      #     cmake --workflow --preset default
+
       - name: Upload installation
         uses: actions/upload-artifact@v4
         with:
-          name: Windows_${{ matrix.arch }}_${{ matrix.qt_version }}
-          path: build/qt${{ matrix.qt_series }}-Windows/maplibre-native-qt_*.tar.bz2
+          name: Windows_${{ matrix.arch }}_${{ matrix.qt_version }}_${{ matrix.renderer }}
+          path: build/qt${{ matrix.qt_series }}-Windows-${{ matrix.renderer }}/maplibre-native-qt_*.tar.bz2
 
       - name: Upload examples
         if: matrix.qt_series == 6
         uses: actions/upload-artifact@v4
         with:
-          name: Windows_${{ matrix.arch }}_${{ matrix.qt_version }}_examples
+          name: Windows_${{ matrix.arch }}_${{ matrix.qt_version }}_${{ matrix.renderer }}_examples
           path: build/qt${{ matrix.qt_series }}-example-*/*.tar.bz2
 
   release:
@@ -180,21 +210,19 @@ jobs:
       contents: write
     strategy:
       matrix:
-        include:
-          - qt_version: 6.8.3
-            arch: msvc2022_64
-          - qt_version: 6.9.1
-            arch: msvc2022_64
+        qt_version: [6.9.3, 6.10.0]
+        arch: [msvc2022_64]
+        renderer: [OpenGL, Vulkan]
 
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: Windows_${{ matrix.arch }}_${{ matrix.qt_version }}
+          name: Windows_${{ matrix.arch }}_${{ matrix.qt_version }}_${{ matrix.renderer }}
 
       - name: Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: maplibre-native-qt_${{ github.ref_name }}_Qt${{ matrix.qt_version }}_Windows.tar.bz2
+          artifacts: maplibre-native-qt_${{ github.ref_name }}_Qt${{ matrix.qt_version }}_Windows_${{ matrix.renderer }}.tar.bz2
           allowUpdates: true
           draft: true
