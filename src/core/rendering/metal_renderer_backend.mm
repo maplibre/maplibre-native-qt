@@ -23,14 +23,14 @@ namespace QMapLibre {
 
 namespace {
 
-CA::MetalLayer* createOffscreenMetalLayer() {
-    auto* device = MTL::CreateSystemDefaultDevice();
+CA::MetalLayer *createOffscreenMetalLayer() {
+    auto *device = MTL::CreateSystemDefaultDevice();
     if (!device) {
         qWarning() << "Failed to create Metal device";
         return nullptr;
     }
 
-    auto* layer = CA::MetalLayer::layer();
+    auto *layer = CA::MetalLayer::layer();
     if (!layer) {
         qWarning() << "Failed to create Metal layer";
         device->release();
@@ -40,7 +40,7 @@ CA::MetalLayer* createOffscreenMetalLayer() {
     layer->setDevice(device);
     layer->setPixelFormat(MTL::PixelFormat::PixelFormatBGRA8Unorm);
     layer->setDrawableSize(CGSize{800, 600}); // Default size, will be updated
-    layer->setFramebufferOnly(false); // Allow reading from the texture
+    layer->setFramebufferOnly(false);         // Allow reading from the texture
 
     qDebug() << "Created offscreen Metal layer";
     return layer;
@@ -126,7 +126,7 @@ public:
         auto texSize = mbgl::Size{size.width, size.height};
         if (externalTex && layer) {
             texSize = mbgl::Size{static_cast<uint32_t>(layer->drawableSize().width),
-                                static_cast<uint32_t>(layer->drawableSize().height)};
+                                 static_cast<uint32_t>(layer->drawableSize().height)};
         }
 
         commandBuffer = NS::RetainPtr(commandQueue->commandBuffer());
@@ -224,18 +224,17 @@ private:
 
 MetalRendererBackend::MetalRendererBackend(CA::MetalLayer *layer)
     : mbgl::mtl::RendererBackend(mbgl::gfx::ContextMode::Unique),
-      mbgl::gfx::Renderable(layer ? mbgl::Size{static_cast<uint32_t>(layer->drawableSize().width),
-                                                static_cast<uint32_t>(layer->drawableSize().height)}
-                                   : mbgl::Size{800, 600},
-                            std::make_unique<QtMetalRenderableResource>(*this,
-                                                                        layer ? layer : createOffscreenMetalLayer())) {
+      mbgl::gfx::Renderable(
+          layer ? mbgl::Size{static_cast<uint32_t>(layer->drawableSize().width),
+                             static_cast<uint32_t>(layer->drawableSize().height)}
+                : mbgl::Size{800, 600},
+          std::make_unique<QtMetalRenderableResource>(*this, layer ? layer : createOffscreenMetalLayer())) {
     if (!layer) {
         qDebug() << "MetalRendererBackend: Using offscreen Metal layer for QRhiWidget";
     }
 }
 
 MetalRendererBackend::~MetalRendererBackend() = default;
-
 
 void MetalRendererBackend::setSize(mbgl::Size size_) {
     this->getResource<QtMetalRenderableResource>().setBackendSize(size_);

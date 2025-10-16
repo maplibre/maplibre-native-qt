@@ -28,8 +28,8 @@
 #endif
 
 #if defined(MLN_RENDER_BACKEND_VULKAN)
-#include "rendering/vulkan_renderer_backend_p.hpp"
 #include <vulkan/vulkan.h>
+#include "rendering/vulkan_renderer_backend_p.hpp"
 #endif
 
 namespace QMapLibre {
@@ -75,18 +75,18 @@ public:
 
     // Backend-specific: push latest swap-chain texture into renderer
     void setCurrentDrawable(void *tex);
-    
+
 #if defined(MLN_RENDER_BACKEND_METAL)
     // Get the Metal renderer backend for pixel reading
-    void* getMetalBackend() const;
+    void *getMetalBackend() const;
     // Set the Metal render target for direct rendering to QRhiWidget
-    void setMetalRenderTarget(void* metalTexture);
+    void setMetalRenderTarget(void *metalTexture);
 #endif
 
 #if defined(MLN_RENDER_BACKEND_VULKAN)
     // Set the Vulkan render target for direct rendering to QRhiWidget
-    void setVulkanRenderTarget(void* vulkanImage);
-    void setVulkanRenderTarget(void* vulkanImage, const QSize& imageSize);
+    void setVulkanRenderTarget(void *vulkanImage);
+    void setVulkanRenderTarget(void *vulkanImage, const QSize &imageSize);
     // Helper method to get the texture object for pixel data extraction
     mbgl::vulkan::Texture2D *getVulkanTexture() const;
 #endif
@@ -94,7 +94,7 @@ public:
 #if defined(MLN_RENDER_BACKEND_OPENGL)
     // Helper method to get the OpenGL framebuffer texture ID for direct texture sharing
     unsigned int getFramebufferTextureId() const;
-    void setOpenGLRenderTarget(unsigned int textureId, const QSize& textureSize);
+    void setOpenGLRenderTarget(unsigned int textureId, const QSize &textureSize);
 #endif
 
 public slots:
@@ -137,16 +137,16 @@ inline void MapPrivate::setCurrentDrawable(void *tex) {
 }
 
 #if defined(MLN_RENDER_BACKEND_METAL)
-inline void* MapPrivate::getMetalBackend() const {
+inline void *MapPrivate::getMetalBackend() const {
     std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
     return m_mapRenderer ? m_mapRenderer->getBackend() : nullptr;
 }
 
-inline void MapPrivate::setMetalRenderTarget(void* metalTexture) {
+inline void MapPrivate::setMetalRenderTarget(void *metalTexture) {
     std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
     if (m_mapRenderer) {
-        auto* backend = m_mapRenderer->getBackend();
-        auto* metalBackend = static_cast<MetalRendererBackend*>(backend);
+        auto *backend = m_mapRenderer->getBackend();
+        auto *metalBackend = static_cast<MetalRendererBackend *>(backend);
         if (metalBackend) {
             metalBackend->setExternalRenderTarget(metalTexture);
         }
@@ -155,12 +155,12 @@ inline void MapPrivate::setMetalRenderTarget(void* metalTexture) {
 #endif
 
 #if defined(MLN_RENDER_BACKEND_VULKAN)
-inline void MapPrivate::setVulkanRenderTarget(void* vulkanImage) {
+inline void MapPrivate::setVulkanRenderTarget(void *vulkanImage) {
     std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
     if (m_mapRenderer) {
-        auto* backend = m_mapRenderer->getBackend();
+        auto *backend = m_mapRenderer->getBackend();
         if (backend) {
-            auto* vulkanBackend = static_cast<QMapLibre::VulkanRendererBackend*>(backend);
+            auto *vulkanBackend = static_cast<QMapLibre::VulkanRendererBackend *>(backend);
             if (vulkanBackend) {
                 // Pass the external VkImage to the backend with the current map size
                 // This will be overridden by the widget when it passes the exact texture size
@@ -171,15 +171,15 @@ inline void MapPrivate::setVulkanRenderTarget(void* vulkanImage) {
     }
 }
 
-inline void MapPrivate::setVulkanRenderTarget(void* vulkanImage, const QSize& imageSize) {
+inline void MapPrivate::setVulkanRenderTarget(void *vulkanImage, const QSize &imageSize) {
     std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
     if (m_mapRenderer) {
-        auto* backend = m_mapRenderer->getBackend();
+        auto *backend = m_mapRenderer->getBackend();
         if (backend) {
-            auto* vulkanBackend = static_cast<QMapLibre::VulkanRendererBackend*>(backend);
+            auto *vulkanBackend = static_cast<QMapLibre::VulkanRendererBackend *>(backend);
             if (vulkanBackend) {
                 // Pass the external VkImage to the backend with the exact texture size
-                mbgl::Size textureSize{static_cast<uint32_t>(imageSize.width()), 
+                mbgl::Size textureSize{static_cast<uint32_t>(imageSize.width()),
                                        static_cast<uint32_t>(imageSize.height())};
                 vulkanBackend->setExternalImage(static_cast<VkImage>(vulkanImage), textureSize);
             }
@@ -199,7 +199,7 @@ inline unsigned int MapPrivate::getFramebufferTextureId() const {
     return m_mapRenderer ? m_mapRenderer->getFramebufferTextureId() : 0;
 }
 
-inline void MapPrivate::setOpenGLRenderTarget(unsigned int textureId, const QSize& textureSize) {
+inline void MapPrivate::setOpenGLRenderTarget(unsigned int textureId, const QSize &textureSize) {
     std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
     if (m_mapRenderer) {
         m_mapRenderer->setOpenGLRenderTarget(textureId, textureSize);

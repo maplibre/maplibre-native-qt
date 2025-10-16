@@ -26,16 +26,16 @@ Window::Window(MainWindow *mainWindow)
     m_rhiWidget->setParent(this);
 
     m_layout = std::make_unique<QVBoxLayout>(this);
-    m_layout->setContentsMargins(0, 0, 0, 0);  // Remove margins
-    m_layout->setSpacing(0);  // Remove spacing between widgets
-    
-    m_layout->addWidget(m_rhiWidget, 1);  // Give the map widget stretch factor
-    
+    m_layout->setContentsMargins(0, 0, 0, 0); // Remove margins
+    m_layout->setSpacing(0);                  // Remove spacing between widgets
+
+    m_layout->addWidget(m_rhiWidget, 1); // Give the map widget stretch factor
+
     m_buttonDock = std::make_unique<QPushButton>(tr("Undock"), this);
-    m_buttonDock->setMinimumHeight(40);  // Make button more visible
-    m_buttonDock->setMaximumHeight(40);  // Fixed height for button
+    m_buttonDock->setMinimumHeight(40); // Make button more visible
+    m_buttonDock->setMaximumHeight(40); // Fixed height for button
     connect(m_buttonDock.get(), &QPushButton::clicked, this, &Window::dockUndock);
-    m_layout->addWidget(m_buttonDock.get(), 0);  // No stretch for button
+    m_layout->addWidget(m_buttonDock.get(), 0); // No stretch for button
 
     setLayout(m_layout.get());
 

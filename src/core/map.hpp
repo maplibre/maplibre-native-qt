@@ -189,14 +189,14 @@ public:
     void destroyRenderer();
 
 #if defined(MLN_RENDER_BACKEND_METAL)
-    void setMetalRenderTarget(void* metalTexture);
+    void setMetalRenderTarget(void *metalTexture);
 #endif
 
     void setCurrentDrawable(void *texturePtr);
 
 #ifdef MLN_RENDER_BACKEND_VULKAN
-    void setVulkanRenderTarget(void* vulkanImage);
-    void setVulkanRenderTarget(void* vulkanImage, const QSize& imageSize);
+    void setVulkanRenderTarget(void *vulkanImage);
+    void setVulkanRenderTarget(void *vulkanImage, const QSize &imageSize);
     // Vulkan-specific: get the Vulkan texture object.
     mbgl::vulkan::Texture2D *getVulkanTexture() const;
 
@@ -208,7 +208,7 @@ public:
     // OpenGL-specific: get the OpenGL framebuffer texture ID for direct texture sharing.
     [[nodiscard]] unsigned int getFramebufferTextureId() const;
     // OpenGL-specific: set the render target texture for zero-copy rendering
-    void setOpenGLRenderTarget(unsigned int textureId, const QSize& textureSize);
+    void setOpenGLRenderTarget(unsigned int textureId, const QSize &textureSize);
 #endif
 
 public slots:
@@ -216,7 +216,6 @@ public slots:
     void setConnectionEstablished();
 
 public:
-
     // and renders the map when completed.
     void startStaticRender();
 

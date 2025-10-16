@@ -21,7 +21,7 @@ namespace QMapLibre {
 
 class RenderableResource final : public mbgl::gl::RenderableResource {
 public:
-    explicit RenderableResource(OpenGLRendererBackend& backend_)
+    explicit RenderableResource(OpenGLRendererBackend &backend_)
         : backend(backend_) {}
 
     void bind() override {
@@ -34,7 +34,7 @@ public:
     }
 
 private:
-    OpenGLRendererBackend& backend;
+    OpenGLRendererBackend &backend;
 };
 
 OpenGLRendererBackend::OpenGLRendererBackend(const mbgl::gfx::ContextMode mode)
@@ -42,14 +42,14 @@ OpenGLRendererBackend::OpenGLRendererBackend(const mbgl::gfx::ContextMode mode)
       mbgl::gfx::Renderable({0, 0}, std::make_unique<RenderableResource>(*this)) {}
 
 OpenGLRendererBackend::~OpenGLRendererBackend() {
-    QOpenGLContext* glContext = QOpenGLContext::currentContext();
+    QOpenGLContext *glContext = QOpenGLContext::currentContext();
     if (glContext != nullptr) {
-        QOpenGLFunctions* gl = glContext->functions();
+        QOpenGLFunctions *gl = glContext->functions();
 
         // Don't delete textures we don't own (e.g., from QRhiWidget)
         // We only own textures if we created them ourselves
         // For now, we'll skip deleting m_colorTexture to be safe
-        
+
         // Clean up the depth-stencil renderbuffer if we created one
         if (m_depthStencilRB != 0) {
             gl->glDeleteRenderbuffers(1, &m_depthStencilRB);
@@ -75,7 +75,7 @@ void OpenGLRendererBackend::updateAssumedState() {
 
 void OpenGLRendererBackend::restoreFramebufferBinding() {
     // Check if we have a valid context before trying to bind
-    QOpenGLContext* glContext = QOpenGLContext::currentContext();
+    QOpenGLContext *glContext = QOpenGLContext::currentContext();
     if (!glContext) {
         // No context, can't bind
         return;
@@ -83,7 +83,7 @@ void OpenGLRendererBackend::restoreFramebufferBinding() {
     setFramebufferBinding(m_fbo);
 }
 
-void OpenGLRendererBackend::updateRenderer(const mbgl::Size& newSize, uint32_t fbo) {
+void OpenGLRendererBackend::updateRenderer(const mbgl::Size &newSize, uint32_t fbo) {
     size = newSize;
     const auto width = static_cast<GLsizei>(newSize.width);
     const auto height = static_cast<GLsizei>(newSize.height);
@@ -94,10 +94,10 @@ void OpenGLRendererBackend::updateRenderer(const mbgl::Size& newSize, uint32_t f
 
     // Always update m_fbo to track the current FBO
     m_fbo = fbo;
-    
+
     // If we're rendering to a non-default FBO (like QRhiWidget), we need to flip vertically
     m_flipVertically = (fbo != 0);
-    
+
     // Skip texture creation for default framebuffer
     if (fbo == 0) {
         // For default framebuffer, no texture management needed
@@ -105,17 +105,16 @@ void OpenGLRendererBackend::updateRenderer(const mbgl::Size& newSize, uint32_t f
     }
 
     // Create or recreate the color texture for the framebuffer
-    QOpenGLContext* glContext = QOpenGLContext::currentContext();
+    QOpenGLContext *glContext = QOpenGLContext::currentContext();
     if (glContext != nullptr && newSize.width > 0 && newSize.height > 0) {
-        QOpenGLFunctions* gl = glContext->functions();
+        QOpenGLFunctions *gl = glContext->functions();
 
         // Check if the FBO already has a color attachment (e.g., from QRhiWidget)
         GLint existingColorAttachment = 0;
         gl->glBindFramebuffer(GL_FRAMEBUFFER, fbo);
         gl->glGetFramebufferAttachmentParameteriv(
-            GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-            GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &existingColorAttachment);
-        
+            GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &existingColorAttachment);
+
         // If there's already a color attachment, don't create our own texture
         if (existingColorAttachment != 0) {
             // Don't delete the previous texture if it's the same as the existing one
@@ -123,7 +122,7 @@ void OpenGLRendererBackend::updateRenderer(const mbgl::Size& newSize, uint32_t f
                 gl->glDeleteTextures(1, &m_colorTexture);
             }
             m_colorTexture = existingColorAttachment;
-            
+
             // Make sure depth/stencil buffer exists for the FBO
             if (m_depthStencilRB == 0) {
                 gl->glGenRenderbuffers(1, &m_depthStencilRB);
@@ -132,7 +131,7 @@ void OpenGLRendererBackend::updateRenderer(const mbgl::Size& newSize, uint32_t f
             gl->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
             gl->glFramebufferRenderbuffer(
                 GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_depthStencilRB);
-            
+
             return;
         }
 
@@ -188,8 +187,8 @@ void OpenGLRendererBackend::updateRenderer(const mbgl::Size& newSize, uint32_t f
     }
 }
 
-mbgl::gl::ProcAddress OpenGLRendererBackend::getExtensionFunctionPointer(const char* name) {
-    QOpenGLContext* thisContext = QOpenGLContext::currentContext();
+mbgl::gl::ProcAddress OpenGLRendererBackend::getExtensionFunctionPointer(const char *name) {
+    QOpenGLContext *thisContext = QOpenGLContext::currentContext();
     return thisContext->getProcAddress(name);
 }
 
@@ -204,12 +203,12 @@ unsigned int OpenGLRendererBackend::getFramebufferTextureId() const {
     return m_colorTexture;
 }
 
-void OpenGLRendererBackend::setOpenGLRenderTarget(unsigned int textureId, const QSize& textureSize) {
+void OpenGLRendererBackend::setOpenGLRenderTarget(unsigned int textureId, const QSize &textureSize) {
     // Handle reset case (textureId == 0 means reset to default)
     if (textureId == 0) {
-        QOpenGLContext* glContext = QOpenGLContext::currentContext();
+        QOpenGLContext *glContext = QOpenGLContext::currentContext();
         if (glContext && m_fbo != 0) {
-            QOpenGLFunctions* gl = glContext->functions();
+            QOpenGLFunctions *gl = glContext->functions();
             gl->glDeleteFramebuffers(1, &m_fbo);
             m_fbo = 0;
             if (m_depthStencilRB != 0) {
@@ -221,25 +220,25 @@ void OpenGLRendererBackend::setOpenGLRenderTarget(unsigned int textureId, const 
         assumeFramebufferBinding(0);
         return;
     }
-    
-    QOpenGLContext* glContext = QOpenGLContext::currentContext();
+
+    QOpenGLContext *glContext = QOpenGLContext::currentContext();
     if (!glContext) {
         qWarning() << "OpenGLRendererBackend::setOpenGLRenderTarget - No OpenGL context";
         return;
     }
 
-    QOpenGLFunctions* gl = glContext->functions();
-    
+    QOpenGLFunctions *gl = glContext->functions();
+
     const auto width = static_cast<GLsizei>(textureSize.width());
     const auto height = static_cast<GLsizei>(textureSize.height());
-    
+
     // Skip debug output for production
-    // qDebug() << "OpenGLRendererBackend::setOpenGLRenderTarget - textureId:" << textureId 
+    // qDebug() << "OpenGLRendererBackend::setOpenGLRenderTarget - textureId:" << textureId
     //          << "size:" << width << "x" << height;
-    
+
     // Update the size
     size = mbgl::Size(textureSize.width(), textureSize.height());
-    
+
     // Check if we need to recreate the FBO (texture changed or no FBO yet)
     if (m_colorTexture != textureId || m_fbo == 0) {
         // If we already have an FBO, delete it to create a fresh one
@@ -247,29 +246,29 @@ void OpenGLRendererBackend::setOpenGLRenderTarget(unsigned int textureId, const 
             gl->glDeleteFramebuffers(1, &m_fbo);
             m_fbo = 0;
         }
-        
+
         // Create new framebuffer
         gl->glGenFramebuffers(1, &m_fbo);
         gl->glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
-        
+
         // Attach the external texture as color attachment
         gl->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureId, 0);
-        
+
         // Update our stored texture ID (but we don't own it)
         m_colorTexture = textureId;
-        
+
         // Delete old depth-stencil buffer if exists
         if (m_depthStencilRB != 0) {
             gl->glDeleteRenderbuffers(1, &m_depthStencilRB);
             m_depthStencilRB = 0;
         }
-        
+
         // Create new depth-stencil renderbuffer
         gl->glGenRenderbuffers(1, &m_depthStencilRB);
         gl->glBindRenderbuffer(GL_RENDERBUFFER, m_depthStencilRB);
         gl->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
         gl->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_depthStencilRB);
-        
+
         // Check framebuffer completeness
         GLenum status = gl->glCheckFramebufferStatus(GL_FRAMEBUFFER);
         if (status != GL_FRAMEBUFFER_COMPLETE) {
@@ -286,11 +285,11 @@ void OpenGLRendererBackend::setOpenGLRenderTarget(unsigned int textureId, const 
         // Just bind the existing FBO
         gl->glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
     }
-    
+
     // Update assumed state so MapLibre knows to use our FBO
     assumeFramebufferBinding(m_fbo);
     setFramebufferBinding(m_fbo);
-    
+
     // Set the viewport
     setViewport(0, 0, size);
 }

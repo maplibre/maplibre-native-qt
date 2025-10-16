@@ -67,7 +67,7 @@ public:
     // Helper method to get the texture object for pixel data extraction
     mbgl::vulkan::Texture2D *getVulkanTexture() const { return m_backend.getOffscreenTexture(); }
     // Get the backend for Vulkan-specific operations
-    RendererBackend* getBackend() { return &m_backend; }
+    RendererBackend *getBackend() { return &m_backend; }
 #endif
 #if defined(MLN_RENDER_BACKEND_OPENGL)
     [[nodiscard]] void *currentDrawableTexture() const { return nullptr; }
@@ -76,12 +76,12 @@ public:
     // Helper method to get the OpenGL framebuffer texture ID for direct texture sharing
     [[nodiscard]] unsigned int getFramebufferTextureId() const { return m_backend.getFramebufferTextureId(); }
     // Set OpenGL render target for zero-copy rendering
-    void setOpenGLRenderTarget(unsigned int textureId, const QSize& textureSize);
+    void setOpenGLRenderTarget(unsigned int textureId, const QSize &textureSize);
 #endif
 
 #if defined(MLN_RENDER_BACKEND_METAL)
     // Get the backend for Metal-specific operations
-    RendererBackend* getBackend() { return &m_backend; }
+    RendererBackend *getBackend() { return &m_backend; }
 #endif
 
 signals:

@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "export_widgets.hpp"
 #include <QMapLibre/Settings>
 #include <QMapLibre/Types>
+#include "export_widgets.hpp"
 
 #include <QRhiWidget>
 #include <memory>

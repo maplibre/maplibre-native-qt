@@ -11,10 +11,10 @@
 #endif
 
 #if defined(MLN_RENDER_BACKEND_VULKAN)
-#include "rendering/vulkan_renderer_backend_p.hpp"
 #include <vulkan/vulkan.h>
-#include <mbgl/vulkan/texture2d.hpp>
 #include <mbgl/util/image.hpp>
+#include <mbgl/vulkan/texture2d.hpp>
+#include "rendering/vulkan_renderer_backend_p.hpp"
 #endif
 
 #include "conversion_p.hpp"
@@ -1920,17 +1920,17 @@ void Map::setCurrentDrawable(void *texturePtr) {
 
     Must be called on the render thread.
 */
-void Map::setMetalRenderTarget(void* metalTexture) {
+void Map::setMetalRenderTarget(void *metalTexture) {
     d_ptr->setMetalRenderTarget(metalTexture);
 }
 #endif
 
 #ifdef MLN_RENDER_BACKEND_VULKAN
-void Map::setVulkanRenderTarget(void* vulkanImage) {
+void Map::setVulkanRenderTarget(void *vulkanImage) {
     d_ptr->setVulkanRenderTarget(vulkanImage);
 }
 
-void Map::setVulkanRenderTarget(void* vulkanImage, const QSize& imageSize) {
+void Map::setVulkanRenderTarget(void *vulkanImage, const QSize &imageSize) {
     d_ptr->setVulkanRenderTarget(vulkanImage, imageSize);
 }
 
@@ -1947,14 +1947,12 @@ mbgl::vulkan::Texture2D *Map::getVulkanTexture() const {
 // }
 #endif
 
-
-
 #ifdef MLN_RENDER_BACKEND_OPENGL
 unsigned int Map::getFramebufferTextureId() const {
     return d_ptr->getFramebufferTextureId();
 }
 
-void Map::setOpenGLRenderTarget(unsigned int textureId, const QSize& textureSize) {
+void Map::setOpenGLRenderTarget(unsigned int textureId, const QSize &textureSize) {
     d_ptr->setOpenGLRenderTarget(textureId, textureSize);
 }
 #endif

@@ -8,11 +8,11 @@
 #include <QMapLibre/Map>
 #include <QMapLibre/Settings>
 
-#include <QMouseEvent>
-#include <QWheelEvent>
-#include <QPainter>
-#include <QImage>
 #include <rhi/qrhi.h>
+#include <QImage>
+#include <QMouseEvent>
+#include <QPainter>
+#include <QWheelEvent>
 
 #if defined(MLN_RENDER_BACKEND_METAL) && defined(__APPLE__)
 // Metal headers are included in the backend
@@ -23,17 +23,15 @@
 #include <QOpenGLFunctions>
 #endif
 
-#include <QtCore/QDebug>
-#include <QtGui/QWindow>
-#include <QDebug>
 #include <private/qrhi_p.h>
 #include <rhi/qrhi_platform.h>
+#include <QDebug>
+#include <QtCore/QDebug>
+#include <QtGui/QWindow>
 
 #if defined(MLN_RENDER_BACKEND_VULKAN)
 #include <private/qrhivulkan_p.h>
 #endif
-
-
 
 namespace QMapLibre {
 
@@ -51,7 +49,6 @@ RhiWidget::RhiWidget(const Settings &settings)
 #elif defined(MLN_RENDER_BACKEND_OPENGL)
     setApi(QRhiWidget::Api::OpenGL);
     // Configured for OpenGL backend
-
 
 #endif
 
@@ -119,15 +116,11 @@ void RhiWidget::initialize(QRhiCommandBuffer *cb) {
 
     // Get the initial FBO binding for QRhiWidget (OpenGL only)
 
-
     // Initialize the map
     if (!d_ptr->m_map) {
-        d_ptr->m_map = std::make_unique<Map>(
-            this, d_ptr->m_settings, QSize(width(), height()), devicePixelRatio());
+        d_ptr->m_map = std::make_unique<Map>(this, d_ptr->m_settings, QSize(width(), height()), devicePixelRatio());
 
-        QObject::connect(d_ptr->m_map.get(), &Map::needsRendering, this, [this]() {
-            update();
-        });
+        QObject::connect(d_ptr->m_map.get(), &Map::needsRendering, this, [this]() { update(); });
 
         // Connect to map changed signal to know when style is loaded
         QObject::connect(d_ptr->m_map.get(), &Map::mapChanged, this, [this](Map::MapChange change) {
@@ -150,32 +143,30 @@ void RhiWidget::initialize(QRhiCommandBuffer *cb) {
         if (api() == QRhiWidget::Api::Vulkan) {
             // For Vulkan, we need to use Qt's Vulkan device for proper integration
             // Get the QRhi instance to access Vulkan resources
-            QRhi* qrhi = rhi();
+            QRhi *qrhi = rhi();
             if (qrhi && qrhi->backend() == QRhi::Vulkan) {
                 // Get native Vulkan handles from Qt
-                const QRhiNativeHandles* nativeHandles = qrhi->nativeHandles();
+                const QRhiNativeHandles *nativeHandles = qrhi->nativeHandles();
                 if (nativeHandles) {
                     // Cast to Vulkan-specific handles
-                    const QRhiVulkanNativeHandles* vkHandles =
-                        static_cast<const QRhiVulkanNativeHandles*>(nativeHandles);
+                    const QRhiVulkanNativeHandles *vkHandles = static_cast<const QRhiVulkanNativeHandles *>(
+                        nativeHandles);
 
                     if (vkHandles && vkHandles->physDev && vkHandles->dev) {
                         qDebug() << "Using Qt's Vulkan device for MapLibre renderer";
-                        qDebug() << "PhysDev:" << vkHandles->physDev
-                                 << "Dev:" << vkHandles->dev
+                        qDebug() << "PhysDev:" << vkHandles->physDev << "Dev:" << vkHandles->dev
                                  << "Queue family:" << vkHandles->gfxQueueFamilyIdx;
 
                         // QRhiWidget doesn't have a window handle in the traditional sense
                         // We need to find the top-level window
-                        QWindow* topWindow = nullptr;
-                        QWidget* w = window();
+                        QWindow *topWindow = nullptr;
+                        QWidget *w = window();
                         if (w) {
                             topWindow = w->windowHandle();
                         }
 
                         if (topWindow && vkHandles->inst) {
-                            qDebug() << "Window handle:" << topWindow
-                                     << "VulkanInstance:" << vkHandles->inst;
+                            qDebug() << "Window handle:" << topWindow << "VulkanInstance:" << vkHandles->inst;
                             // Set the Vulkan instance on the window if not already set
                             if (!topWindow->vulkanInstance()) {
                                 topWindow->setVulkanInstance(vkHandles->inst);
@@ -183,7 +174,7 @@ void RhiWidget::initialize(QRhiCommandBuffer *cb) {
                             // Create renderer with Qt's Vulkan device
                             // The createRendererWithQtVulkanDevice function uses device sharing
                             d_ptr->m_map->createRendererWithQtVulkanDevice(
-                                topWindow,                    // Window for surface creation
+                                topWindow,                   // Window for surface creation
                                 vkHandles->physDev,          // Physical device
                                 vkHandles->dev,              // Device
                                 vkHandles->gfxQueueFamilyIdx // Graphics queue family index
@@ -318,7 +309,7 @@ void RhiWidget::render(QRhiCommandBuffer *cb) {
             // Get the native Vulkan image handle
             QRhiTexture::NativeTexture nativeTex = rhiTexture->nativeTexture();
 
-            void* vulkanImagePtr = reinterpret_cast<void*>(nativeTex.object);
+            void *vulkanImagePtr = reinterpret_cast<void *>(nativeTex.object);
 
             if (vulkanImagePtr) {
                 // Pass the Vulkan image to MapLibre
@@ -349,7 +340,7 @@ void RhiWidget::render(QRhiCommandBuffer *cb) {
         if (rhiColorTexture) {
             // Get the native Metal texture handle
             QRhiTexture::NativeTexture nativeTex = rhiColorTexture->nativeTexture();
-            void* metalTexturePtr = reinterpret_cast<void*>(nativeTex.object);
+            void *metalTexturePtr = reinterpret_cast<void *>(nativeTex.object);
 
             if (metalTexturePtr) {
                 // Setting Metal texture for MapLibre rendering
@@ -379,7 +370,6 @@ void RhiWidget::render(QRhiCommandBuffer *cb) {
 
 #if defined(MLN_RENDER_BACKEND_VULKAN)
     if (api() == QRhiWidget::Api::Vulkan) {
-
     }
 #endif
 
@@ -400,7 +390,7 @@ void RhiWidget::releaseResources() {
 
 #if defined(MLN_RENDER_BACKEND_OPENGL)
         // Only reset OpenGL resources if we have a valid context
-        QRhi* rhiInstance = rhi();
+        QRhi *rhiInstance = rhi();
         if (rhiInstance && rhiInstance->backend() == QRhi::OpenGLES2) {
             qDebug() << "Resetting OpenGL render target to 0";
             // Reset to default rendering (no external texture)
@@ -431,7 +421,7 @@ void RhiWidget::paintEvent(QPaintEvent *event) {
 #if defined(MLN_RENDER_BACKEND_VULKAN)
     if (api() == QRhiWidget::Api::Vulkan && d_ptr->m_map) {
         // Get MapLibre's rendered content
-        auto* vulkanTexture = d_ptr->m_map->getVulkanTexture();
+        auto *vulkanTexture = d_ptr->m_map->getVulkanTexture();
         if (vulkanTexture) {
             // The texture has been rendered, Qt should display it
             // For now, just ensure we update

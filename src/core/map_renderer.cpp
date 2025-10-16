@@ -149,7 +149,7 @@ void MapRenderer::render() {
 
         // UpdateParameters should always be available when rendering.
         assert(m_updateParameters);
-        
+
         if (!m_updateParameters) {
             return;
         }
@@ -174,7 +174,7 @@ void MapRenderer::setObserver(mbgl::RendererObserver *observer) {
 }
 
 #if defined(MLN_RENDER_BACKEND_OPENGL)
-void MapRenderer::setOpenGLRenderTarget(unsigned int textureId, const QSize& textureSize) {
+void MapRenderer::setOpenGLRenderTarget(unsigned int textureId, const QSize &textureSize) {
     m_backend.setOpenGLRenderTarget(textureId, textureSize);
 }
 #endif
