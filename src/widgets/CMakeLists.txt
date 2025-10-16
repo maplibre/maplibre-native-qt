@@ -2,7 +2,7 @@
 string(TOLOWER ${MLN_QT_NAME}Widgets MLN_QT_WIDGETS_LOWERCASE)
 set(MLNQtWidgets_Headers
     export_widgets.hpp
-    gl_widget.hpp
+    rhi_widget.hpp
 )
 # Header generation
 mln_umbrella_header_preprocess(${MLN_QT_WIDGETS_LOWERCASE} ${MLN_QT_NAME}Widgets HeaderOut)
@@ -33,8 +33,8 @@ target_sources(
     MLNQtWidgets
     PRIVATE
         ${MLNQtWidgets_Headers}
-        gl_widget.cpp
-        gl_widget_p.hpp
+        rhi_widget.cpp
+        rhi_widget_p.hpp
 
         $<$<PLATFORM_ID:Windows>:${CMAKE_BINARY_DIR}/version_info.rc>
 )
