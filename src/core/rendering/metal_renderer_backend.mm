@@ -97,10 +97,16 @@ public:
         if (externalTex == nullptr && layer != nullptr) {
             auto *tmpDrawable = layer->nextDrawable();
             if (tmpDrawable == nullptr) {
-                qWarning() << "MapLibre Metal: nextDrawable() returned nil."
-                           << "drawableSize=" << layer->drawableSize().width << "x" << layer->drawableSize().height
-                           << ", device=" << (void *)layer->device()
-                           << ", pixelFormat=" << static_cast<int>(layer->pixelFormat());
+                // Try to get layer info for debugging, but protect against invalid layer
+                try {
+                    auto drawSize = layer->drawableSize();
+                    qWarning() << "MapLibre Metal: nextDrawable() returned nil."
+                               << "drawableSize=" << drawSize.width << "x" << drawSize.height
+                               << ", device=" << (void *)layer->device()
+                               << ", pixelFormat=" << static_cast<int>(layer->pixelFormat());
+                } catch (...) {
+                    qWarning() << "MapLibre Metal: nextDrawable() returned nil and layer appears invalid";
+                }
 
                 // Still allocate a command buffer so subsequent frames continue
                 commandBuffer = NS::RetainPtr(commandQueue->commandBuffer());
@@ -122,9 +128,15 @@ public:
             return;
         }
 
-        // Get texture size from the actual texture if we have an external one
+        // Get texture size from the actual texture
         auto texSize = mbgl::Size{size.width, size.height};
-        if (externalTex && layer) {
+        if (externalTex) {
+            // When using external texture from QRhiWidget, get size from the texture itself
+            // NOT from the layer (which might be invalid after reparenting)
+            texSize = mbgl::Size{static_cast<uint32_t>(externalTex->width()),
+                                 static_cast<uint32_t>(externalTex->height())};
+        } else if (layer) {
+            // Only use layer size when we don't have an external texture
             texSize = mbgl::Size{static_cast<uint32_t>(layer->drawableSize().width),
                                  static_cast<uint32_t>(layer->drawableSize().height)};
         }

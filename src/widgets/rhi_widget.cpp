@@ -105,18 +105,34 @@ void RhiWidget::initialize(QRhiCommandBuffer *cb) {
     qDebug() << "RhiWidget::initialize called";
 
     // Check if we need to reinitialize after reparenting
-    if (d_ptr->m_map && !d_ptr->m_initialized) {
+    bool isReinitializing = d_ptr->m_map && !d_ptr->m_initialized;
+    if (isReinitializing) {
         qDebug() << "Reinitializing map after reparenting";
         // The map exists but was uninitialized due to reparenting
         // We need to recreate the renderer with the new context
         d_ptr->m_map->destroyRenderer();
+
+        // Reconnect signals that were disconnected in releaseResources()
+        QObject::connect(d_ptr->m_map.get(), &Map::needsRendering, this, [this]() { update(); });
+
+        QObject::connect(d_ptr->m_map.get(), &Map::mapChanged, this, [this](Map::MapChange change) {
+            qDebug() << "Map changed event:" << static_cast<int>(change);
+            if (d_ptr->m_map && d_ptr->m_map->isFullyLoaded()) {
+                qDebug() << "Map is fully loaded!";
+            }
+            if (change == Map::MapChange::MapChangeDidFinishLoadingMap ||
+                change == Map::MapChange::MapChangeDidFinishLoadingStyle ||
+                change == Map::MapChange::MapChangeDidFinishRenderingFrameFullyRendered) {
+                update();
+            }
+        });
     }
 
     // Initialize - checking QRhi and API type
 
     // Get the initial FBO binding for QRhiWidget (OpenGL only)
 
-    // Initialize the map
+    // Initialize the map (or recreate renderer for existing map)
     if (!d_ptr->m_map) {
         d_ptr->m_map = std::make_unique<Map>(this, d_ptr->m_settings, QSize(width(), height()), devicePixelRatio());
 
@@ -137,8 +153,13 @@ void RhiWidget::initialize(QRhiCommandBuffer *cb) {
             }
         });
 
-        // Create the renderer based on the build configuration and runtime API
+    }
 
+    // Create the renderer based on the build configuration and runtime API
+    // This needs to happen both for initial creation and after reparenting
+    bool needsRendererCreation = !d_ptr->m_initialized;
+
+    if (needsRendererCreation) {
 #if defined(MLN_RENDER_BACKEND_VULKAN)
         if (api() == QRhiWidget::Api::Vulkan) {
             // For Vulkan, we need to use Qt's Vulkan device for proper integration
@@ -201,6 +222,7 @@ void RhiWidget::initialize(QRhiCommandBuffer *cb) {
             // Creating Metal renderer
             // For Metal with QRhiWidget, we use offscreen rendering
             // QRhiWidget manages its own Metal layer, so we create with nullptr
+            qDebug() << "Creating Metal renderer for" << (isReinitializing ? "reinitialization" : "initial setup");
             d_ptr->m_map->createRenderer(nullptr);
             d_ptr->m_metalRendererCreated = true;
             // Metal renderer created (offscreen mode)
@@ -216,40 +238,44 @@ void RhiWidget::initialize(QRhiCommandBuffer *cb) {
         d_ptr->m_map->createRenderer(nullptr);
 #endif
 
-        // Set default location with a reasonable zoom level
-        auto coord = d_ptr->m_settings.defaultCoordinate();
-        auto zoom = d_ptr->m_settings.defaultZoom();
+        // Only set initial view and style on first creation, not on reinitialization
+        if (!isReinitializing) {
+            // Set default location with a reasonable zoom level
+            auto coord = d_ptr->m_settings.defaultCoordinate();
+            auto zoom = d_ptr->m_settings.defaultZoom();
 
-        // If no default is set, use a reasonable default
-        if (zoom < 1.0) {
-            coord = Coordinate(40.7128, -74.0060); // New York
-            zoom = 10.0;
-        }
+            // If no default is set, use a reasonable default
+            if (zoom < 1.0) {
+                coord = Coordinate(40.7128, -74.0060); // New York
+                zoom = 10.0;
+            }
 
-        qDebug() << "Setting initial map view - Coordinate:" << coord.first << "," << coord.second << "Zoom:" << zoom;
-        d_ptr->m_map->setCoordinateZoom(coord, zoom);
+            qDebug() << "Setting initial map view - Coordinate:" << coord.first << "," << coord.second << "Zoom:" << zoom;
+            d_ptr->m_map->setCoordinateZoom(coord, zoom);
 
-        // Set default style
-        if (!d_ptr->m_settings.styles().empty()) {
-            // Setting style URL
-            qDebug() << "RhiWidget: Setting style URL:" << d_ptr->m_settings.styles().front().url;
-            d_ptr->m_map->setStyleUrl(d_ptr->m_settings.styles().front().url);
-        } else if (!d_ptr->m_settings.providerStyles().empty()) {
-            // Setting provider style URL
-            qDebug() << "RhiWidget: Setting provider style URL:" << d_ptr->m_settings.providerStyles().front().url;
-            d_ptr->m_map->setStyleUrl(d_ptr->m_settings.providerStyles().front().url);
-        } else {
-            qWarning() << "RhiWidget: No style URL available - using default demo tiles";
-            // Use a default style for testing
-            d_ptr->m_map->setStyleUrl("https://demotiles.maplibre.org/style.json");
+            // Set default style
+            if (!d_ptr->m_settings.styles().empty()) {
+                // Setting style URL
+                qDebug() << "RhiWidget: Setting style URL:" << d_ptr->m_settings.styles().front().url;
+                d_ptr->m_map->setStyleUrl(d_ptr->m_settings.styles().front().url);
+            } else if (!d_ptr->m_settings.providerStyles().empty()) {
+                // Setting provider style URL
+                qDebug() << "RhiWidget: Setting provider style URL:" << d_ptr->m_settings.providerStyles().front().url;
+                d_ptr->m_map->setStyleUrl(d_ptr->m_settings.providerStyles().front().url);
+            } else {
+                qWarning() << "RhiWidget: No style URL available - using default demo tiles";
+                // Use a default style for testing
+                d_ptr->m_map->setStyleUrl("https://demotiles.maplibre.org/style.json");
+            }
+
+            emit mapChanged(d_ptr->m_map.get());
         }
 
         // Force an initial render
         d_ptr->m_map->render();
         update();
-
-        emit mapChanged(d_ptr->m_map.get());
     }
+
     d_ptr->m_initialized = true;
 }
 
@@ -258,8 +284,15 @@ void RhiWidget::render(QRhiCommandBuffer *cb) {
     // cb is Qt's command buffer - for Vulkan, Qt has already begun a render pass
     Q_UNUSED(cb)
 
-    if (!d_ptr->m_initialized || !d_ptr->m_map) {
-        qDebug() << "RhiWidget::render skipped - not initialized or no map";
+    // CRITICAL: Check initialized flag FIRST before doing ANYTHING
+    // This prevents race conditions during reparenting
+    if (!d_ptr->m_initialized) {
+        qDebug() << "RhiWidget::render skipped - not initialized";
+        return;
+    }
+
+    if (!d_ptr->m_map) {
+        qDebug() << "RhiWidget::render skipped - no map";
         return;
     }
 
@@ -398,9 +431,16 @@ void RhiWidget::releaseResources() {
         }
 #endif
 
-        // Don't destroy the renderer during reparenting - just clean up the render target
+#if defined(MLN_RENDER_BACKEND_METAL)
+        // For Metal, we MUST destroy the renderer during reparenting because
+        // the Metal layer is tied to the old window context and becomes invalid
+        qDebug() << "Destroying Metal renderer due to reparenting";
+        d_ptr->m_map->destroyRenderer();
+        d_ptr->m_metalRendererCreated = false;
+#endif
+
+        // For other backends, don't destroy the renderer during reparenting
         // The renderer will be recreated in initialize() if needed
-        // Only destroy if we're actually being destroyed (checked in destructor)
     }
 }
 
@@ -452,12 +492,14 @@ bool RhiWidget::event(QEvent *e) {
     // Handle parent change which happens during undocking
     if (e->type() == QEvent::ParentAboutToChange) {
         qDebug() << "RhiWidget::ParentAboutToChange - releasing resources";
+        // Mark as uninitialized FIRST to prevent any rendering
+        d_ptr->m_initialized = false;
         // Release resources before the parent changes
         releaseResources();
     } else if (e->type() == QEvent::ParentChange) {
         qDebug() << "RhiWidget::ParentChange - parent changed";
         // After parent change, we'll get a new initialize() call
-        // so just make sure we're in a clean state
+        // Make sure we stay in uninitialized state
         d_ptr->m_initialized = false;
     }
 
