@@ -89,6 +89,8 @@ if(Qt6_FOUND)
         MLNQtWidgets
         PUBLIC
             Qt${QT_VERSION_MAJOR}::OpenGLWidgets
+        PRIVATE
+            Qt${QT_VERSION_MAJOR}::GuiPrivate
     )
 else()
     target_link_libraries(
