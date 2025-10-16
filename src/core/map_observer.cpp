@@ -75,7 +75,7 @@ void MapObserver::onWillStartRenderingFrame() {
     emit mapChanged(Map::MapChangeWillStartRenderingFrame);
 }
 
-void MapObserver::onDidFinishRenderingFrame(mbgl::MapObserver::RenderFrameStatus status) {
+void MapObserver::onDidFinishRenderingFrame(const mbgl::MapObserver::RenderFrameStatus &status) {
     if (status.mode == mbgl::MapObserver::RenderMode::Partial) {
         emit mapChanged(Map::MapChangeDidFinishRenderingFrame);
     } else {

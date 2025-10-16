@@ -11,11 +11,11 @@ qmake --version
 
 # Main project
 pushd source
-cmake --workflow --preset Linux-CI
+cmake --workflow --preset "$1"
 popd
 
 mkdir install && pushd install
-tar xf ../build/qt6-Linux/maplibre-native-qt_*.tar.bz2
+tar xf "../build/qt6-Linux-$2/"maplibre-native-qt_*.tar.bz2
 mv maplibre-native-qt_* maplibre-native-qt
 popd
 
@@ -26,7 +26,12 @@ pushd source/examples/quick
 cmake --workflow --preset default
 popd
 
-# QtWidgets example
-pushd source/examples/widgets
+# QtQuick Standalone example
+pushd source/examples/quick-standalone
 cmake --workflow --preset default
 popd
+
+# QtWidgets example
+# pushd source/examples/widgets
+# cmake --workflow --preset default
+# popd

@@ -10,35 +10,44 @@
 #include "source_style_change_p.hpp"
 #include "style_change_p.hpp"
 #include "style_change_utils_p.hpp"
-#include "texture_node.hpp"
+#include "texture_node_base_p.hpp"
+#ifdef MLN_RENDER_BACKEND_OPENGL
+#include "texture_node_opengl_p.hpp"
+#endif
+#ifdef MLN_RENDER_BACKEND_METAL
+#include "texture_node_metal_p.hpp"
+#endif
+#ifdef MLN_RENDER_BACKEND_VULKAN
+#include "texture_node_vulkan_p.hpp"
+#endif
 
 #include <QMapLibre/Types>
 
-#include <QtCore/QByteArray>
-#include <QtCore/QCoreApplication>
-#include <QtGui/QOpenGLContext>
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-#include <QtOpenGL/QOpenGLFramebufferObject>
-#else
-#include <QtGui/QOpenGLFramebufferObject>
-#endif
 #include <QtLocation/private/qdeclarativecirclemapitem_p.h>
 #include <QtLocation/private/qdeclarativegeomapitembase_p.h>
 #include <QtLocation/private/qdeclarativepolygonmapitem_p.h>
 #include <QtLocation/private/qdeclarativepolylinemapitem_p.h>
 #include <QtLocation/private/qdeclarativerectanglemapitem_p.h>
 #include <QtLocation/private/qgeoprojection_p.h>
-#include <QtQuick/private/qsgcontext_p.h> // for debugging the context name
+
+#include <QtCore/QByteArray>
+#include <QtCore/QCoreApplication>
 #include <QtQuick/QQuickWindow>
 #include <QtQuick/QSGImageNode>
+#include <QtQuick/QSGRendererInterface>
+#ifdef MLN_RENDER_BACKEND_OPENGL
+#include <QtQuick/private/qsgcontext_p.h> // for debugging the context name
+#include <QtGui/QOpenGLContext>
+#endif
 
 #include <algorithm>
 #include <cmath>
+#include <numbers>
 
 namespace {
 
 constexpr int mapLibreTileSize{512};
-const double invLog2 = 1.0 / std::log(2.0);
+constexpr double invLog2 = 1.0 / std::numbers::ln2;
 
 double zoomLevelFrom256(double zoomLevelFor256, double tileSize) {
     constexpr double size256{256.0};
@@ -56,7 +65,7 @@ QGeoMapMapLibrePrivate::QGeoMapMapLibrePrivate(QGeoMappingManagerEngine *engine)
 QGeoMapMapLibrePrivate::~QGeoMapMapLibrePrivate() = default;
 
 QSGNode *QGeoMapMapLibrePrivate::updateSceneGraph(QSGNode *node, QQuickWindow *window) {
-    Q_Q(QGeoMapMapLibre);
+    const Q_Q(QGeoMapMapLibre);
 
     if (m_viewportSize.isEmpty()) {
         delete node; // NOLINT(cppcoreguidelines-owning-memory)
@@ -65,6 +74,8 @@ QSGNode *QGeoMapMapLibrePrivate::updateSceneGraph(QSGNode *node, QQuickWindow *w
 
     Map *map{};
     if (node == nullptr) {
+#ifdef MLN_RENDER_BACKEND_OPENGL
+        // OpenGL context check
         QOpenGLContext *currentCtx = QOpenGLContext::currentContext();
         if (currentCtx == nullptr) {
             qWarning("QOpenGLContext is NULL!");
@@ -78,12 +89,23 @@ QSGNode *QGeoMapMapLibrePrivate::updateSceneGraph(QSGNode *node, QQuickWindow *w
             return node;
         }
 
-        auto mbglNode = std::make_unique<TextureNode>(m_settings, m_viewportSize, window->devicePixelRatio(), q);
+        std::unique_ptr<TextureNodeBase> mbglNode = std::make_unique<TextureNodeOpenGL>(
+            m_settings, m_viewportSize, window->devicePixelRatio());
+#elif defined(MLN_RENDER_BACKEND_METAL)
+        std::unique_ptr<TextureNodeBase> mbglNode = std::make_unique<TextureNodeMetal>(
+            m_settings, m_viewportSize, window->devicePixelRatio());
+#elif defined(MLN_RENDER_BACKEND_VULKAN)
+        std::unique_ptr<TextureNodeBase> mbglNode = std::make_unique<TextureNodeVulkan>(
+            m_settings, m_viewportSize, window->devicePixelRatio());
+#endif
+        QObject::connect(mbglNode->map(), &Map::needsRendering, q, &QGeoMap::sgNodeChanged);
+        mbglNode->map()->setConnectionEstablished();
+
         QObject::connect(mbglNode->map(), &Map::mapChanged, q, &QGeoMapMapLibre::onMapChanged);
         m_syncState = MapTypeSync | CameraDataSync | ViewportSync | VisibleAreaSync;
         node = mbglNode.release();
     }
-    map = static_cast<TextureNode *>(node)->map();
+    map = static_cast<TextureNodeBase *>(node)->map();
 
     if ((m_syncState & MapTypeSync) != 0 && m_activeMapType.metadata().contains(QStringLiteral("url"))) {
         map->setStyleUrl(m_activeMapType.metadata()[QStringLiteral("url")].toString());
@@ -112,20 +134,19 @@ QSGNode *QGeoMapMapLibrePrivate::updateSceneGraph(QSGNode *node, QQuickWindow *w
     }
 
     if ((m_syncState & ViewportSync) != 0) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-        static_cast<TextureNode *>(node)->resize(m_viewportSize, window->devicePixelRatio(), window);
-#else
-        static_cast<TextureNode *>(node)->resize(m_viewportSize, window->devicePixelRatio());
-#endif
+        static_cast<TextureNodeBase *>(node)->resize(m_viewportSize, window->devicePixelRatio(), window);
     }
 
     if (m_styleLoaded) {
         syncStyleChanges(map);
     }
 
-    static_cast<TextureNode *>(node)->render(window);
+    static_cast<TextureNodeBase *>(node)->render(window);
 
+#ifdef MLN_RENDER_BACKEND_OPENGL
+    // Threaded rendering hack only needd for OpenGL
     threadedRenderingHack(window, map);
+#endif
 
     m_syncState = NoSync;
 
@@ -237,7 +258,7 @@ void QGeoMapMapLibrePrivate::addMapItem(QDeclarativeGeoMapItemBase *item) {
         StyleChangeUtils::featureFromMapItem(item),
         StyleChangeUtils::featurePropertiesFromMapItem(item),
         m_mapItemsBefore);
-    std::move(changes.begin(), changes.end(), std::back_inserter(m_styleChanges));
+    std::ranges::move(changes, std::back_inserter(m_styleChanges));
 
     emit q->sgNodeChanged();
 }
@@ -268,7 +289,7 @@ void QGeoMapMapLibrePrivate::removeMapItem(QDeclarativeGeoMapItemBase *item) {
 
     std::vector<std::unique_ptr<StyleChange>> changes = StyleChange::removeFeature(
         StyleChangeUtils::featureFromMapItem(item));
-    std::move(changes.begin(), changes.end(), std::back_inserter(m_styleChanges));
+    std::ranges::move(changes, std::back_inserter(m_styleChanges));
 
     emit q->sgNodeChanged();
 }
@@ -286,7 +307,7 @@ void QGeoMapMapLibrePrivate::addStyleParameter(StyleParameter *parameter) {
 
     if (m_styleLoaded) {
         std::vector<std::unique_ptr<StyleChange>> changes = StyleChange::addParameter(parameter, m_mapItemsBefore);
-        std::move(changes.begin(), changes.end(), std::back_inserter(m_styleChanges));
+        std::ranges::move(changes, std::back_inserter(m_styleChanges));
         emit q->sgNodeChanged();
     }
 }
@@ -298,7 +319,7 @@ void QGeoMapMapLibrePrivate::removeStyleParameter(StyleParameter *parameter) {
 
     if (m_styleLoaded) {
         std::vector<std::unique_ptr<StyleChange>> changes = StyleChange::removeParameter(parameter);
-        std::move(changes.begin(), changes.end(), std::back_inserter(m_styleChanges));
+        std::ranges::move(changes, std::back_inserter(m_styleChanges));
         emit q->sgNodeChanged();
     }
 
@@ -366,22 +387,23 @@ void QGeoMapMapLibrePrivate::syncStyleChanges(Map *map) {
 }
 
 void QGeoMapMapLibrePrivate::threadedRenderingHack(QQuickWindow *window, Map *map) {
-    // FIXME: Optimal support for threaded rendering needs core changes
-    // in MapLibre Native. Meanwhile we need to set a timer to update
-    // the map until all the resources are loaded, which is not exactly
-    // battery friendly, because might trigger more paints than we need.
+    // Detect threaded rendering. Some backends require a hack where we need
+    // to set a timer to update the map until all the resources are loaded,
+    // which is not exactly battery friendly, because might trigger more paints
+    // than we need.
+#ifdef MLN_RENDER_BACKEND_OPENGL
     if (!m_threadedRenderingChecked) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         m_threadedRendering = static_cast<QOpenGLContext *>(window->rendererInterface()->getResource(
                                                                 window, QSGRendererInterface::OpenGLContextResource))
                                   ->thread() != QCoreApplication::instance()->thread();
-#else
-        m_threadedRendering = window->openglContext()->thread() != QCoreApplication::instance()->thread();
-#endif
 
         m_threadedRenderingChecked = true;
     }
+#else
+    Q_UNUSED(window);
+#endif
 
+    // Fallback timer to keep updating until map fully loaded when threaded rendering is active.
     if (m_threadedRendering) {
         if (!map->isFullyLoaded()) {
             QMetaObject::invokeMethod(&m_refresh, "start", Qt::QueuedConnection);
@@ -456,14 +478,18 @@ void QGeoMapMapLibre::onMapChanged(Map::MapChange change) {
                 StyleChangeUtils::featureFromMapItem(item),
                 StyleChangeUtils::featurePropertiesFromMapItem(item),
                 d->m_mapItemsBefore);
-            std::move(changes.begin(), changes.end(), std::back_inserter(d->m_styleChanges));
+            std::ranges::move(changes, std::back_inserter(d->m_styleChanges));
         }
 
-        for (StyleParameter *parameter : d->m_mapParameters) {
+        for (const StyleParameter *parameter : d->m_mapParameters) {
             std::vector<std::unique_ptr<StyleChange>> changes = StyleChange::addParameter(parameter,
                                                                                           d->m_mapItemsBefore);
-            std::move(changes.begin(), changes.end(), std::back_inserter(d->m_styleChanges));
+            std::ranges::move(changes, std::back_inserter(d->m_styleChanges));
         }
+    } else if (change == Map::MapChangeDidFinishLoadingMap) {
+        constexpr int refreshInterval{250};
+        // TODO: make it more elegant
+        QTimer::singleShot(refreshInterval, this, &QGeoMapMapLibre::sgNodeChanged);
     }
 }
 
@@ -519,7 +545,7 @@ void QGeoMapMapLibre::onStyleParameterUpdated(StyleParameter *parameter) {
     Q_D(QGeoMapMapLibre);
 
     std::vector<std::unique_ptr<StyleChange>> changes = StyleChange::addParameter(parameter, d->m_mapItemsBefore);
-    std::move(changes.begin(), changes.end(), std::back_inserter(d->m_styleChanges));
+    std::ranges::move(changes, std::back_inserter(d->m_styleChanges));
 
     emit sgNodeChanged();
 }

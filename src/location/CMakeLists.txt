@@ -1,16 +1,8 @@
 # Make a Qt library
-if(COMMAND qt_add_library)
-    if(MLN_QT_STATIC)
-        qt_add_library(MLNQtLocation STATIC)
-    else()
-        qt_add_library(MLNQtLocation)
-    endif()
+if(MLN_QT_STATIC)
+    qt_add_library(MLNQtLocation STATIC)
 else()
-    if(MLN_QT_STATIC)
-        add_library(MLNQtLocation STATIC)
-    else()
-        add_library(MLNQtLocation SHARED)
-    endif()
+    qt_add_library(MLNQtLocation)
 endif()
 add_library(${MLN_QT_NAME}::Location ALIAS MLNQtLocation)
 
@@ -20,7 +12,6 @@ target_sources(
         qgeomap.cpp qgeomap.hpp qgeomap_p.hpp
         qt_mapping_engine.cpp qt_mapping_engine.hpp
         style_change_utils.cpp style_change_utils_p.hpp
-        texture_node.cpp texture_node.hpp
 
         $<$<PLATFORM_ID:Windows>:${CMAKE_BINARY_DIR}/version_info.rc>
 )
@@ -56,7 +47,10 @@ target_include_directories(
         ${CMAKE_CURRENT_BINARY_DIR}/include
         ${CMAKE_SOURCE_DIR}/src/core
         ${CMAKE_SOURCE_DIR}/src/core/style
+        ${CMAKE_SOURCE_DIR}/src/quick
         ${CMAKE_BINARY_DIR}/src/core/include
+        $<$<BOOL:${MLN_WITH_VULKAN}>:${MLN_CORE_PATH}/vendor/Vulkan-Headers/include>
+        $<$<BOOL:${MLN_WITH_VULKAN}>:${MLN_CORE_PATH}/vendor/VulkanMemoryAllocator/include>
 )
 
 # Common link libraries
@@ -65,7 +59,7 @@ target_link_libraries(
     PUBLIC
         MLNQtCore
     PRIVATE
-        $<$<BOOL:${Qt6_FOUND}>:Qt${QT_VERSION_MAJOR}::OpenGL>
+        MLNQtQuickPrivate
         Qt${QT_VERSION_MAJOR}::Network
         Qt${QT_VERSION_MAJOR}::LocationPrivate
         $<BUILD_INTERFACE:mbgl-compiler-options>

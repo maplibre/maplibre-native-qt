@@ -14,6 +14,7 @@ QT_BEGIN_NAMESPACE
 class QKeyEvent;
 class QMouseEvent;
 class QWheelEvent;
+class QOpenGLShaderProgram;
 
 QT_END_NAMESPACE
 
@@ -30,8 +31,15 @@ public:
     void handleMouseMoveEvent(QMouseEvent *event);
     void handleWheelEvent(QWheelEvent *event) const;
 
-    std::unique_ptr<Map> m_map{};
+    std::unique_ptr<Map> m_map;
     Settings m_settings;
+
+    // Zero-copy texture rendering members
+    std::unique_ptr<QOpenGLShaderProgram> m_shaderProgram;
+    unsigned int m_vertexBuffer{};
+    unsigned int m_vao{};
+    unsigned int m_mapFramebuffer{};
+    unsigned int m_mapTexture{};
 
 private:
     Q_DISABLE_COPY(GLWidgetPrivate);

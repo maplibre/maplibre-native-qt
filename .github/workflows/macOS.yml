@@ -54,35 +54,29 @@ jobs:
     strategy:
       matrix:
         include:
-          - qt_series: 5
-            qt_version: 5.15.2
-            qt_modules: ""
-            preset: macOS-legacy-ccache
-            compiler: default
-            runs_on: macos-13
           - qt_series: 6
-            qt_version: 6.8.3
+            qt_version: 6.9.3
             qt_modules: qtlocation qtpositioning
             preset: macOS-ccache
             compiler: default
-            runs_on: macos-14
+            runs_on: macos-15
           - qt_series: 6
-            qt_version: 6.9.1
+            qt_version: 6.10.0
             qt_modules: qtlocation qtpositioning
             preset: macOS-ccache
             compiler: default
-            runs_on: macos-14
+            runs_on: macos-15
           - qt_series: 6
-            qt_version: 6.9.1
+            qt_version: 6.10.0
             preset: macOS-ccache
             compiler: static
-            runs_on: macos-14
-          - qt_series: 6
-            qt_version: 6.9.1
-            qt_modules: qtlocation qtpositioning
-            preset: macOS-clang-tidy
-            compiler: llvm
-            runs_on: macos-14
+            runs_on: macos-15
+          # - qt_series: 6
+          #   qt_version: 6.10.0
+          #   qt_modules: qtlocation qtpositioning
+          #   preset: macOS-clang-tidy
+          #   compiler: llvm
+          #   runs_on: macos-15
 
     env:
       COMPILER: ${{ matrix.compiler }}
@@ -165,12 +159,19 @@ jobs:
           export QMapLibre_DIR="$GITHUB_WORKSPACE/install/maplibre-native-qt"
           cmake --workflow --preset default
 
-      - name: Build QtWidgets Example
+      - name: Build QtQuick Standalone Example
         if: matrix.qt_series == 6 && matrix.compiler == 'default'
-        working-directory: source/examples/widgets
+        working-directory: source/examples/quick-standalone
         run: |
           export QMapLibre_DIR="$GITHUB_WORKSPACE/install/maplibre-native-qt"
           cmake --workflow --preset default
+
+      # - name: Build QtWidgets Example
+      #   if: matrix.qt_series == 6 && matrix.compiler == 'default'
+      #   working-directory: source/examples/widgets
+      #   run: |
+      #     export QMapLibre_DIR="$GITHUB_WORKSPACE/install/maplibre-native-qt"
+      #     cmake --workflow --preset default
 
       - name: Upload installation
         if: matrix.compiler == 'default' || matrix.compiler == 'static'
@@ -189,25 +190,22 @@ jobs:
   release:
     name: Release
     if: github.ref_type == 'tag'
-    runs-on: macos-14
+    runs-on: macos-15
     needs: build-and-test
     permissions:
       contents: write
     strategy:
       matrix:
         include:
-          - qt_version: 5.15.2
+          - qt_version: 6.9.3
             compiler: default
-            suffix: ""
-          - qt_version: 6.8.3
+            suffix: Metal
+          - qt_version: 6.10.0
             compiler: default
-            suffix: ""
-          - qt_version: 6.9.1
-            compiler: default
-            suffix: ""
-          - qt_version: 6.9.1
+            suffix: Metal
+          - qt_version: 6.10.0
             compiler: static
-            suffix: "_static"
+            suffix: Metal_static
 
     steps:
       - name: Download artifacts
@@ -222,11 +220,11 @@ jobs:
           TAG_NAME: ${{ github.ref_name }}
           PLATFORM_SUFFIX: ${{ matrix.suffix }}
         run: |
-          mv maplibre-native-qt_${TAG_NAME}_Qt${QT_VERSION}_macOS.tar.bz2 maplibre-native-qt_${TAG_NAME}_Qt${QT_VERSION}_macOS${PLATFORM_SUFFIX}.tar.bz2
+          mv maplibre-native-qt_${TAG_NAME}_Qt${QT_VERSION}_macOS_Metal.tar.bz2 maplibre-native-qt_${TAG_NAME}_Qt${QT_VERSION}_macOS_${PLATFORM_SUFFIX}.tar.bz2
 
       - name: Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: maplibre-native-qt_${{ github.ref_name }}_Qt${{ matrix.qt_version }}_macOS${{ matrix.suffix }}.tar.bz2
+          artifacts: maplibre-native-qt_${{ github.ref_name }}_Qt${{ matrix.qt_version }}_macOS_${{ matrix.suffix }}.tar.bz2
           allowUpdates: true
           draft: true

@@ -71,7 +71,7 @@ jobs:
       - name: Build
         run: |
           mkdir build && cd build
-          cmake -S ../source -B . -DCMAKE_BUILD_TYPE=Release
+          cmake -S ../source -B . -DCMAKE_BUILD_TYPE=Release -DMLN_WITH_OPENGL=ON
           cmake --build . --target package_source
 
       - name: Upload tarball

@@ -3,368 +3,328 @@
   "include": ["common.json"],
   "configurePresets": [
     {
-      "name": "Linux",
-      "displayName": "Linux configuration using Qt6",
+      "name": "Linux-OpenGL",
+      "displayName": "Linux configuration using Qt6 and OpenGL",
       "generator": "Ninja",
-      "binaryDir": "${sourceParentDir}/build/qt6-Linux",
-      "toolchainFile": "$penv{QT_ROOT_DIR}/lib/cmake/Qt6/qt.toolchain.cmake",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_POLICY_VERSION_MINIMUM": "3.19",
-        "QT_VERSION_MAJOR": "6"
-      }
-    },
-    {
-      "name": "Linux-ccache",
-      "displayName": "Linux configuration using Qt6 and ccache",
-      "inherits": ["dev", "ccache", "Linux"]
-    },
-    {
-      "name": "Linux-internal-icu",
-      "displayName": "Linux configuration using Qt6 and internal ICU",
-      "generator": "Ninja",
-      "binaryDir": "${sourceParentDir}/build/qt6-Linux-internal-icu",
+      "binaryDir": "${sourceParentDir}/build/qt6-Linux-OpenGL",
       "toolchainFile": "$penv{QT_ROOT_DIR}/lib/cmake/Qt6/qt.toolchain.cmake",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_POLICY_VERSION_MINIMUM": "3.19",
         "QT_VERSION_MAJOR": "6",
-        "MLN_QT_WITH_INTERNAL_ICU": "ON"
+        "MLN_WITH_OPENGL": "ON",
+        "MLN_QT_WITH_INTERNAL_ICU": "ON",
+        "MLN_QT_WITH_RENDERER_DEBUGGING": "OFF"
       }
     },
     {
-      "name": "Linux-internal-icu-ccache",
-      "displayName": "Linux configuration using Qt6, internal ICU and ccache",
-      "inherits": ["dev", "ccache", "Linux-internal-icu"]
+      "name": "Linux-Vulkan",
+      "displayName": "Linux configuration using Qt6 and Vulkan",
+      "generator": "Ninja",
+      "binaryDir": "${sourceParentDir}/build/qt6-Linux-Vulkan",
+      "toolchainFile": "$penv{QT_ROOT_DIR}/lib/cmake/Qt6/qt.toolchain.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_POLICY_VERSION_MINIMUM": "3.19",
+        "QT_VERSION_MAJOR": "6",
+        "MLN_WITH_VULKAN": "ON",
+        "MLN_QT_WITH_INTERNAL_ICU": "ON",
+        "MLN_QT_WITH_RENDERER_DEBUGGING": "OFF"
+      }
     },
     {
-      "name": "Linux-coverage",
-      "displayName": "Linux configuration using Qt6, ccache and code coverage",
-      "inherits": ["Linux-ccache"],
+      "name": "Linux-OpenGL-ccache",
+      "displayName": "Linux configuration using Qt6, OpenGL and ccache",
+      "inherits": ["dev", "ccache", "Linux-OpenGL"]
+    },
+    {
+      "name": "Linux-Vulkan-ccache",
+      "displayName": "Linux configuration using Qt6, Vulkan and ccache",
+      "inherits": ["dev", "ccache", "Linux-Vulkan"]
+    },
+    {
+      "name": "Linux-OpenGL-coverage",
+      "displayName": "Linux configuration using Qt6, OpenGL, ccache and code coverage",
+      "inherits": ["Linux-OpenGL-ccache"],
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_MAKE_PROGRAM": "$penv{CMAKE_MAKE_PROGRAM}",
         "MLN_QT_WITH_COVERAGE": "ON",
         "GCOV_PATH": "$penv{GCOV_PATH}"
       }
     },
     {
-      "name": "Linux-legacy",
-      "displayName": "Linux configuration using Qt5",
-      "generator": "Ninja",
-      "binaryDir": "${sourceParentDir}/build/qt5-Linux",
+      "name": "Linux-OpenGL-clang-tidy",
+      "displayName": "Linux configuration using Qt6, OpenGL, ccache and clang-tidy",
+      "inherits": ["Linux-OpenGL-ccache"],
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release",
-        "QT_VERSION_MAJOR": "5"
+        "MLN_QT_WITH_CLANG_TIDY": "ON"
       }
     },
     {
-      "name": "Linux-legacy-ccache",
-      "displayName": "Linux configuration using Qt5 and ccache",
-      "inherits": ["dev", "ccache", "Linux-legacy"]
+      "name": "Linux-Vulkan-clang-tidy",
+      "displayName": "Linux configuration using Qt6, Vulkan, ccache and clang-tidy",
+      "inherits": ["Linux-Vulkan-ccache"],
+      "cacheVariables": {
+        "MLN_QT_WITH_CLANG_TIDY": "ON"
+      }
     }
   ],
   "buildPresets": [
     {
-      "name": "Linux",
-      "displayName": "Linux build using Qt6",
-      "configurePreset": "Linux"
+      "name": "Linux-OpenGL",
+      "displayName": "Linux build using Qt6 and OpenGL",
+      "configurePreset": "Linux-OpenGL"
     },
     {
-      "name": "Linux-ccache",
-      "displayName": "Linux build using Qt6 and ccache",
-      "configurePreset": "Linux-ccache"
+      "name": "Linux-Vulkan",
+      "displayName": "Linux build using Qt6 and Vulkan",
+      "configurePreset": "Linux-Vulkan"
     },
     {
-      "name": "Linux-internal-icu",
-      "displayName": "Linux build using Qt6 and internal ICU",
-      "configurePreset": "Linux-internal-icu"
+      "name": "Linux-OpenGL-ccache",
+      "displayName": "Linux build using Qt6, OpenGL and ccache",
+      "configurePreset": "Linux-OpenGL-ccache"
     },
     {
-      "name": "Linux-internal-icu-ccache",
-      "displayName": "Linux build using Qt6, internal ICU and ccache",
-      "configurePreset": "Linux-internal-icu-ccache"
+      "name": "Linux-Vulkan-ccache",
+      "displayName": "Linux build using Qt6, Vulkan and ccache",
+      "configurePreset": "Linux-Vulkan-ccache"
     },
     {
-      "name": "Linux-coverage",
-      "displayName": "Linux build using Qt6, ccache and code coverage",
-      "configurePreset": "Linux-coverage"
+      "name": "Linux-OpenGL-coverage",
+      "displayName": "Linux build using Qt6, OpenGL, ccache and code coverage",
+      "configurePreset": "Linux-OpenGL-coverage"
     },
     {
-      "name": "Linux-legacy",
-      "displayName": "Linux build using Qt5",
-      "configurePreset": "Linux-legacy"
+      "name": "Linux-OpenGL-clang-tidy",
+      "displayName":"Linux build using Qt6, OpenGL, ccache and clang-tidy",
+      "configurePreset": "Linux-OpenGL-clang-tidy"
     },
     {
-      "name": "Linux-legacy-ccache",
-      "displayName": "Linux build using Qt5 and ccache",
-      "configurePreset": "Linux-legacy-ccache"
+      "name": "Linux-Vulkan-clang-tidy",
+      "displayName":"Linux build using Qt6, Vulkan, ccache and clang-tidy",
+      "configurePreset": "Linux-Vulkan-clang-tidy"
     }
   ],
   "testPresets": [
     {
-      "name": "Linux",
-      "displayName": "Linux tests using Qt6",
-      "configurePreset": "Linux",
+      "name": "Linux-OpenGL",
+      "displayName": "Linux tests using Qt6 and OpenGL",
+      "configurePreset": "Linux-OpenGL",
       "inherits": ["default"]
     },
     {
-      "name": "Linux-ccache",
-      "displayName": "Linux tests using Qt6 and ccache",
-      "configurePreset": "Linux-ccache",
+      "name": "Linux-Vulkan",
+      "displayName": "Linux tests using Qt6 and Vulkan",
+      "configurePreset": "Linux-Vulkan",
       "inherits": ["default"]
     },
     {
-      "name": "Linux-internal-icu",
-      "displayName": "Linux tests using Qt6 and internal ICU",
-      "configurePreset": "Linux-internal-icu",
+      "name": "Linux-OpenGL-ccache",
+      "displayName": "Linux tests using Qt6, OpenGL and ccache",
+      "configurePreset": "Linux-OpenGL-ccache",
       "inherits": ["default"]
     },
     {
-      "name": "Linux-internal-icu-ccache",
-      "displayName": "Linux tests using Qt6, internal ICU and ccache",
-      "configurePreset": "Linux-internal-icu-ccache",
+      "name": "Linux-Vulkan-ccache",
+      "displayName": "Linux tests using Qt6, Vulkan and ccache",
+      "configurePreset": "Linux-Vulkan-ccache",
       "inherits": ["default"]
     },
     {
-      "name": "Linux-coverage",
-      "displayName": "Linux tests using Qt6, ccache and code coverage",
-      "configurePreset": "Linux-coverage",
-      "inherits": ["default"]
-    },
-    {
-      "name": "Linux-legacy",
-      "displayName": "Linux tests using Qt5",
-      "configurePreset": "Linux-legacy",
-      "inherits": ["default"]
-    },
-    {
-      "name": "Linux-legacy-ccache",
-      "displayName": "Linux tests using Qt5 and ccache",
-      "configurePreset": "Linux-legacy-ccache",
+      "name": "Linux-OpenGL-coverage",
+      "displayName": "Linux tests using Qt6, OpenGL, ccache and code coverage",
+      "configurePreset": "Linux-OpenGL-coverage",
       "inherits": ["default"]
     }
   ],
   "packagePresets": [
     {
-      "name": "Linux",
-      "displayName": "Linux package using Qt6",
-      "configurePreset": "Linux"
+      "name": "Linux-OpenGL",
+      "displayName": "Linux package using Qt6 and OpenGL",
+      "configurePreset": "Linux-OpenGL"
     },
     {
-      "name": "Linux-ccache",
-      "displayName": "Linux package using Qt6 and ccache",
-      "configurePreset": "Linux-ccache"
+      "name": "Linux-Vulkan",
+      "displayName": "Linux package using Qt6 and Vulkan",
+      "configurePreset": "Linux-Vulkan"
     },
     {
-      "name": "Linux-internal-icu",
-      "displayName": "Linux package using Qt6 and internal ICU",
-      "configurePreset": "Linux-internal-icu"
+      "name": "Linux-OpenGL-ccache",
+      "displayName": "Linux package using Qt6, OpenGL and ccache",
+      "configurePreset": "Linux-OpenGL-ccache"
     },
     {
-      "name": "Linux-internal-icu-ccache",
-      "displayName": "Linux package using Qt6, internal ICU and ccache",
-      "configurePreset": "Linux-internal-icu-ccache"
-    },
-    {
-      "name": "Linux-coverage",
-      "displayName": "Linux package using Qt6, ccache and code coverage",
-      "configurePreset": "Linux-coverage"
-    },
-    {
-      "name": "Linux-legacy",
-      "displayName": "Linux package using Qt5",
-      "configurePreset": "Linux-legacy"
-    },
-    {
-      "name": "Linux-legacy-ccache",
-      "displayName": "Linux package using Qt5 and ccache",
-      "configurePreset": "Linux-legacy-ccache"
+      "name": "Linux-Vulkan-ccache",
+      "displayName": "Linux package using Qt6, Vulkan and ccache",
+      "configurePreset": "Linux-Vulkan-ccache"
     }
   ],
   "workflowPresets": [
     {
-      "name": "Linux",
-      "displayName": "Linux workflow using Qt6",
+      "name": "Linux-OpenGL",
+      "displayName": "Linux workflow using Qt6 and OpenGL",
       "steps": [
         {
           "type": "configure",
-          "name": "Linux"
+          "name": "Linux-OpenGL"
         },
         {
           "type": "build",
-          "name": "Linux"
+          "name": "Linux-OpenGL"
         },
         {
           "type": "test",
-          "name": "Linux"
+          "name": "Linux-OpenGL"
         },
         {
           "type": "package",
-          "name": "Linux"
+          "name": "Linux-OpenGL"
         }
       ]
     },
     {
-      "name": "Linux-ccache",
-      "displayName": "Linux workflow using Qt6 and ccache",
+      "name": "Linux-Vulkan",
+      "displayName": "Linux workflow using Qt6 and Vulkan",
       "steps": [
         {
           "type": "configure",
-          "name": "Linux-ccache"
+          "name": "Linux-Vulkan"
         },
         {
           "type": "build",
-          "name": "Linux-ccache"
+          "name": "Linux-Vulkan"
         },
         {
           "type": "test",
-          "name": "Linux-ccache"
+          "name": "Linux-Vulkan"
         },
         {
           "type": "package",
-          "name": "Linux-ccache"
+          "name": "Linux-Vulkan"
         }
       ]
     },
     {
-      "name": "Linux-internal-icu",
-      "displayName": "Linux workflow using Qt6 and internal ICU",
+      "name": "Linux-OpenGL-ccache",
+      "displayName": "Linux workflow using Qt6, OpenGL and ccache",
       "steps": [
         {
           "type": "configure",
-          "name": "Linux-internal-icu"
+          "name": "Linux-OpenGL-ccache"
         },
         {
           "type": "build",
-          "name": "Linux-internal-icu"
+          "name": "Linux-OpenGL-ccache"
         },
         {
           "type": "test",
-          "name": "Linux-internal-icu"
+          "name": "Linux-OpenGL-ccache"
         },
         {
           "type": "package",
-          "name": "Linux-internal-icu"
+          "name": "Linux-OpenGL-ccache"
         }
       ]
     },
     {
-      "name": "Linux-internal-icu-ccache",
-      "displayName": "Linux workflow using Qt6, internal ICU and ccache",
+      "name": "Linux-Vulkan-ccache",
+      "displayName": "Linux workflow using Qt6, Vulkan and ccache",
       "steps": [
         {
           "type": "configure",
-          "name": "Linux-internal-icu-ccache"
+          "name": "Linux-Vulkan-ccache"
         },
         {
           "type": "build",
-          "name": "Linux-internal-icu-ccache"
+          "name": "Linux-Vulkan-ccache"
         },
         {
           "type": "test",
-          "name": "Linux-internal-icu-ccache"
+          "name": "Linux-Vulkan-ccache"
         },
         {
           "type": "package",
-          "name": "Linux-internal-icu-ccache"
+          "name": "Linux-Vulkan-ccache"
         }
       ]
     },
     {
-      "name": "Linux-CI",
-      "displayName": "Linux workflow using Qt6 and ccache for CI",
+      "name": "Linux-OpenGL-ccache-CI",
+      "displayName": "Linux workflow using Qt6, OpenGL and ccache (no test)",
       "steps": [
         {
           "type": "configure",
-          "name": "Linux-ccache"
+          "name": "Linux-OpenGL-ccache"
         },
         {
           "type": "build",
-          "name": "Linux-ccache"
+          "name": "Linux-OpenGL-ccache"
         },
         {
           "type": "package",
-          "name": "Linux-ccache"
+          "name": "Linux-OpenGL-ccache"
         }
       ]
     },
     {
-      "name": "Linux-coverage",
-      "displayName": "Linux workflow using Qt6, ccache and code coverage",
+      "name": "Linux-Vulkan-ccache-CI",
+      "displayName": "Linux workflow using Qt6, Vulkan and ccache (no test)",
       "steps": [
         {
           "type": "configure",
-          "name": "Linux-coverage"
+          "name": "Linux-Vulkan-ccache"
         },
         {
           "type": "build",
-          "name": "Linux-coverage"
+          "name": "Linux-Vulkan-ccache"
         },
         {
           "type": "package",
-          "name": "Linux-coverage"
+          "name": "Linux-Vulkan-ccache"
         }
       ]
     },
     {
-      "name": "Linux-legacy",
-      "displayName": "Linux workflow using Qt5",
+      "name": "Linux-OpenGL-coverage",
+      "displayName": "Linux workflow using Qt6, OpenGL, ccache and code coverage",
       "steps": [
         {
           "type": "configure",
-          "name": "Linux-legacy"
+          "name": "Linux-OpenGL-coverage"
         },
         {
           "type": "build",
-          "name": "Linux-legacy"
-        },
-        {
-          "type": "test",
-          "name": "Linux-legacy"
-        },
-        {
-          "type": "package",
-          "name": "Linux-legacy"
+          "name": "Linux-OpenGL-coverage"
         }
       ]
     },
     {
-      "name": "Linux-legacy-ccache",
-      "displayName": "Linux workflow using Qt5 and ccache",
+      "name": "Linux-OpenGL-clang-tidy",
+      "displayName":"Linux workflow using Qt6, OpenGL, ccache and clang-tidy",
       "steps": [
         {
           "type": "configure",
-          "name": "Linux-legacy-ccache"
+          "name": "Linux-OpenGL-clang-tidy"
         },
         {
           "type": "build",
-          "name": "Linux-legacy-ccache"
-        },
-        {
-          "type": "test",
-          "name": "Linux-legacy-ccache"
-        },
-        {
-          "type": "package",
-          "name": "Linux-legacy-ccache"
+          "name": "Linux-OpenGL-clang-tidy"
         }
       ]
     },
     {
-      "name": "Linux-legacy-CI",
-      "displayName": "Linux workflow using Qt5 and ccache for CI",
+      "name": "Linux-Vulkan-clang-tidy",
+      "displayName":"Linux workflow using Qt6, Vulkan, ccache and clang-tidy",
       "steps": [
         {
           "type": "configure",
-          "name": "Linux-legacy-ccache"
+          "name": "Linux-Vulkan-clang-tidy"
         },
         {
           "type": "build",
-          "name": "Linux-legacy-ccache"
-        },
-        {
-          "type": "package",
-          "name": "Linux-legacy-ccache"
+          "name": "Linux-Vulkan-clang-tidy"
         }
       ]
     }

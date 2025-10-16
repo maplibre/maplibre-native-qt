@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.19...3.21)
 
-project(QMapLibreExampleQuick VERSION 1.0.0 LANGUAGES CXX)
+project(QMapLibreExampleQuickLocation VERSION 1.0.0 LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -13,15 +13,15 @@ if(QT_KNOWN_POLICY_QTP0002)
     qt_policy(SET QTP0002 NEW)
 endif()
 
-find_package(QMapLibre COMPONENTS Location REQUIRED)
+find_package(QMapLibre COMPONENTS Core Location REQUIRED)
 
 qt_add_executable(
-    QMapLibreExampleQuick
+    QMapLibreExampleQuickLocation
     main.cpp
 )
 
 qt_add_qml_module(
-    QMapLibreExampleQuick
+    QMapLibreExampleQuickLocation
     URI Example
     VERSION 1.0
     RESOURCE_PREFIX "/"
@@ -30,30 +30,31 @@ qt_add_qml_module(
 )
 
 set_target_properties(
-    QMapLibreExampleQuick
+    QMapLibreExampleQuickLocation
     PROPERTIES
         WIN32_EXECUTABLE ON
         MACOSX_BUNDLE ON
 )
 
 target_link_libraries(
-    QMapLibreExampleQuick
+    QMapLibreExampleQuickLocation
     PRIVATE
         Qt::Quick
+        QMapLibre::Core
         QMapLibre::Location
 )
 
-qmaplibre_location_setup_plugins(QMapLibreExampleQuick)
+qmaplibre_location_setup_plugins(QMapLibreExampleQuickLocation)
 
 install(
-    TARGETS QMapLibreExampleQuick
+    TARGETS QMapLibreExampleQuickLocation
     BUNDLE DESTINATION .
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
 qt_generate_deploy_qml_app_script(
-    TARGET QMapLibreExampleQuick
+    TARGET QMapLibreExampleQuickLocation
     OUTPUT_SCRIPT deploy_script
     MACOS_BUNDLE_POST_BUILD
     NO_UNSUPPORTED_PLATFORM_ERROR
@@ -76,7 +77,7 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Android")
     FetchContent_MakeAvailable(android_openssl)
     include(${android_openssl_SOURCE_DIR}/android_openssl.cmake)
 
-    add_android_openssl_libraries(QMapLibreExampleQuick)
+    add_android_openssl_libraries(QMapLibreExampleQuickLocation)
 endif()
 
 # Packaging

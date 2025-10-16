@@ -11,12 +11,12 @@ project(
     maplibre-native-qt
     VERSION "${MLN_QT_VERSION}"
     DESCRIPTION "MapLibre Native Qt Bindings"
-    LANGUAGES CXX
+    LANGUAGES CXX C
 )
 
 # Common CMake definitions
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -27,17 +27,20 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 set(MLN_QT_NAME QMapLibre)
 set(MLN_QT_NAMESPACE ${MLN_QT_NAME}::)
 set(MLN_QT_GEOSERVICES_PLUGIN qtgeoservices_maplibre)
-set(MLN_QT_QML_PLUGIN declarative_locationplugin_maplibre)
+set(MLN_QT_QML_PLUGIN declarative_maplibre)
+set(MLN_QT_QML_PLUGIN_LOCATION declarative_maplibre_locationplugin)
 
 include(cmake/helpers.cmake)
 
 # Options
+option(MLN_QT_WITH_QUICK_PLUGIN "Build QMapLibreQuick plugin" ON)
 option(MLN_QT_WITH_LOCATION "Build QMapLibreLocation" ON)
-option(MLN_QT_WITH_WIDGETS "Build QMapLibreWidgets" ON)
+option(MLN_QT_WITH_WIDGETS "Build QMapLibreWidgets" OFF)
 option(MLN_QT_STATIC "Build QMapLibre staticaly (force static build with Qt6)" OFF)
 option(MLN_QT_WITH_COVERAGE "Build QMapLibre with code coverage collection" OFF)
 option(MLN_QT_WITH_CLANG_TIDY "Build QMapLibre with clang-tidy checks enabled" OFF)
 option(MLN_QT_WITH_LTO "Build QMapLibre with Link-Time Optimization" OFF)
+option(MLN_QT_WITH_RENDERER_DEBUGGING "Build QMapLibre with renderer debugging" OFF)
 
 if(MLN_QT_WITH_LTO)
     include(CheckIPOSupported)
@@ -52,7 +55,7 @@ endif()
 
 # Find Qt
 if("${QT_VERSION_MAJOR}" STREQUAL "")
-    find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
+    find_package(QT NAMES Qt6 COMPONENTS Core REQUIRED)
 else()
     find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
 endif()
@@ -60,8 +63,14 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Gui Network REQUIRED) # main depen
 if(NOT MLN_QT_WITH_INTERNAL_SQLITE)
     find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Sql REQUIRED)
 endif()
+if(MLN_QT_WITH_QUICK_PLUGIN)
+    find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Quick REQUIRED) # quick
+endif()
 if(MLN_QT_WITH_LOCATION)
     find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Location REQUIRED) # location
+    if(QT_VERSION_MAJOR EQUAL 6 AND QT_VERSION_MINOR GREATER_EQUAL 9)
+        find_package(Qt${QT_VERSION_MAJOR} COMPONENTS LocationPrivate REQUIRED)
+    endif()
 endif()
 if(MLN_QT_WITH_WIDGETS)
     if(Qt6_FOUND)
@@ -139,13 +148,21 @@ if(MLN_QT_WITH_COVERAGE)
 endif()
 
 # Packaging
+if(MLN_WITH_METAL)
+    set(CPACK_RENDERER_NAME Metal)
+elseif(MLN_WITH_VULKAN)
+    set(CPACK_RENDERER_NAME Vulkan)
+elseif(MLN_WITH_OPENGL)
+    set(CPACK_RENDERER_NAME OpenGL)
+endif()
+
 set(CPACK_GENERATOR TBZ2)
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     set(CPACK_SYSTEM_NAME "macOS")
 else()
     set(CPACK_SYSTEM_NAME "${CMAKE_SYSTEM_NAME}")
 endif()
-set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}_v${PROJECT_VERSION}_Qt${QT_VERSION}_${CPACK_SYSTEM_NAME}")
+set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}_v${PROJECT_VERSION}_Qt${QT_VERSION}_${CPACK_SYSTEM_NAME}_${CPACK_RENDERER_NAME}")
 set(CPACK_SOURCE_PACKAGE_FILE_NAME "${PROJECT_NAME}_v${PROJECT_VERSION}_Source")
 set(CPACK_SOURCE_GENERATOR TBZ2)
 set(CPACK_SOURCE_IGNORE_FILES

@@ -41,6 +41,23 @@ See [below](#platform-specific-build-instructions) for platform-specific instruc
 @note It is recommended to use [CMake workflows](#using-cmake-workflows) as they
 are always up-to-date and cover all supported platforms.
 
+## Graphics backend support
+
+MapLibre Native Qt supports multiple graphics backends for rendering. You need to enable
+the appropriate backend during build time using CMake options:
+
+- **OpenGL**: `-DMLN_WITH_OPENGL=ON` (available on Linux, Windows, and Android)
+- **Vulkan**: `-DMLN_WITH_VULKAN=ON` (available on Linux, Windows, and Android)
+- **Metal**: `-DMLN_WITH_METAL=ON` (available on macOS and iOS)
+
+@note A graphics backend must be enabled for the library to build successfully.
+
+```bash
+cmake ../maplibre-native-qt -G Ninja \
+  -DMLN_WITH_OPENGL=ON \
+  -DCMAKE_INSTALL_PREFIX="../install"
+```
+
 ## Using CMake workflows
 
 CMake workflow presets are provided for all supported platforms.
@@ -66,30 +83,33 @@ For Android, the `ANDROID_ABI` environment variable should be set.
 
 ### Supported release workflows
 
-| Platform | Qt6       | Qt6 with ccache  | Qt5              | Qt5 with ccache         |
-|----------|-----------|------------------|------------------|-------------------------|
-| Linux    | `Linux`   | `Linux-ccache`   | `Linux-legacy`   | `Linux-legacy-ccache`   |
-| macOS    | `macOS`   | `macOS-ccache`   | `macOS-legacy`   | `macOS-legacy-ccache`   |
-| Windows  | `Windows` | `Windows-ccache` | `Windows-legacy` | `Windows-legacy-ccache` |
-| iOS      | `iOS`     | `iOS-ccache`     |                  |                         |
-| Android  | `Android` | `Android-ccache` |                  |                         |
-| WASM     | `WASM`    | `WASM-ccache`    |                  |                         |
+| Platform         | Workflow         | Workflow with ccache    |
+|------------------|------------------|-------------------------|
+| Linux (OpenGL)   | `Linux-OpenGL`   | `Linux-OpenGL-ccache`   |
+| Linux (Vulkan)   | `Linux-Vulkan`   | `Linux-Vulkan-ccache`   |
+| macOS (Metal)    | `macOS`          | `macOS-ccache`          |
+| Windows (OpenGL) | `Windows-OpenGL` | `Windows-OpenGL-ccache` |
+| Windows (OpenGL) | `Windows-Vulkan` | `Windows-Vulkan-ccache` |
+| iOS (Metal)      | `iOS`            | `iOS-ccache`            |
+| Android (OpenGL) | `Android-OpenGL` | `Android-ccache`        |
+| Android (Vulkan) | `Android-Vulkan` | `Android-ccache`        |
+| WASM (WebGL 2)   | `WASM`           | `WASM-ccache`           |
 
 ### Special workflows
 
-| Platform | Workflow             | Description                                                         |
-|----------|----------------------|---------------------------------------------------------------------|
-| Linux    | `Linux-coverage`     | Linux build with Qt6, `ccache` and code coverage                    |
-| Linux    | `Linux-internal-icu` | Linux build with Qt6 and internal ICU library (also with `-ccache`) |
-| Linux    | `Linux-CI`           | Linux build with Qt6 and ccache for CI                              |
-| Linux    | `Linux-legacy-CI`    | Linux build with Qt5 and ccache for CI                              |
-| macOS    | `macOS-clang-tidy`   | macOS build with Qt6, `ccache` and `clang-tidy`                     |
+| Platform         | Workflow                  | Description                                              |
+|------------------|---------------------------|----------------------------------------------------------|
+| Linux (OpenGL)   | `Linux-OpenGL-coverage`   | Linux build with Qt6, OpenGL, `ccache` and code coverage |
+| Linux (OpenGL)   | `Linux-OpenGL-clang-tidy` | Linux build with Qt6, OpenGL `ccache` and `clang-tidy`   |
+| Linux (Vulkan)   | `Linux-Vulkan-clang-tidy` | Linux build with Qt6, Vulkan, `ccache` and `clang-tidy`  |
+| macOS (Metal)    | `macOS-clang-tidy`        | macOS build with Qt6, `ccache` and `clang-tidy`          |
 
 ## Platform specific build instructions
 
 ### Linux
 
 #### Installing Qt6 prerequisites
+
 ##### Alpine
 
 ```bash
@@ -103,6 +123,7 @@ sudo apk add \
     qt6-qtlocation-dev \
     samurai
 ```
+
 ##### Archlinux & Manjaro
 
 ```bash
@@ -195,6 +216,7 @@ specific package manager needs to be used to resolve dependencies of Qt.
 ###### Installing Qt dependencies
 
 _Debian `12 Bookworm` /  Linux Mint `22.1 Xia` / Ubuntu `24.04 Noble` or older:_
+
 ```bash
 sudo apt update && sudo apt install -y \
    build-essential \
@@ -230,7 +252,7 @@ sudo apt update && sudo apt install -y \
 
 Installing Qt via `aqt`:
 
-```
+```bash
 python3 -m venv /tmp/qtvenv
 source /tmp/qtvenv/bin/activate
 pip install 'setuptools>=70.1.0' 'py7zr==0.22.*'
@@ -261,11 +283,63 @@ ninja
 ninja install
 ```
 
+#### Building with Vulkan support
+
+MapLibre Native Qt supports Vulkan as a rendering backend on Linux.
+This provides better performance and is the recommended approach for Qt Quick
+applications.
+
+##### Prerequisites
+
+In addition to the regular Qt build dependencies, you'll need:
+
+- Vulkan development headers
+  (e.g. `libvulkan-dev` on Debian/Ubuntu, `vulkan-devel` on Fedora)
+- Vulkan ICD (Installable Client Driver) for your graphics hardware
+- Vulkan validation layers for debugging
+  (optional, e.g. `vulkan-validationlayers` on Debian/Ubuntu)
+
+##### Building with Vulkan backend
+
+To build MapLibre Native Qt with Vulkan support, use the `-DMLN_WITH_VULKAN=ON` CMake option:
+
+```shell
+mkdir build-vulkan && cd build-vulkan
+cmake ../maplibre-native-qt -G Ninja \
+  -DCMAKE_BUILD_TYPE="Release" \
+  -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
+  -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
+  -DCMAKE_INSTALL_PREFIX="../install-vulkan" \
+  -DMLN_WITH_VULKAN=ON
+ninja
+ninja install
+```
+
+##### Troubleshooting Vulkan
+
+If you encounter issues with Vulkan:
+
+1. **Check Vulkan support**: Use `vulkaninfo` to verify your system supports Vulkan
+2. **Verify drivers**: Ensure your graphics drivers support Vulkan
+3. **Validation layers**: Enable validation layers for debugging:
+   ```shell
+   export VK_LAYER_PATH=/usr/share/vulkan/explicit_layer.d
+   ```
+4. **Debug output**: Run with debug logging:
+   ```shell
+   QT_LOGGING_RULES="qt.vulkan.debug=true" ./QMapLibreExampleQuick
+   ```
+
 ### macOS
 
 Release binaries contain debug symbols.
 Additionally both Intel and ARM versions are supported and included.
 OS deployment target version is set to 12.0 for Qt 6 and 10.13 for Qt 5.
+
+#### Building with Metal support
+
+Metal is the required graphics backend for macOS as OpenGL is not supported on Apple platforms.
+To build with Metal support, use the `-DMLN_WITH_METAL=ON` CMake option.
 
 To replicate run:
 
@@ -286,6 +360,12 @@ ninja install
 
 Two separate release binaries are provided, one with release build and one
 with debug build. To achieve that `Ninja Multi-Config` generator is used.
+
+#### Graphics backend support
+
+Windows supports both OpenGL and Vulkan backends. To enable OpenGL support,
+add `-DMLN_WITH_OPENGL=ON` to your CMake configuration. To enable Vulkan support,
+add `-DMLN_WITH_VULKAN=ON`.
 
 To replicate, run:
 
@@ -308,6 +388,11 @@ with debug build. To achieve that `Ninja Multi-Config` generator is used.
 Both device and simulator builds are supported.
 OS deployment target version is set to 16.0.
 
+#### Metal support
+
+Metal is the required graphics backend for iOS as OpenGL is not supported on Apple platforms.
+To build with Metal support, use the `-DMLN_WITH_METAL=ON` CMake option.
+
 To replicate, run:
 
 ```shell
@@ -327,6 +412,12 @@ ninja install
 ### Android
 
 Release binaries contain debug symbols. Each ABI is built separately.
+
+#### Graphics backend support
+
+Android supports both OpenGL and Vulkan backends. To enable OpenGL support,
+add `-DMLN_WITH_OPENGL=ON` to your CMake configuration. To enable Vulkan support
+(requires Android API level 24 or higher), add `-DMLN_WITH_VULKAN=ON`.
 
 To replicate, run:
 

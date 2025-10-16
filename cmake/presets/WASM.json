@@ -11,7 +11,8 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "RelWithDebInfo",
         "CMAKE_POLICY_VERSION_MINIMUM": "3.19",
-        "MLN_QT_WITH_LOCATION": "OFF"
+        "MLN_QT_WITH_LOCATION": "OFF",
+        "MLN_QT_WITH_RENDERER_DEBUGGING": "OFF"
       }
     },
     {
