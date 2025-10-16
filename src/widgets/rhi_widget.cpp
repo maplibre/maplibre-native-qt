@@ -152,7 +152,6 @@ void RhiWidget::initialize(QRhiCommandBuffer *cb) {
                 update();
             }
         });
-
     }
 
     // Create the renderer based on the build configuration and runtime API
@@ -250,7 +249,8 @@ void RhiWidget::initialize(QRhiCommandBuffer *cb) {
                 zoom = 10.0;
             }
 
-            qDebug() << "Setting initial map view - Coordinate:" << coord.first << "," << coord.second << "Zoom:" << zoom;
+            qDebug() << "Setting initial map view - Coordinate:" << coord.first << "," << coord.second
+                     << "Zoom:" << zoom;
             d_ptr->m_map->setCoordinateZoom(coord, zoom);
 
             // Set default style
