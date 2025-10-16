@@ -18,7 +18,7 @@ if(MLN_QT_WITH_LOCATION)
     message(STATUS "Building location module")
 endif()
 
-if(MLN_QT_WITH_WIDGETS AND MLN_WITH_OPENGL)
+if(MLN_QT_WITH_WIDGETS)
     add_subdirectory(widgets)
     list(APPEND MLN_QT_SUPPORTED_COMPONENTS "Widgets")
     message(STATUS "Building widgets module")

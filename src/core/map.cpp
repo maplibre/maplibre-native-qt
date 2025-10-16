@@ -6,15 +6,22 @@
 #include "map.hpp"
 #include "map_p.hpp"
 
+#if defined(MLN_RENDER_BACKEND_METAL)
+#include "rendering/metal_renderer_backend_p.hpp"
+#endif
+
+#if defined(MLN_RENDER_BACKEND_VULKAN)
+#include "rendering/vulkan_renderer_backend_p.hpp"
+#include <vulkan/vulkan.h>
+#include <mbgl/vulkan/texture2d.hpp>
+#include <mbgl/util/image.hpp>
+#endif
+
 #include "conversion_p.hpp"
 #include "geojson_p.hpp"
 #include "map_observer_p.hpp"
 
 #include "rendering/renderer_observer_p.hpp"
-
-#if defined(Q_OS_WINDOWS) && defined(GetObject)
-#undef GetObject
-#endif
 
 #include <mbgl/actor/scheduler.hpp>
 #include <mbgl/annotation/annotation.hpp>
@@ -1481,7 +1488,7 @@ void Map::setFilter(const QString &layerId, const QVariant &filter) {
     <a href="https://maplibre.org/maplibre-style-spec/types/">MapLibre Style Spec</a>.
 */
 QVariant Map::getFilter(const QString &layerId) const {
-    const mbgl::style::Layer *layer = d_ptr->mapObj->getStyle().getLayer(layerId.toStdString());
+    mbgl::style::Layer *layer = d_ptr->mapObj->getStyle().getLayer(layerId.toStdString());
     if (layer == nullptr) {
         qWarning() << "Layer not found:" << layerId;
         return {};
@@ -1703,7 +1710,7 @@ MapPrivate::MapPrivate(Map *map, const Settings &settings, const QSize &size, qr
 MapPrivate::~MapPrivate() = default;
 
 void MapPrivate::update(std::shared_ptr<mbgl::UpdateParameters> parameters) {
-    const std::scoped_lock lock(m_mapRendererMutex);
+    const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
 
     m_updateParameters = std::move(parameters);
 
@@ -1719,7 +1726,7 @@ void MapPrivate::update(std::shared_ptr<mbgl::UpdateParameters> parameters) {
 void MapPrivate::setObserver(mbgl::RendererObserver &observer) {
     m_rendererObserver = std::make_unique<RendererObserver>(*mbgl::util::RunLoop::Get(), observer);
 
-    const std::scoped_lock lock(m_mapRendererMutex);
+    const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
 
     if (m_mapRenderer != nullptr) {
         m_mapRenderer->setObserver(m_rendererObserver.get());
@@ -1727,7 +1734,7 @@ void MapPrivate::setObserver(mbgl::RendererObserver &observer) {
 }
 
 void MapPrivate::createRenderer(void *nativeTargetPtr) {
-    const std::scoped_lock lock(m_mapRendererMutex);
+    const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
 
     if (m_mapRenderer != nullptr) {
         return;
@@ -1757,7 +1764,7 @@ void MapPrivate::createRendererWithQtVulkanDevice(void *windowPtr,
                                                   void *physicalDevice,
                                                   void *device,
                                                   uint32_t graphicsQueueIndex) {
-    const std::scoped_lock lock(m_mapRendererMutex);
+    const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
 
     if (m_mapRenderer != nullptr) {
         return; // already created
@@ -1784,44 +1791,32 @@ void MapPrivate::createRendererWithQtVulkanDevice(void *windowPtr,
 #endif
 
 void MapPrivate::destroyRenderer() {
-    const std::scoped_lock lock(m_mapRendererMutex);
+    const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
 
     m_mapRenderer.reset();
 }
 
 void MapPrivate::render() {
-    const std::scoped_lock lock(m_mapRendererMutex);
+    const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
 
-#ifdef MLN_RENDERER_DEBUGGING
-    qDebug() << "MapPrivate::render() - Called";
-#endif
+    qDebug() << "MapPrivate::render() called";
 
     if (m_mapRenderer == nullptr) {
-#ifdef MLN_RENDERER_DEBUGGING
-        qDebug() << "MapPrivate::render() - MapRenderer is null, not rendering";
-#endif
+        qDebug() << "MapRenderer is null, not rendering";
         return;
     }
 
-#ifdef MLN_RENDERER_DEBUGGING
-    qDebug() << "MapPrivate::render() - Clearing render queue and rendering";
-#endif
-
+    qDebug() << "Clearing render queue and calling renderer->render()";
     m_renderQueued.clear();
     m_mapRenderer->render();
-
-#ifdef MLN_RENDERER_DEBUGGING
-    qDebug() << "MapPrivate::render() - Completed";
-#endif
+    qDebug() << "MapPrivate::render() completed";
 }
 
 void MapPrivate::updateRenderer(const QSize &size, qreal pixelRatio, quint32 fbo) {
-    const std::scoped_lock lock(m_mapRendererMutex);
+    const std::lock_guard<std::recursive_mutex> lock(m_mapRendererMutex);
 
     if (m_mapRenderer == nullptr) {
-#ifdef MLN_RENDERER_DEBUGGING
-        qDebug() << "MapPrivate::updateRenderer() - MapRenderer is null, skipping renderer update";
-#endif
+        qDebug() << "MapRenderer is null, skipping renderer update";
         return;
     }
 
@@ -1834,6 +1829,8 @@ void MapPrivate::requestRendering() {
         emit needsRendering();
     }
 }
+
+// Vulkan implementation is now inline in map_p.hpp
 
 bool MapPrivate::setProperty(const PropertySetter &setter,
                              const QString &layerId,
@@ -1911,7 +1908,32 @@ void Map::setCurrentDrawable(void *texturePtr) {
     d_ptr->setCurrentDrawable(texturePtr);
 }
 
+#if defined(MLN_RENDER_BACKEND_METAL)
+/*!
+    \brief Set the Metal render target for direct rendering.
+
+    This function passes a Metal texture from QRhiWidget to MapLibre,
+    allowing MapLibre to render directly to the widget's surface instead
+    of rendering to its own CAMetalLayer and copying.
+
+    \param metalTexture The Metal texture to render to (id<MTLTexture>)
+
+    Must be called on the render thread.
+*/
+void Map::setMetalRenderTarget(void* metalTexture) {
+    d_ptr->setMetalRenderTarget(metalTexture);
+}
+#endif
+
 #ifdef MLN_RENDER_BACKEND_VULKAN
+void Map::setVulkanRenderTarget(void* vulkanImage) {
+    d_ptr->setVulkanRenderTarget(vulkanImage);
+}
+
+void Map::setVulkanRenderTarget(void* vulkanImage, const QSize& imageSize) {
+    d_ptr->setVulkanRenderTarget(vulkanImage, imageSize);
+}
+
 mbgl::vulkan::Texture2D *Map::getVulkanTexture() const {
     return d_ptr->getVulkanTexture();
 }
@@ -1925,9 +1947,15 @@ mbgl::vulkan::Texture2D *Map::getVulkanTexture() const {
 // }
 #endif
 
+
+
 #ifdef MLN_RENDER_BACKEND_OPENGL
 unsigned int Map::getFramebufferTextureId() const {
     return d_ptr->getFramebufferTextureId();
+}
+
+void Map::setOpenGLRenderTarget(unsigned int textureId, const QSize& textureSize) {
+    d_ptr->setOpenGLRenderTarget(textureId, textureSize);
 }
 #endif
 

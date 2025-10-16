@@ -5,7 +5,7 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
-#include <QMapLibreWidgets/GLWidget>
+#include <QMapLibreWidgets/RhiWidget>
 
 #include <QPushButton>
 #include <QVBoxLayout>
@@ -28,7 +28,7 @@ private slots:
     void dockUndock();
 
 private:
-    std::unique_ptr<QMapLibre::GLWidget> m_glWidget{};
+    QMapLibre::RhiWidget *m_rhiWidget{};  // Qt will manage lifetime via parent-child
     std::unique_ptr<QVBoxLayout> m_layout{};
     std::unique_ptr<QPushButton> m_buttonDock{};
     MainWindow *m_mainWindowRef{};

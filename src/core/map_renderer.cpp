@@ -11,17 +11,17 @@
 
 #include <QtCore/QThreadStorage>
 
-#ifdef __APPLE__
+#if defined(__APPLE__)
 #include <TargetConditionals.h>
 #endif
 
-#ifdef MLN_RENDER_BACKEND_METAL
+#if defined(MLN_RENDER_BACKEND_METAL)
 #include <QuartzCore/CAMetalLayer.hpp>
 #endif
 
-#ifdef MLN_RENDER_BACKEND_VULKAN
+#if defined(MLN_RENDER_BACKEND_VULKAN)
+#include <vulkan/vulkan.h>
 #include <QtGui/QWindow>
-#include <vulkan/vulkan.hpp>
 #endif
 
 namespace {
@@ -56,7 +56,7 @@ MapRenderer::MapRenderer(qreal pixelRatio,
                          Settings::GLContextMode mode,
                          const QString &localFontFamily,
                          void *nativeTargetPtr)
-#ifdef MLN_RENDER_BACKEND_VULKAN
+#if defined(MLN_RENDER_BACKEND_VULKAN)
     : m_backend(static_cast<QWindow *>(nativeTargetPtr)),
 #elif defined(MLN_RENDER_BACKEND_METAL)
     : m_backend(static_cast<CA::MetalLayer *>(nativeTargetPtr)),
@@ -85,7 +85,7 @@ MapRenderer::MapRenderer(qreal pixelRatio,
     }
 }
 
-#ifdef MLN_RENDER_BACKEND_VULKAN
+#if defined(MLN_RENDER_BACKEND_VULKAN)
 // Constructor that uses Qt's Vulkan device for proper resource sharing
 MapRenderer::MapRenderer(qreal pixelRatio,
                          Settings::GLContextMode /* mode */,
@@ -125,7 +125,7 @@ MapRenderer::~MapRenderer() = default;
 // time. Skip the thread guard here to avoid false assertion failures.
 
 void MapRenderer::updateParameters(std::shared_ptr<mbgl::UpdateParameters> parameters) {
-    const std::scoped_lock lock(m_updateMutex);
+    const std::lock_guard<std::mutex> lock(m_updateMutex);
     m_updateParameters = std::move(parameters);
 }
 
@@ -145,10 +145,14 @@ void MapRenderer::render() {
     std::shared_ptr<mbgl::UpdateParameters> params;
     {
         // Lock on the parameters
-        const std::scoped_lock lock(m_updateMutex);
+        const std::lock_guard<std::mutex> lock(m_updateMutex);
 
         // UpdateParameters should always be available when rendering.
         assert(m_updateParameters);
+        
+        if (!m_updateParameters) {
+            return;
+        }
 
         // Hold on to the update parameters during render
         params = m_updateParameters;
@@ -168,6 +172,12 @@ void MapRenderer::render() {
 void MapRenderer::setObserver(mbgl::RendererObserver *observer) {
     m_renderer->setObserver(observer);
 }
+
+#if defined(MLN_RENDER_BACKEND_OPENGL)
+void MapRenderer::setOpenGLRenderTarget(unsigned int textureId, const QSize& textureSize) {
+    m_backend.setOpenGLRenderTarget(textureId, textureSize);
+}
+#endif
 
 /*! \endcond */
 
