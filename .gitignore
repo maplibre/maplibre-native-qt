@@ -4,3 +4,5 @@
 compile_commands.json
 docs/output
 .venv
+/install*
+/build*
