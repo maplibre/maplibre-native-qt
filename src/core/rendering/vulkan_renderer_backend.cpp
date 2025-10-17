@@ -37,7 +37,7 @@ public:
         extent.height = size.height;
     }
 
-    void setExternalImage(VkImage image, mbgl::Size imageSize) {
+    void setExternalImage(vk::Image image, mbgl::Size imageSize) {
         // Only recreate if the image or size has changed
         bool imageChanged = (externalImage != image);
         bool sizeChanged = (size.width != imageSize.width || size.height != imageSize.height);
@@ -57,7 +57,7 @@ public:
 
     void setBackendSize(mbgl::Size size_) {
         // If we have an external image, don't override its size
-        if (externalImage != VK_NULL_HANDLE) {
+        if (externalImage) {
             return;
         }
 
@@ -103,7 +103,7 @@ public:
     // Override bind to ensure we have an offscreen texture or external image
     void bind() override {
         // If we have an external image from QRhiWidget, use that instead of creating our own
-        if (externalImage != VK_NULL_HANDLE) {
+        if (externalImage) {
             if (!renderPass || !framebuffer || needsRecreation) {
                 createRenderPassForExternalImage();
                 needsRecreation = false;
@@ -170,7 +170,7 @@ public:
         // For offscreen rendering, we need to ensure commands are submitted
         // but we don't present to a swapchain
 
-        if (externalImage != VK_NULL_HANDLE) {
+        if (externalImage) {
             // Get rendering context
             auto &context = static_cast<mbgl::vulkan::Context &>(backend.getContext());
 
@@ -277,7 +277,7 @@ private:
     }
 
     void createRenderPassForExternalImage() {
-        if (externalImage == VK_NULL_HANDLE) {
+        if (!externalImage) {
             return;
         }
 
@@ -287,7 +287,7 @@ private:
         // Create image view for external image
         // Qt RHI format 1 corresponds to RGBA8 (R8G8B8A8Unorm)
         const auto imageViewCreateInfo = vk::ImageViewCreateInfo()
-                                             .setImage(vk::Image(externalImage))
+                                             .setImage(externalImage)
                                              .setViewType(vk::ImageViewType::e2D)
                                              .setFormat(vk::Format::eR8G8B8A8Unorm) // RGBA format that Qt RHI uses
                                              .setComponents(vk::ComponentMapping()) // Identity swizzle
@@ -360,7 +360,7 @@ private:
     vk::UniqueFramebuffer framebuffer;
     mbgl::Size size{DefaultSize, DefaultSize};
     bool needsRecreation{false};
-    VkImage externalImage{VK_NULL_HANDLE};
+    vk::Image externalImage{};
     vk::UniqueImageView externalImageView;
 };
 } // namespace
@@ -399,8 +399,8 @@ VulkanRendererBackend::VulkanRendererBackend(QVulkanInstance *qtInstance)
 
 // Constructor that reuses Qt's Vulkan device for zero-copy texture sharing
 VulkanRendererBackend::VulkanRendererBackend(QWindow *window,
-                                             VkPhysicalDevice qtPhysicalDevice,
-                                             VkDevice qtDevice,
+                                             vk::PhysicalDevice qtPhysicalDevice,
+                                             vk::Device qtDevice,
                                              uint32_t qtGraphicsQueueIndex)
     : mbgl::vulkan::RendererBackend(mbgl::gfx::ContextMode::Shared),
       mbgl::vulkan::Renderable(
@@ -411,7 +411,7 @@ VulkanRendererBackend::VulkanRendererBackend(QWindow *window,
       m_qtDevice(qtDevice),
       m_qtGraphicsQueueIndex(qtGraphicsQueueIndex),
       m_useQtDevice(true) {
-    if (window == nullptr || qtPhysicalDevice == nullptr || qtDevice == nullptr) {
+    if (window == nullptr || !qtPhysicalDevice || !qtDevice) {
         throw std::runtime_error("Invalid Qt Vulkan resources");
     }
 
@@ -502,18 +502,17 @@ std::vector<const char *> VulkanRendererBackend::getDeviceExtensions() {
 }
 
 void VulkanRendererBackend::initDevice() {
-    if (m_useQtDevice && m_qtDevice != nullptr && m_qtPhysicalDevice != nullptr) {
+    if (m_useQtDevice && m_qtDevice && m_qtPhysicalDevice) {
         // Reuse Qt's existing Vulkan device for zero-copy texture sharing
-        physicalDevice = vk::PhysicalDevice(m_qtPhysicalDevice);
+        physicalDevice = m_qtPhysicalDevice;
 
-        vk::Device vkDevice(m_qtDevice);
-        device = vk::UniqueDevice(vkDevice,
+        device = vk::UniqueDevice(m_qtDevice,
                                   vk::ObjectDestroy<vk::NoParent, vk::DispatchLoaderDynamic>(nullptr, dispatcher));
 
         graphicsQueueIndex = static_cast<int32_t>(m_qtGraphicsQueueIndex);
         presentQueueIndex = static_cast<int32_t>(m_qtGraphicsQueueIndex);
 
-        dispatcher.init(vkDevice);
+        dispatcher.init(m_qtDevice);
 
         physicalDeviceProperties = physicalDevice.getProperties(dispatcher);
         physicalDeviceFeatures = physicalDevice.getFeatures(dispatcher);
@@ -553,7 +552,7 @@ mbgl::vulkan::Texture2D *VulkanRendererBackend::getOffscreenTexture() const {
     return nullptr;
 }
 
-void VulkanRendererBackend::setExternalImage(VkImage image, const mbgl::Size &size) {
+void VulkanRendererBackend::setExternalImage(vk::Image image, const mbgl::Size &size) {
     // Pass the external image to our custom renderable resource
     auto &resource = this->getResource<QtVulkanRenderableResource>();
 

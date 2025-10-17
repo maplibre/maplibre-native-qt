@@ -11,6 +11,8 @@
 
 #include <QtCore/QtGlobal>
 
+#include <vulkan/vulkan.hpp>
+
 class QVulkanInstance;
 class QVulkanWindow;
 class QWindow;
@@ -27,8 +29,8 @@ public:
     explicit VulkanRendererBackend(QVulkanInstance *instance);
     // Constructor that uses Qt's Vulkan device
     VulkanRendererBackend(QWindow *window,
-                          VkPhysicalDevice qtPhysicalDevice,
-                          VkDevice qtDevice,
+                          vk::PhysicalDevice qtPhysicalDevice,
+                          vk::Device qtDevice,
                           uint32_t qtGraphicsQueueIndex);
     VulkanRendererBackend(const VulkanRendererBackend &) = delete;
     VulkanRendererBackend &operator=(const VulkanRendererBackend &) = delete;
@@ -58,8 +60,8 @@ public:
     // Helper method to get the texture object for pixel data extraction
     [[nodiscard]] mbgl::vulkan::Texture2D *getOffscreenTexture() const;
 
-    // Set external VkImage to render to (for zero-copy with QRhiWidget)
-    void setExternalImage(VkImage image, const mbgl::Size &size);
+    // Set external vk::Image to render to (for zero-copy with QRhiWidget)
+    void setExternalImage(vk::Image image, const mbgl::Size &size);
 
 protected:
     // Override base class methods to use external Vulkan resources
@@ -77,8 +79,8 @@ private:
     QWindow *m_window{nullptr};                       // Qt Quick window
 
     // Qt device info
-    VkPhysicalDevice m_qtPhysicalDevice{VK_NULL_HANDLE};
-    VkDevice m_qtDevice{VK_NULL_HANDLE};
+    vk::PhysicalDevice m_qtPhysicalDevice{};
+    vk::Device m_qtDevice{};
     uint32_t m_qtGraphicsQueueIndex{0};
     bool m_useQtDevice{false};
 
