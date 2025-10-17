@@ -201,7 +201,7 @@ mbgl::gl::ProcAddress OpenGLRendererBackend::getExtensionFunctionPointer(const c
 unsigned int OpenGLRendererBackend::getFramebufferTextureId() const {
     // Return the actual color texture ID attached to the framebuffer
     // Only return texture if we're using a custom framebuffer (not the default)
-    
+
     // Always return the texture if we have one
     return m_colorTexture;
 }
