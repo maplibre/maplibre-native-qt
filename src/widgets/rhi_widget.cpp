@@ -109,8 +109,8 @@ void RhiWidget::initialize(QRhiCommandBuffer *cb) {
     if (isReinitializing) {
         qDebug() << "Reinitializing map after reparenting";
         // The map exists but was uninitialized due to reparenting
-        // We need to recreate the renderer with the new context
-        d_ptr->m_map->destroyRenderer();
+        // Renderer was already destroyed in releaseResources()
+        // We need to reconnect signals that were disconnected in releaseResources()
 
         // Reconnect signals that were disconnected in releaseResources()
         QObject::connect(d_ptr->m_map.get(), &Map::needsRendering, this, [this]() { update(); });
@@ -444,8 +444,14 @@ void RhiWidget::releaseResources() {
         d_ptr->m_metalRendererCreated = false;
 #endif
 
-        // For other backends, don't destroy the renderer during reparenting
-        // The renderer will be recreated in initialize() if needed
+#if defined(MLN_RENDER_BACKEND_VULKAN)
+        // For Vulkan, we also need to destroy the renderer during reparenting because
+        // the Vulkan surface and window handles become invalid
+        qDebug() << "Destroying Vulkan renderer due to reparenting";
+        d_ptr->m_map->destroyRenderer();
+#endif
+
+        // For OpenGL, we can keep the renderer alive during reparenting
     }
 }
 
@@ -495,8 +501,8 @@ void RhiWidget::showEvent(QShowEvent *event) {
 
 void RhiWidget::hideEvent(QHideEvent *event) {
     qDebug() << "RhiWidget::hideEvent";
-    // When hiding, release resources to avoid using stale OpenGL resources
-    releaseResources();
+    // Don't release resources on normal hide - only on reparenting
+    // Resources are released in ParentAboutToChange event handler
     QRhiWidget::hideEvent(event);
 }
 
