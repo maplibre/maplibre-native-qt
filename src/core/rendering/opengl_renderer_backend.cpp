@@ -49,6 +49,7 @@ private:
 };
 /*! \endcond PRIVATE */
 
+/*! \cond PRIVATE */
 OpenGLRendererBackend::OpenGLRendererBackend(const mbgl::gfx::ContextMode mode)
     : mbgl::gl::RendererBackend(mode),
       mbgl::gfx::Renderable({0, 0}, std::make_unique<QtOpenGLRenderableResource>(*this)) {}
@@ -298,5 +299,6 @@ void OpenGLRendererBackend::setOpenGLRenderTarget(unsigned int textureId, const 
     // Set the viewport
     setViewport(0, 0, size);
 }
+/*! \endcond PRIVATE */
 
 } // namespace QMapLibre

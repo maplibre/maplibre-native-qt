@@ -26,6 +26,7 @@ VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 namespace {
 constexpr uint32_t DefaultSize{256};
 
+/*! \cond PRIVATE */
 // Custom renderable resource for Qt integration supporting zero-copy GPU rendering
 class QtVulkanRenderableResource final : public mbgl::vulkan::SurfaceRenderableResource {
 public:
@@ -363,10 +364,12 @@ private:
     vk::Image externalImage{};
     vk::UniqueImageView externalImageView;
 };
+/*! \endcond PRIVATE */
 } // namespace
 
 namespace QMapLibre {
 
+/*! \cond PRIVATE */
 VulkanRendererBackend::VulkanRendererBackend(QWindow *window)
     : mbgl::vulkan::RendererBackend(mbgl::gfx::ContextMode::Shared),
       mbgl::vulkan::Renderable(
@@ -575,5 +578,6 @@ std::unique_ptr<QVulkanInstance> VulkanRendererBackend::createQVulkanInstance() 
 
     return qtInstance;
 }
+/*! \endcond PRIVATE */
 
 } // namespace QMapLibre

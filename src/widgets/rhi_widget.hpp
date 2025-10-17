@@ -22,6 +22,14 @@ namespace QMapLibre {
 class Map;
 class RhiWidgetPrivate;
 
+/*!
+    \brief A QRhiWidget-based MapLibre map widget with cross-platform rendering support.
+
+    RhiWidget provides hardware-accelerated map rendering using Qt's RHI (Rendering Hardware Interface),
+    which abstracts over different graphics APIs (OpenGL, Vulkan, Metal, Direct3D).
+
+    This widget supports interactive map features including panning, zooming, and rotation.
+*/
 class Q_MAPLIBRE_WIDGETS_EXPORT RhiWidget : public QRhiWidget {
     Q_OBJECT
 

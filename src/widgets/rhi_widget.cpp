@@ -530,6 +530,7 @@ void RhiWidget::resizeEvent(QResizeEvent *event) {
 
 // RhiWidgetPrivate implementation
 
+/*! \cond PRIVATE */
 RhiWidgetPrivate::RhiWidgetPrivate(QObject *parent, const Settings &settings)
     : QObject(parent),
       m_settings(settings) {}
@@ -592,5 +593,6 @@ void RhiWidgetPrivate::handleWheelEvent(QWheelEvent *event) const {
 
     event->accept();
 }
+/*! \endcond PRIVATE */
 
 } // namespace QMapLibre
