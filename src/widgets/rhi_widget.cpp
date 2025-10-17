@@ -274,6 +274,11 @@ void RhiWidget::initialize(QRhiCommandBuffer *cb) {
         // Force an initial render
         d_ptr->m_map->render();
         update();
+    } else if (isReinitializing) {
+        // After reinitializing from reparenting, force a render
+        qDebug() << "Forcing render after reinitialization";
+        d_ptr->m_map->render();
+        update();
     }
 
     d_ptr->m_initialized = true;
@@ -478,6 +483,13 @@ void RhiWidget::showEvent(QShowEvent *event) {
     // ShowEvent
     qDebug() << "RhiWidget::showEvent";
     QRhiWidget::showEvent(event);
+
+    // Force a render when shown, especially important after undocking
+    if (d_ptr->m_initialized && d_ptr->m_map) {
+        qDebug() << "RhiWidget::showEvent - forcing map render";
+        d_ptr->m_map->render();
+    }
+
     update(); // Force an update
 }
 
