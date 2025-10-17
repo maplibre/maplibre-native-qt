@@ -19,6 +19,7 @@ constexpr GLuint StencilMask{0xFF};
 
 namespace QMapLibre {
 
+/*! \cond PRIVATE */
 class QtOpenGLRenderableResource final : public mbgl::gl::RenderableResource {
 public:
     explicit QtOpenGLRenderableResource(OpenGLRendererBackend &backend_)
@@ -46,6 +47,7 @@ public:
 private:
     OpenGLRendererBackend &backend;
 };
+/*! \endcond PRIVATE */
 
 OpenGLRendererBackend::OpenGLRendererBackend(const mbgl::gfx::ContextMode mode)
     : mbgl::gl::RendererBackend(mode),
