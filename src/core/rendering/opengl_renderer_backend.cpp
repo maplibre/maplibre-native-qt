@@ -19,9 +19,9 @@ constexpr GLuint StencilMask{0xFF};
 
 namespace QMapLibre {
 
-class RenderableResource final : public mbgl::gl::RenderableResource {
+class QtOpenGLRenderableResource final : public mbgl::gl::RenderableResource {
 public:
-    explicit RenderableResource(OpenGLRendererBackend &backend_)
+    explicit QtOpenGLRenderableResource(OpenGLRendererBackend &backend_)
         : backend(backend_) {}
 
     void bind() override {
@@ -29,8 +29,18 @@ public:
         backend.restoreFramebufferBinding();
         backend.setViewport(0, 0, backend.getSize());
 
-        // Don't clear when using zero-copy rendering - we want to render directly to the texture
-        // The clearing should be handled by the renderer itself if needed
+        // Clear to prevent artifacts - scissor disable needed to ensure full clear
+        QOpenGLContext *context = QOpenGLContext::currentContext();
+        if (context != nullptr) {
+            QOpenGLFunctions *gl = context->functions();
+
+            // Disable scissor test to ensure full framebuffer is cleared
+            gl->glDisable(GL_SCISSOR_TEST);
+
+            // Clear the framebuffer
+            gl->glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        }
     }
 
 private:
@@ -39,7 +49,7 @@ private:
 
 OpenGLRendererBackend::OpenGLRendererBackend(const mbgl::gfx::ContextMode mode)
     : mbgl::gl::RendererBackend(mode),
-      mbgl::gfx::Renderable({0, 0}, std::make_unique<RenderableResource>(*this)) {}
+      mbgl::gfx::Renderable({0, 0}, std::make_unique<QtOpenGLRenderableResource>(*this)) {}
 
 OpenGLRendererBackend::~OpenGLRendererBackend() {
     QOpenGLContext *glContext = QOpenGLContext::currentContext();
