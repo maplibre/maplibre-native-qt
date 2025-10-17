@@ -287,7 +287,7 @@ private:
         // Create image view for external image
         // Qt RHI format 1 corresponds to RGBA8 (R8G8B8A8Unorm)
         const auto imageViewCreateInfo = vk::ImageViewCreateInfo()
-                                             .setImage(externalImage)
+                                             .setImage(vk::Image(externalImage))
                                              .setViewType(vk::ImageViewType::e2D)
                                              .setFormat(vk::Format::eR8G8B8A8Unorm) // RGBA format that Qt RHI uses
                                              .setComponents(vk::ComponentMapping()) // Identity swizzle

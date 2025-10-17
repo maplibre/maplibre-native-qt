@@ -165,7 +165,7 @@ inline void MapPrivate::setVulkanRenderTarget(void *vulkanImage) {
                 // Pass the external VkImage to the backend with the current map size
                 // This will be overridden by the widget when it passes the exact texture size
                 mbgl::Size currentSize = mapObj ? mapObj->getMapOptions().size() : mbgl::Size{800, 600};
-                vulkanBackend->setExternalImage(static_cast<VkImage>(vulkanImage), currentSize);
+                vulkanBackend->setExternalImage(reinterpret_cast<VkImage>(vulkanImage), currentSize);
             }
         }
     }
@@ -181,7 +181,7 @@ inline void MapPrivate::setVulkanRenderTarget(void *vulkanImage, const QSize &im
                 // Pass the external VkImage to the backend with the exact texture size
                 mbgl::Size textureSize{static_cast<uint32_t>(imageSize.width()),
                                        static_cast<uint32_t>(imageSize.height())};
-                vulkanBackend->setExternalImage(static_cast<VkImage>(vulkanImage), textureSize);
+                vulkanBackend->setExternalImage(reinterpret_cast<VkImage>(vulkanImage), textureSize);
             }
         }
     }
