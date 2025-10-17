@@ -98,10 +98,6 @@ void OpenGLRendererBackend::updateRenderer(const mbgl::Size &newSize, uint32_t f
     const auto width = static_cast<GLsizei>(newSize.width);
     const auto height = static_cast<GLsizei>(newSize.height);
 
-    // Debug output commented out for production
-    // qDebug() << "OpenGLRendererBackend::updateRenderer - size:" << newSize.width << "x" << newSize.height
-    //          << "fbo:" << fbo << "current m_fbo:" << m_fbo << "current m_colorTexture:" << m_colorTexture;
-
     // Always update m_fbo to track the current FBO
     m_fbo = fbo;
 
@@ -205,10 +201,7 @@ mbgl::gl::ProcAddress OpenGLRendererBackend::getExtensionFunctionPointer(const c
 unsigned int OpenGLRendererBackend::getFramebufferTextureId() const {
     // Return the actual color texture ID attached to the framebuffer
     // Only return texture if we're using a custom framebuffer (not the default)
-    // Debug output commented out for production
-    // qDebug() << "OpenGLRendererBackend::getFramebufferTextureId called - m_fbo:" << m_fbo
-    //          << "m_colorTexture:" << m_colorTexture;
-
+    
     // Always return the texture if we have one
     return m_colorTexture;
 }
