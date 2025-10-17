@@ -427,13 +427,10 @@ void RhiWidget::releaseResources() {
         d_ptr->m_map->disconnect();
 
 #if defined(MLN_RENDER_BACKEND_OPENGL)
-        // Only reset OpenGL resources if we have a valid context
-        QRhi *rhiInstance = rhi();
-        if (rhiInstance && rhiInstance->backend() == QRhi::OpenGLES2) {
-            qDebug() << "Resetting OpenGL render target to 0";
-            // Reset to default rendering (no external texture)
-            d_ptr->m_map->setOpenGLRenderTarget(0, QSize());
-        }
+        // For OpenGL with QRhiWidget, we need to destroy the renderer during reparenting
+        // because the OpenGL context changes when the widget is reparented
+        qDebug() << "Destroying OpenGL renderer due to reparenting";
+        d_ptr->m_map->destroyRenderer();
 #endif
 
 #if defined(MLN_RENDER_BACKEND_METAL)
@@ -450,8 +447,6 @@ void RhiWidget::releaseResources() {
         qDebug() << "Destroying Vulkan renderer due to reparenting";
         d_ptr->m_map->destroyRenderer();
 #endif
-
-        // For OpenGL, we can keep the renderer alive during reparenting
     }
 }
 
