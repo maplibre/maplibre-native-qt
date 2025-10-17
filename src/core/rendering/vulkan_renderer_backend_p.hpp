@@ -11,6 +11,8 @@
 
 #include <QtCore/QtGlobal>
 
+#include <vulkan/vulkan.hpp>
+
 class QVulkanInstance;
 class QVulkanWindow;
 class QWindow;
@@ -45,7 +47,11 @@ public:
 
     // Returns the color texture of the drawable rendered in the last frame.
     [[nodiscard]] void *currentDrawable() const { return m_currentDrawable; }
-    void setCurrentDrawable(void *tex) { m_currentDrawable = static_cast<mbgl::gfx::Texture2D *>(tex); }
+    void setCurrentDrawable(void *tex) {
+        // For now, just store the texture pointer
+        // External image handling needs more work for zero-copy
+        m_currentDrawable = static_cast<mbgl::gfx::Texture2D *>(tex);
+    }
 
     // Qt Widgets path still expects this hook even though Vulkan doesn't use an
     // OpenGL FBO. Update the size for Vulkan rendering.
@@ -53,6 +59,9 @@ public:
 
     // Helper method to get the texture object for pixel data extraction
     [[nodiscard]] mbgl::vulkan::Texture2D *getOffscreenTexture() const;
+
+    // Set external vk::Image to render to (for zero-copy with QRhiWidget)
+    void setExternalImage(vk::Image image, const mbgl::Size &size);
 
 protected:
     // Override base class methods to use external Vulkan resources
@@ -70,8 +79,8 @@ private:
     QWindow *m_window{nullptr};                       // Qt Quick window
 
     // Qt device info
-    vk::PhysicalDevice m_qtPhysicalDevice{nullptr};
-    vk::Device m_qtDevice{nullptr};
+    vk::PhysicalDevice m_qtPhysicalDevice{};
+    vk::Device m_qtDevice{};
     uint32_t m_qtGraphicsQueueIndex{0};
     bool m_useQtDevice{false};
 
