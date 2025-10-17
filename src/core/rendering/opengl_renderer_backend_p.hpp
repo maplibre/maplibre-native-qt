@@ -11,10 +11,10 @@
 
 namespace QMapLibre {
 
-class RenderableResource;
+class QtOpenGLRenderableResource;
 
 class OpenGLRendererBackend : public mbgl::gl::RendererBackend, public mbgl::gfx::Renderable {
-    friend class RenderableResource;
+    friend class QtOpenGLRenderableResource;
 
 public:
     explicit OpenGLRendererBackend(mbgl::gfx::ContextMode mode = mbgl::gfx::ContextMode::Unique);
