@@ -13,10 +13,6 @@
 #include <QtGui/QOpenGLContext>
 #include <QtGui/QOpenGLFunctions>
 
-namespace {
-constexpr GLuint StencilMask{0xFF};
-} // namespace
-
 namespace QMapLibre {
 
 /*! \cond PRIVATE */
@@ -89,7 +85,7 @@ void OpenGLRendererBackend::updateAssumedState() {
 void OpenGLRendererBackend::restoreFramebufferBinding() {
     // Check if we have a valid context before trying to bind
     QOpenGLContext *glContext = QOpenGLContext::currentContext();
-    if (!glContext) {
+    if (glContext == nullptr) {
         // No context, can't bind
         return;
     }
@@ -213,7 +209,7 @@ void OpenGLRendererBackend::setOpenGLRenderTarget(unsigned int textureId, const 
     // Handle reset case (textureId == 0 means reset to default)
     if (textureId == 0) {
         QOpenGLContext *glContext = QOpenGLContext::currentContext();
-        if (glContext && m_fbo != 0) {
+        if (glContext != nullptr && m_fbo != 0) {
             QOpenGLFunctions *gl = glContext->functions();
             gl->glDeleteFramebuffers(1, &m_fbo);
             m_fbo = 0;
@@ -228,7 +224,7 @@ void OpenGLRendererBackend::setOpenGLRenderTarget(unsigned int textureId, const 
     }
 
     QOpenGLContext *glContext = QOpenGLContext::currentContext();
-    if (!glContext) {
+    if (glContext == nullptr) {
         qWarning() << "OpenGLRendererBackend::setOpenGLRenderTarget - No OpenGL context";
         return;
     }

@@ -2,8 +2,8 @@
 
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "rhi_widget.hpp"
-#include "rhi_widget_p.hpp"
+#include "map_widget.hpp"
+#include "map_widget_p.hpp"
 
 #include <QMapLibre/Map>
 #include <QMapLibre/Settings>
@@ -14,32 +14,47 @@
 #include <QPainter>
 #include <QWheelEvent>
 
-#if defined(MLN_RENDER_BACKEND_METAL) && defined(__APPLE__)
-// Metal headers are included in the backend
-#endif
-
 #if defined(MLN_RENDER_BACKEND_OPENGL)
 #include <QOpenGLContext>
 #include <QOpenGLFunctions>
 #endif
 
-#include <private/qrhi_p.h>
-#include <rhi/qrhi_platform.h>
-#include <QDebug>
+#include <QtGui/private/qrhi_p.h>
+#include <QtGui/rhi/qrhi_platform.h>
 #include <QtCore/QDebug>
 #include <QtGui/QWindow>
 
 #if defined(MLN_RENDER_BACKEND_VULKAN)
-#include <private/qrhivulkan_p.h>
+#include <QtGui/private/qrhivulkan_p.h>
 #endif
+
+namespace {
+constexpr int MinimumSize = 64;
+} // namespace
 
 namespace QMapLibre {
 
-RhiWidget::RhiWidget(const Settings &settings)
-    : QRhiWidget() {
-    // Constructor start
+/*!
+    \defgroup QMapLibreWidgets QMapLibre Widgets
+    \brief Qt Widgets for MapLibre.
+*/
 
-    // Set the graphics API FIRST, before anything else
+/*!
+    \class MapWidget
+    \brief A QRhiWidget-based MapLibre map widget with cross-platform rendering support.
+    \ingroup QMapLibreWidgets
+
+    \headerfile map_widget.hpp <QMapLibreWidgets/MapWidget>
+
+    QMapLibre::MapWidget provides hardware-accelerated map rendering using
+    Qt's RHI (Rendering Hardware Interface), which abstracts over different
+    graphics APIs (OpenGL, Vulkan, Metal).
+
+    This widget supports interactive map features including panning,
+    zooming, and rotation.
+*/
+MapWidget::MapWidget(const Settings &settings) {
+    // Set the graphics API first, before anything else
 #if defined(MLN_RENDER_BACKEND_VULKAN)
     setApi(QRhiWidget::Api::Vulkan);
     // Configured for Vulkan backend
@@ -49,38 +64,25 @@ RhiWidget::RhiWidget(const Settings &settings)
 #elif defined(MLN_RENDER_BACKEND_OPENGL)
     setApi(QRhiWidget::Api::OpenGL);
     // Configured for OpenGL backend
-
 #endif
 
     // Initialize the private data
-    d_ptr = std::make_unique<RhiWidgetPrivate>(this, settings);
+    d_ptr = std::make_unique<MapWidgetPrivate>(this, settings);
 
     // Enable auto render target
     setAutoRenderTarget(true);
 
     // Handle coordinate system differences between backends
     // When using zero-copy rendering with external textures, we don't need mirroring
-#if defined(MLN_RENDER_BACKEND_METAL)
     setMirrorVertically(false);
-#elif defined(MLN_RENDER_BACKEND_VULKAN)
-    setMirrorVertically(false);
-#elif defined(MLN_RENDER_BACKEND_OPENGL)
-    // OpenGL with zero-copy also doesn't need mirroring
-    setMirrorVertically(false);
-#else
-    // Default case
-    setMirrorVertically(false);
-#endif
 
     // Set size policy to expand
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    setMinimumSize(100, 100);
-
-    // Constructor end
+    // Set default minimum size
+    setMinimumSize(MinimumSize, MinimumSize);
 }
 
-RhiWidget::~RhiWidget() {
-    qDebug() << "RhiWidget destructor called";
+MapWidget::~MapWidget() {
     // Clean up resources
     releaseResources();
 
@@ -91,18 +93,17 @@ RhiWidget::~RhiWidget() {
     }
 }
 
-Map *RhiWidget::map() {
+/*!
+    \brief Get the QMapLibre::Map instance.
+*/
+Map *MapWidget::map() {
     return d_ptr->m_map.get();
 }
 
-Map *RhiWidget::mapInstance() {
-    return d_ptr->m_map.get();
-}
-
-void RhiWidget::initialize(QRhiCommandBuffer *cb) {
+void MapWidget::initialize(QRhiCommandBuffer *cb) {
     Q_UNUSED(cb)
 
-    qDebug() << "RhiWidget::initialize called";
+    qDebug() << "MapWidget::initialize called";
 
     // Check if we need to reinitialize after reparenting
     bool isReinitializing = d_ptr->m_map && !d_ptr->m_initialized;
@@ -127,10 +128,6 @@ void RhiWidget::initialize(QRhiCommandBuffer *cb) {
             }
         });
     }
-
-    // Initialize - checking QRhi and API type
-
-    // Get the initial FBO binding for QRhiWidget (OpenGL only)
 
     // Initialize the map (or recreate renderer for existing map)
     if (!d_ptr->m_map) {
@@ -233,7 +230,7 @@ void RhiWidget::initialize(QRhiCommandBuffer *cb) {
         }
 #else
         // Fallback if no matching backend was compiled in
-        qWarning() << "RhiWidget: No matching renderer backend available for API" << static_cast<int>(api());
+        qWarning() << "MapWidget: No matching renderer backend available for API" << static_cast<int>(api());
         d_ptr->m_map->createRenderer(nullptr);
 #endif
 
@@ -243,12 +240,6 @@ void RhiWidget::initialize(QRhiCommandBuffer *cb) {
             auto coord = d_ptr->m_settings.defaultCoordinate();
             auto zoom = d_ptr->m_settings.defaultZoom();
 
-            // If no default is set, use a reasonable default
-            if (zoom < 1.0) {
-                coord = Coordinate(40.7128, -74.0060); // New York
-                zoom = 10.0;
-            }
-
             qDebug() << "Setting initial map view - Coordinate:" << coord.first << "," << coord.second
                      << "Zoom:" << zoom;
             d_ptr->m_map->setCoordinateZoom(coord, zoom);
@@ -256,19 +247,13 @@ void RhiWidget::initialize(QRhiCommandBuffer *cb) {
             // Set default style
             if (!d_ptr->m_settings.styles().empty()) {
                 // Setting style URL
-                qDebug() << "RhiWidget: Setting style URL:" << d_ptr->m_settings.styles().front().url;
+                qDebug() << "MapWidget: Setting style URL:" << d_ptr->m_settings.styles().front().url;
                 d_ptr->m_map->setStyleUrl(d_ptr->m_settings.styles().front().url);
             } else if (!d_ptr->m_settings.providerStyles().empty()) {
                 // Setting provider style URL
-                qDebug() << "RhiWidget: Setting provider style URL:" << d_ptr->m_settings.providerStyles().front().url;
+                qDebug() << "MapWidget: Setting provider style URL:" << d_ptr->m_settings.providerStyles().front().url;
                 d_ptr->m_map->setStyleUrl(d_ptr->m_settings.providerStyles().front().url);
-            } else {
-                qWarning() << "RhiWidget: No style URL available - using default demo tiles";
-                // Use a default style for testing
-                d_ptr->m_map->setStyleUrl("https://demotiles.maplibre.org/style.json");
             }
-
-            emit mapChanged(d_ptr->m_map.get());
         }
 
         // Force an initial render
@@ -284,7 +269,7 @@ void RhiWidget::initialize(QRhiCommandBuffer *cb) {
     d_ptr->m_initialized = true;
 }
 
-void RhiWidget::render(QRhiCommandBuffer *cb) {
+void MapWidget::render(QRhiCommandBuffer *cb) {
     // Render - checking initialization status
     // cb is Qt's command buffer - for Vulkan, Qt has already begun a render pass
     Q_UNUSED(cb)
@@ -292,19 +277,19 @@ void RhiWidget::render(QRhiCommandBuffer *cb) {
     // CRITICAL: Check initialized flag FIRST before doing ANYTHING
     // This prevents race conditions during reparenting
     if (!d_ptr->m_initialized) {
-        qDebug() << "RhiWidget::render skipped - not initialized";
+        qDebug() << "MapWidget::render skipped - not initialized";
         return;
     }
 
     if (!d_ptr->m_map) {
-        qDebug() << "RhiWidget::render skipped - no map";
+        qDebug() << "MapWidget::render skipped - no map";
         return;
     }
 
     // Safety check: ensure we have a valid color texture
     QRhiTexture *rhiTexture = colorTexture();
-    if (!rhiTexture) {
-        qDebug() << "RhiWidget::render skipped - no color texture available";
+    if (rhiTexture == nullptr) {
+        qDebug() << "MapWidget::render skipped - no color texture available";
         return;
     }
 
@@ -328,10 +313,10 @@ void RhiWidget::render(QRhiCommandBuffer *cb) {
                 // We need to set this every frame as the texture might change
                 d_ptr->m_map->setOpenGLRenderTarget(glTextureId, rhiTexture->pixelSize());
             } else {
-                qWarning() << "RhiWidget: OpenGL texture ID is 0";
+                qWarning() << "MapWidget: OpenGL texture ID is 0";
             }
         } else {
-            qWarning() << "RhiWidget: No color texture available from QRhiWidget";
+            qWarning() << "MapWidget: No color texture available from QRhiWidget";
         }
     }
 #endif
@@ -375,12 +360,11 @@ void RhiWidget::render(QRhiCommandBuffer *cb) {
 
         // Get QRhiWidget's color texture for direct rendering
         QRhiTexture *rhiColorTexture = colorTexture();
-        if (rhiColorTexture) {
+        if (rhiColorTexture != nullptr) {
             // Get the native Metal texture handle
             QRhiTexture::NativeTexture nativeTex = rhiColorTexture->nativeTexture();
             void *metalTexturePtr = reinterpret_cast<void *>(nativeTex.object);
-
-            if (metalTexturePtr) {
+            if (metalTexturePtr != nullptr) {
                 // Setting Metal texture for MapLibre rendering
                 d_ptr->m_map->setMetalRenderTarget(metalTexturePtr);
             } else {
@@ -400,24 +384,13 @@ void RhiWidget::render(QRhiCommandBuffer *cb) {
     // Render the map to its own texture first
     d_ptr->m_map->render();
 
-#if defined(MLN_RENDER_BACKEND_METAL)
-    if (api() == QRhiWidget::Api::Metal) {
-        Q_UNUSED(cb);
-    }
-#endif
-
-#if defined(MLN_RENDER_BACKEND_VULKAN)
-    if (api() == QRhiWidget::Api::Vulkan) {
-    }
-#endif
-
     // Force Qt to redraw the widget to show the rendered content
     // Request continuous updates for animations
     update();
 }
 
-void RhiWidget::releaseResources() {
-    qDebug() << "RhiWidget::releaseResources called";
+void MapWidget::releaseResources() {
+    qDebug() << "MapWidget::releaseResources called";
     // Clean up resources when the widget is being destroyed or re-parented
     d_ptr->m_initialized = false;
 
@@ -450,19 +423,19 @@ void RhiWidget::releaseResources() {
     }
 }
 
-void RhiWidget::mousePressEvent(QMouseEvent *event) {
+void MapWidget::mousePressEvent(QMouseEvent *event) {
     d_ptr->handleMousePressEvent(event);
 }
 
-void RhiWidget::mouseMoveEvent(QMouseEvent *event) {
+void MapWidget::mouseMoveEvent(QMouseEvent *event) {
     d_ptr->handleMouseMoveEvent(event);
 }
 
-void RhiWidget::wheelEvent(QWheelEvent *event) {
+void MapWidget::wheelEvent(QWheelEvent *event) {
     d_ptr->handleWheelEvent(event);
 }
 
-void RhiWidget::paintEvent(QPaintEvent *event) {
+void MapWidget::paintEvent(QPaintEvent *event) {
     // For Vulkan, we might need special handling
 #if defined(MLN_RENDER_BACKEND_VULKAN)
     if (api() == QRhiWidget::Api::Vulkan && d_ptr->m_map) {
@@ -480,37 +453,37 @@ void RhiWidget::paintEvent(QPaintEvent *event) {
     QRhiWidget::paintEvent(event);
 }
 
-void RhiWidget::showEvent(QShowEvent *event) {
+void MapWidget::showEvent(QShowEvent *event) {
     // ShowEvent
-    qDebug() << "RhiWidget::showEvent";
+    qDebug() << "MapWidget::showEvent";
     QRhiWidget::showEvent(event);
 
     // Force a render when shown, especially important after undocking
     if (d_ptr->m_initialized && d_ptr->m_map) {
-        qDebug() << "RhiWidget::showEvent - forcing map render";
+        qDebug() << "MapWidget::showEvent - forcing map render";
         d_ptr->m_map->render();
     }
 
     update(); // Force an update
 }
 
-void RhiWidget::hideEvent(QHideEvent *event) {
-    qDebug() << "RhiWidget::hideEvent";
+void MapWidget::hideEvent(QHideEvent *event) {
+    qDebug() << "MapWidget::hideEvent";
     // Don't release resources on normal hide - only on reparenting
     // Resources are released in ParentAboutToChange event handler
     QRhiWidget::hideEvent(event);
 }
 
-bool RhiWidget::event(QEvent *e) {
+bool MapWidget::event(QEvent *e) {
     // Handle parent change which happens during undocking
     if (e->type() == QEvent::ParentAboutToChange) {
-        qDebug() << "RhiWidget::ParentAboutToChange - releasing resources";
+        qDebug() << "MapWidget::ParentAboutToChange - releasing resources";
         // Mark as uninitialized FIRST to prevent any rendering
         d_ptr->m_initialized = false;
         // Release resources before the parent changes
         releaseResources();
     } else if (e->type() == QEvent::ParentChange) {
-        qDebug() << "RhiWidget::ParentChange - parent changed";
+        qDebug() << "MapWidget::ParentChange - parent changed";
         // After parent change, we'll get a new initialize() call
         // Make sure we stay in uninitialized state
         d_ptr->m_initialized = false;
@@ -519,7 +492,7 @@ bool RhiWidget::event(QEvent *e) {
     return QRhiWidget::event(e);
 }
 
-void RhiWidget::resizeEvent(QResizeEvent *event) {
+void MapWidget::resizeEvent(QResizeEvent *event) {
     // ResizeEvent
     QRhiWidget::resizeEvent(event);
 
@@ -528,16 +501,16 @@ void RhiWidget::resizeEvent(QResizeEvent *event) {
     }
 }
 
-// RhiWidgetPrivate implementation
+// MapWidgetPrivate implementation
 
 /*! \cond PRIVATE */
-RhiWidgetPrivate::RhiWidgetPrivate(QObject *parent, const Settings &settings)
+MapWidgetPrivate::MapWidgetPrivate(QObject *parent, const Settings &settings)
     : QObject(parent),
       m_settings(settings) {}
 
-RhiWidgetPrivate::~RhiWidgetPrivate() = default;
+MapWidgetPrivate::~MapWidgetPrivate() = default;
 
-void RhiWidgetPrivate::updateMapSize(const QSize &size, qreal dpr) {
+void MapWidgetPrivate::updateMapSize(const QSize &size, qreal dpr) {
     if (!m_map) {
         return;
     }
@@ -551,7 +524,7 @@ void RhiWidgetPrivate::updateMapSize(const QSize &size, qreal dpr) {
     m_map->updateRenderer(size, dpr, 0);
 }
 
-void RhiWidgetPrivate::handleMousePressEvent(QMouseEvent *event) {
+void MapWidgetPrivate::handleMousePressEvent(QMouseEvent *event) {
     m_lastPos = event->position();
 
     if (event->button() == Qt::LeftButton && event->modifiers() & Qt::ShiftModifier) {
@@ -559,7 +532,7 @@ void RhiWidgetPrivate::handleMousePressEvent(QMouseEvent *event) {
     }
 }
 
-void RhiWidgetPrivate::handleMouseMoveEvent(QMouseEvent *event) {
+void MapWidgetPrivate::handleMouseMoveEvent(QMouseEvent *event) {
     if (!(event->buttons() & Qt::LeftButton)) {
         return;
     }
@@ -578,7 +551,7 @@ void RhiWidgetPrivate::handleMouseMoveEvent(QMouseEvent *event) {
     m_lastPos = event->position();
 }
 
-void RhiWidgetPrivate::handleWheelEvent(QWheelEvent *event) const {
+void MapWidgetPrivate::handleWheelEvent(QWheelEvent *event) const {
     if (!m_map) {
         return;
     }

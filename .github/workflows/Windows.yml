@@ -161,7 +161,7 @@ jobs:
         shell: bash
         run: |
           mkdir install && cd install
-          tar xf ../build/qt${{ matrix.qt_series }}-Windows/maplibre-native-qt_*.tar.bz2
+          tar xf ../build/qt${{ matrix.qt_series }}-Windows-${{ matrix.renderer }}/maplibre-native-qt_*.tar.bz2
           mv maplibre-native-qt_* maplibre-native-qt
 
       - name: Build QtQuick Example

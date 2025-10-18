@@ -2,7 +2,7 @@
 
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "gl_tester.hpp"
+#include "map_widget_tester.hpp"
 #include "test_rendering.hpp"
 
 #include <QOpenGLContext>
@@ -28,7 +28,7 @@ void TestWidgets::testGLWidgetNoProvider() {
     QVERIFY(ctx.makeCurrent(surface.get()));
 
     const QMapLibre::Settings settings;
-    auto tester = std::make_unique<QMapLibre::GLTester>(settings);
+    auto tester = std::make_unique<QMapLibre::MapWidgetTester>(settings);
     tester->show();
     QTest::qWait(1000);
 }
@@ -42,7 +42,7 @@ void TestWidgets::testGLWidgetMapLibreProvider() {
     QVERIFY(ctx.makeCurrent(surface.get()));
 
     const QMapLibre::Settings settings(QMapLibre::Settings::MapLibreProvider);
-    auto tester = std::make_unique<QMapLibre::GLTester>(settings);
+    auto tester = std::make_unique<QMapLibre::MapWidgetTester>(settings);
     tester->show();
     QTest::qWait(100);
     tester->initializeAnimation();
@@ -62,7 +62,7 @@ void TestWidgets::testGLWidgetStyle() {
 
     QMapLibre::Settings settings;
     settings.setStyles(styles);
-    auto tester = std::make_unique<QMapLibre::GLTester>(settings);
+    auto tester = std::make_unique<QMapLibre::MapWidgetTester>(settings);
     tester->show();
     QTest::qWait(100);
     tester->initializeAnimation();

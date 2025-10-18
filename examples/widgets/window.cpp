@@ -15,21 +15,21 @@ Window::Window(MainWindow *mainWindow)
     : QWidget(mainWindow),
       m_mainWindowRef(mainWindow) {
     QMapLibre::Styles styles;
-    styles.emplace_back("https://demotiles.maplibre.org/style.json", "MapLibre Demo Style");
+    styles.emplace_back("https://demotiles.maplibre.org/style.json", "Demo Tiles");
 
     QMapLibre::Settings settings;
     settings.setStyles(styles);
-    settings.setDefaultZoom(1);
-    settings.setDefaultCoordinate(QMapLibre::Coordinate(10.0, 50.0));
+    settings.setDefaultZoom(5);
+    settings.setDefaultCoordinate(QMapLibre::Coordinate(43, 21));
 
-    m_rhiWidget = new QMapLibre::RhiWidget(settings);
-    m_rhiWidget->setParent(this);
+    m_mapWidget = new QMapLibre::MapWidget(settings);
+    m_mapWidget->setParent(this);
 
     m_layout = std::make_unique<QVBoxLayout>(this);
     m_layout->setContentsMargins(0, 0, 0, 0); // Remove margins
     m_layout->setSpacing(0);                  // Remove spacing between widgets
 
-    m_layout->addWidget(m_rhiWidget, 1); // Give the map widget stretch factor
+    m_layout->addWidget(m_mapWidget, 1); // Give the map widget stretch factor
 
     m_buttonDock = std::make_unique<QPushButton>(tr("Undock"), this);
     m_buttonDock->setMinimumHeight(40); // Make button more visible

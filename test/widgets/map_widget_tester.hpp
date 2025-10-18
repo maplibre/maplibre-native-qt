@@ -4,7 +4,8 @@
 
 #pragma once
 
-#include <QMapLibreWidgets/GLWidget>
+#include <QMapLibre/Settings>
+#include <QMapLibreWidgets/MapWidget>
 
 #include <QtCore/QPropertyAnimation>
 
@@ -12,11 +13,11 @@
 
 namespace QMapLibre {
 
-class GLTester : public GLWidget {
+class MapWidgetTester : public MapWidget {
     Q_OBJECT
 
 public:
-    explicit GLTester(const QMapLibre::Settings &);
+    explicit MapWidgetTester(const QMapLibre::Settings &);
 
     void initializeAnimation();
     int selfTest();
@@ -26,10 +27,8 @@ private slots:
     void animationFinished() const;
 
 private:
-    void paintGL() final;
-
-    std::unique_ptr<QPropertyAnimation> m_bearingAnimation{};
-    std::unique_ptr<QPropertyAnimation> m_zoomAnimation{};
+    std::unique_ptr<QPropertyAnimation> m_bearingAnimation;
+    std::unique_ptr<QPropertyAnimation> m_zoomAnimation;
 
     unsigned m_animationTicks{};
     unsigned m_frameDraws{};

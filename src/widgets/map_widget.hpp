@@ -4,11 +4,13 @@
 
 #pragma once
 
+#include <QMapLibreWidgets/Export>
+
 #include <QMapLibre/Settings>
 #include <QMapLibre/Types>
-#include "export_widgets.hpp"
 
-#include <QRhiWidget>
+#include <QtWidgets/QRhiWidget>
+
 #include <memory>
 
 QT_BEGIN_NAMESPACE
@@ -20,27 +22,22 @@ QT_END_NAMESPACE
 namespace QMapLibre {
 
 class Map;
-class RhiWidgetPrivate;
+class MapWidgetPrivate;
 
-/*!
-    \brief A QRhiWidget-based MapLibre map widget with cross-platform rendering support.
-
-    RhiWidget provides hardware-accelerated map rendering using Qt's RHI (Rendering Hardware Interface),
-    which abstracts over different graphics APIs (OpenGL, Vulkan, Metal, Direct3D).
-
-    This widget supports interactive map features including panning, zooming, and rotation.
-*/
-class Q_MAPLIBRE_WIDGETS_EXPORT RhiWidget : public QRhiWidget {
+class Q_MAPLIBRE_WIDGETS_EXPORT MapWidget : public QRhiWidget {
     Q_OBJECT
 
 public:
-    explicit RhiWidget(const Settings &settings);
-    ~RhiWidget() override;
+    explicit MapWidget(const Settings &settings);
+    ~MapWidget() override;
 
     [[nodiscard]] Map *map();
 
 signals:
-    void mapChanged(Map *map);
+    void onMouseDoubleClickEvent(QMapLibre::Coordinate coordinate);
+    void onMousePressEvent(QMapLibre::Coordinate coordinate);
+    void onMouseReleaseEvent(QMapLibre::Coordinate coordinate);
+    void onMouseMoveEvent(QMapLibre::Coordinate coordinate);
 
 protected:
     // QRhiWidget implementation
@@ -58,12 +55,10 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
     bool event(QEvent *e) override;
 
-    [[nodiscard]] Map *mapInstance();
-
-    std::unique_ptr<RhiWidgetPrivate> d_ptr;
-
 private:
-    Q_DISABLE_COPY(RhiWidget);
+    Q_DISABLE_COPY(MapWidget);
+
+    std::unique_ptr<MapWidgetPrivate> d_ptr;
 };
 
 } // namespace QMapLibre

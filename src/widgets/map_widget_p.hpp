@@ -22,16 +22,17 @@ QT_END_NAMESPACE
 
 namespace QMapLibre {
 
-class RhiWidgetPrivate : public QObject {
+class MapWidgetPrivate : public QObject {
     Q_OBJECT
 
 public:
-    explicit RhiWidgetPrivate(QObject *parent, const Settings &settings);
-    ~RhiWidgetPrivate() override;
+    explicit MapWidgetPrivate(QObject *parent, const Settings &settings);
+    ~MapWidgetPrivate() override;
 
     void handleMousePressEvent(QMouseEvent *event);
     void handleMouseMoveEvent(QMouseEvent *event);
     void handleWheelEvent(QWheelEvent *event) const;
+
     void updateMapSize(const QSize &size, qreal dpr);
 
     std::unique_ptr<Map> m_map;
@@ -50,7 +51,7 @@ public:
 #endif
 
 private:
-    Q_DISABLE_COPY(RhiWidgetPrivate);
+    Q_DISABLE_COPY(MapWidgetPrivate);
 
     QPointF m_lastPos;
 };
