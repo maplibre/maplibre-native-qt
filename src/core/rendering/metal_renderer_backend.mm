@@ -76,8 +76,8 @@ public:
         // CAMetalLayer.
         // Binding renderable resource
 
-        // First check if we have an external render target from QRhiWidget
-        auto *externalTex = static_cast<MTL::Texture *>(backend.getExternalRenderTarget());
+        // First check if we have an external drawable from QRhiWidget
+        auto *externalTex = static_cast<MTL::Texture *>(backend.externalDrawable());
         if (externalTex == nullptr) {
             // Fall back to checking for Quick drawable
             externalTex = static_cast<MTL::Texture *>(backend.currentDrawable());
@@ -186,7 +186,7 @@ public:
             commandBuffer->commit();
             // Wait for completion when using external texture to ensure
             // QRhiWidget can display the result
-            if (!surface && backend.getExternalRenderTarget() != nullptr) {
+            if (!surface && backend.externalDrawable() != nullptr) {
                 commandBuffer->waitUntilCompleted();
             }
             commandBuffer.reset();

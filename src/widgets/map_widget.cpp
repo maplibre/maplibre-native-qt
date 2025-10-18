@@ -366,7 +366,7 @@ void MapWidget::render(QRhiCommandBuffer *cb) {
             void *metalTexturePtr = reinterpret_cast<void *>(nativeTex.object);
             if (metalTexturePtr != nullptr) {
                 // Setting Metal texture for MapLibre rendering
-                d_ptr->m_map->setMetalRenderTarget(metalTexturePtr);
+                d_ptr->m_map->setExternalDrawable(metalTexturePtr);
             } else {
                 // Native Metal texture is null
             }
