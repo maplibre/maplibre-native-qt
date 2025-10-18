@@ -35,25 +35,24 @@ public:
 
 signals:
     void onMouseDoubleClickEvent(QMapLibre::Coordinate coordinate);
+    void onMouseMoveEvent(QMapLibre::Coordinate coordinate);
     void onMousePressEvent(QMapLibre::Coordinate coordinate);
     void onMouseReleaseEvent(QMapLibre::Coordinate coordinate);
-    void onMouseMoveEvent(QMapLibre::Coordinate coordinate);
 
 protected:
+    // Event handlers
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void wheelEvent(QWheelEvent *event) override;
+    void showEvent(QShowEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
+    bool event(QEvent *e) override;
+
     // QRhiWidget implementation
     void initialize(QRhiCommandBuffer *cb) override;
     void render(QRhiCommandBuffer *cb) override;
     void releaseResources() override;
-
-    // Event handlers
-    void mousePressEvent(QMouseEvent *event) override;
-    void mouseMoveEvent(QMouseEvent *event) override;
-    void wheelEvent(QWheelEvent *event) override;
-    void paintEvent(QPaintEvent *event) override;
-    void showEvent(QShowEvent *event) override;
-    void hideEvent(QHideEvent *event) override;
-    void resizeEvent(QResizeEvent *event) override;
-    bool event(QEvent *e) override;
 
 private:
     Q_DISABLE_COPY(MapWidget);

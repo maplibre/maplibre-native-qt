@@ -7,11 +7,6 @@
 #include <QMapLibre/Map>
 #include <QMapLibre/Settings>
 
-#if defined(MLN_RENDER_BACKEND_OPENGL)
-#include <QtGui/QOpenGLContext>
-typedef unsigned int GLuint;
-#endif
-
 #include <memory>
 
 QT_BEGIN_NAMESPACE
@@ -26,28 +21,18 @@ class MapWidgetPrivate : public QObject {
     Q_OBJECT
 
 public:
-    explicit MapWidgetPrivate(QObject *parent, const Settings &settings);
+    explicit MapWidgetPrivate(QObject *parent, Settings settings);
     ~MapWidgetPrivate() override;
 
     void handleMousePressEvent(QMouseEvent *event);
     void handleMouseMoveEvent(QMouseEvent *event);
     void handleWheelEvent(QWheelEvent *event) const;
 
-    void updateMapSize(const QSize &size, qreal dpr);
-
     std::unique_ptr<Map> m_map;
     Settings m_settings;
-    bool m_initialized = false;
-    QSize m_currentSize;
-    qreal m_currentDpr = 1.0;
-#if defined(MLN_RENDER_BACKEND_VULKAN)
-    void *m_vulkanCommandBuffer = nullptr; // Track the current Vulkan command buffer
-#endif
-#if defined(MLN_RENDER_BACKEND_METAL) && defined(__APPLE__)
-    void *m_metalLayer = nullptr; // CAMetalLayer for rendering
-    bool m_metalRendererCreated = false;
-    bool m_needsTextureUpdate = false;
-    QImage m_renderedImage; // Store the rendered map image
+    bool m_initialized{};
+#if defined(MLN_RENDER_BACKEND_METAL)
+    bool m_metalRendererCreated{};
 #endif
 
 private:

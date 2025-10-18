@@ -69,9 +69,8 @@ void TextureNodeVulkan::render(QQuickWindow *window) {
             auto *qtDevicePtr = reinterpret_cast<vk::Device *>(
                 ri->getResource(window, QSGRendererInterface::DeviceResource));
 
-            vk::PhysicalDevice qtPhysicalDevice = qtPhysicalDevicePtr != nullptr ? *qtPhysicalDevicePtr : nullptr;
-            vk::Device qtDevice = qtDevicePtr != nullptr ? *qtDevicePtr : nullptr;
-
+            const vk::PhysicalDevice qtPhysicalDevice = qtPhysicalDevicePtr != nullptr ? *qtPhysicalDevicePtr : nullptr;
+            const vk::Device qtDevice = qtDevicePtr != nullptr ? *qtDevicePtr : nullptr;
             if (qtPhysicalDevice != nullptr && qtDevice != nullptr) {
                 // TODO: We need to get the graphics queue index from Qt
                 // For now, assume it's 0 (common case)

@@ -432,8 +432,8 @@ VulkanRendererBackend::~VulkanRendererBackend() = default;
 void VulkanRendererBackend::initializeWithQtInstance(QVulkanInstance *qtInstance) {
     m_qtInstance = qtInstance;
 
-    vk::Instance rawInstance = qtInstance->vkInstance();
-    if (rawInstance == nullptr) {
+    const vk::Instance vulkanInstance = qtInstance->vkInstance();
+    if (vulkanInstance == nullptr) {
         throw std::runtime_error("Qt Vulkan instance handle is null");
     }
 
@@ -476,13 +476,12 @@ void VulkanRendererBackend::initInstance() {
     // Reuse Qt's existing instance
     usingSharedContext = true;
 
-    vk::Instance rawInstance = m_qtInstance->vkInstance();
-    if (rawInstance == nullptr) {
+    const vk::Instance vulkanInstance = m_qtInstance->vkInstance();
+    if (vulkanInstance == nullptr) {
         throw std::runtime_error("Qt Vulkan instance is null");
     }
 
-    const vk::Instance vkInstance(rawInstance);
-    instance = vk::UniqueInstance(vkInstance,
+    instance = vk::UniqueInstance(vulkanInstance,
                                   vk::ObjectDestroy<vk::NoParent, vk::DispatchLoaderDynamic>(nullptr, dispatcher));
 
     // Check if debug utils extension is available

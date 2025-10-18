@@ -8,23 +8,18 @@
 #include <QMapLibre/Map>
 #include <QMapLibre/Settings>
 
-#include <rhi/qrhi.h>
-#include <QImage>
-#include <QMouseEvent>
-#include <QPainter>
-#include <QWheelEvent>
-
-#if defined(MLN_RENDER_BACKEND_OPENGL)
-#include <QOpenGLContext>
-#include <QOpenGLFunctions>
-#endif
-
-#include <QtGui/private/qrhi_p.h>
-#include <QtGui/rhi/qrhi_platform.h>
+#include <QtGui/rhi/qrhi.h>
 #include <QtCore/QDebug>
+#include <QtGui/QMouseEvent>
+#include <QtGui/QWheelEvent>
 #include <QtGui/QWindow>
 
-#if defined(MLN_RENDER_BACKEND_VULKAN)
+#ifdef MLN_RENDER_BACKEND_OPENGL
+#include <QtGui/QOpenGLContext>
+#include <QtGui/QOpenGLFunctions>
+#endif
+
+#ifdef MLN_RENDER_BACKEND_VULKAN
 #include <QtGui/private/qrhivulkan_p.h>
 #endif
 
@@ -46,16 +41,28 @@ namespace QMapLibre {
 
     \headerfile map_widget.hpp <QMapLibreWidgets/MapWidget>
 
-    QMapLibre::MapWidget provides hardware-accelerated map rendering using
+    MapWidget provides hardware-accelerated map rendering using
     Qt's RHI (Rendering Hardware Interface), which abstracts over different
     graphics APIs (OpenGL, Vulkan, Metal).
 
-    This widget supports interactive map features including panning,
-    zooming, and rotation.
+    The widget is intended as a standalone map viewer in a Qt Widgets application.
+    It owns its own instance of \ref QMapLibre::Map that is rendered to the widget.
+
+    \fn MapWidget::onMouseDoubleClickEvent
+    \brief Emitted when the user double-clicks the mouse.
+
+    \fn MapWidget::onMouseMoveEvent
+    \brief Emitted when the user moves the mouse.
+
+    \fn MapWidget::onMousePressEvent
+    \brief Emitted when the user presses the mouse.
+
+    \fn MapWidget::onMouseReleaseEvent
+    \brief Emitted when the user releases the mouse.
 */
 MapWidget::MapWidget(const Settings &settings) {
     // Set the graphics API first, before anything else
-#if defined(MLN_RENDER_BACKEND_VULKAN)
+#ifdef MLN_RENDER_BACKEND_VULKAN
     setApi(QRhiWidget::Api::Vulkan);
     // Configured for Vulkan backend
 #elif defined(MLN_RENDER_BACKEND_METAL)
@@ -83,11 +90,14 @@ MapWidget::MapWidget(const Settings &settings) {
 }
 
 MapWidget::~MapWidget() {
-    // Clean up resources
-    releaseResources();
+    // Mark as not initialized
+    if (d_ptr != nullptr) {
+        d_ptr->m_initialized = false;
+    }
 
     // Ensure the map is properly destroyed
-    if (d_ptr && d_ptr->m_map) {
+    if (d_ptr != nullptr && d_ptr->m_map != nullptr) {
+        d_ptr->m_map->disconnect();
         d_ptr->m_map->destroyRenderer();
         d_ptr->m_map.reset();
     }
@@ -100,20 +110,113 @@ Map *MapWidget::map() {
     return d_ptr->m_map.get();
 }
 
+/*!
+    \brief Mouse press event handler.
+*/
+void MapWidget::mousePressEvent(QMouseEvent *event) {
+    const QPointF &position = event->position();
+    emit onMousePressEvent(d_ptr->m_map->coordinateForPixel(position));
+    if (event->type() == QEvent::MouseButtonDblClick) {
+        emit onMouseDoubleClickEvent(d_ptr->m_map->coordinateForPixel(position));
+    }
+
+    d_ptr->handleMousePressEvent(event);
+}
+
+/*!
+    \brief Mouse release event handler.
+*/
+void MapWidget::mouseReleaseEvent(QMouseEvent *event) {
+    const QPointF &position = event->position();
+    emit onMouseReleaseEvent(d_ptr->m_map->coordinateForPixel(position));
+}
+
+/*!
+    \brief Mouse move event handler.
+*/
+void MapWidget::mouseMoveEvent(QMouseEvent *event) {
+    const QPointF &position = event->position();
+    emit onMouseMoveEvent(d_ptr->m_map->coordinateForPixel(position));
+
+    d_ptr->handleMouseMoveEvent(event);
+}
+
+/*!
+    \brief Mouse wheel event handler.
+*/
+void MapWidget::wheelEvent(QWheelEvent *event) {
+    d_ptr->handleWheelEvent(event);
+}
+
+/*!
+    \brief Widget show event handler.
+*/
+void MapWidget::showEvent(QShowEvent *event) {
+    QRhiWidget::showEvent(event);
+
+    // Force a render when shown, especially important after undocking
+    if (d_ptr->m_initialized) {
+        d_ptr->m_map->render();
+    }
+
+    update(); // Force an update
+}
+
+/*!
+    \brief Widget resize event handler.
+*/
+void MapWidget::resizeEvent(QResizeEvent *event) {
+    QRhiWidget::resizeEvent(event);
+
+    if (d_ptr->m_map != nullptr) {
+        d_ptr->m_map->resize(size(), devicePixelRatio());
+    }
+}
+
+/*!
+    \brief Widget main event handler.
+*/
+bool MapWidget::event(QEvent *e) {
+    // Handle parent change which happens during undocking
+    if (e->type() == QEvent::ParentAboutToChange) {
+#ifdef MLN_RENDERER_DEBUGGING
+        qDebug() << "MapWidget::event() - ParentAboutToChange - releasing resources";
+#endif
+        // Mark as uninitialized FIRST to prevent any rendering
+        d_ptr->m_initialized = false;
+        // Release resources before the parent changes
+        releaseResources();
+    } else if (e->type() == QEvent::ParentChange) {
+#ifdef MLN_RENDERER_DEBUGGING
+        qDebug() << "MapWidget::event() - ParentChange";
+#endif
+        // After parent change, we'll get a new initialize() call
+        // Make sure we stay in uninitialized state
+        d_ptr->m_initialized = false;
+    }
+
+    return QRhiWidget::event(e);
+}
+
 void MapWidget::initialize(QRhiCommandBuffer *cb) {
     Q_UNUSED(cb)
 
-    qDebug() << "MapWidget::initialize called";
+#ifdef MLN_RENDERER_DEBUGGING
+    qDebug() << "MapWidget::initialize()";
+#endif
 
     // Check if we need to reinitialize after reparenting
-    bool isReinitializing = d_ptr->m_map && !d_ptr->m_initialized;
+    const bool isReinitializing = d_ptr->m_map != nullptr && !d_ptr->m_initialized;
     if (isReinitializing) {
-        qDebug() << "Reinitializing map after reparenting";
+#ifdef MLN_RENDERER_DEBUGGING
+        qDebug() << "MapWidget::initialize() - Reinitializing map after reparenting";
+#endif
         // The map exists but was uninitialized due to reparenting
         // Renderer was already destroyed in releaseResources()
         // We need to reconnect signals that were disconnected in releaseResources()
 
         // Reconnect signals that were disconnected in releaseResources()
+        // TODO: make a helper function for this to avoid code duplication
         QObject::connect(d_ptr->m_map.get(), &Map::needsRendering, this, [this]() { update(); });
 
         QObject::connect(d_ptr->m_map.get(), &Map::mapChanged, this, [this](Map::MapChange change) {
@@ -129,8 +232,8 @@ void MapWidget::initialize(QRhiCommandBuffer *cb) {
         });
     }
 
-    // Initialize the map (or recreate renderer for existing map)
-    if (!d_ptr->m_map) {
+    // Initialize the map
+    if (d_ptr->m_map == nullptr) {
         d_ptr->m_map = std::make_unique<Map>(this, d_ptr->m_settings, QSize(width(), height()), devicePixelRatio());
 
         QObject::connect(d_ptr->m_map.get(), &Map::needsRendering, this, [this]() { update(); });
@@ -153,211 +256,169 @@ void MapWidget::initialize(QRhiCommandBuffer *cb) {
 
     // Create the renderer based on the build configuration and runtime API
     // This needs to happen both for initial creation and after reparenting
-    bool needsRendererCreation = !d_ptr->m_initialized;
+    if (!d_ptr->m_initialized) {
+#if defined(MLN_RENDER_BACKEND_OPENGL)
+#ifdef MLN_RENDERER_DEBUGGING
+        qDebug() << "MapWidget::initialize() - Creating OpenGL renderer for"
+                 << (isReinitializing ? "reinitialization" : "initial setup");
+#endif
+        d_ptr->m_map->createRenderer(nullptr);
+#elif defined(MLN_RENDER_BACKEND_VULKAN)
+#ifdef MLN_RENDERER_DEBUGGING
+        qDebug() << "MapWidget::initialize() - Creating Vulkan renderer for"
+                 << (isReinitializing ? "reinitialization" : "initial setup");
+#endif
+        // For Vulkan, we need to use Qt's Vulkan device for proper integration
+        if (rhi() != nullptr && rhi()->backend() == QRhi::Vulkan) {
+            // Get native Vulkan handles from Qt
+            const QRhiNativeHandles *nativeHandles = rhi()->nativeHandles();
+            if (nativeHandles != nullptr) {
+                // Cast to Vulkan-specific handles
+                const auto *vkHandles = static_cast<const QRhiVulkanNativeHandles *>(nativeHandles);
+                if (vkHandles != nullptr && vkHandles->physDev != nullptr && vkHandles->dev != nullptr) {
+#ifdef MLN_RENDERER_DEBUGGING
+                    qDebug() << "MapWidget::initialize() - Using Qt's Vulkan device for MapLibre renderer";
+                    qDebug() << "MapWidget::initialize() - PhysDev:" << vkHandles->physDev << "Dev:" << vkHandles->dev
+                             << "Queue family:" << vkHandles->gfxQueueFamilyIdx;
+#endif
 
-    if (needsRendererCreation) {
-#if defined(MLN_RENDER_BACKEND_VULKAN)
-        if (api() == QRhiWidget::Api::Vulkan) {
-            // For Vulkan, we need to use Qt's Vulkan device for proper integration
-            if (rhi() != nullptr && rhi()->backend() == QRhi::Vulkan) {
-                // Get native Vulkan handles from Qt
-                const QRhiNativeHandles *nativeHandles = rhi()->nativeHandles();
-                if (nativeHandles != nullptr) {
-                    // Cast to Vulkan-specific handles
-                    const auto *vkHandles = static_cast<const QRhiVulkanNativeHandles *>(nativeHandles);
-                    if (vkHandles != nullptr && vkHandles->physDev != nullptr && vkHandles->dev != nullptr) {
-                        qDebug() << "Using Qt's Vulkan device for MapLibre renderer";
-                        qDebug() << "PhysDev:" << vkHandles->physDev << "Dev:" << vkHandles->dev
-                                 << "Queue family:" << vkHandles->gfxQueueFamilyIdx;
-
-                        // QRhiWidget doesn't have a window handle in the traditional sense
-                        // We need to find the top-level window
-                        QWindow *topWindow{};
-                        QWidget *w = window();
-                        if (w != nullptr) {
-                            topWindow = w->windowHandle();
+                    // QRhiWidget doesn't have a window handle in the traditional sense
+                    // We need to find the top-level window
+                    QWindow *topWindow = window() != nullptr ? window()->windowHandle() : nullptr;
+                    if (topWindow != nullptr && vkHandles->inst != nullptr) {
+#ifdef MLN_RENDERER_DEBUGGING
+                        qDebug() << "MapWidget::initialize() - Window handle:" << topWindow
+                                 << "VulkanInstance:" << vkHandles->inst;
+#endif
+                        // Set the Vulkan instance on the window if not already set
+                        if (topWindow->vulkanInstance() == nullptr) {
+                            topWindow->setVulkanInstance(vkHandles->inst);
                         }
-
-                        if (topWindow != nullptr && vkHandles->inst != nullptr) {
-                            qDebug() << "Window handle:" << topWindow << "VulkanInstance:" << vkHandles->inst;
-                            // Set the Vulkan instance on the window if not already set
-                            if (topWindow->vulkanInstance() == nullptr) {
-                                topWindow->setVulkanInstance(vkHandles->inst);
-                            }
-                            // Create renderer with Qt's Vulkan device
-                            // The createRendererWithQtVulkanDevice function uses device sharing
-                            d_ptr->m_map->createRendererWithQtVulkanDevice(
-                                topWindow,                   // Window for surface creation
-                                vkHandles->physDev,          // Physical device
-                                vkHandles->dev,              // Device
-                                vkHandles->gfxQueueFamilyIdx // Graphics queue family index
-                            );
-                        } else {
-                            qWarning() << "No valid window or Vulkan instance - falling back to standalone renderer";
-                            d_ptr->m_map->createRenderer(nullptr);
-                        }
+                        // Create renderer with Qt's Vulkan device
+                        // The createRendererWithQtVulkanDevice function uses device sharing
+                        d_ptr->m_map->createRendererWithQtVulkanDevice(
+                            topWindow,                   // Window for surface creation
+                            vkHandles->physDev,          // Physical device
+                            vkHandles->dev,              // Device
+                            vkHandles->gfxQueueFamilyIdx // Graphics queue family index
+                        );
                     } else {
-                        qWarning() << "Failed to get Vulkan handles from QRhi";
+                        qWarning() << "MapWidget::initialize() - No valid window or Vulkan instance, falling back to "
+                                      "standalone renderer";
                         d_ptr->m_map->createRenderer(nullptr);
                     }
                 } else {
-                    qWarning() << "No native handles available from QRhi";
+                    qWarning() << "MapWidget::initialize() - Failed to get Vulkan handles from QRhi";
                     d_ptr->m_map->createRenderer(nullptr);
                 }
             } else {
-                qWarning() << "QRhi is not using Vulkan backend";
+                qWarning() << "MapWidget::initialize() - No native handles available from QRhi";
                 d_ptr->m_map->createRenderer(nullptr);
             }
+        } else {
+            qWarning() << "MapWidget::initialize() - QRhi is not using Vulkan backend";
+            d_ptr->m_map->createRenderer(nullptr);
         }
 #elif defined(MLN_RENDER_BACKEND_METAL)
-        if (api() == QRhiWidget::Api::Metal) {
-            // Creating Metal renderer
-            // For Metal with QRhiWidget, we use offscreen rendering
-            // QRhiWidget manages its own Metal layer, so we create with nullptr
-            qDebug() << "Creating Metal renderer for" << (isReinitializing ? "reinitialization" : "initial setup");
-            d_ptr->m_map->createRenderer(nullptr);
-            d_ptr->m_metalRendererCreated = true;
-            // Metal renderer created (offscreen mode)
-        }
-#elif defined(MLN_RENDER_BACKEND_OPENGL)
-        if (api() == QRhiWidget::Api::OpenGL) {
-            // Creating OpenGL renderer
-            d_ptr->m_map->createRenderer(nullptr);
-        }
-#else
-        // Fallback if no matching backend was compiled in
-        qWarning() << "MapWidget: No matching renderer backend available for API" << static_cast<int>(api());
+#ifdef MLN_RENDERER_DEBUGGING
+        qDebug() << "MapWidget::initialize() - Creating Metal renderer for"
+                 << (isReinitializing ? "reinitialization" : "initial setup");
+#endif
+        // For Metal with QRhiWidget, we use offscreen rendering
+        // QRhiWidget manages its own Metal layer, so we create with nullptr
         d_ptr->m_map->createRenderer(nullptr);
+        d_ptr->m_metalRendererCreated = true;
 #endif
 
         // Only set initial view and style on first creation, not on reinitialization
         if (!isReinitializing) {
-            // Set default location with a reasonable zoom level
-            auto coord = d_ptr->m_settings.defaultCoordinate();
-            auto zoom = d_ptr->m_settings.defaultZoom();
-
-            qDebug() << "Setting initial map view - Coordinate:" << coord.first << "," << coord.second
-                     << "Zoom:" << zoom;
-            d_ptr->m_map->setCoordinateZoom(coord, zoom);
+            d_ptr->m_map->setCoordinateZoom(d_ptr->m_settings.defaultCoordinate(), d_ptr->m_settings.defaultZoom());
 
             // Set default style
             if (!d_ptr->m_settings.styles().empty()) {
-                // Setting style URL
-                qDebug() << "MapWidget: Setting style URL:" << d_ptr->m_settings.styles().front().url;
                 d_ptr->m_map->setStyleUrl(d_ptr->m_settings.styles().front().url);
             } else if (!d_ptr->m_settings.providerStyles().empty()) {
-                // Setting provider style URL
-                qDebug() << "MapWidget: Setting provider style URL:" << d_ptr->m_settings.providerStyles().front().url;
                 d_ptr->m_map->setStyleUrl(d_ptr->m_settings.providerStyles().front().url);
             }
         }
-
-        // Force an initial render
-        d_ptr->m_map->render();
-        update();
-    } else if (isReinitializing) {
-        // After reinitializing from reparenting, force a render
-        qDebug() << "Forcing render after reinitialization";
-        d_ptr->m_map->render();
-        update();
     }
+
+    // Force an initial render
+    d_ptr->m_map->render();
+    update();
 
     d_ptr->m_initialized = true;
 }
 
 void MapWidget::render(QRhiCommandBuffer *cb) {
     // Render - checking initialization status
-    // cb is Qt's command buffer - for Vulkan, Qt has already begun a render pass
     Q_UNUSED(cb)
 
-    // CRITICAL: Check initialized flag FIRST before doing ANYTHING
+    // Only render if initialized
     // This prevents race conditions during reparenting
     if (!d_ptr->m_initialized) {
-        qDebug() << "MapWidget::render skipped - not initialized";
-        return;
-    }
-
-    if (!d_ptr->m_map) {
-        qDebug() << "MapWidget::render skipped - no map";
+#ifdef MLN_RENDERER_DEBUGGING
+        qDebug() << "MapWidget::render() - skipped, not initialized";
+#endif
         return;
     }
 
     // Get QRhiWidget's color texture for rendering
     QRhiTexture *rhiTexture = colorTexture();
     if (rhiTexture == nullptr) {
-        qDebug() << "MapWidget::render skipped - no color texture available";
+#ifdef MLN_RENDERER_DEBUGGING
+        qDebug() << "MapWidget::render() - skipped, no color texture available";
+#endif
         return;
     }
 
+    // Get the native texture handle
+    const QRhiTexture::NativeTexture nativeTexture = rhiTexture->nativeTexture();
+
     // Handle backend-specific setup
-#if defined(MLN_RENDER_BACKEND_OPENGL)
-    if (api() == QRhiWidget::Api::OpenGL) {
-        // Get the native OpenGL texture handle
-        QRhiTexture::NativeTexture nativeTex = rhiTexture->nativeTexture();
+#ifdef MLN_RENDER_BACKEND_OPENGL
+    // The texture object is the GLuint texture ID for OpenGL
+    // nativeTexture.object is a quint64, we need to convert it to GLuint
+    auto glTextureId = static_cast<GLuint>(nativeTexture.object);
 
-        // The texture object is the GLuint texture ID for OpenGL
-        // nativeTex.object is a quint64, we need to convert it to GLuint
-        auto glTextureId = static_cast<GLuint>(nativeTex.object);
-
-        if (glTextureId != 0) {
-            // Pass the OpenGL texture to MapLibre for zero-copy rendering
-            // We need to set this every frame as the texture might change
-            d_ptr->m_map->setExternalDrawable(&glTextureId, rhiTexture->pixelSize());
-        } else {
-            qWarning() << "MapWidget: OpenGL texture ID is 0";
-        }
+    if (glTextureId != 0) {
+        // Pass the OpenGL texture to MapLibre for zero-copy rendering
+        // We need to set this every frame as the texture might change
+        d_ptr->m_map->setExternalDrawable(&glTextureId, rhiTexture->pixelSize());
+    } else {
+        qWarning() << "MapWidget::render() - OpenGL texture ID is 0";
     }
-#endif
-
-#if defined(MLN_RENDER_BACKEND_VULKAN)
-    if (api() == QRhiWidget::Api::Vulkan) {
-        // For Vulkan, we need to pass the texture but be careful about render passes
-        // Qt has begun its render pass, so we need to work within that context
-
-        // Get the native Vulkan image handle
-        QRhiTexture::NativeTexture nativeTex = rhiTexture->nativeTexture();
-
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast, performance-no-int-to-ptr)
-        void *vulkanImagePtr = reinterpret_cast<void *>(nativeTex.object);
-        if (vulkanImagePtr != nullptr) {
-            // Pass the Vulkan image to MapLibre
-            // MapLibre will need to handle the fact that a render pass is already active
-            d_ptr->m_map->setExternalDrawable(vulkanImagePtr, rhiTexture->pixelSize());
-        }
-
-        // Update size for Vulkan renderer
-        d_ptr->m_map->updateRenderer(size(), devicePixelRatio());
+#elif defined(MLN_RENDER_BACKEND_VULKAN)
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast, performance-no-int-to-ptr)
+    auto *vulkanImagePtr = reinterpret_cast<void *>(nativeTexture.object);
+    if (vulkanImagePtr != nullptr) {
+        // Pass the OpenGL texture to MapLibre for zero-copy rendering
+        // We need to set this every frame as the texture might change
+        d_ptr->m_map->setExternalDrawable(vulkanImagePtr, rhiTexture->pixelSize());
     }
-#endif
 
-#if defined(MLN_RENDER_BACKEND_METAL)
-    if (api() == QRhiWidget::Api::Metal) {
-        // For Metal, pass QRhiWidget's color texture to MapLibre
-        // This allows MapLibre to render directly to QRhiWidget's surface
-
-        // Create renderer if not yet created (without layer for external texture mode)
-        if (!d_ptr->m_metalRendererCreated && d_ptr->m_map) {
-            d_ptr->m_map->createRenderer(nullptr);
-            d_ptr->m_metalRendererCreated = true;
-            // Created Metal renderer (external texture mode)
-        }
-
-        // Get the native Metal texture handle
-        QRhiTexture::NativeTexture nativeTex = rhiTexture->nativeTexture();
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast, performance-no-int-to-ptr)
-        void *metalTexturePtr = reinterpret_cast<void *>(nativeTex.object);
-        if (metalTexturePtr != nullptr) {
-            // Setting Metal texture for MapLibre rendering
-            d_ptr->m_map->setExternalDrawable(metalTexturePtr, rhiTexture->pixelSize());
-        } else {
-            // Native Metal texture is null
-        }
-
-        // Update size for Metal renderer
-        if (d_ptr->m_map) {
-            d_ptr->m_map->updateRenderer(size(), devicePixelRatio());
-        }
+    // Update size for Vulkan renderer
+    // TODO: why?
+    d_ptr->m_map->updateRenderer(size(), devicePixelRatio());
+#elif defined(MLN_RENDER_BACKEND_METAL)
+    // Create renderer if not yet created (without layer for external texture mode)
+    if (!d_ptr->m_metalRendererCreated && d_ptr->m_map != nullptr) {
+        d_ptr->m_map->createRenderer(nullptr);
+        d_ptr->m_metalRendererCreated = true;
+        // Created Metal renderer (external texture mode)
     }
+
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast, performance-no-int-to-ptr)
+    auto *metalTexturePtr = reinterpret_cast<void *>(nativeTexture.object);
+    if (metalTexturePtr != nullptr) {
+        // Pass the Metal texture to MapLibre for zero-copy rendering
+        // We need to set this every frame as the texture might change
+        d_ptr->m_map->setExternalDrawable(metalTexturePtr, rhiTexture->pixelSize());
+    }
+
+    // Update size for Metal renderer
+    // TODO: why?
+    d_ptr->m_map->updateRenderer(size(), devicePixelRatio());
 #endif
 
     // Render the map to its own texture first
@@ -365,186 +426,95 @@ void MapWidget::render(QRhiCommandBuffer *cb) {
 
     // Force Qt to redraw the widget to show the rendered content
     // Request continuous updates for animations
+    // TODO: why?
     update();
 }
 
 void MapWidget::releaseResources() {
-    qDebug() << "MapWidget::releaseResources called";
+#ifdef MLN_RENDERER_DEBUGGING
+    qDebug() << "MapWidget::releaseResources()";
+#endif
+
     // Clean up resources when the widget is being destroyed or re-parented
     d_ptr->m_initialized = false;
 
-    // Stop rendering immediately
-    if (d_ptr->m_map) {
-        // Disconnect signals to stop rendering
-        d_ptr->m_map->disconnect();
+    if (d_ptr->m_map == nullptr) {
+        return;
+    }
 
-#if defined(MLN_RENDER_BACKEND_OPENGL)
-        // For OpenGL with QRhiWidget, we need to destroy the renderer during reparenting
-        // because the OpenGL context changes when the widget is reparented
-        qDebug() << "Destroying OpenGL renderer due to reparenting";
-        d_ptr->m_map->destroyRenderer();
+    // Disconnect signals to stop rendering
+    // TODO: is this necessary?
+    d_ptr->m_map->disconnect();
+
+#ifdef MLN_RENDERER_DEBUGGING
+    qDebug() << "MapWidget::releaseResources() - Destroying renderer due to reparenting";
 #endif
+    d_ptr->m_map->destroyRenderer();
 
-#if defined(MLN_RENDER_BACKEND_METAL)
-        // For Metal, we MUST destroy the renderer during reparenting because
-        // the Metal layer is tied to the old window context and becomes invalid
-        qDebug() << "Destroying Metal renderer due to reparenting";
-        d_ptr->m_map->destroyRenderer();
-        d_ptr->m_metalRendererCreated = false;
+#ifdef MLN_RENDER_BACKEND_METAL
+    d_ptr->m_metalRendererCreated = false;
 #endif
-
-#if defined(MLN_RENDER_BACKEND_VULKAN)
-        // For Vulkan, we also need to destroy the renderer during reparenting because
-        // the Vulkan surface and window handles become invalid
-        qDebug() << "Destroying Vulkan renderer due to reparenting";
-        d_ptr->m_map->destroyRenderer();
-#endif
-    }
 }
-
-void MapWidget::mousePressEvent(QMouseEvent *event) {
-    d_ptr->handleMousePressEvent(event);
-}
-
-void MapWidget::mouseMoveEvent(QMouseEvent *event) {
-    d_ptr->handleMouseMoveEvent(event);
-}
-
-void MapWidget::wheelEvent(QWheelEvent *event) {
-    d_ptr->handleWheelEvent(event);
-}
-
-void MapWidget::paintEvent(QPaintEvent *event) {
-    // For Vulkan, we might need special handling
-#if defined(MLN_RENDER_BACKEND_VULKAN)
-    if (api() == QRhiWidget::Api::Vulkan && d_ptr->m_map) {
-        // Get MapLibre's rendered content
-        auto *vulkanTexture = d_ptr->m_map->getVulkanTexture();
-        if (vulkanTexture != nullptr) {
-            // The texture has been rendered, Qt should display it
-            // For now, just ensure we update
-            update();
-        }
-    }
-#endif
-
-    // Call base class implementation
-    QRhiWidget::paintEvent(event);
-}
-
-void MapWidget::showEvent(QShowEvent *event) {
-    // ShowEvent
-    qDebug() << "MapWidget::showEvent";
-    QRhiWidget::showEvent(event);
-
-    // Force a render when shown, especially important after undocking
-    if (d_ptr->m_initialized && d_ptr->m_map) {
-        qDebug() << "MapWidget::showEvent - forcing map render";
-        d_ptr->m_map->render();
-    }
-
-    update(); // Force an update
-}
-
-void MapWidget::hideEvent(QHideEvent *event) {
-    qDebug() << "MapWidget::hideEvent";
-    // Don't release resources on normal hide - only on reparenting
-    // Resources are released in ParentAboutToChange event handler
-    QRhiWidget::hideEvent(event);
-}
-
-bool MapWidget::event(QEvent *e) {
-    // Handle parent change which happens during undocking
-    if (e->type() == QEvent::ParentAboutToChange) {
-        qDebug() << "MapWidget::ParentAboutToChange - releasing resources";
-        // Mark as uninitialized FIRST to prevent any rendering
-        d_ptr->m_initialized = false;
-        // Release resources before the parent changes
-        releaseResources();
-    } else if (e->type() == QEvent::ParentChange) {
-        qDebug() << "MapWidget::ParentChange - parent changed";
-        // After parent change, we'll get a new initialize() call
-        // Make sure we stay in uninitialized state
-        d_ptr->m_initialized = false;
-    }
-
-    return QRhiWidget::event(e);
-}
-
-void MapWidget::resizeEvent(QResizeEvent *event) {
-    // ResizeEvent
-    QRhiWidget::resizeEvent(event);
-
-    if (d_ptr->m_map) {
-        d_ptr->updateMapSize(size(), devicePixelRatio());
-    }
-}
-
-// MapWidgetPrivate implementation
 
 /*! \cond PRIVATE */
-MapWidgetPrivate::MapWidgetPrivate(QObject *parent, const Settings &settings)
+
+MapWidgetPrivate::MapWidgetPrivate(QObject *parent, Settings settings)
     : QObject(parent),
-      m_settings(settings) {}
+      m_settings(std::move(settings)) {}
 
 MapWidgetPrivate::~MapWidgetPrivate() = default;
 
-void MapWidgetPrivate::updateMapSize(const QSize &size, qreal dpr) {
-    if (!m_map) {
-        return;
-    }
-
-    m_currentSize = size;
-    m_currentDpr = dpr;
-
-    m_map->resize(size);
-
-    // Update the renderer with the new size
-    m_map->updateRenderer(size, dpr);
-}
-
 void MapWidgetPrivate::handleMousePressEvent(QMouseEvent *event) {
+    constexpr double zoomInScale{2.0};
+    constexpr double zoomOutScale{0.5};
+
     m_lastPos = event->position();
 
-    if (event->button() == Qt::LeftButton && event->modifiers() & Qt::ShiftModifier) {
-        m_map->pitchBy(60.0);
-    }
-}
-
-void MapWidgetPrivate::handleMouseMoveEvent(QMouseEvent *event) {
-    if (!(event->buttons() & Qt::LeftButton)) {
-        return;
-    }
-
-    QPointF delta = event->position() - m_lastPos;
-
-    if (!delta.isNull()) {
-        if (event->modifiers() & Qt::ControlModifier) {
-            m_map->pitchBy(delta.y());
-            m_map->rotateBy(m_lastPos, event->position());
-        } else {
-            m_map->moveBy(delta);
+    if (event->type() == QEvent::MouseButtonDblClick) {
+        if (event->buttons() == Qt::LeftButton) {
+            m_map->scaleBy(zoomInScale, m_lastPos);
+        } else if (event->buttons() == Qt::RightButton) {
+            m_map->scaleBy(zoomOutScale, m_lastPos);
         }
-    }
-
-    m_lastPos = event->position();
-}
-
-void MapWidgetPrivate::handleWheelEvent(QWheelEvent *event) const {
-    if (!m_map) {
-        return;
-    }
-
-    const int degrees = event->angleDelta().y() / 8;
-    const int steps = degrees / 15;
-
-    if (steps != 0) {
-        const double factor = steps > 0 ? 2.0 : 0.5;
-        m_map->scaleBy(factor, event->position());
     }
 
     event->accept();
 }
+
+void MapWidgetPrivate::handleMouseMoveEvent(QMouseEvent *event) {
+    const QPointF &position = event->position();
+    const QPointF delta = position - m_lastPos;
+    if (!delta.isNull()) {
+        if (event->buttons() == Qt::LeftButton && (event->modifiers() & Qt::ShiftModifier) != 0) {
+            m_map->pitchBy(delta.y());
+        } else if (event->buttons() == Qt::LeftButton) {
+            m_map->moveBy(delta);
+        } else if (event->buttons() == Qt::RightButton) {
+            m_map->rotateBy(m_lastPos, position);
+        }
+    }
+
+    m_lastPos = position;
+    event->accept();
+}
+
+void MapWidgetPrivate::handleWheelEvent(QWheelEvent *event) const {
+    if (event->angleDelta().y() == 0) {
+        return;
+    }
+
+    constexpr float wheelConstant = 1200.f;
+
+    float factor = static_cast<float>(event->angleDelta().y()) / wheelConstant;
+    if (event->angleDelta().y() < 0) {
+        factor = factor > -1 ? factor : 1 / factor;
+    }
+
+    m_map->scaleBy(1 + factor, event->position());
+
+    event->accept();
+}
+
 /*! \endcond PRIVATE */
 
 } // namespace QMapLibre
