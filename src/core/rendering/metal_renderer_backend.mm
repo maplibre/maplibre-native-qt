@@ -40,8 +40,7 @@ public:
 #endif
         } else {
 #ifdef MLN_RENDERER_DEBUGGING
-            qDebug()
-                << "QtMetalRenderableResource() - Created renderable resource without layer (external texture mode)";
+            qDebug() << "QtMetalRenderableResource() - Will use external drawable";
 #endif
         }
     }
@@ -87,10 +86,8 @@ public:
         if (externalTex == nullptr && layer != nullptr) {
             auto *tmpDrawable = layer->nextDrawable();
             if (tmpDrawable == nullptr) {
-                // Try to get layer info for debugging, but protect against invalid layer
-                auto drawSize = layer->drawableSize();
                 qWarning() << "QtMetalRenderableResource::bind() - nextDrawable() returned nil."
-                           << "drawableSize=" << drawSize.width << "x" << drawSize.height
+                           << "drawableSize=" << layer->drawableSize().width << "x" << layer->drawableSize().height
                            << ", device=" << (void *)layer->device()
                            << ", pixelFormat=" << static_cast<int>(layer->pixelFormat());
 
@@ -117,12 +114,11 @@ public:
         // Get texture size from the actual texture
         auto texSize = mbgl::Size{size.width, size.height};
         if (externalTex != nullptr) {
-            // When using external texture from QRhiWidget, get size from the texture itself
-            // NOT from the layer (which might be invalid after reparenting)
+            // If texture is available, use its size
             texSize = mbgl::Size{static_cast<uint32_t>(externalTex->width()),
                                  static_cast<uint32_t>(externalTex->height())};
         } else if (layer != nullptr) {
-            // Only use layer size when we don't have an external texture
+            // Only use layer size when the texture is not available
             texSize = mbgl::Size{static_cast<uint32_t>(layer->drawableSize().width),
                                  static_cast<uint32_t>(layer->drawableSize().height)};
         }
@@ -133,7 +129,7 @@ public:
 
         if (buffersInvalid || !depthTexture || !stencilTexture) {
 #ifdef MLN_RENDERER_DEBUGGING
-            qDebug() << "QtMetalRenderableResource::bind() -  Allocating depth/stencil textures with size"
+            qDebug() << "QtMetalRenderableResource::bind() - Allocating depth/stencil textures with size"
                      << texSize.width << "x" << texSize.height;
 #endif
             buffersInvalid = false;
@@ -225,45 +221,19 @@ namespace QMapLibre {
 
 MetalRendererBackend::MetalRendererBackend(CA::MetalLayer *layer)
     : mbgl::mtl::RendererBackend(mbgl::gfx::ContextMode::Unique),
-      mbgl::gfx::Renderable(
-          layer != nullptr ? mbgl::Size{static_cast<uint32_t>(layer->drawableSize().width),
-                                        static_cast<uint32_t>(layer->drawableSize().height)}
-                           : mbgl::Size{defaultOffscreenWidth, defaultOffscreenHeight},
-          std::make_unique<QtMetalRenderableResource>(*this, layer != nullptr ? layer : createOffscreenMetalLayer())) {}
+      mbgl::gfx::Renderable(layer != nullptr ? mbgl::Size{static_cast<uint32_t>(layer->drawableSize().width),
+                                                          static_cast<uint32_t>(layer->drawableSize().height)}
+                                             : mbgl::Size{defaultOffscreenWidth, defaultOffscreenHeight},
+                            std::make_unique<QtMetalRenderableResource>(*this, layer)) {}
 
 MetalRendererBackend::~MetalRendererBackend() = default;
 
 void MetalRendererBackend::setSize(mbgl::Size size_) {
-    this->getResource<QtMetalRenderableResource>().setBackendSize(size_);
+    getResource<QtMetalRenderableResource>().setBackendSize(size_);
 }
 
 mbgl::Size MetalRendererBackend::getSize() const {
-    return this->getResource<QtMetalRenderableResource>().getSize();
-}
-
-CA::MetalLayer *MetalRendererBackend::createOffscreenMetalLayer() {
-    auto *device = MTL::CreateSystemDefaultDevice();
-    if (device == nullptr) {
-        qWarning() << "MetalRendererBackend::createOffscreenMetalLayer() - Failed to create Metal device";
-        return nullptr;
-    }
-
-    auto *layer = CA::MetalLayer::layer();
-    if (layer == nullptr) {
-        qWarning() << "MetalRendererBackend::createOffscreenMetalLayer() - Failed to create Metal layer";
-        device->release();
-        return nullptr;
-    }
-
-    layer->setDevice(device);
-    layer->setPixelFormat(MTL::PixelFormat::PixelFormatBGRA8Unorm);
-    layer->setDrawableSize(CGSize{defaultOffscreenWidth, defaultOffscreenHeight}); // Default size, will be updated
-    layer->setFramebufferOnly(false);                                              // Allow reading from the texture
-
-#ifdef MLN_RENDERER_DEBUGGING
-    qDebug() << "MetalRendererBackend::createOffscreenMetalLayer() - Created offscreen Metal layer";
-#endif
-    return layer;
+    return getResource<QtMetalRenderableResource>().getSize();
 }
 
 } // namespace QMapLibre

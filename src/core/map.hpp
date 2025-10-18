@@ -207,6 +207,7 @@ public:
 public slots:
     void render();
     void setConnectionEstablished();
+    void triggerRepaint();
 
     // Commit changes, load all the resources
     // and renders the map when completed.

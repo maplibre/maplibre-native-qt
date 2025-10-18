@@ -1555,10 +1555,7 @@ void Map::startStaticRender() {
 /*!
     \brief Render.
 
-    Renders the map using OpenGL draw calls. It will make sure to bind the
-    framebuffer object before drawing; otherwise a valid OpenGL context is
-    expected with an appropriate OpenGL viewport state set for the size of
-    the canvas.
+    Renders the map using native draw calls.
 
     This function should be called only after the signal needsRendering() is
     emitted at least once.
@@ -1567,6 +1564,15 @@ void Map::startStaticRender() {
 */
 void Map::render() {
     d_ptr->render();
+}
+
+/*!
+    \brief Trigger repaint.
+
+    Trigger repaint so that render can be called.
+*/
+void Map::triggerRepaint() {
+    d_ptr->mapObj->triggerRepaint();
 }
 
 /*!

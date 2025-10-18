@@ -20,8 +20,8 @@ private slots:
     void onAddNew();
 
 private:
-    std::unique_ptr<QMenuBar> m_menuBar{};
-    std::unique_ptr<QAction> m_actionAddNew{};
+    std::unique_ptr<QMenuBar> m_menuBar;
+    std::unique_ptr<QAction> m_actionAddNew;
 };
 
 #endif

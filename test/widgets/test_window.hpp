@@ -1,17 +1,17 @@
 // Copyright (C) 2023 MapLibre contributors
 
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: BSD-2-Clause
 
-#ifndef WINDOW_H
-#define WINDOW_H
+#pragma once
 
 #include <QMapLibreWidgets/MapWidget>
 
-#include <QPushButton>
-#include <QVBoxLayout>
-#include <QWidget>
+#include <QtWidgets/QVBoxLayout>
+#include <QtWidgets/QWidget>
 
 #include <memory>
+
+namespace QMapLibre::Test {
 
 class MainWindow;
 
@@ -21,17 +21,13 @@ class Window : public QWidget {
 public:
     explicit Window(MainWindow *mainWindow);
 
-protected:
-    void keyPressEvent(QKeyEvent *event) override;
-
-private slots:
+public slots:
     void dockUndock();
 
 private:
-    QMapLibre::MapWidget *m_mapWidget{}; // Qt will manage lifetime via parent-child
+    std::unique_ptr<QMapLibre::MapWidget> m_mapWidget;
     std::unique_ptr<QVBoxLayout> m_layout;
-    std::unique_ptr<QPushButton> m_buttonDock;
     MainWindow *m_mainWindowRef{};
 };
 
-#endif
+} // namespace QMapLibre::Test

@@ -11,7 +11,7 @@
 
 #include <memory>
 
-namespace QMapLibre {
+namespace QMapLibre::Test {
 
 class MapWidgetTester : public MapWidget {
     Q_OBJECT
@@ -34,4 +34,4 @@ private:
     unsigned m_frameDraws{};
 };
 
-} // namespace QMapLibre
+} // namespace QMapLibre::Test

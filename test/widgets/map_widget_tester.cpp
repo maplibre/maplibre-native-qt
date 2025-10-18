@@ -12,9 +12,9 @@ namespace {
 constexpr int MinimumWidth = 640;
 constexpr int MinimumHeight = 480;
 constexpr int AnimationDuration = 5000;
-} // anonymous namespace
+} // namespace
 
-namespace QMapLibre {
+namespace QMapLibre::Test {
 
 MapWidgetTester::MapWidgetTester(const QMapLibre::Settings &settings)
     : MapWidget(settings) {
@@ -31,9 +31,9 @@ void MapWidgetTester::initializeAnimation() {
     connect(this, &MapWidgetTester::onMousePressEvent, [](Coordinate coordinate) {
         qDebug() << "onMousePressEvent" << coordinate;
     });
-    // connect(this, &MapWidgetTester::onMouseReleaseEvent, [](Coordinate coordinate) {
-    //     qDebug() << "onMouseReleaseEvent" << coordinate;
-    // });
+    connect(this, &MapWidgetTester::onMouseReleaseEvent, [](Coordinate coordinate) {
+        qDebug() << "onMouseReleaseEvent" << coordinate;
+    });
     connect(this, &MapWidgetTester::onMouseDoubleClickEvent, [](Coordinate coordinate) {
         qDebug() << "onMouseDoubleClickEvent" << coordinate;
     });
@@ -73,4 +73,4 @@ void MapWidgetTester::animationFinished() const {
 //     GLWidget::paintGL();
 // }
 
-} // namespace QMapLibre
+} // namespace QMapLibre::Test

@@ -94,21 +94,6 @@ void TextureNodeOpenGL::render(QQuickWindow *window) {
             setTexture(qtTexture);
             setRect(QRectF(QPointF(), m_size));
             setFiltering(QSGTexture::Linear);
-
-            // Remove Y-flip - the framebuffer is already in the correct orientation
-            // QSGGeometry *geometry = this->geometry();
-            // if (geometry && geometry->vertexCount() == 4) {
-            //     QSGGeometry::TexturedPoint2D *vertices = geometry->vertexDataAsTexturedPoint2D();
-
-            //     // Y-flip for OpenGL framebuffer
-            //     vertices[0].ty = 1.0f - vertices[0].ty;
-            //     vertices[1].ty = 1.0f - vertices[1].ty;
-            //     vertices[2].ty = 1.0f - vertices[2].ty;
-            //     vertices[3].ty = 1.0f - vertices[3].ty;
-
-            //     markDirty(QSGNode::DirtyGeometry);
-            // }
-
             setOwnsTexture(false); // Don't delete MapLibre's texture!
             markDirty(QSGNode::DirtyMaterial);
         }

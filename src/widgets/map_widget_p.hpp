@@ -31,9 +31,6 @@ public:
     std::unique_ptr<Map> m_map;
     Settings m_settings;
     bool m_initialized{};
-#if defined(MLN_RENDER_BACKEND_METAL)
-    bool m_metalRendererCreated{};
-#endif
 
 private:
     Q_DISABLE_COPY(MapWidgetPrivate);

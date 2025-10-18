@@ -54,8 +54,8 @@ void Window::dockUndock() {
     if (parent() != nullptr) {
         setParent(nullptr);
         setAttribute(Qt::WA_DeleteOnClose);
-        move(QGuiApplication::primaryScreen()->size().width() / 2 - width() / 2,
-             QGuiApplication::primaryScreen()->size().height() / 2 - height() / 2);
+        move((QGuiApplication::primaryScreen()->size().width() / 2) - (width() / 2),
+             (QGuiApplication::primaryScreen()->size().height() / 2) - (height() / 2));
         m_buttonDock->setText(tr("Dock"));
         show();
     } else {

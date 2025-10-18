@@ -46,8 +46,6 @@ public:
     void updateRenderer(const mbgl::Size &size, uint32_t /* fbo */) { setSize(size); };
 
 private:
-    CA::MetalLayer *createOffscreenMetalLayer();
-
     void *m_currentDrawable{nullptr};  // id<MTLTexture>
     void *m_externalDrawable{nullptr}; // external Metal texture from QRhiWidget
 

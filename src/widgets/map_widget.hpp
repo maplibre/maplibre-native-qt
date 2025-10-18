@@ -6,6 +6,7 @@
 
 #include <QMapLibreWidgets/Export>
 
+#include <QMapLibre/Map>
 #include <QMapLibre/Settings>
 #include <QMapLibre/Types>
 
@@ -21,7 +22,6 @@ QT_END_NAMESPACE
 
 namespace QMapLibre {
 
-class Map;
 class MapWidgetPrivate;
 
 class Q_MAPLIBRE_WIDGETS_EXPORT MapWidget : public QRhiWidget {
@@ -39,13 +39,15 @@ signals:
     void onMousePressEvent(QMapLibre::Coordinate coordinate);
     void onMouseReleaseEvent(QMapLibre::Coordinate coordinate);
 
+public slots:
+    void handleMapChange(QMapLibre::Map::MapChange change);
+
 protected:
     // Event handlers
     void mousePressEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
-    void showEvent(QShowEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
     bool event(QEvent *e) override;
 

@@ -10,6 +10,7 @@
 
 #include <QtGui/rhi/qrhi.h>
 #include <QtCore/QDebug>
+#include <QtCore/QTimer>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QWheelEvent>
 #include <QtGui/QWindow>
@@ -97,7 +98,6 @@ MapWidget::~MapWidget() {
 
     // Ensure the map is properly destroyed
     if (d_ptr != nullptr && d_ptr->m_map != nullptr) {
-        d_ptr->m_map->disconnect();
         d_ptr->m_map->destroyRenderer();
         d_ptr->m_map.reset();
     }
@@ -108,6 +108,17 @@ MapWidget::~MapWidget() {
 */
 Map *MapWidget::map() {
     return d_ptr->m_map.get();
+}
+
+/*!
+    \brief Handle map change events.
+*/
+void MapWidget::handleMapChange(Map::MapChange change) {
+    if (change == Map::MapChangeDidFinishLoadingMap) {
+        constexpr int refreshInterval{250};
+        // TODO: make it more elegant
+        QTimer::singleShot(refreshInterval, this, qOverload<>(&MapWidget::update));
+    }
 }
 
 /*!
@@ -146,20 +157,6 @@ void MapWidget::mouseMoveEvent(QMouseEvent *event) {
 */
 void MapWidget::wheelEvent(QWheelEvent *event) {
     d_ptr->handleWheelEvent(event);
-}
-
-/*!
-    \brief Widget show event handler.
-*/
-void MapWidget::showEvent(QShowEvent *event) {
-    QRhiWidget::showEvent(event);
-
-    // Force a render when shown, especially important after undocking
-    if (d_ptr->m_initialized) {
-        d_ptr->m_map->render();
-    }
-
-    update(); // Force an update
 }
 
 /*!
@@ -205,53 +202,24 @@ void MapWidget::initialize(QRhiCommandBuffer *cb) {
     qDebug() << "MapWidget::initialize()";
 #endif
 
-    // Check if we need to reinitialize after reparenting
-    const bool isReinitializing = d_ptr->m_map != nullptr && !d_ptr->m_initialized;
-    if (isReinitializing) {
+    if (d_ptr->m_initialized) {
 #ifdef MLN_RENDERER_DEBUGGING
-        qDebug() << "MapWidget::initialize() - Reinitializing map after reparenting";
+        qDebug() << "MapWidget::initialize() - Already initialized, nothing to do";
 #endif
-        // The map exists but was uninitialized due to reparenting
-        // Renderer was already destroyed in releaseResources()
-        // We need to reconnect signals that were disconnected in releaseResources()
-
-        // Reconnect signals that were disconnected in releaseResources()
-        // TODO: make a helper function for this to avoid code duplication
-        QObject::connect(d_ptr->m_map.get(), &Map::needsRendering, this, [this]() { update(); });
-
-        QObject::connect(d_ptr->m_map.get(), &Map::mapChanged, this, [this](Map::MapChange change) {
-            qDebug() << "Map changed event:" << static_cast<int>(change);
-            if (d_ptr->m_map && d_ptr->m_map->isFullyLoaded()) {
-                qDebug() << "Map is fully loaded!";
-            }
-            if (change == Map::MapChange::MapChangeDidFinishLoadingMap ||
-                change == Map::MapChange::MapChangeDidFinishLoadingStyle ||
-                change == Map::MapChange::MapChangeDidFinishRenderingFrameFullyRendered) {
-                update();
-            }
-        });
+        d_ptr->m_map->resize(size(), devicePixelRatio());
+        return;
     }
+
+    // Check if we need to reinitialize after reparenting
+    const bool isReinitializing = !d_ptr->m_initialized && d_ptr->m_map != nullptr;
 
     // Initialize the map
     if (d_ptr->m_map == nullptr) {
         d_ptr->m_map = std::make_unique<Map>(this, d_ptr->m_settings, QSize(width(), height()), devicePixelRatio());
-
-        QObject::connect(d_ptr->m_map.get(), &Map::needsRendering, this, [this]() { update(); });
-
-        // Connect to map changed signal to know when style is loaded
-        QObject::connect(d_ptr->m_map.get(), &Map::mapChanged, this, [this](Map::MapChange change) {
-            qDebug() << "Map changed event:" << static_cast<int>(change);
-            // Check if map is fully loaded
-            if (d_ptr->m_map && d_ptr->m_map->isFullyLoaded()) {
-                qDebug() << "Map is fully loaded!";
-            }
-            // Force update on important map changes
-            if (change == Map::MapChange::MapChangeDidFinishLoadingMap ||
-                change == Map::MapChange::MapChangeDidFinishLoadingStyle ||
-                change == Map::MapChange::MapChangeDidFinishRenderingFrameFullyRendered) {
-                update();
-            }
-        });
+        // Connect to needsRendering signal to trigger updates
+        QObject::connect(d_ptr->m_map.get(), &Map::needsRendering, this, qOverload<>(&MapWidget::update));
+        // Connect to map changed signal to know when the map is loaded
+        QObject::connect(d_ptr->m_map.get(), &Map::mapChanged, this, &MapWidget::handleMapChange);
     }
 
     // Create the renderer based on the build configuration and runtime API
@@ -327,7 +295,6 @@ void MapWidget::initialize(QRhiCommandBuffer *cb) {
         // For Metal with QRhiWidget, we use offscreen rendering
         // QRhiWidget manages its own Metal layer, so we create with nullptr
         d_ptr->m_map->createRenderer(nullptr);
-        d_ptr->m_metalRendererCreated = true;
 #endif
 
         // Only set initial view and style on first creation, not on reinitialization
@@ -343,11 +310,10 @@ void MapWidget::initialize(QRhiCommandBuffer *cb) {
         }
     }
 
-    // Force an initial render
-    d_ptr->m_map->render();
-    update();
-
     d_ptr->m_initialized = true;
+
+    // Make sure that the map gets repainted after initialization if all data is already loaded
+    d_ptr->m_map->triggerRepaint();
 }
 
 void MapWidget::render(QRhiCommandBuffer *cb) {
@@ -371,6 +337,10 @@ void MapWidget::render(QRhiCommandBuffer *cb) {
 #endif
         return;
     }
+
+#ifdef MLN_RENDERER_DEBUGGING
+    qDebug() << "MapWidget::render()";
+#endif
 
     // Get the native texture handle
     const QRhiTexture::NativeTexture nativeTexture = rhiTexture->nativeTexture();
@@ -396,18 +366,7 @@ void MapWidget::render(QRhiCommandBuffer *cb) {
         // We need to set this every frame as the texture might change
         d_ptr->m_map->setExternalDrawable(vulkanImagePtr, rhiTexture->pixelSize());
     }
-
-    // Update size for Vulkan renderer
-    // TODO: why?
-    d_ptr->m_map->updateRenderer(size(), devicePixelRatio());
 #elif defined(MLN_RENDER_BACKEND_METAL)
-    // Create renderer if not yet created (without layer for external texture mode)
-    if (!d_ptr->m_metalRendererCreated && d_ptr->m_map != nullptr) {
-        d_ptr->m_map->createRenderer(nullptr);
-        d_ptr->m_metalRendererCreated = true;
-        // Created Metal renderer (external texture mode)
-    }
-
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast, performance-no-int-to-ptr)
     auto *metalTexturePtr = reinterpret_cast<void *>(nativeTexture.object);
     if (metalTexturePtr != nullptr) {
@@ -415,19 +374,10 @@ void MapWidget::render(QRhiCommandBuffer *cb) {
         // We need to set this every frame as the texture might change
         d_ptr->m_map->setExternalDrawable(metalTexturePtr, rhiTexture->pixelSize());
     }
-
-    // Update size for Metal renderer
-    // TODO: why?
-    d_ptr->m_map->updateRenderer(size(), devicePixelRatio());
 #endif
 
-    // Render the map to its own texture first
+    // Render the map to its own texture
     d_ptr->m_map->render();
-
-    // Force Qt to redraw the widget to show the rendered content
-    // Request continuous updates for animations
-    // TODO: why?
-    update();
 }
 
 void MapWidget::releaseResources() {
@@ -442,18 +392,10 @@ void MapWidget::releaseResources() {
         return;
     }
 
-    // Disconnect signals to stop rendering
-    // TODO: is this necessary?
-    d_ptr->m_map->disconnect();
-
 #ifdef MLN_RENDERER_DEBUGGING
     qDebug() << "MapWidget::releaseResources() - Destroying renderer due to reparenting";
 #endif
     d_ptr->m_map->destroyRenderer();
-
-#ifdef MLN_RENDER_BACKEND_METAL
-    d_ptr->m_metalRendererCreated = false;
-#endif
 }
 
 /*! \cond PRIVATE */
