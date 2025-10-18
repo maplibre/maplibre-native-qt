@@ -66,7 +66,7 @@ public:
 
     // Backend-specific: push latest swap-chain texture into renderer
     void setCurrentDrawable(void *tex);
-    void setExternalDrawable(void *tex);
+    void setExternalDrawable(void *tex, const QSize &size);
 
 #if defined(MLN_RENDER_BACKEND_VULKAN)
     // Helper method to get the texture object for pixel data extraction
@@ -104,38 +104,5 @@ private:
 
     mbgl::TaggedScheduler m_threadPool{mbgl::Scheduler::GetBackground(), mbgl::util::SimpleIdentity{}};
 };
-
-inline void *MapPrivate::currentDrawableTexture() const {
-    std::scoped_lock lock(m_mapRendererMutex);
-    return m_mapRenderer ? m_mapRenderer->currentDrawableTexture() : nullptr;
-}
-
-inline void MapPrivate::setCurrentDrawable(void *tex) {
-    std::scoped_lock lock(m_mapRendererMutex);
-    if (m_mapRenderer) {
-        m_mapRenderer->setCurrentDrawable(tex);
-    }
-}
-
-inline void MapPrivate::setExternalDrawable(void *tex) {
-    std::scoped_lock lock(m_mapRendererMutex);
-    if (m_mapRenderer) {
-        m_mapRenderer->setExternalDrawable(tex);
-    }
-}
-
-#if defined(MLN_RENDER_BACKEND_VULKAN)
-inline mbgl::vulkan::Texture2D *MapPrivate::getVulkanTexture() const {
-    std::scoped_lock lock(m_mapRendererMutex);
-    return m_mapRenderer ? m_mapRenderer->getVulkanTexture() : nullptr;
-}
-#endif
-
-#if defined(MLN_RENDER_BACKEND_OPENGL)
-inline unsigned int MapPrivate::getFramebufferTextureId() const {
-    std::scoped_lock lock(m_mapRendererMutex);
-    return m_mapRenderer ? m_mapRenderer->getFramebufferTextureId() : 0;
-}
-#endif
 
 } // namespace QMapLibre

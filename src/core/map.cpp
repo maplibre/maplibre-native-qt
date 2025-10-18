@@ -1599,6 +1599,64 @@ void Map::setConnectionEstablished() {
 }
 
 /*!
+    \brief Returns the native color texture for backend-specific rendering.
+
+    This method provides access to the underlying native texture used by Metal
+    and Vulkan backends for Qt Quick integration. Returns nullptr if no texture
+    is available or if the backend doesn't support native texture access.
+
+    \return A pointer to the native texture, or nullptr if unavailable.
+    \note This is backend-specific and primarily used for Qt Quick texture nodes.
+*/
+void *Map::nativeColorTexture() const {
+#if defined(MLN_RENDER_BACKEND_METAL) || defined(MLN_RENDER_BACKEND_VULKAN)
+    return d_ptr->currentDrawableTexture();
+#else
+    return nullptr;
+#endif
+}
+
+/*!
+    \brief Sets the current drawable texture for backend-specific rendering.
+
+    This method allows external code to provide a drawable texture that the
+    renderer can use. The texture pointer interpretation is backend-specific:
+    - For Metal: CAMetalDrawable object
+    - For Vulkan/OpenGL: Implementation-specific texture handle
+
+    \param texturePtr Pointer to the backend-specific drawable texture.
+    \note This is primarily used internally by the rendering backends.
+*/
+void Map::setCurrentDrawable(void *texturePtr) {
+    d_ptr->setCurrentDrawable(texturePtr);
+}
+
+/*!
+    \brief Sets the external drawable texture rendering on surfaces we do not own.
+
+    This is primarily used for QRhiWidget integration.
+
+    \param texturePtr Pointer to the backend-specific drawable texture.
+    \param textureSize The size of the drawable texture.
+    \note This is primarily used internally by the rendering backends.
+*/
+void Map::setExternalDrawable(void *texturePtr, const QSize &textureSize) {
+    d_ptr->setExternalDrawable(texturePtr, textureSize);
+}
+
+#ifdef MLN_RENDER_BACKEND_VULKAN
+mbgl::vulkan::Texture2D *Map::getVulkanTexture() const {
+    return d_ptr->getVulkanTexture();
+}
+#endif
+
+#ifdef MLN_RENDER_BACKEND_OPENGL
+unsigned int Map::getFramebufferTextureId() const {
+    return d_ptr->getFramebufferTextureId();
+}
+#endif
+
+/*!
     \fn void Map::needsRendering()
     \brief Signal emitted when the rendering is needed.
 
@@ -1876,71 +1934,40 @@ bool MapPrivate::setProperty(const PropertySetter &setter,
     return true;
 }
 
+void *MapPrivate::currentDrawableTexture() const {
+    std::scoped_lock lock(m_mapRendererMutex);
+    return m_mapRenderer ? m_mapRenderer->currentDrawableTexture() : nullptr;
+}
+
+void MapPrivate::setCurrentDrawable(void *tex) {
+    std::scoped_lock lock(m_mapRendererMutex);
+    if (m_mapRenderer) {
+        m_mapRenderer->setCurrentDrawable(tex);
+    }
+}
+
+void MapPrivate::setExternalDrawable(void *tex, const QSize &size) {
+    std::scoped_lock lock(m_mapRendererMutex);
+    if (m_mapRenderer) {
+        mbgl::Size sanitizedSize = sanitizeSize(size);
+        m_mapRenderer->setExternalDrawable(tex, sanitizedSize);
+    }
+}
+
+#if defined(MLN_RENDER_BACKEND_VULKAN)
+mbgl::vulkan::Texture2D *MapPrivate::getVulkanTexture() const {
+    std::scoped_lock lock(m_mapRendererMutex);
+    return m_mapRenderer ? m_mapRenderer->getVulkanTexture() : nullptr;
+}
+#endif
+
+#if defined(MLN_RENDER_BACKEND_OPENGL)
+unsigned int MapPrivate::getFramebufferTextureId() const {
+    std::scoped_lock lock(m_mapRendererMutex);
+    return m_mapRenderer ? m_mapRenderer->getFramebufferTextureId() : 0;
+}
+#endif
+
 /*! \endcond */
-
-/*!
-    \brief Returns the native color texture for backend-specific rendering.
-
-    This method provides access to the underlying native texture used by Metal
-    and Vulkan backends for Qt Quick integration. Returns nullptr if no texture
-    is available or if the backend doesn't support native texture access.
-
-    \return A pointer to the native texture, or nullptr if unavailable.
-    \note This is backend-specific and primarily used for Qt Quick texture nodes.
-*/
-void *Map::nativeColorTexture() const {
-#if defined(MLN_RENDER_BACKEND_METAL) || defined(MLN_RENDER_BACKEND_VULKAN)
-    return d_ptr->currentDrawableTexture();
-#else
-    return nullptr;
-#endif
-}
-
-/*!
-    \brief Sets the current drawable texture for backend-specific rendering.
-
-    This method allows external code to provide a drawable texture that the
-    renderer can use. The texture pointer interpretation is backend-specific:
-    - For Metal: CAMetalDrawable object
-    - For Vulkan/OpenGL: Implementation-specific texture handle
-
-    \param texturePtr Pointer to the backend-specific drawable texture.
-    \note This is primarily used internally by the rendering backends.
-*/
-void Map::setCurrentDrawable(void *texturePtr) {
-    d_ptr->setCurrentDrawable(texturePtr);
-}
-
-/*!
-    \brief Sets the external drawable texture rendering on surfaces we do not own.
-
-    This is primarily used for QRhiWidget integration.
-
-    \param texturePtr Pointer to the backend-specific drawable texture.
-    \note This is primarily used internally by the rendering backends.
-*/
-void Map::setExternalDrawable(void *texturePtr) {
-    d_ptr->setExternalDrawable(texturePtr);
-}
-
-#ifdef MLN_RENDER_BACKEND_VULKAN
-mbgl::vulkan::Texture2D *Map::getVulkanTexture() const {
-    return d_ptr->getVulkanTexture();
-}
-
-// std::shared_ptr<mbgl::PremultipliedImage> Map::readVulkanImageData() const {
-//     auto *texture = d_ptr->getVulkanTexture();
-//     if (texture) {
-//         return texture->readImage();
-//     }
-//     return nullptr;
-// }
-#endif
-
-#ifdef MLN_RENDER_BACKEND_OPENGL
-unsigned int Map::getFramebufferTextureId() const {
-    return d_ptr->getFramebufferTextureId();
-}
-#endif
 
 } // namespace QMapLibre

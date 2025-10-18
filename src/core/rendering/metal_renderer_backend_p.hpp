@@ -41,7 +41,7 @@ public:
 
     // Set an external Metal texture to render to (for QRhiWidget integration)
     [[nodiscard]] void *externalDrawable() const { return m_externalDrawable; }
-    void setExternalDrawable(void *tex) { m_externalDrawable = tex; }
+    void setExternalDrawable(void *tex, const mbgl::Size & /* size */) { m_externalDrawable = tex; }
 
     void updateRenderer(const mbgl::Size &size, uint32_t /* fbo */) { setSize(size); };
 

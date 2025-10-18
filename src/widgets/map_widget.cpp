@@ -159,33 +159,29 @@ void MapWidget::initialize(QRhiCommandBuffer *cb) {
 #if defined(MLN_RENDER_BACKEND_VULKAN)
         if (api() == QRhiWidget::Api::Vulkan) {
             // For Vulkan, we need to use Qt's Vulkan device for proper integration
-            // Get the QRhi instance to access Vulkan resources
-            QRhi *qrhi = rhi();
-            if (qrhi && qrhi->backend() == QRhi::Vulkan) {
+            if (rhi() != nullptr && rhi()->backend() == QRhi::Vulkan) {
                 // Get native Vulkan handles from Qt
-                const QRhiNativeHandles *nativeHandles = qrhi->nativeHandles();
-                if (nativeHandles) {
+                const QRhiNativeHandles *nativeHandles = rhi()->nativeHandles();
+                if (nativeHandles != nullptr) {
                     // Cast to Vulkan-specific handles
-                    const QRhiVulkanNativeHandles *vkHandles = static_cast<const QRhiVulkanNativeHandles *>(
-                        nativeHandles);
-
-                    if (vkHandles && vkHandles->physDev && vkHandles->dev) {
+                    const auto *vkHandles = static_cast<const QRhiVulkanNativeHandles *>(nativeHandles);
+                    if (vkHandles != nullptr && vkHandles->physDev != nullptr && vkHandles->dev != nullptr) {
                         qDebug() << "Using Qt's Vulkan device for MapLibre renderer";
                         qDebug() << "PhysDev:" << vkHandles->physDev << "Dev:" << vkHandles->dev
                                  << "Queue family:" << vkHandles->gfxQueueFamilyIdx;
 
                         // QRhiWidget doesn't have a window handle in the traditional sense
                         // We need to find the top-level window
-                        QWindow *topWindow = nullptr;
+                        QWindow *topWindow{};
                         QWidget *w = window();
-                        if (w) {
+                        if (w != nullptr) {
                             topWindow = w->windowHandle();
                         }
 
-                        if (topWindow && vkHandles->inst) {
+                        if (topWindow != nullptr && vkHandles->inst != nullptr) {
                             qDebug() << "Window handle:" << topWindow << "VulkanInstance:" << vkHandles->inst;
                             // Set the Vulkan instance on the window if not already set
-                            if (!topWindow->vulkanInstance()) {
+                            if (topWindow->vulkanInstance() == nullptr) {
                                 topWindow->setVulkanInstance(vkHandles->inst);
                             }
                             // Create renderer with Qt's Vulkan device
@@ -286,37 +282,29 @@ void MapWidget::render(QRhiCommandBuffer *cb) {
         return;
     }
 
-    // Safety check: ensure we have a valid color texture
+    // Get QRhiWidget's color texture for rendering
     QRhiTexture *rhiTexture = colorTexture();
     if (rhiTexture == nullptr) {
         qDebug() << "MapWidget::render skipped - no color texture available";
         return;
     }
 
-    // QRhiWidget manages its own framebuffer differently than QOpenGLWidget.
-    // We need to ensure we're rendering to the right target based on the backend.
-
     // Handle backend-specific setup
 #if defined(MLN_RENDER_BACKEND_OPENGL)
     if (api() == QRhiWidget::Api::OpenGL) {
-        // For OpenGL, get QRhiWidget's color texture for zero-copy rendering
-        if (rhiTexture) {
-            // Get the native OpenGL texture handle
-            QRhiTexture::NativeTexture nativeTex = rhiTexture->nativeTexture();
+        // Get the native OpenGL texture handle
+        QRhiTexture::NativeTexture nativeTex = rhiTexture->nativeTexture();
 
-            // The texture object is the GLuint texture ID for OpenGL
-            // nativeTex.object is a quint64, we need to convert it to GLuint
-            GLuint glTextureId = static_cast<GLuint>(nativeTex.object);
+        // The texture object is the GLuint texture ID for OpenGL
+        // nativeTex.object is a quint64, we need to convert it to GLuint
+        auto glTextureId = static_cast<GLuint>(nativeTex.object);
 
-            if (glTextureId != 0) {
-                // Pass the OpenGL texture to MapLibre for zero-copy rendering
-                // We need to set this every frame as the texture might change
-                d_ptr->m_map->setOpenGLRenderTarget(glTextureId, rhiTexture->pixelSize());
-            } else {
-                qWarning() << "MapWidget: OpenGL texture ID is 0";
-            }
+        if (glTextureId != 0) {
+            // Pass the OpenGL texture to MapLibre for zero-copy rendering
+            // We need to set this every frame as the texture might change
+            d_ptr->m_map->setExternalDrawable(&glTextureId, rhiTexture->pixelSize());
         } else {
-            qWarning() << "MapWidget: No color texture available from QRhiWidget";
+            qWarning() << "MapWidget: OpenGL texture ID is 0";
         }
     }
 #endif
@@ -326,23 +314,19 @@ void MapWidget::render(QRhiCommandBuffer *cb) {
         // For Vulkan, we need to pass the texture but be careful about render passes
         // Qt has begun its render pass, so we need to work within that context
 
-        // Get QRhiWidget's color texture for rendering
-        QRhiTexture *rhiTexture = colorTexture();
-        if (rhiTexture) {
-            // Get the native Vulkan image handle
-            QRhiTexture::NativeTexture nativeTex = rhiTexture->nativeTexture();
+        // Get the native Vulkan image handle
+        QRhiTexture::NativeTexture nativeTex = rhiTexture->nativeTexture();
 
-            void *vulkanImagePtr = reinterpret_cast<void *>(nativeTex.object);
-
-            if (vulkanImagePtr) {
-                // Pass the Vulkan image to MapLibre
-                // MapLibre will need to handle the fact that a render pass is already active
-                d_ptr->m_map->setVulkanRenderTarget(vulkanImagePtr, rhiTexture->pixelSize());
-            }
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast, performance-no-int-to-ptr)
+        void *vulkanImagePtr = reinterpret_cast<void *>(nativeTex.object);
+        if (vulkanImagePtr != nullptr) {
+            // Pass the Vulkan image to MapLibre
+            // MapLibre will need to handle the fact that a render pass is already active
+            d_ptr->m_map->setExternalDrawable(vulkanImagePtr, rhiTexture->pixelSize());
         }
 
         // Update size for Vulkan renderer
-        d_ptr->m_map->updateRenderer(size(), devicePixelRatio(), 0);
+        d_ptr->m_map->updateRenderer(size(), devicePixelRatio());
     }
 #endif
 
@@ -358,25 +342,20 @@ void MapWidget::render(QRhiCommandBuffer *cb) {
             // Created Metal renderer (external texture mode)
         }
 
-        // Get QRhiWidget's color texture for direct rendering
-        QRhiTexture *rhiColorTexture = colorTexture();
-        if (rhiColorTexture != nullptr) {
-            // Get the native Metal texture handle
-            QRhiTexture::NativeTexture nativeTex = rhiColorTexture->nativeTexture();
-            void *metalTexturePtr = reinterpret_cast<void *>(nativeTex.object);
-            if (metalTexturePtr != nullptr) {
-                // Setting Metal texture for MapLibre rendering
-                d_ptr->m_map->setExternalDrawable(metalTexturePtr);
-            } else {
-                // Native Metal texture is null
-            }
+        // Get the native Metal texture handle
+        QRhiTexture::NativeTexture nativeTex = rhiTexture->nativeTexture();
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast, performance-no-int-to-ptr)
+        void *metalTexturePtr = reinterpret_cast<void *>(nativeTex.object);
+        if (metalTexturePtr != nullptr) {
+            // Setting Metal texture for MapLibre rendering
+            d_ptr->m_map->setExternalDrawable(metalTexturePtr, rhiTexture->pixelSize());
         } else {
-            // No QRhiTexture available from colorTexture()
+            // Native Metal texture is null
         }
 
         // Update size for Metal renderer
         if (d_ptr->m_map) {
-            d_ptr->m_map->updateRenderer(size(), devicePixelRatio(), 0);
+            d_ptr->m_map->updateRenderer(size(), devicePixelRatio());
         }
     }
 #endif
@@ -441,7 +420,7 @@ void MapWidget::paintEvent(QPaintEvent *event) {
     if (api() == QRhiWidget::Api::Vulkan && d_ptr->m_map) {
         // Get MapLibre's rendered content
         auto *vulkanTexture = d_ptr->m_map->getVulkanTexture();
-        if (vulkanTexture) {
+        if (vulkanTexture != nullptr) {
             // The texture has been rendered, Qt should display it
             // For now, just ensure we update
             update();
@@ -521,7 +500,7 @@ void MapWidgetPrivate::updateMapSize(const QSize &size, qreal dpr) {
     m_map->resize(size);
 
     // Update the renderer with the new size
-    m_map->updateRenderer(size, dpr, 0);
+    m_map->updateRenderer(size, dpr);
 }
 
 void MapWidgetPrivate::handleMousePressEvent(QMouseEvent *event) {

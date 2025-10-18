@@ -43,9 +43,7 @@ public:
 private:
     OpenGLRendererBackend &backend;
 };
-/*! \endcond PRIVATE */
 
-/*! \cond PRIVATE */
 OpenGLRendererBackend::OpenGLRendererBackend(const mbgl::gfx::ContextMode mode)
     : mbgl::gl::RendererBackend(mode),
       mbgl::gfx::Renderable({0, 0}, std::make_unique<QtOpenGLRenderableResource>(*this)) {}
@@ -53,14 +51,13 @@ OpenGLRendererBackend::OpenGLRendererBackend(const mbgl::gfx::ContextMode mode)
 OpenGLRendererBackend::~OpenGLRendererBackend() {
     QOpenGLContext *glContext = QOpenGLContext::currentContext();
     if (glContext != nullptr) {
-        QOpenGLFunctions *gl = glContext->functions();
-
         // Don't delete textures we don't own (e.g., from QRhiWidget)
         // We only own textures if we created them ourselves
         // For now, we'll skip deleting m_colorTexture to be safe
 
         // Clean up the depth-stencil renderbuffer if we created one
         if (m_depthStencilRB != 0) {
+            QOpenGLFunctions *gl = glContext->functions();
             gl->glDeleteRenderbuffers(1, &m_depthStencilRB);
             m_depthStencilRB = 0;
         }
@@ -97,17 +94,20 @@ void OpenGLRendererBackend::updateRenderer(const mbgl::Size &newSize, uint32_t f
     const auto width = static_cast<GLsizei>(newSize.width);
     const auto height = static_cast<GLsizei>(newSize.height);
 
-    // Always update m_fbo to track the current FBO
-    m_fbo = fbo;
-
-    // If we're rendering to a non-default FBO (like QRhiWidget), we need to flip vertically
-    m_flipVertically = (fbo != 0);
+#ifdef MLN_RENDERER_DEBUGGING
+    qDebug() << "OpenGLRendererBackend::updateRenderer() - size:" << newSize.width << "x" << newSize.height
+             << "fbo:" << fbo << "current m_fbo:" << m_fbo << "current m_colorTexture:" << m_colorTexture;
+#endif
 
     // Skip texture creation for default framebuffer
     if (fbo == 0) {
-        // For default framebuffer, no texture management needed
+        // Skip texture creation for default framebuffer
+        // Do NOT reset m_fbo here - keep the custom framebuffer state
         return;
     }
+
+    // Only update m_fbo for non-default framebuffers
+    m_fbo = fbo;
 
     // Create or recreate the color texture for the framebuffer
     QOpenGLContext *glContext = QOpenGLContext::currentContext();
@@ -115,15 +115,16 @@ void OpenGLRendererBackend::updateRenderer(const mbgl::Size &newSize, uint32_t f
         QOpenGLFunctions *gl = glContext->functions();
 
         // Check if the FBO already has a color attachment (e.g., from QRhiWidget)
-        GLint existingColorAttachment = 0;
-        gl->glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+        GLint existingColorAttachment{};
+        gl->glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
         gl->glGetFramebufferAttachmentParameteriv(
             GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &existingColorAttachment);
 
         // If there's already a color attachment, don't create our own texture
-        if (existingColorAttachment != 0) {
+        if (m_usingExternalDrawable && existingColorAttachment != 0) {
             // Don't delete the previous texture if it's the same as the existing one
-            if (m_colorTexture != 0 && m_colorTexture != static_cast<GLuint>(existingColorAttachment)) {
+            if (m_colorTexture != 0 &&
+                std::cmp_not_equal(m_colorTexture, static_cast<uint32_t>(existingColorAttachment))) {
                 gl->glDeleteTextures(1, &m_colorTexture);
             }
             m_colorTexture = existingColorAttachment;
@@ -150,8 +151,13 @@ void OpenGLRendererBackend::updateRenderer(const mbgl::Size &newSize, uint32_t f
         gl->glBindTexture(GL_TEXTURE_2D, m_colorTexture);
 
         // Set up texture parameters for framebuffer use with alpha
-        // Use GL_RGBA8 for internal format to ensure full alpha support
+        // Prefer GL_RGBA8 for desktop or OpenGL ES 3.0+, but fall back to
+        // GL_RGBA when GL_RGBA8 is not available (e.g. GLES2 on Android).
+#ifdef GL_RGBA8
         gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+#else
+        gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+#endif
         // Use linear filtering for smooth rendering
         // This is especially important for overzooming/underzooming and SDF text
         gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -169,14 +175,23 @@ void OpenGLRendererBackend::updateRenderer(const mbgl::Size &newSize, uint32_t f
                 gl->glGenRenderbuffers(1, &m_depthStencilRB);
             }
             gl->glBindRenderbuffer(GL_RENDERBUFFER, m_depthStencilRB);
+#ifdef GL_DEPTH24_STENCIL8
             gl->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+#else
+            gl->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8_OES, width, height);
+#endif
+#ifdef GL_DEPTH_STENCIL_ATTACHMENT
             gl->glFramebufferRenderbuffer(
                 GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_depthStencilRB);
+#else
+            gl->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_depthStencilRB);
+            gl->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_depthStencilRB);
+#endif
 
             // Check framebuffer completeness
-            GLenum status = gl->glCheckFramebufferStatus(GL_FRAMEBUFFER);
+            const GLenum status = gl->glCheckFramebufferStatus(GL_FRAMEBUFFER);
             if (status != GL_FRAMEBUFFER_COMPLETE) {
-                qWarning() << "OpenGLRendererBackend: Framebuffer not complete, status:" << status;
+                qWarning() << "OpenGLRendererBackend::updateRenderer() - Framebuffer not complete, status:" << status;
             } else {
                 // Framebuffer is ready
             }
@@ -201,11 +216,25 @@ unsigned int OpenGLRendererBackend::getFramebufferTextureId() const {
     // Return the actual color texture ID attached to the framebuffer
     // Only return texture if we're using a custom framebuffer (not the default)
 
-    // Always return the texture if we have one
+#ifdef MLN_RENDERER_DEBUGGING
+    qDebug() << "OpenGLRendererBackend::getFramebufferTextureId() - m_fbo:" << m_fbo
+             << "m_colorTexture:" << m_colorTexture;
+
+    // Check if texture is still valid
+    QOpenGLContext *glContext = QOpenGLContext::currentContext();
+    if (glContext != nullptr && m_colorTexture != 0) {
+        QOpenGLFunctions *gl = glContext->functions();
+        GLboolean isTexture = gl->glIsTexture(m_colorTexture);
+        qDebug() << "OpenGLRendererBackend::getFramebufferTextureId() - Texture" << m_colorTexture
+                 << "is valid:" << (isTexture != 0 ? "YES" : "NO");
+    }
+#endif
+
+    // Always return the texture if we have one, regardless of m_fbo
     return m_colorTexture;
 }
 
-void OpenGLRendererBackend::setOpenGLRenderTarget(unsigned int textureId, const QSize &textureSize) {
+void OpenGLRendererBackend::setExternalDrawable(unsigned int textureId, const mbgl::Size &textureSize) {
     // Handle reset case (textureId == 0 means reset to default)
     if (textureId == 0) {
         QOpenGLContext *glContext = QOpenGLContext::currentContext();
@@ -219,28 +248,31 @@ void OpenGLRendererBackend::setOpenGLRenderTarget(unsigned int textureId, const 
             }
         }
         m_colorTexture = 0;
+        m_usingExternalDrawable = false;
         assumeFramebufferBinding(0);
         return;
     }
 
     QOpenGLContext *glContext = QOpenGLContext::currentContext();
     if (glContext == nullptr) {
-        qWarning() << "OpenGLRendererBackend::setOpenGLRenderTarget - No OpenGL context";
+        qWarning() << "OpenGLRendererBackend::setOpenGLRenderTarget() - No OpenGL context";
         return;
     }
 
-    QOpenGLFunctions *gl = glContext->functions();
+    const auto width = static_cast<GLsizei>(textureSize.width);
+    const auto height = static_cast<GLsizei>(textureSize.height);
 
-    const auto width = static_cast<GLsizei>(textureSize.width());
-    const auto height = static_cast<GLsizei>(textureSize.height());
-
-    // Skip debug output for production
-    // qDebug() << "OpenGLRendererBackend::setOpenGLRenderTarget - textureId:" << textureId
-    //          << "size:" << width << "x" << height;
+#ifdef MLN_RENDERER_DEBUGGING
+    qDebug() << "OpenGLRendererBackend::setOpenGLRenderTarget() - textureId:" << textureId
+             << "textureSize:" << textureSize.width << "x" << textureSize.height;
+#endif
 
     // Update the size
-    size = mbgl::Size(textureSize.width(), textureSize.height());
+    size = textureSize;
 
+    m_usingExternalDrawable = true;
+
+    QOpenGLFunctions *gl = glContext->functions();
     // Check if we need to recreate the FBO (texture changed or no FBO yet)
     if (m_colorTexture != textureId || m_fbo == 0) {
         // If we already have an FBO, delete it to create a fresh one
@@ -272,9 +304,9 @@ void OpenGLRendererBackend::setOpenGLRenderTarget(unsigned int textureId, const 
         gl->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_depthStencilRB);
 
         // Check framebuffer completeness
-        GLenum status = gl->glCheckFramebufferStatus(GL_FRAMEBUFFER);
+        const GLenum status = gl->glCheckFramebufferStatus(GL_FRAMEBUFFER);
         if (status != GL_FRAMEBUFFER_COMPLETE) {
-            qWarning() << "OpenGLRendererBackend::setOpenGLRenderTarget - Framebuffer incomplete:" << status;
+            qWarning() << "OpenGLRendererBackend::setOpenGLRenderTarget() - Framebuffer incomplete:" << status;
             // Clean up on failure
             gl->glDeleteFramebuffers(1, &m_fbo);
             m_fbo = 0;
@@ -295,6 +327,7 @@ void OpenGLRendererBackend::setOpenGLRenderTarget(unsigned int textureId, const 
     // Set the viewport
     setViewport(0, 0, size);
 }
+
 /*! \endcond PRIVATE */
 
 } // namespace QMapLibre

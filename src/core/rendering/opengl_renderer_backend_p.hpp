@@ -5,6 +5,7 @@
 #pragma once
 
 #include <QSize>
+
 #include <mbgl/gfx/renderable.hpp>
 #include <mbgl/gl/renderer_backend.hpp>
 #include <mbgl/util/size.hpp>
@@ -40,13 +41,13 @@ public:
     [[nodiscard]] unsigned int getFramebufferTextureId() const;
 
     // Set OpenGL render target for zero-copy rendering
-    void setOpenGLRenderTarget(unsigned int textureId, const QSize &textureSize);
+    void setExternalDrawable(unsigned int textureId, const mbgl::Size &textureSize);
 
 private:
+    bool m_usingExternalDrawable{};
     uint32_t m_fbo{};
     uint32_t m_colorTexture{};   // OpenGL texture ID for the framebuffer's color attachment
     uint32_t m_depthStencilRB{}; // OpenGL renderbuffer ID for depth-stencil attachment
-    bool m_flipVertically{};     // Whether to flip rendering vertically (for QRhiWidget)
 };
 
 } // namespace QMapLibre

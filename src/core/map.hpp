@@ -189,7 +189,7 @@ public:
     void destroyRenderer();
 
     void setCurrentDrawable(void *texturePtr);
-    void setExternalDrawable(void *texturePtr);
+    void setExternalDrawable(void *texturePtr, const QSize &textureSize);
 
 #ifdef MLN_RENDER_BACKEND_VULKAN
     // Vulkan-specific: get the Vulkan texture object.

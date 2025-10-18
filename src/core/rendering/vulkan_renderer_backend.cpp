@@ -24,9 +24,11 @@ VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 #include <cassert>
 
 namespace {
-constexpr uint32_t DefaultSize{256};
 
 /*! \cond PRIVATE */
+
+constexpr uint32_t DefaultSize{256};
+
 // Custom renderable resource for Qt integration supporting zero-copy GPU rendering
 class QtVulkanRenderableResource final : public mbgl::vulkan::SurfaceRenderableResource {
 public:
@@ -40,10 +42,7 @@ public:
 
     void setExternalImage(vk::Image image, mbgl::Size imageSize) {
         // Only recreate if the image or size has changed
-        bool imageChanged = (externalImage != image);
-        bool sizeChanged = (size.width != imageSize.width || size.height != imageSize.height);
-
-        if (imageChanged || sizeChanged) {
+        if (externalImage != image || size.width != imageSize.width || size.height != imageSize.height) {
             externalImage = image;
             size = imageSize;
             extent.width = imageSize.width;
@@ -84,7 +83,7 @@ public:
                     auto texture = offscreenTexture->getTexture();
                     if (texture) {
                         texture->create();
-                        // Store the texture as the current drawable (Qt Quick will handle VkImage access)
+                        // Store the texture as the current drawable (Qt Quick will handle vk::Image access)
                         backend.setCurrentDrawable(texture.get());
                     }
                 }
@@ -361,23 +360,25 @@ private:
     vk::UniqueFramebuffer framebuffer;
     mbgl::Size size{DefaultSize, DefaultSize};
     bool needsRecreation{false};
-    vk::Image externalImage{};
-    vk::UniqueImageView externalImageView;
+    vk::Image externalImage{nullptr};
+    vk::UniqueImageView externalImageView{nullptr};
 };
+
 /*! \endcond PRIVATE */
+
 } // namespace
 
 namespace QMapLibre {
 
 /*! \cond PRIVATE */
+
 VulkanRendererBackend::VulkanRendererBackend(QWindow *window)
     : mbgl::vulkan::RendererBackend(mbgl::gfx::ContextMode::Shared),
       mbgl::vulkan::Renderable(
           mbgl::Size{DefaultSize, DefaultSize},
           std::make_unique<QtVulkanRenderableResource>(*this, mbgl::Size{DefaultSize, DefaultSize})),
       m_window(window) {
-    QVulkanInstance *qtInstance = nullptr;
-
+    QVulkanInstance *qtInstance{};
     if (window != nullptr) {
         qtInstance = window->vulkanInstance();
     }
@@ -414,7 +415,7 @@ VulkanRendererBackend::VulkanRendererBackend(QWindow *window,
       m_qtDevice(qtDevice),
       m_qtGraphicsQueueIndex(qtGraphicsQueueIndex),
       m_useQtDevice(true) {
-    if (window == nullptr || !qtPhysicalDevice || !qtDevice) {
+    if (window == nullptr || qtPhysicalDevice == nullptr || qtDevice == nullptr) {
         throw std::runtime_error("Invalid Qt Vulkan resources");
     }
 
@@ -431,8 +432,8 @@ VulkanRendererBackend::~VulkanRendererBackend() = default;
 void VulkanRendererBackend::initializeWithQtInstance(QVulkanInstance *qtInstance) {
     m_qtInstance = qtInstance;
 
-    VkInstance rawInstance = qtInstance->vkInstance();
-    if (rawInstance == VK_NULL_HANDLE) {
+    vk::Instance rawInstance = qtInstance->vkInstance();
+    if (rawInstance == nullptr) {
         throw std::runtime_error("Qt Vulkan instance handle is null");
     }
 
@@ -475,12 +476,12 @@ void VulkanRendererBackend::initInstance() {
     // Reuse Qt's existing instance
     usingSharedContext = true;
 
-    VkInstance rawInstance = m_qtInstance->vkInstance();
+    vk::Instance rawInstance = m_qtInstance->vkInstance();
     if (rawInstance == nullptr) {
-        throw std::runtime_error("Qt VkInstance is null");
+        throw std::runtime_error("Qt Vulkan instance is null");
     }
 
-    vk::Instance vkInstance(rawInstance);
+    const vk::Instance vkInstance(rawInstance);
     instance = vk::UniqueInstance(vkInstance,
                                   vk::ObjectDestroy<vk::NoParent, vk::DispatchLoaderDynamic>(nullptr, dispatcher));
 
@@ -505,7 +506,7 @@ std::vector<const char *> VulkanRendererBackend::getDeviceExtensions() {
 }
 
 void VulkanRendererBackend::initDevice() {
-    if (m_useQtDevice && m_qtDevice && m_qtPhysicalDevice) {
+    if (m_useQtDevice && m_qtDevice != nullptr && m_qtPhysicalDevice != nullptr) {
         // Reuse Qt's existing Vulkan device for zero-copy texture sharing
         physicalDevice = m_qtPhysicalDevice;
 
@@ -540,11 +541,11 @@ void VulkanRendererBackend::setSize(mbgl::Size size_) {
     mbgl::vulkan::Renderable::setSize(size_);
 
     // Also update our custom resource
-    this->getResource<QtVulkanRenderableResource>().setBackendSize(size_);
+    getResource<QtVulkanRenderableResource>().setBackendSize(size_);
 }
 
 mbgl::Size VulkanRendererBackend::getSize() const {
-    return this->getResource<QtVulkanRenderableResource>().getSize();
+    return getResource<QtVulkanRenderableResource>().getSize();
 }
 
 mbgl::vulkan::Texture2D *VulkanRendererBackend::getOffscreenTexture() const {
@@ -555,11 +556,9 @@ mbgl::vulkan::Texture2D *VulkanRendererBackend::getOffscreenTexture() const {
     return nullptr;
 }
 
-void VulkanRendererBackend::setExternalImage(vk::Image image, const mbgl::Size &size) {
+void VulkanRendererBackend::setExternalDrawable(void *image, const mbgl::Size &size_) {
     // Pass the external image to our custom renderable resource
-    auto &resource = this->getResource<QtVulkanRenderableResource>();
-
-    resource.setExternalImage(image, size);
+    getResource<QtVulkanRenderableResource>().setExternalImage(reinterpret_cast<VkImage>(image), size_);
 }
 
 // Helper function to create a QVulkanInstance
@@ -578,6 +577,7 @@ std::unique_ptr<QVulkanInstance> VulkanRendererBackend::createQVulkanInstance() 
 
     return qtInstance;
 }
+
 /*! \endcond PRIVATE */
 
 } // namespace QMapLibre

@@ -62,15 +62,18 @@ public:
 #if defined(MLN_RENDER_BACKEND_METAL) || defined(MLN_RENDER_BACKEND_VULKAN)
     [[nodiscard]] void *currentDrawableTexture() const { return m_backend.currentDrawable(); }
     void setCurrentDrawable(void *tex) { m_backend.setCurrentDrawable(tex); }
-    void setExternalDrawable(void *tex) { m_backend.setExternalDrawable(tex); }
+    void setExternalDrawable(void *tex, const mbgl::Size &size) { m_backend.setExternalDrawable(tex, size); }
 #endif
 #if defined(MLN_RENDER_BACKEND_VULKAN)
     // Helper method to get the texture object for pixel data extraction
-    mbgl::vulkan::Texture2D *getVulkanTexture() const { return m_backend.getOffscreenTexture(); }
+    [[nodiscard]] mbgl::vulkan::Texture2D *getVulkanTexture() const { return m_backend.getOffscreenTexture(); }
 #endif
 #if defined(MLN_RENDER_BACKEND_OPENGL)
     [[nodiscard]] void *currentDrawableTexture() const { return nullptr; }
     void setCurrentDrawable(void * /* tex */) { /* OpenGL doesn't use drawable textures */ }
+    void setExternalDrawable(void *tex, const mbgl::Size &size) {
+        m_backend.setExternalDrawable(*static_cast<unsigned int *>(tex), size);
+    }
 
     // Helper method to get the OpenGL framebuffer texture ID for direct texture sharing
     [[nodiscard]] unsigned int getFramebufferTextureId() const { return m_backend.getFramebufferTextureId(); }
