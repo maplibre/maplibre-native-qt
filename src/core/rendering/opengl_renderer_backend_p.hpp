@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <QSize>
-
 #include <mbgl/gfx/renderable.hpp>
 #include <mbgl/gl/renderer_backend.hpp>
 #include <mbgl/util/size.hpp>

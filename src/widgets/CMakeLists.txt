@@ -73,6 +73,8 @@ target_include_directories(
         ${CMAKE_CURRENT_BINARY_DIR}/include
         ${CMAKE_SOURCE_DIR}/src/core
         ${CMAKE_BINARY_DIR}/src/core/include
+        $<$<BOOL:${MLN_WITH_VULKAN}>:${MLN_CORE_PATH}/vendor/Vulkan-Headers/include>
+        $<$<BOOL:${MLN_WITH_VULKAN}>:${MLN_CORE_PATH}/vendor/VulkanMemoryAllocator/include>
 )
 
 # Common link libraries

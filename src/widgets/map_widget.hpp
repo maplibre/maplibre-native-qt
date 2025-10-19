@@ -2,7 +2,8 @@
 
 // SPDX-License-Identifier: BSD-2-Clause
 
-#pragma once
+#ifndef QMAPLIBRE_MAP_WIDGET_H
+#define QMAPLIBRE_MAP_WIDGET_H
 
 #include <QMapLibreWidgets/Export>
 
@@ -63,3 +64,5 @@ private:
 };
 
 } // namespace QMapLibre
+
+#endif // QMAPLIBRE_MAP_WIDGET_H

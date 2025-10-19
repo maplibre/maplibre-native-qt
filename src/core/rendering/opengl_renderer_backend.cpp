@@ -16,6 +16,7 @@
 namespace QMapLibre {
 
 /*! \cond PRIVATE */
+
 class QtOpenGLRenderableResource final : public mbgl::gl::RenderableResource {
 public:
     explicit QtOpenGLRenderableResource(OpenGLRendererBackend &backend_)
@@ -134,9 +135,18 @@ void OpenGLRendererBackend::updateRenderer(const mbgl::Size &newSize, uint32_t f
                 gl->glGenRenderbuffers(1, &m_depthStencilRB);
             }
             gl->glBindRenderbuffer(GL_RENDERBUFFER, m_depthStencilRB);
+#ifdef GL_DEPTH24_STENCIL8
             gl->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+#else
+            gl->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8_OES, width, height);
+#endif
+#ifdef GL_DEPTH_STENCIL_ATTACHMENT
             gl->glFramebufferRenderbuffer(
                 GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_depthStencilRB);
+#else
+            gl->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_depthStencilRB);
+            gl->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_depthStencilRB);
+#endif
 
             return;
         }
@@ -300,8 +310,17 @@ void OpenGLRendererBackend::setExternalDrawable(unsigned int textureId, const mb
         // Create new depth-stencil renderbuffer
         gl->glGenRenderbuffers(1, &m_depthStencilRB);
         gl->glBindRenderbuffer(GL_RENDERBUFFER, m_depthStencilRB);
+#ifdef GL_DEPTH24_STENCIL8
         gl->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+#else
+        gl->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8_OES, width, height);
+#endif
+#ifdef GL_DEPTH_STENCIL_ATTACHMENT
         gl->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_depthStencilRB);
+#else
+        gl->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_depthStencilRB);
+        gl->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_depthStencilRB);
+#endif
 
         // Check framebuffer completeness
         const GLenum status = gl->glCheckFramebufferStatus(GL_FRAMEBUFFER);

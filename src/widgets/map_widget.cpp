@@ -21,6 +21,8 @@
 #endif
 
 #ifdef MLN_RENDER_BACKEND_VULKAN
+#include <vulkan/vulkan.hpp>
+
 #include <QtGui/private/qrhivulkan_p.h>
 #endif
 
