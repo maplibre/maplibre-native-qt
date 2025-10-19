@@ -63,6 +63,8 @@ namespace QMapLibre {
     \fn MapWidget::onMouseReleaseEvent
     \brief Emitted when the user releases the mouse.
 */
+
+/*! Default constructor */
 MapWidget::MapWidget(const Settings &settings) {
     // Set the graphics API first, before anything else
 #ifdef MLN_RENDER_BACKEND_VULKAN

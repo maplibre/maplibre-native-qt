@@ -557,7 +557,8 @@ mbgl::vulkan::Texture2D *VulkanRendererBackend::getOffscreenTexture() const {
 
 void VulkanRendererBackend::setExternalDrawable(void *image, const mbgl::Size &size_) {
     // Pass the external image to our custom renderable resource
-    getResource<QtVulkanRenderableResource>().setExternalImage(reinterpret_cast<VkImage>(image), size_);
+    vk::Image vkImage(reinterpret_cast<VkImage>(image));
+    getResource<QtVulkanRenderableResource>().setExternalImage(vkImage, size_);
 }
 
 // Helper function to create a QVulkanInstance

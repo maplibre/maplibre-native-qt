@@ -180,13 +180,13 @@ jobs:
           export QMapLibre_DIR="$GITHUB_WORKSPACE/install/maplibre-native-qt"
           cmake --workflow --preset default
 
-      # - name: Build QtWidgets Example
-      #   if: matrix.qt_series == 6
-      #   shell: bash
-      #   working-directory: source/examples/widgets
-      #   run: |
-      #     export QMapLibre_DIR="$GITHUB_WORKSPACE/install/maplibre-native-qt"
-      #     cmake --workflow --preset default
+      - name: Build QtWidgets Example
+        if: matrix.qt_series == 6
+        shell: bash
+        working-directory: source/examples/widgets
+        run: |
+          export QMapLibre_DIR="$GITHUB_WORKSPACE/install/maplibre-native-qt"
+          cmake --workflow --preset default
 
       - name: Upload installation
         uses: actions/upload-artifact@v4

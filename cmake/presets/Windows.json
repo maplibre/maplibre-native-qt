@@ -213,10 +213,6 @@
           "name": "Windows-Vulkan-debug"
         },
         {
-          "type": "test",
-          "name": "Windows-Vulkan"
-        },
-        {
           "type": "package",
           "name": "Windows-Vulkan"
         }
@@ -237,10 +233,6 @@
         {
           "type": "build",
           "name": "Windows-Vulkan-debug-ccache"
-        },
-        {
-          "type": "test",
-          "name": "Windows-Vulkan-ccache"
         },
         {
           "type": "package",

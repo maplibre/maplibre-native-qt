@@ -107,7 +107,7 @@ void TextureNodeVulkan::render(QQuickWindow *window) {
     if (vulkanTexture != nullptr) {
         // Get Vulkan image and layout
         VkImage vulkanImage{vulkanTexture->getVulkanImage()};
-        const auto imageLayout = static_cast<VkImageLayout>(vulkanTexture->getVulkanImageLayout());
+        const auto vulkanImageLayout = static_cast<VkImageLayout>(vulkanTexture->getVulkanImageLayout());
 
         // Check if we have a valid vk::Image
         if (vulkanImage != VK_NULL_HANDLE) {
@@ -122,7 +122,7 @@ void TextureNodeVulkan::render(QQuickWindow *window) {
             } else {
                 // Create new wrapper
                 qtTexture = QNativeInterface::QSGVulkanTexture::fromNative(
-                    vulkanImage, imageLayout, window, physicalSize, QQuickWindow::TextureHasAlphaChannel);
+                    vulkanImage, vulkanImageLayout, window, physicalSize, QQuickWindow::TextureHasAlphaChannel);
                 if (qtTexture != nullptr) {
                     // Store for reuse
                     m_qtTextureWrapper = qtTexture;
