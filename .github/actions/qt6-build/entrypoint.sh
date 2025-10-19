@@ -32,6 +32,6 @@ cmake --workflow --preset default
 popd
 
 # QtWidgets example
-# pushd source/examples/widgets
-# cmake --workflow --preset default
-# popd
+pushd source/examples/widgets
+cmake --workflow --preset default
+popd

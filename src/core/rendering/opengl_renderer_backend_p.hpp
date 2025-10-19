@@ -38,7 +38,11 @@ public:
     // Get the current framebuffer texture ID for direct texture sharing
     [[nodiscard]] unsigned int getFramebufferTextureId() const;
 
+    // Set OpenGL render target for zero-copy rendering
+    void setExternalDrawable(unsigned int textureId, const mbgl::Size &textureSize);
+
 private:
+    bool m_usingExternalDrawable{};
     uint32_t m_fbo{};
     uint32_t m_colorTexture{};   // OpenGL texture ID for the framebuffer's color attachment
     uint32_t m_depthStencilRB{}; // OpenGL renderbuffer ID for depth-stencil attachment

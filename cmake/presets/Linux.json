@@ -7,7 +7,7 @@
       "displayName": "Linux configuration using Qt6 and OpenGL",
       "generator": "Ninja",
       "binaryDir": "${sourceParentDir}/build/qt6-Linux-OpenGL",
-      "toolchainFile": "$penv{QT_ROOT_DIR}/lib/cmake/Qt6/qt.toolchain.cmake",
+      "toolchainFile": "$penv{QT_ROOT_DIR}/lib$penv{QT_LIB_SUFFIX}/cmake/Qt6/qt.toolchain.cmake",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_POLICY_VERSION_MINIMUM": "3.19",
@@ -22,7 +22,7 @@
       "displayName": "Linux configuration using Qt6 and Vulkan",
       "generator": "Ninja",
       "binaryDir": "${sourceParentDir}/build/qt6-Linux-Vulkan",
-      "toolchainFile": "$penv{QT_ROOT_DIR}/lib/cmake/Qt6/qt.toolchain.cmake",
+      "toolchainFile": "$penv{QT_ROOT_DIR}/lib$penv{QT_LIB_SUFFIX}/cmake/Qt6/qt.toolchain.cmake",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_POLICY_VERSION_MINIMUM": "3.19",

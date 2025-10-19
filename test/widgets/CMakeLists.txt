@@ -1,6 +1,7 @@
 set(test_sources
-    ../common/test_rendering.cpp ../common/test_rendering.hpp
-    gl_tester.cpp gl_tester.hpp
+    main_window.cpp main_window.hpp
+    map_widget_tester.cpp map_widget_tester.hpp
+    map_window.cpp map_window.hpp
     test_widgets.cpp
 )
 if(COMMAND qt_add_executable)

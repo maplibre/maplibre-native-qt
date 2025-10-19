@@ -148,7 +148,9 @@ void MapRenderer::render() {
         const std::scoped_lock lock(m_updateMutex);
 
         // UpdateParameters should always be available when rendering.
-        assert(m_updateParameters);
+        if (m_updateParameters == nullptr) {
+            return;
+        }
 
         // Hold on to the update parameters during render
         params = m_updateParameters;

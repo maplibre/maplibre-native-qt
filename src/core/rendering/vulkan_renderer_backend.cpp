@@ -29,6 +29,7 @@ namespace {
 
 constexpr uint32_t DefaultSize{256};
 
+// Custom renderable resource for Qt integration supporting zero-copy GPU rendering
 class QtVulkanRenderableResource final : public mbgl::vulkan::SurfaceRenderableResource {
 public:
     QtVulkanRenderableResource(QMapLibre::VulkanRendererBackend &backend_, mbgl::Size initialSize)
@@ -39,7 +40,27 @@ public:
         extent.height = size.height;
     }
 
+    void setExternalImage(vk::Image image, mbgl::Size imageSize) {
+        // Only recreate if the image or size has changed
+        if (externalImage != image || size.width != imageSize.width || size.height != imageSize.height) {
+            externalImage = image;
+            size = imageSize;
+            extent.width = imageSize.width;
+            extent.height = imageSize.height;
+
+            // Force recreation of render pass and framebuffer with new external image
+            framebuffer.reset();
+            renderPass.reset();
+            needsRecreation = true;
+        }
+    }
+
     void setBackendSize(mbgl::Size size_) {
+        // If we have an external image, don't override its size
+        if (externalImage) {
+            return;
+        }
+
         // If we're going from invalid to valid size, mark for recreation
         if (size.isEmpty() && !size_.isEmpty()) {
             needsRecreation = true;
@@ -79,8 +100,27 @@ public:
         return static_cast<const mbgl::gfx::Renderable &>(backend).getSize();
     }
 
-    // Override bind to ensure we have an offscreen texture
+    // Override bind to ensure we have an offscreen texture or external image
     void bind() override {
+        // If we have an external image from QRhiWidget, use that instead of creating our own
+        if (externalImage) {
+            if (!renderPass || !framebuffer || needsRecreation) {
+                createRenderPassForExternalImage();
+                needsRecreation = false;
+            }
+
+            // IMPORTANT: MapLibre will call getFramebuffer() and getRenderPass() after this bind()
+            // Our framebuffer and renderPass members are now set up correctly for the external image
+            // No need to call base class bind() as it's designed for swapchain surfaces
+
+            // The framebuffer and renderPass created in createRenderPassForExternalImage()
+            // will be used by MapLibre's RenderPass when it calls resource.getFramebuffer()
+            // and resource.getRenderPass()
+
+            return;
+        }
+
+        // Fallback to creating our own offscreen texture
         // Use a minimal size if the actual size is invalid
         mbgl::Size textureSize = size;
         if (size.isEmpty()) {
@@ -122,9 +162,28 @@ public:
 
     [[nodiscard]] const vk::UniqueFramebuffer &getFramebuffer() const override { return framebuffer; }
 
+    // Note: getRenderPass() is inherited from RenderableResource and returns the renderPass member
+    // which should be set by createRenderPassForExternalImage() or createRenderPass()
+    // We can't override it because the base class method isn't virtual
+
     void swap() override {
         // For offscreen rendering, we need to ensure commands are submitted
         // but we don't present to a swapchain
+
+        if (externalImage) {
+            // Get rendering context
+            auto &context = static_cast<mbgl::vulkan::Context &>(backend.getContext());
+
+            // Submit the frame - this should contain all the MapLibre rendering commands
+            context.submitFrame();
+
+            // Wait for frame fence to ensure command buffer has been processed
+            context.waitFrame();
+
+            return;
+        }
+
+        // Only call base class swap if we're not using an external image
         mbgl::vulkan::SurfaceRenderableResource::swap();
 
         // Add barrier to transition image layout to shader read-only optimal
@@ -217,11 +276,92 @@ private:
         // No surface needed for offscreen rendering
     }
 
+    void createRenderPassForExternalImage() {
+        if (!externalImage) {
+            return;
+        }
+
+        // Initialize depth/stencil resources if needed
+        initDepthStencil();
+
+        // Create image view for external image
+        // Qt RHI format 1 corresponds to RGBA8 (R8G8B8A8Unorm)
+        const auto imageViewCreateInfo = vk::ImageViewCreateInfo()
+                                             .setImage(externalImage)
+                                             .setViewType(vk::ImageViewType::e2D)
+                                             .setFormat(vk::Format::eR8G8B8A8Unorm) // RGBA format that Qt RHI uses
+                                             .setComponents(vk::ComponentMapping()) // Identity swizzle
+                                             .setSubresourceRange(vk::ImageSubresourceRange()
+                                                                      .setAspectMask(vk::ImageAspectFlagBits::eColor)
+                                                                      .setBaseMipLevel(0)
+                                                                      .setLevelCount(1)
+                                                                      .setBaseArrayLayer(0)
+                                                                      .setLayerCount(1));
+
+        externalImageView = backend.getDevice()->createImageViewUnique(
+            imageViewCreateInfo, nullptr, backend.getDispatcher());
+
+        // Qt RHI provides the image already in a render pass with COLOR_ATTACHMENT_OPTIMAL layout
+        // We need to work within Qt's existing render pass constraints
+        const auto colorAttachment = vk::AttachmentDescription(vk::AttachmentDescriptionFlags())
+                                         .setFormat(vk::Format::eR8G8B8A8Unorm) // Match Qt RHI's RGBA format
+                                         .setSamples(vk::SampleCountFlagBits::e1)
+                                         .setLoadOp(vk::AttachmentLoadOp::eClear)   // Clear to see if rendering works
+                                         .setStoreOp(vk::AttachmentStoreOp::eStore) // Store back for Qt to use
+                                         .setStencilLoadOp(vk::AttachmentLoadOp::eDontCare)
+                                         .setStencilStoreOp(vk::AttachmentStoreOp::eDontCare)
+                                         .setInitialLayout(vk::ImageLayout::eUndefined) // Don't assume initial layout
+                                         .setFinalLayout(
+                                             vk::ImageLayout::ePresentSrcKHR); // Qt needs this for presentation
+
+        const auto depthAttachment = vk::AttachmentDescription(vk::AttachmentDescriptionFlags())
+                                         .setFormat(depthFormat != vk::Format::eUndefined ? depthFormat
+                                                                                          : vk::Format::eD24UnormS8Uint)
+                                         .setSamples(vk::SampleCountFlagBits::e1)
+                                         .setLoadOp(vk::AttachmentLoadOp::eClear)
+                                         .setStoreOp(vk::AttachmentStoreOp::eDontCare)
+                                         .setStencilLoadOp(vk::AttachmentLoadOp::eClear)
+                                         .setStencilStoreOp(vk::AttachmentStoreOp::eDontCare)
+                                         .setInitialLayout(vk::ImageLayout::eUndefined)
+                                         .setFinalLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal);
+
+        const std::array<vk::AttachmentDescription, 2> attachments = {colorAttachment, depthAttachment};
+
+        const vk::AttachmentReference colorAttachmentRef(0, vk::ImageLayout::eColorAttachmentOptimal);
+        const vk::AttachmentReference depthAttachmentRef(1, vk::ImageLayout::eDepthStencilAttachmentOptimal);
+
+        const auto subpass = vk::SubpassDescription(vk::SubpassDescriptionFlags())
+                                 .setPipelineBindPoint(vk::PipelineBindPoint::eGraphics)
+                                 .setColorAttachments(colorAttachmentRef)
+                                 .setPDepthStencilAttachment(&depthAttachmentRef);
+
+        const auto renderPassCreateInfo = vk::RenderPassCreateInfo().setAttachments(attachments).setSubpasses(subpass);
+
+        renderPass = backend.getDevice()->createRenderPassUnique(
+            renderPassCreateInfo, nullptr, backend.getDispatcher());
+
+        // Create framebuffer with external image view
+        const std::array<vk::ImageView, 2> imageViews = {externalImageView.get(), depthAllocation->imageView.get()};
+
+        // Use extent (which is set from imageSize) instead of size to ensure consistency
+        const auto framebufferCreateInfo = vk::FramebufferCreateInfo()
+                                               .setRenderPass(renderPass.get())
+                                               .setAttachments(imageViews)
+                                               .setWidth(extent.width)
+                                               .setHeight(extent.height)
+                                               .setLayers(1);
+
+        framebuffer = backend.getDevice()->createFramebufferUnique(
+            framebufferCreateInfo, nullptr, backend.getDispatcher());
+    }
+
     QMapLibre::VulkanRendererBackend &backend;
     std::unique_ptr<mbgl::gfx::OffscreenTexture> offscreenTexture;
     vk::UniqueFramebuffer framebuffer;
     mbgl::Size size{DefaultSize, DefaultSize};
     bool needsRecreation{false};
+    vk::Image externalImage{nullptr};
+    vk::UniqueImageView externalImageView{nullptr};
 };
 
 /*! \endcond PRIVATE */
@@ -238,14 +378,13 @@ VulkanRendererBackend::VulkanRendererBackend(QWindow *window)
           mbgl::Size{DefaultSize, DefaultSize},
           std::make_unique<QtVulkanRenderableResource>(*this, mbgl::Size{DefaultSize, DefaultSize})),
       m_window(window) {
-    if (window == nullptr) {
-        throw std::runtime_error("Window is null");
+    QVulkanInstance *qtInstance{};
+    if (window != nullptr) {
+        qtInstance = window->vulkanInstance();
     }
 
-    QVulkanInstance *qtInstance = window->vulkanInstance();
-
     if (qtInstance == nullptr) {
-        // Create our own instance for Qt Quick windows
+        // Create our own instance for windows without an instance or for widgets
         m_ownedInstance = createQVulkanInstance();
         qtInstance = m_ownedInstance.get();
     }
@@ -293,8 +432,8 @@ VulkanRendererBackend::~VulkanRendererBackend() = default;
 void VulkanRendererBackend::initializeWithQtInstance(QVulkanInstance *qtInstance) {
     m_qtInstance = qtInstance;
 
-    vk::Instance rawInstance = qtInstance->vkInstance();
-    if (rawInstance == nullptr) {
+    const vk::Instance vulkanInstance = qtInstance->vkInstance();
+    if (vulkanInstance == nullptr) {
         throw std::runtime_error("Qt Vulkan instance handle is null");
     }
 
@@ -337,13 +476,12 @@ void VulkanRendererBackend::initInstance() {
     // Reuse Qt's existing instance
     usingSharedContext = true;
 
-    vk::Instance rawInstance = m_qtInstance->vkInstance();
-    if (rawInstance == nullptr) {
-        throw std::runtime_error("Qt Vulkan Instance is null");
+    const vk::Instance vulkanInstance = m_qtInstance->vkInstance();
+    if (vulkanInstance == nullptr) {
+        throw std::runtime_error("Qt Vulkan instance is null");
     }
 
-    const vk::Instance vkInstance(rawInstance);
-    instance = vk::UniqueInstance(vkInstance,
+    instance = vk::UniqueInstance(vulkanInstance,
                                   vk::ObjectDestroy<vk::NoParent, vk::DispatchLoaderDynamic>(nullptr, dispatcher));
 
     // Check if debug utils extension is available
@@ -402,11 +540,11 @@ void VulkanRendererBackend::setSize(mbgl::Size size_) {
     mbgl::vulkan::Renderable::setSize(size_);
 
     // Also update our custom resource
-    this->getResource<QtVulkanRenderableResource>().setBackendSize(size_);
+    getResource<QtVulkanRenderableResource>().setBackendSize(size_);
 }
 
 mbgl::Size VulkanRendererBackend::getSize() const {
-    return this->getResource<QtVulkanRenderableResource>().getSize();
+    return getResource<QtVulkanRenderableResource>().getSize();
 }
 
 mbgl::vulkan::Texture2D *VulkanRendererBackend::getOffscreenTexture() const {
@@ -415,6 +553,12 @@ mbgl::vulkan::Texture2D *VulkanRendererBackend::getOffscreenTexture() const {
         return static_cast<mbgl::vulkan::Texture2D *>(m_currentDrawable);
     }
     return nullptr;
+}
+
+void VulkanRendererBackend::setExternalDrawable(void *image, const mbgl::Size &size_) {
+    // Pass the external image to our custom renderable resource
+    vk::Image vkImage(reinterpret_cast<VkImage>(image));
+    getResource<QtVulkanRenderableResource>().setExternalImage(vkImage, size_);
 }
 
 // Helper function to create a QVulkanInstance

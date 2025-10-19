@@ -2,7 +2,7 @@
 string(TOLOWER ${MLN_QT_NAME}Widgets MLN_QT_WIDGETS_LOWERCASE)
 set(MLNQtWidgets_Headers
     export_widgets.hpp
-    gl_widget.hpp
+    map_widget.hpp
 )
 # Header generation
 mln_umbrella_header_preprocess(${MLN_QT_WIDGETS_LOWERCASE} ${MLN_QT_NAME}Widgets HeaderOut)
@@ -33,8 +33,8 @@ target_sources(
     MLNQtWidgets
     PRIVATE
         ${MLNQtWidgets_Headers}
-        gl_widget.cpp
-        gl_widget_p.hpp
+        map_widget.cpp
+        map_widget_p.hpp
 
         $<$<PLATFORM_ID:Windows>:${CMAKE_BINARY_DIR}/version_info.rc>
 )
@@ -73,6 +73,8 @@ target_include_directories(
         ${CMAKE_CURRENT_BINARY_DIR}/include
         ${CMAKE_SOURCE_DIR}/src/core
         ${CMAKE_BINARY_DIR}/src/core/include
+        $<$<BOOL:${MLN_WITH_VULKAN}>:${MLN_CORE_PATH}/vendor/Vulkan-Headers/include>
+        $<$<BOOL:${MLN_WITH_VULKAN}>:${MLN_CORE_PATH}/vendor/VulkanMemoryAllocator/include>
 )
 
 # Common link libraries
@@ -80,23 +82,12 @@ target_link_libraries(
     MLNQtWidgets
     PUBLIC
         MLNQtCore
+        Qt${QT_VERSION_MAJOR}::Widgets
     PRIVATE
+        Qt${QT_VERSION_MAJOR}::GuiPrivate
         $<BUILD_INTERFACE:mbgl-compiler-options>
         $<BUILD_INTERFACE:MLNQtCompilerOptions>
 )
-if(Qt6_FOUND)
-    target_link_libraries(
-        MLNQtWidgets
-        PUBLIC
-            Qt${QT_VERSION_MAJOR}::OpenGLWidgets
-    )
-else()
-    target_link_libraries(
-        MLNQtWidgets
-        PUBLIC
-            Qt${QT_VERSION_MAJOR}::OpenGL
-    )
-endif()
 
 # Apple specifics
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")

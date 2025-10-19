@@ -69,9 +69,8 @@ void TextureNodeVulkan::render(QQuickWindow *window) {
             auto *qtDevicePtr = reinterpret_cast<vk::Device *>(
                 ri->getResource(window, QSGRendererInterface::DeviceResource));
 
-            vk::PhysicalDevice qtPhysicalDevice = qtPhysicalDevicePtr != nullptr ? *qtPhysicalDevicePtr : nullptr;
-            vk::Device qtDevice = qtDevicePtr != nullptr ? *qtDevicePtr : nullptr;
-
+            const vk::PhysicalDevice qtPhysicalDevice = qtPhysicalDevicePtr != nullptr ? *qtPhysicalDevicePtr : nullptr;
+            const vk::Device qtDevice = qtDevicePtr != nullptr ? *qtDevicePtr : nullptr;
             if (qtPhysicalDevice != nullptr && qtDevice != nullptr) {
                 // TODO: We need to get the graphics queue index from Qt
                 // For now, assume it's 0 (common case)
@@ -108,7 +107,7 @@ void TextureNodeVulkan::render(QQuickWindow *window) {
     if (vulkanTexture != nullptr) {
         // Get Vulkan image and layout
         VkImage vulkanImage{vulkanTexture->getVulkanImage()};
-        const auto imageLayout = static_cast<VkImageLayout>(vulkanTexture->getVulkanImageLayout());
+        const auto vulkanImageLayout = static_cast<VkImageLayout>(vulkanTexture->getVulkanImageLayout());
 
         // Check if we have a valid vk::Image
         if (vulkanImage != VK_NULL_HANDLE) {
@@ -123,7 +122,7 @@ void TextureNodeVulkan::render(QQuickWindow *window) {
             } else {
                 // Create new wrapper
                 qtTexture = QNativeInterface::QSGVulkanTexture::fromNative(
-                    vulkanImage, imageLayout, window, physicalSize, QQuickWindow::TextureHasAlphaChannel);
+                    vulkanImage, vulkanImageLayout, window, physicalSize, QQuickWindow::TextureHasAlphaChannel);
                 if (qtTexture != nullptr) {
                     // Store for reuse
                     m_qtTextureWrapper = qtTexture;

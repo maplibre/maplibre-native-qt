@@ -2,10 +2,11 @@
 
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "gl_tester.hpp"
-#include "test_rendering.hpp"
+#include "main_window.hpp"
+#include "map_widget_tester.hpp"
+#include "map_window.hpp"
 
-#include <QOpenGLContext>
+#include <QDebug>
 #include <QTest>
 
 #include <memory>
@@ -16,53 +17,64 @@ class TestWidgets : public QObject {
 private slots:
     void testGLWidgetNoProvider();
     void testGLWidgetMapLibreProvider();
+    void testGLWidgetDocking();
     void testGLWidgetStyle();
 };
 
 void TestWidgets::testGLWidgetNoProvider() {
-    const std::unique_ptr<QSurface> surface = QMapLibre::createTestSurface(QSurface::Window);
-    QVERIFY(surface != nullptr);
-
-    QOpenGLContext ctx;
-    QVERIFY(ctx.create());
-    QVERIFY(ctx.makeCurrent(surface.get()));
-
     const QMapLibre::Settings settings;
-    auto tester = std::make_unique<QMapLibre::GLTester>(settings);
-    tester->show();
+    auto widget = std::make_unique<QMapLibre::MapWidget>(settings);
+    widget->show();
     QTest::qWait(1000);
 }
 
 void TestWidgets::testGLWidgetMapLibreProvider() {
-    const std::unique_ptr<QSurface> surface = QMapLibre::createTestSurface(QSurface::Window);
-    QVERIFY(surface != nullptr);
-
-    QOpenGLContext ctx;
-    QVERIFY(ctx.create());
-    QVERIFY(ctx.makeCurrent(surface.get()));
-
-    const QMapLibre::Settings settings(QMapLibre::Settings::MapLibreProvider);
-    auto tester = std::make_unique<QMapLibre::GLTester>(settings);
+    QMapLibre::Settings settings(QMapLibre::Settings::MapLibreProvider);
+    settings.setDefaultCoordinate(QMapLibre::Coordinate(59.91, 10.75));
+    settings.setDefaultZoom(4);
+    auto tester = std::make_unique<QMapLibre::Test::MapWidgetTester>(settings);
     tester->show();
-    QTest::qWait(100);
-    tester->initializeAnimation();
-    QTest::qWait(tester->selfTest());
+    QTest::qWait(1000);
+    qDebug() << "Resizing to" << QSize(800, 600);
+    tester->resize(800, 600);
+    QTest::qWait(1000);
+    qDebug() << "Resizing to" << QSize(400, 300);
+    tester->resize(400, 300);
+    QTest::qWait(1000);
+    qDebug() << "Hiding";
+    tester->hide();
+    QTest::qWait(500);
+    qDebug() << "Showing";
+    tester->show();
+    QTest::qWait(1000);
+}
+
+void TestWidgets::testGLWidgetDocking() {
+    QMapLibre::Settings settings(QMapLibre::Settings::MapLibreProvider);
+    settings.setDefaultCoordinate(QMapLibre::Coordinate(59.91, 10.75));
+    settings.setDefaultZoom(4);
+    auto tester = std::make_unique<QMapLibre::Test::MainWindow>();
+    tester->show();
+    QTest::qWait(1000);
+    qDebug() << "Undocking";
+    QMapLibre::Test::MapWindow *window = tester->currentCentralWidget();
+    window->dockUndock();
+    QTest::qWait(500);
+    qDebug() << "Resizing undocked window to" << QSize(800, 600);
+    window->resize(800, 600);
+    QTest::qWait(500);
+    qDebug() << "Docking back";
+    window->dockUndock();
+    QTest::qWait(1000);
 }
 
 void TestWidgets::testGLWidgetStyle() {
-    const std::unique_ptr<QSurface> surface = QMapLibre::createTestSurface(QSurface::Window);
-    QVERIFY(surface != nullptr);
-
-    QOpenGLContext ctx;
-    QVERIFY(ctx.create());
-    QVERIFY(ctx.makeCurrent(surface.get()));
-
     QMapLibre::Styles styles;
     styles.append(QMapLibre::Style("https://demotiles.maplibre.org/style.json", "Demo tiles"));
 
     QMapLibre::Settings settings;
     settings.setStyles(styles);
-    auto tester = std::make_unique<QMapLibre::GLTester>(settings);
+    auto tester = std::make_unique<QMapLibre::Test::MapWidgetTester>(settings);
     tester->show();
     QTest::qWait(100);
     tester->initializeAnimation();

@@ -11,6 +11,8 @@
 
 #include <QtCore/QtGlobal>
 
+#include <vulkan/vulkan.hpp>
+
 class QVulkanInstance;
 class QVulkanWindow;
 class QWindow;
@@ -46,6 +48,9 @@ public:
     // Returns the color texture of the drawable rendered in the last frame.
     [[nodiscard]] void *currentDrawable() const { return m_currentDrawable; }
     void setCurrentDrawable(void *tex) { m_currentDrawable = static_cast<mbgl::gfx::Texture2D *>(tex); }
+
+    // Set external vk::Image to render to (for zero-copy with QRhiWidget)
+    void setExternalDrawable(void *image, const mbgl::Size &size_);
 
     // Qt Widgets path still expects this hook even though Vulkan doesn't use an
     // OpenGL FBO. Update the size for Vulkan rendering.

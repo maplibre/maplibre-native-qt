@@ -189,6 +189,7 @@ public:
     void destroyRenderer();
 
     void setCurrentDrawable(void *texturePtr);
+    void setExternalDrawable(void *texturePtr, const QSize &textureSize);
 
 #ifdef MLN_RENDER_BACKEND_VULKAN
     // Vulkan-specific: get the Vulkan texture object.
@@ -206,6 +207,7 @@ public:
 public slots:
     void render();
     void setConnectionEstablished();
+    void triggerRepaint();
 
     // Commit changes, load all the resources
     // and renders the map when completed.

@@ -39,10 +39,15 @@ public:
     [[nodiscard]] void *currentDrawable() const { return m_currentDrawable; }
     void setCurrentDrawable(void *tex) { m_currentDrawable = tex; }
 
+    // Set an external Metal texture to render to (for QRhiWidget integration)
+    [[nodiscard]] void *externalDrawable() const { return m_externalDrawable; }
+    void setExternalDrawable(void *tex, const mbgl::Size & /* size */) { m_externalDrawable = tex; }
+
     void updateRenderer(const mbgl::Size &size, uint32_t /* fbo */) { setSize(size); };
 
 private:
-    void *m_currentDrawable{nullptr}; // id<MTLTexture>
+    void *m_currentDrawable{nullptr};  // id<MTLTexture>
+    void *m_externalDrawable{nullptr}; // external Metal texture from QRhiWidget
 
     friend class QtMetalRenderableResource;
 };
