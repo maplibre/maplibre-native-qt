@@ -189,25 +189,25 @@ jobs:
 
     steps:
       - name: Download artifacts for x86
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: Android_${{ matrix.qt_version}}_${{ matrix.renderer }}_x86
           path: install/x86
 
       - name: Download artifacts for x86_64
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: Android_${{ matrix.qt_version}}_${{ matrix.renderer }}_x86_64
           path: install/x86_64
 
       - name: Download artifacts for armeabi-v7a
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: Android_${{ matrix.qt_version}}_${{ matrix.renderer }}_armeabi-v7a
           path: install/armeabi-v7a
 
       - name: Download artifacts for arm64-v8a
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: Android_${{ matrix.qt_version}}_${{ matrix.renderer }}_arm64-v8a
           path: install/arm64-v8a
@@ -265,7 +265,7 @@ jobs:
 
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: Android_${{ matrix.qt_version }}_${{ matrix.renderer }}
 
