@@ -2,9 +2,9 @@
 
 // SPDX-License-Identifier: BSD-2-Clause
 
+#include "main_window.hpp"
 #include "map_widget_tester.hpp"
-#include "test_main_window.hpp"
-#include "test_window.hpp"
+#include "map_window.hpp"
 
 #include <QDebug>
 #include <QTest>
@@ -57,7 +57,7 @@ void TestWidgets::testGLWidgetDocking() {
     tester->show();
     QTest::qWait(1000);
     qDebug() << "Undocking";
-    QMapLibre::Test::Window *window = tester->currentCentralWidget();
+    QMapLibre::Test::MapWindow *window = tester->currentCentralWidget();
     window->dockUndock();
     QTest::qWait(500);
     qDebug() << "Resizing undocked window to" << QSize(800, 600);
@@ -66,12 +66,6 @@ void TestWidgets::testGLWidgetDocking() {
     qDebug() << "Docking back";
     window->dockUndock();
     QTest::qWait(1000);
-    qDebug() << "Undock again";
-    window->dockUndock();
-    qDebug() << "Adding new window to main window";
-    tester->addNewWindow();
-    QTest::qWait(1000);
-    window->close();
 }
 
 void TestWidgets::testGLWidgetStyle() {

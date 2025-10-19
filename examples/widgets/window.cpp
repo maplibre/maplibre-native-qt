@@ -22,7 +22,7 @@ Window::Window(MainWindow *mainWindow)
     settings.setDefaultZoom(5);
     settings.setDefaultCoordinate(QMapLibre::Coordinate(43, 21));
 
-    m_mapWidget = new QMapLibre::MapWidget(settings);
+    m_mapWidget = std::make_unique<QMapLibre::MapWidget>(settings).release();
     m_mapWidget->setParent(this);
 
     m_layout = std::make_unique<QVBoxLayout>(this);

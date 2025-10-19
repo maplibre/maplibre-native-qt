@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "test_window.hpp"
+#include "map_window.hpp"
 
 #include <QtWidgets/QMainWindow>
 
@@ -17,7 +17,7 @@ public:
     explicit MainWindow();
 
     void addNewWindow();
-    [[nodiscard]] Window *currentCentralWidget() const { return static_cast<Window *>(centralWidget()); }
+    [[nodiscard]] MapWindow *currentCentralWidget() const { return static_cast<MapWindow *>(centralWidget()); }
 };
 
 } // namespace QMapLibre::Test

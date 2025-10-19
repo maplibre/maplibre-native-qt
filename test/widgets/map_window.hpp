@@ -15,17 +15,17 @@ namespace QMapLibre::Test {
 
 class MainWindow;
 
-class Window : public QWidget {
+class MapWindow : public QWidget {
     Q_OBJECT
 
 public:
-    explicit Window(MainWindow *mainWindow);
+    explicit MapWindow(MainWindow *mainWindow);
 
 public slots:
     void dockUndock();
 
 private:
-    std::unique_ptr<QMapLibre::MapWidget> m_mapWidget;
+    QMapLibre::MapWidget *m_mapWidget{};
     std::unique_ptr<QVBoxLayout> m_layout;
     MainWindow *m_mainWindowRef{};
 };

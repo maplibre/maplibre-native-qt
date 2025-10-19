@@ -199,6 +199,9 @@ bool MapWidget::event(QEvent *e) {
     return QRhiWidget::event(e);
 }
 
+/*!
+    \brief Rendering initialization.
+*/
 void MapWidget::initialize(QRhiCommandBuffer *cb) {
     Q_UNUSED(cb)
 
@@ -320,6 +323,9 @@ void MapWidget::initialize(QRhiCommandBuffer *cb) {
     d_ptr->m_map->triggerRepaint();
 }
 
+/*!
+    \brief Rendering main function.
+*/
 void MapWidget::render(QRhiCommandBuffer *cb) {
     // Render - checking initialization status
     Q_UNUSED(cb)
@@ -384,6 +390,9 @@ void MapWidget::render(QRhiCommandBuffer *cb) {
     d_ptr->m_map->render();
 }
 
+/*!
+    \brief Rendering resource release.
+*/
 void MapWidget::releaseResources() {
 #ifdef MLN_RENDERER_DEBUGGING
     qDebug() << "MapWidget::releaseResources()";

@@ -1,7 +1,7 @@
 set(test_sources
+    main_window.cpp main_window.hpp
     map_widget_tester.cpp map_widget_tester.hpp
-    test_main_window.cpp test_main_window.hpp
-    test_window.cpp test_window.hpp
+    map_window.cpp map_window.hpp
     test_widgets.cpp
 )
 if(COMMAND qt_add_executable)

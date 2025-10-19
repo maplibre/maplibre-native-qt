@@ -2,9 +2,9 @@
 
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "test_main_window.hpp"
+#include "main_window.hpp"
 
-#include "test_window.hpp"
+#include "map_window.hpp"
 
 #include <QtWidgets/QMenu>
 
@@ -29,7 +29,7 @@ void MainWindow::addNewWindow() {
         return;
     }
 
-    auto window = std::make_unique<Window>(this);
+    auto window = std::make_unique<MapWindow>(this);
     setCentralWidget(window.release()); // takes ownership
 }
 
