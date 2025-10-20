@@ -50,7 +50,7 @@ concurrency:
 jobs:
   build:
     name: Build (Qt${{ matrix.qt_version}})
-    runs-on: macos-14
+    runs-on: macos-15
     strategy:
       matrix:
         include:
@@ -117,7 +117,7 @@ jobs:
   release:
     name: Release
     if: github.ref_type == 'tag'
-    runs-on: macos-14
+    runs-on: macos-15
     needs: build
     permissions:
       contents: write
