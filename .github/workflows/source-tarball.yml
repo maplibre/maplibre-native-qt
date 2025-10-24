@@ -75,7 +75,7 @@ jobs:
           cmake --build . --target package_source
 
       - name: Upload tarball
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: Source
           path: build/maplibre-native-qt_*.tar.bz2
@@ -90,7 +90,7 @@ jobs:
 
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: Source
 
