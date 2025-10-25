@@ -5,7 +5,12 @@ source /opt/rh/gcc-toolset-11/enable
 set -e
 set -x
 
-export CCACHE_DIR="$GITHUB_WORKSPACE/.ccache"
+curl -LO https://github.com/mozilla/sccache/releases/download/v0.12.0/sccache-v0.12.0-x86_64-unknown-linux-musl.tar.gz
+tar -xzf sccache-v0.12.0-x86_64-unknown-linux-musl.tar.gz
+mv sccache-v0.12.0-x86_64-unknown-linux-musl/sccache /usr/bin/sccache
+chmod +x /usr/bin/sccache
+rm -rf sccache-v0.12.0-x86_64-unknown-linux-musl*
+
 export PATH="$QT_ROOT_DIR/bin:$PATH"
 qmake --version
 
@@ -35,3 +40,5 @@ popd
 pushd source/examples/widgets
 cmake --workflow --preset default
 popd
+
+sccache --show-stats

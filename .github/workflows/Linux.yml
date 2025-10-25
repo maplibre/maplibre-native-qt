@@ -22,6 +22,11 @@ on:
       - ".github/workflows/source-tarball.yml"
       - ".github/workflows/WASM.yml"
       - ".github/workflows/Windows.yml"
+      - "cmake/presets/Android.json"
+      - "cmake/presets/iOS.json"
+      - "cmake/presets/macOS.json"
+      - "cmake/presets/WASM.json"
+      - "cmake/presets/Windows.json"
 
   pull_request:
     branches:
@@ -41,11 +46,19 @@ on:
       - ".github/workflows/source-tarball.yml"
       - ".github/workflows/WASM.yml"
       - ".github/workflows/Windows.yml"
+      - "cmake/presets/Android.json"
+      - "cmake/presets/iOS.json"
+      - "cmake/presets/macOS.json"
+      - "cmake/presets/WASM.json"
+      - "cmake/presets/Windows.json"
 
 concurrency:
   # cancel jobs on PRs only
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  id-token: write # needed for AWS
 
 jobs:
   build-and-test:
@@ -58,56 +71,56 @@ jobs:
             qt_modules: qtlocation qtpositioning
             host: linux
             runner: ubuntu-24.04
-            preset: Linux-OpenGL-ccache-CI
+            preset: Linux-OpenGL-sccache-CI
             renderer: OpenGL
             compiler: default
           - qt_version: 6.9.3
             qt_modules: qtlocation qtpositioning
             host: linux_arm64
             runner: ubuntu-24.04-arm
-            preset: Linux-OpenGL-ccache-CI
+            preset: Linux-OpenGL-sccache-CI
             renderer: OpenGL
             compiler: gcc
           - qt_version: 6.9.3
             qt_modules: qtlocation qtpositioning
             host: linux
             runner: ubuntu-24.04
-            preset: Linux-Vulkan-ccache-CI
+            preset: Linux-Vulkan-sccache-CI
             renderer: Vulkan
             compiler: default
           - qt_version: 6.9.3
             qt_modules: qtlocation qtpositioning
             host: linux_arm64
             runner: ubuntu-24.04-arm
-            preset: Linux-Vulkan-ccache-CI
+            preset: Linux-Vulkan-sccache-CI
             renderer: Vulkan
             compiler: gcc
           - qt_version: 6.10.0
             qt_modules: qtlocation qtpositioning
             host: linux
             runner: ubuntu-24.04
-            preset: Linux-OpenGL-ccache-CI
+            preset: Linux-OpenGL-sccache-CI
             renderer: OpenGL
             compiler: default
           - qt_version: 6.10.0
             qt_modules: qtlocation qtpositioning
             host: linux_arm64
             runner: ubuntu-24.04-arm
-            preset: Linux-OpenGL-ccache-CI
+            preset: Linux-OpenGL-sccache-CI
             renderer: OpenGL
             compiler: gcc
           - qt_version: 6.10.0
             qt_modules: qtlocation qtpositioning
             host: linux
             runner: ubuntu-24.04
-            preset: Linux-Vulkan-ccache-CI
+            preset: Linux-Vulkan-sccache-CI
             renderer: Vulkan
             compiler: default
           - qt_version: 6.10.0
             qt_modules: qtlocation qtpositioning
             host: linux_arm64
             runner: ubuntu-24.04-arm
-            preset: Linux-Vulkan-ccache-CI
+            preset: Linux-Vulkan-sccache-CI
             renderer: Vulkan
             compiler: gcc
           - qt_version: 6.10.0
@@ -123,12 +136,36 @@ jobs:
       PRESET: ${{ matrix.preset }}
 
     steps:
+      - name: Configure AWS Credentials
+        if: vars.OIDC_AWS_ROLE_TO_ASSUME
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-west-2
+          role-to-assume: ${{ vars.OIDC_AWS_ROLE_TO_ASSUME }}
+          role-session-name: ${{ github.run_id }}
+
       - name: Checkout
         uses: actions/checkout@v5
         with:
           path: source
           submodules: recursive
           fetch-depth: 0
+
+      - name: Install sccache
+        uses: ./source/.github/actions/install-sccache
+        with:
+          arch: ${{ matrix.host }}
+
+      - name: Configure sccache
+        run: |
+          {
+            echo "SCCACHE_BUCKET=maplibre-native-sccache"
+            echo "SCCACHE_REGION=eu-central-1"
+          } >> "$GITHUB_ENV"
+          if [ -z "${AWS_SECRET_ACCESS_KEY}" ]; then
+            echo "AWS_SECRET_ACCESS_KEY not set; not uploading sccache cache to S3"
+            echo "SCCACHE_S3_NO_CREDENTIALS=1" >> "$GITHUB_ENV"
+          fi
 
       - name: Install test dependencies
         if: matrix.compiler != 'default'
@@ -190,12 +227,6 @@ jobs:
       - name: Setup ninja
         if: matrix.compiler != 'default'
         uses: seanmiddleditch/gha-setup-ninja@v6
-
-      - name: Set up ccache
-        uses: hendrikmuhs/ccache-action@v1
-        with:
-          key: Linux_${{ matrix.qt_version }}_${{ matrix.renderer }}_${{ matrix.compiler }}
-          max-size: 200M
 
       - name: Build (Qt6, CentOS 8, GCC11)
         if: matrix.compiler == 'default' && matrix.qt_version == '6.9.3'
@@ -264,6 +295,10 @@ jobs:
         run: |
           export QMapLibre_DIR="$GITHUB_WORKSPACE/install/maplibre-native-qt"
           cmake --workflow --preset default
+
+      - name: Show sccache stats
+        if: matrix.compiler != 'default'
+        run: sccache --show-stats
 
       - name: Upload installation
         if: matrix.compiler == 'default'

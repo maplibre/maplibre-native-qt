@@ -1,0 +1,7 @@
+#!/bin/bash
+
+curl -LO https://github.com/mozilla/sccache/releases/download/v0.12.0/sccache-v0.12.0-aarch64-unknown-linux-musl.tar.gz
+tar -xzf sccache-v0.12.0-aarch64-unknown-linux-musl.tar.gz
+sudo mv sccache-v0.12.0-aarch64-unknown-linux-musl/sccache /usr/bin/sccache
+sudo chmod +x /usr/bin/sccache
+rm -rf sccache-v0.12.0-aarch64-unknown-linux-musl*

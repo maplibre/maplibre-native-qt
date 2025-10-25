@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.19...3.21)
+cmake_minimum_required(VERSION 3.19...3.25)
 
 # Version
 file(READ "VERSION.txt" MLN_QT_VERSION)
@@ -84,17 +84,6 @@ if("${QT_VERSION}" STREQUAL "")
 endif()
 
 message(STATUS "Using Qt${QT_VERSION_MAJOR} (${QT_VERSION})")
-
-# Debugging & ccache on Windows
-if(MSVC)
-    foreach(config DEBUG RELWITHDEBINFO)
-        foreach(lang C CXX)
-            set(flags_var "CMAKE_${lang}_FLAGS_${config}")
-            string(REPLACE "/Zi" "/Z7" ${flags_var} "${${flags_var}}")
-            set(${flags_var} "${${flags_var}}")
-        endforeach()
-    endforeach()
-endif()
 
 # clang-tidy
 if(MLN_QT_WITH_CLANG_TIDY)

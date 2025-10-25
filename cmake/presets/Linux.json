@@ -43,9 +43,19 @@
       "inherits": ["dev", "ccache", "Linux-Vulkan"]
     },
     {
+      "name": "Linux-OpenGL-sccache",
+      "displayName": "Linux configuration using Qt6, OpenGL and sccache",
+      "inherits": ["dev", "sccache", "Linux-OpenGL"]
+    },
+    {
+      "name": "Linux-Vulkan-sccache",
+      "displayName": "Linux configuration using Qt6, Vulkan and sccache",
+      "inherits": ["dev", "sccache", "Linux-Vulkan"]
+    },
+    {
       "name": "Linux-OpenGL-coverage",
-      "displayName": "Linux configuration using Qt6, OpenGL, ccache and code coverage",
-      "inherits": ["Linux-OpenGL-ccache"],
+      "displayName": "Linux configuration using Qt6, OpenGL, sccache and code coverage",
+      "inherits": ["Linux-OpenGL-sccache"],
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "RelWithDebInfo",
         "CMAKE_MAKE_PROGRAM": "$penv{CMAKE_MAKE_PROGRAM}",
@@ -55,16 +65,16 @@
     },
     {
       "name": "Linux-OpenGL-clang-tidy",
-      "displayName": "Linux configuration using Qt6, OpenGL, ccache and clang-tidy",
-      "inherits": ["Linux-OpenGL-ccache"],
+      "displayName": "Linux configuration using Qt6, OpenGL, sccache and clang-tidy",
+      "inherits": ["Linux-OpenGL-sccache"],
       "cacheVariables": {
         "MLN_QT_WITH_CLANG_TIDY": "ON"
       }
     },
     {
       "name": "Linux-Vulkan-clang-tidy",
-      "displayName": "Linux configuration using Qt6, Vulkan, ccache and clang-tidy",
-      "inherits": ["Linux-Vulkan-ccache"],
+      "displayName": "Linux configuration using Qt6, Vulkan, sccache and clang-tidy",
+      "inherits": ["Linux-Vulkan-sccache"],
       "cacheVariables": {
         "MLN_QT_WITH_CLANG_TIDY": "ON"
       }
@@ -92,18 +102,28 @@
       "configurePreset": "Linux-Vulkan-ccache"
     },
     {
+      "name": "Linux-OpenGL-sccache",
+      "displayName": "Linux build using Qt6, OpenGL and sccache",
+      "configurePreset": "Linux-OpenGL-sccache"
+    },
+    {
+      "name": "Linux-Vulkan-sccache",
+      "displayName": "Linux build using Qt6, Vulkan and sccache",
+      "configurePreset": "Linux-Vulkan-sccache"
+    },
+    {
       "name": "Linux-OpenGL-coverage",
-      "displayName": "Linux build using Qt6, OpenGL, ccache and code coverage",
+      "displayName": "Linux build using Qt6, OpenGL, sccache and code coverage",
       "configurePreset": "Linux-OpenGL-coverage"
     },
     {
       "name": "Linux-OpenGL-clang-tidy",
-      "displayName":"Linux build using Qt6, OpenGL, ccache and clang-tidy",
+      "displayName":"Linux build using Qt6, OpenGL, sccache and clang-tidy",
       "configurePreset": "Linux-OpenGL-clang-tidy"
     },
     {
       "name": "Linux-Vulkan-clang-tidy",
-      "displayName":"Linux build using Qt6, Vulkan, ccache and clang-tidy",
+      "displayName":"Linux build using Qt6, Vulkan, sccache and clang-tidy",
       "configurePreset": "Linux-Vulkan-clang-tidy"
     }
   ],
@@ -133,8 +153,20 @@
       "inherits": ["default"]
     },
     {
+      "name": "Linux-OpenGL-sccache",
+      "displayName": "Linux tests using Qt6, OpenGL and sccache",
+      "configurePreset": "Linux-OpenGL-sccache",
+      "inherits": ["default"]
+    },
+    {
+      "name": "Linux-Vulkan-sccache",
+      "displayName": "Linux tests using Qt6, Vulkan and sccache",
+      "configurePreset": "Linux-Vulkan-sccache",
+      "inherits": ["default"]
+    },
+    {
       "name": "Linux-OpenGL-coverage",
-      "displayName": "Linux tests using Qt6, OpenGL, ccache and code coverage",
+      "displayName": "Linux tests using Qt6, OpenGL, sccache and code coverage",
       "configurePreset": "Linux-OpenGL-coverage",
       "inherits": ["default"]
     }
@@ -159,6 +191,16 @@
       "name": "Linux-Vulkan-ccache",
       "displayName": "Linux package using Qt6, Vulkan and ccache",
       "configurePreset": "Linux-Vulkan-ccache"
+    },
+    {
+      "name": "Linux-OpenGL-sccache",
+      "displayName": "Linux package using Qt6, OpenGL and sccache",
+      "configurePreset": "Linux-OpenGL-sccache"
+    },
+    {
+      "name": "Linux-Vulkan-sccache",
+      "displayName": "Linux package using Qt6, Vulkan and sccache",
+      "configurePreset": "Linux-Vulkan-sccache"
     }
   ],
   "workflowPresets": [
@@ -251,44 +293,88 @@
       ]
     },
     {
-      "name": "Linux-OpenGL-ccache-CI",
-      "displayName": "Linux workflow using Qt6, OpenGL and ccache (no test)",
+      "name": "Linux-OpenGL-sccache",
+      "displayName": "Linux workflow using Qt6, OpenGL and sccache",
       "steps": [
         {
           "type": "configure",
-          "name": "Linux-OpenGL-ccache"
+          "name": "Linux-OpenGL-sccache"
         },
         {
           "type": "build",
-          "name": "Linux-OpenGL-ccache"
+          "name": "Linux-OpenGL-sccache"
+        },
+        {
+          "type": "test",
+          "name": "Linux-OpenGL-sccache"
         },
         {
           "type": "package",
-          "name": "Linux-OpenGL-ccache"
+          "name": "Linux-OpenGL-sccache"
         }
       ]
     },
     {
-      "name": "Linux-Vulkan-ccache-CI",
-      "displayName": "Linux workflow using Qt6, Vulkan and ccache (no test)",
+      "name": "Linux-Vulkan-sccache",
+      "displayName": "Linux workflow using Qt6, Vulkan and sccache",
       "steps": [
         {
           "type": "configure",
-          "name": "Linux-Vulkan-ccache"
+          "name": "Linux-Vulkan-sccache"
         },
         {
           "type": "build",
-          "name": "Linux-Vulkan-ccache"
+          "name": "Linux-Vulkan-sccache"
+        },
+        {
+          "type": "test",
+          "name": "Linux-Vulkan-sccache"
         },
         {
           "type": "package",
-          "name": "Linux-Vulkan-ccache"
+          "name": "Linux-Vulkan-sccache"
+        }
+      ]
+    },
+    {
+      "name": "Linux-OpenGL-sccache-CI",
+      "displayName": "Linux workflow using Qt6, OpenGL and sccache (no test)",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "Linux-OpenGL-sccache"
+        },
+        {
+          "type": "build",
+          "name": "Linux-OpenGL-sccache"
+        },
+        {
+          "type": "package",
+          "name": "Linux-OpenGL-sccache"
+        }
+      ]
+    },
+    {
+      "name": "Linux-Vulkan-sccache-CI",
+      "displayName": "Linux workflow using Qt6, Vulkan and sccache (no test)",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "Linux-Vulkan-sccache"
+        },
+        {
+          "type": "build",
+          "name": "Linux-Vulkan-sccache"
+        },
+        {
+          "type": "package",
+          "name": "Linux-Vulkan-sccache"
         }
       ]
     },
     {
       "name": "Linux-OpenGL-coverage",
-      "displayName": "Linux workflow using Qt6, OpenGL, ccache and code coverage",
+      "displayName": "Linux workflow using Qt6, OpenGL, sccache and code coverage",
       "steps": [
         {
           "type": "configure",
@@ -302,7 +388,7 @@
     },
     {
       "name": "Linux-OpenGL-clang-tidy",
-      "displayName":"Linux workflow using Qt6, OpenGL, ccache and clang-tidy",
+      "displayName":"Linux workflow using Qt6, OpenGL, sccache and clang-tidy",
       "steps": [
         {
           "type": "configure",
@@ -316,7 +402,7 @@
     },
     {
       "name": "Linux-Vulkan-clang-tidy",
-      "displayName":"Linux workflow using Qt6, Vulkan, ccache and clang-tidy",
+      "displayName":"Linux workflow using Qt6, Vulkan, sccache and clang-tidy",
       "steps": [
         {
           "type": "configure",
