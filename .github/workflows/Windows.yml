@@ -23,6 +23,11 @@ on:
       - ".github/workflows/macOS.yml"
       - ".github/workflows/source-tarball.yml"
       - ".github/workflows/WASM.yml"
+      - "cmake/presets/Android.json"
+      - "cmake/presets/iOS.json"
+      - "cmake/presets/Linux.json"
+      - "cmake/presets/macOS.json"
+      - "cmake/presets/WASM.json"
 
   pull_request:
     branches:
@@ -43,14 +48,19 @@ on:
       - ".github/workflows/macOS.yml"
       - ".github/workflows/source-tarball.yml"
       - ".github/workflows/WASM.yml"
+      - "cmake/presets/Android.json"
+      - "cmake/presets/iOS.json"
+      - "cmake/presets/Linux.json"
+      - "cmake/presets/macOS.json"
+      - "cmake/presets/WASM.json"
 
 concurrency:
   # cancel jobs on PRs only
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
-env:
-  CCACHE_CONFIGPATH: C:/Users/runneradmin/AppData/Roaming/ccache/ccache.conf
+permissions:
+  id-token: write # needed for AWS
 
 jobs:
   build-and-test:
@@ -66,7 +76,7 @@ jobs:
             arch: msvc2022_64
             compiler: x64
             vsversion: 2022
-            preset: Windows-OpenGL-ccache
+            preset: Windows-OpenGL-sccache
             renderer: OpenGL
           # - qt_version: 6.9.3
           #   qt_arch: win64_msvc2022_arm64
@@ -75,7 +85,7 @@ jobs:
           #   arch: msvc2022_arm64
           #   compiler: arm64
           #   vsversion: 2022
-          #   preset: Windows-OpenGL-ccache
+          #   preset: Windows-OpenGL-sccache
           #   renderer: OpenGL
           - qt_version: 6.9.3
             qt_arch: win64_msvc2022_64
@@ -84,7 +94,7 @@ jobs:
             arch: msvc2022_64
             compiler: x64
             vsversion: 2022
-            preset: Windows-Vulkan-ccache
+            preset: Windows-Vulkan-sccache
             renderer: Vulkan
           # - qt_version: 6.9.3
           #   qt_arch: win64_msvc2022_arm64
@@ -93,7 +103,7 @@ jobs:
           #   arch: msvc2022_arm64
           #   compiler: arm64
           #   vsversion: 2022
-          #   preset: Windows-Vulkan-ccache
+          #   preset: Windows-Vulkan-sccache
           #   renderer: Vulkan
           - qt_version: 6.10.0
             qt_arch: win64_msvc2022_64
@@ -102,7 +112,7 @@ jobs:
             arch: msvc2022_64
             compiler: x64
             vsversion: 2022
-            preset: Windows-OpenGL-ccache
+            preset: Windows-OpenGL-sccache
             renderer: OpenGL
           # - qt_version: 6.10.0
           #   qt_arch: win64_msvc2022_arm64
@@ -111,7 +121,7 @@ jobs:
           #   arch: msvc2022_arm64
           #   compiler: arm64
           #   vsversion: 2022
-          #   preset: Windows-OpenGL-ccache
+          #   preset: Windows-OpenGL-sccache
           #   renderer: OpenGL
           - qt_version: 6.10.0
             qt_arch: win64_msvc2022_64
@@ -120,7 +130,7 @@ jobs:
             arch: msvc2022_64
             compiler: x64
             vsversion: 2022
-            preset: Windows-Vulkan-ccache
+            preset: Windows-Vulkan-sccache
             renderer: Vulkan
           # - qt_version: 6.10.0
           #   qt_arch: win64_msvc2022_arm64
@@ -129,7 +139,7 @@ jobs:
           #   arch: msvc2022_arm64
           #   compiler: arm64
           #   vsversion: 2022
-          #   preset: Windows-Vulkan-ccache
+          #   preset: Windows-Vulkan-sccache
           #   renderer: Vulkan
 
     env:
@@ -173,16 +183,28 @@ jobs:
           arch: ${{ matrix.compiler }}
           vsversion: ${{ matrix.vsversion }}
 
-      - name: Update ccache
-        run: |
-          choco upgrade ccache
-          ccache --version
-
-      - name: Set up ccache
-        uses: hendrikmuhs/ccache-action@v1
+      - name: Configure AWS Credentials
+        if: vars.OIDC_AWS_ROLE_TO_ASSUME
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          key: Windows_${{ matrix.qt_version }}_${{ matrix.arch }}
-          max-size: 200M
+          aws-region: us-west-2
+          role-to-assume: ${{ vars.OIDC_AWS_ROLE_TO_ASSUME }}
+          role-session-name: ${{ github.run_id }}
+
+      - name: Set up sccache
+        shell: bash
+        run: |
+          # Install sccache
+          winget install Mozilla.sccache
+          # Configure sccache
+          {
+            echo "SCCACHE_BUCKET=maplibre-native-sccache"
+            echo "SCCACHE_REGION=eu-central-1"
+          } >> "$GITHUB_ENV"
+          if [ -z "${AWS_SECRET_ACCESS_KEY}" ]; then
+            echo "AWS_SECRET_ACCESS_KEY not set; not uploading sccache cache to S3"
+            echo "SCCACHE_S3_NO_CREDENTIALS=1" >> "$GITHUB_ENV"
+          fi
 
       - name: Build
         shell: bash
@@ -217,6 +239,9 @@ jobs:
         run: |
           export QMapLibre_DIR="$GITHUB_WORKSPACE/install/maplibre-native-qt"
           cmake --workflow --preset default
+
+      - name: Show sccache stats
+        run: sccache --show-stats
 
       - name: Upload installation
         uses: actions/upload-artifact@v5

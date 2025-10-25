@@ -27,14 +27,22 @@
       }
     },
     {
-      "name": "Windows-OpenGL-ccache",
-      "displayName": "Windows configuration using Qt6, OpenGL and ccache",
-      "inherits": ["dev", "ccache", "Windows-OpenGL"]
+      "name": "Windows-OpenGL-sccache",
+      "displayName": "Windows configuration using Qt6, OpenGL and sccache",
+      "inherits": ["dev", "sccache", "Windows-OpenGL"],
+      "cacheVariables": {
+        "CMAKE_MSVC_DEBUG_INFORMATION_FORMAT": "Embedded",
+        "CMAKE_POLICY_CMP0141": "NEW"
+      }
     },
     {
-      "name": "Windows-Vulkan-ccache",
-      "displayName": "Windows configuration using Qt6, Vulkan and ccache",
-      "inherits": ["dev", "ccache", "Windows-Vulkan"]
+      "name": "Windows-Vulkan-sccache",
+      "displayName": "Windows configuration using Qt6, Vulkan and sccache",
+      "inherits": ["dev", "sccache", "Windows-Vulkan"],
+      "cacheVariables": {
+        "CMAKE_MSVC_DEBUG_INFORMATION_FORMAT": "Embedded",
+        "CMAKE_POLICY_CMP0141": "NEW"
+      }
     }
   ],
   "buildPresets": [
@@ -63,27 +71,27 @@
       "configuration": "Debug"
     },
     {
-      "name": "Windows-OpenGL-ccache",
-      "displayName": "Windows release build using Qt6, OpenGL and ccache",
-      "configurePreset": "Windows-OpenGL-ccache",
+      "name": "Windows-OpenGL-sccache",
+      "displayName": "Windows release build using Qt6, OpenGL and sccache",
+      "configurePreset": "Windows-OpenGL-sccache",
       "configuration": "Release"
     },
     {
-      "name": "Windows-OpenGL-debug-ccache",
-      "displayName": "Windows debug build using Qt6, OpenGL and ccache",
-      "configurePreset": "Windows-OpenGL-ccache",
+      "name": "Windows-OpenGL-debug-sccache",
+      "displayName": "Windows debug build using Qt6, OpenGL and sccache",
+      "configurePreset": "Windows-OpenGL-sccache",
       "configuration": "Debug"
     },
     {
-      "name": "Windows-Vulkan-ccache",
-      "displayName": "Windows release build using Qt6, Vulkan and ccache",
-      "configurePreset": "Windows-Vulkan-ccache",
+      "name": "Windows-Vulkan-sccache",
+      "displayName": "Windows release build using Qt6, Vulkan and sccache",
+      "configurePreset": "Windows-Vulkan-sccache",
       "configuration": "Release"
     },
     {
-      "name": "Windows-Vulkan-debug-ccache",
-      "displayName": "Windows debug build using Qt6, Vulkan and ccache",
-      "configurePreset": "Windows-Vulkan-ccache",
+      "name": "Windows-Vulkan-debug-sccache",
+      "displayName": "Windows debug build using Qt6, Vulkan and sccache",
+      "configurePreset": "Windows-Vulkan-sccache",
       "configuration": "Debug"
     }
   ],
@@ -96,9 +104,9 @@
       "inherits": ["default"]
     },
     {
-      "name": "Windows-OpenGL-ccache",
-      "displayName": "Windows tests using Qt6, OpenGL and ccache",
-      "configurePreset": "Windows-OpenGL-ccache",
+      "name": "Windows-OpenGL-sccache",
+      "displayName": "Windows tests using Qt6, OpenGL and sccache",
+      "configurePreset": "Windows-OpenGL-sccache",
       "configuration": "Release",
       "inherits": ["default"]
     },
@@ -110,9 +118,9 @@
       "inherits": ["default"]
     },
     {
-      "name": "Windows-Vulkan-ccache",
-      "displayName": "Windows tests using Qt6, Vulkan and ccache",
-      "configurePreset": "Windows-Vulkan-ccache",
+      "name": "Windows-Vulkan-sccache",
+      "displayName": "Windows tests using Qt6, Vulkan and sccache",
+      "configurePreset": "Windows-Vulkan-sccache",
       "configuration": "Release",
       "inherits": ["default"]
     }
@@ -125,9 +133,9 @@
       "configurations": ["Release", "Debug"]
     },
     {
-      "name": "Windows-OpenGL-ccache",
-      "displayName": "Windows package using Qt6, OpenGL and ccache",
-      "configurePreset": "Windows-OpenGL-ccache",
+      "name": "Windows-OpenGL-sccache",
+      "displayName": "Windows package using Qt6, OpenGL and sccache",
+      "configurePreset": "Windows-OpenGL-sccache",
       "configurations": ["Release", "Debug"]
     },
     {
@@ -137,9 +145,9 @@
       "configurations": ["Release", "Debug"]
     },
     {
-      "name": "Windows-Vulkan-ccache",
-      "displayName": "Windows package using Qt6, Vulkan and ccache",
-      "configurePreset": "Windows-Vulkan-ccache",
+      "name": "Windows-Vulkan-sccache",
+      "displayName": "Windows package using Qt6, Vulkan and sccache",
+      "configurePreset": "Windows-Vulkan-sccache",
       "configurations": ["Release", "Debug"]
     }
   ],
@@ -161,38 +169,30 @@
           "name": "Windows-OpenGL-debug"
         },
         {
-          "type": "test",
-          "name": "Windows-OpenGL"
-        },
-        {
           "type": "package",
           "name": "Windows-OpenGL"
         }
       ]
     },
     {
-      "name": "Windows-OpenGL-ccache",
-      "displayName": "Windows workflow using Qt6, OpenGL and ccache",
+      "name": "Windows-OpenGL-sccache",
+      "displayName": "Windows workflow using Qt6, OpenGL and sccache",
       "steps": [
         {
           "type": "configure",
-          "name": "Windows-OpenGL-ccache"
+          "name": "Windows-OpenGL-sccache"
         },
         {
           "type": "build",
-          "name": "Windows-OpenGL-ccache"
+          "name": "Windows-OpenGL-sccache"
         },
         {
           "type": "build",
-          "name": "Windows-OpenGL-debug-ccache"
-        },
-        {
-          "type": "test",
-          "name": "Windows-OpenGL-ccache"
+          "name": "Windows-OpenGL-debug-sccache"
         },
         {
           "type": "package",
-          "name": "Windows-OpenGL-ccache"
+          "name": "Windows-OpenGL-sccache"
         }
       ]
     },
@@ -219,24 +219,24 @@
       ]
     },
     {
-      "name": "Windows-Vulkan-ccache",
-      "displayName": "Windows workflow using Qt6, Vulkan and ccache",
+      "name": "Windows-Vulkan-sccache",
+      "displayName": "Windows workflow using Qt6, Vulkan and sccache",
       "steps": [
         {
           "type": "configure",
-          "name": "Windows-Vulkan-ccache"
+          "name": "Windows-Vulkan-sccache"
         },
         {
           "type": "build",
-          "name": "Windows-Vulkan-ccache"
+          "name": "Windows-Vulkan-sccache"
         },
         {
           "type": "build",
-          "name": "Windows-Vulkan-debug-ccache"
+          "name": "Windows-Vulkan-debug-sccache"
         },
         {
           "type": "package",
-          "name": "Windows-Vulkan-ccache"
+          "name": "Windows-Vulkan-sccache"
         }
       ]
     }

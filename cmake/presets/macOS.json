@@ -23,9 +23,14 @@
       "inherits": ["dev", "ccache", "macOS"]
     },
     {
+      "name": "macOS-sccache",
+      "displayName": "macOS configuration using Qt6 and sccache",
+      "inherits": ["dev", "sccache", "macOS"]
+    },
+    {
       "name": "macOS-clang-tidy",
-      "displayName": "macOS configuration using Qt6, ccache and clang-tidy",
-      "inherits": ["macOS-ccache"],
+      "displayName": "macOS configuration using Qt6, sccache and clang-tidy",
+      "inherits": ["macOS-sccache"],
       "cacheVariables": {
         "CMAKE_OSX_ARCHITECTURES": "arm64",
         "MLN_QT_WITH_CLANG_TIDY": "ON"
@@ -42,6 +47,11 @@
       "name": "macOS-ccache",
       "displayName": "macOS build using Qt6 and ccache",
       "configurePreset": "macOS-ccache"
+    },
+    {
+      "name": "macOS-sccache",
+      "displayName": "macOS build using Qt6 and sccache",
+      "configurePreset": "macOS-sccache"
     },
     {
       "name": "macOS-clang-tidy",
@@ -61,6 +71,12 @@
       "displayName": "macOS tests using Qt6 and ccache",
       "configurePreset": "macOS-ccache",
       "inherits": ["default"]
+    },
+    {
+      "name": "macOS-sccache",
+      "displayName": "macOS tests using Qt6 and sccache",
+      "configurePreset": "macOS-sccache",
+      "inherits": ["default"]
     }
   ],
   "packagePresets": [
@@ -73,6 +89,11 @@
       "name": "macOS-ccache",
       "displayName": "macOS package using Qt6 and ccache",
       "configurePreset": "macOS-ccache"
+    },
+    {
+      "name": "macOS-sccache",
+      "displayName": "macOS package using Qt6 and sccache",
+      "configurePreset": "macOS-sccache"
     }
   ],
   "workflowPresets": [
@@ -121,8 +142,30 @@
       ]
     },
     {
+      "name": "macOS-sccache",
+      "displayName": "macOS workflow using Qt6 and sccache",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "macOS-sccache"
+        },
+        {
+          "type": "build",
+          "name": "macOS-sccache"
+        },
+        {
+          "type": "test",
+          "name": "macOS-sccache"
+        },
+        {
+          "type": "package",
+          "name": "macOS-sccache"
+        }
+      ]
+    },
+    {
       "name": "macOS-clang-tidy",
-      "displayName": "macOS workflow using Qt6, ccache and clang-tidy",
+      "displayName": "macOS workflow using Qt6, sccache and clang-tidy",
       "steps": [
         {
           "type": "configure",

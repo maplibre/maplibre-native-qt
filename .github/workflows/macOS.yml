@@ -23,6 +23,11 @@ on:
       - ".github/workflows/source-tarball.yml"
       - ".github/workflows/Windows.yml"
       - ".github/workflows/WASM.yml"
+      - "cmake/presets/Android.json"
+      - "cmake/presets/iOS.json"
+      - "cmake/presets/Linux.json"
+      - "cmake/presets/WASM.json"
+      - "cmake/presets/Windows.json"
 
   pull_request:
     branches:
@@ -43,11 +48,19 @@ on:
       - ".github/workflows/source-tarball.yml"
       - ".github/workflows/Windows.yml"
       - ".github/workflows/WASM.yml"
+      - "cmake/presets/Android.json"
+      - "cmake/presets/iOS.json"
+      - "cmake/presets/Linux.json"
+      - "cmake/presets/WASM.json"
+      - "cmake/presets/Windows.json"
 
 concurrency:
   # cancel jobs on PRs only
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  id-token: write # needed for AWS
 
 jobs:
   build-and-test:
@@ -58,16 +71,16 @@ jobs:
         include:
           - qt_version: 6.9.3
             qt_modules: qtlocation qtpositioning
-            preset: macOS-ccache
+            preset: macOS-sccache
             compiler: default
             runs_on: macos-15
           - qt_version: 6.10.0
             qt_modules: qtlocation qtpositioning
-            preset: macOS-ccache
+            preset: macOS-sccache
             compiler: default
             runs_on: macos-15
           - qt_version: 6.10.0
-            preset: macOS-ccache
+            preset: macOS-sccache
             compiler: static
             runs_on: macos-15
           - qt_version: 6.10.0
@@ -133,11 +146,28 @@ jobs:
             echo "CPPFLAGS=-I/opt/homebrew/opt/${COMPILER}/include"
           } >> "$GITHUB_ENV"
 
-      - name: Set up ccache
-        uses: hendrikmuhs/ccache-action@v1
+      - name: Configure AWS Credentials
+        if: vars.OIDC_AWS_ROLE_TO_ASSUME
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          key: macOS_${{ matrix.qt_version }}_${{ matrix.compiler }}
-          max-size: 200M
+          aws-region: us-west-2
+          role-to-assume: ${{ vars.OIDC_AWS_ROLE_TO_ASSUME }}
+          role-session-name: ${{ github.run_id }}
+
+      - name: Set up sccache
+        run: |
+          # Install sccache
+          brew install sccache
+          # Configure sccache
+          {
+            echo "SCCACHE_BUCKET=maplibre-native-sccache"
+            echo "SCCACHE_REGION=eu-central-1"
+            echo "SCCACHE_CACHE_MULTIARCH=1"
+          } >> "$GITHUB_ENV"
+          if [ -z "${AWS_SECRET_ACCESS_KEY}" ]; then
+            echo "AWS_SECRET_ACCESS_KEY not set; not uploading sccache cache to S3"
+            echo "SCCACHE_S3_NO_CREDENTIALS=1" >> "$GITHUB_ENV"
+          fi
 
       - name: Build
         working-directory: source
@@ -171,6 +201,9 @@ jobs:
         run: |
           export QMapLibre_DIR="$GITHUB_WORKSPACE/install/maplibre-native-qt"
           cmake --workflow --preset default
+
+      - name: Show sccache stats
+        run: sccache --show-stats
 
       - name: Upload installation
         if: matrix.compiler == 'default' || matrix.compiler == 'static'
