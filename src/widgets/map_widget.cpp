@@ -232,7 +232,7 @@ void MapWidget::initialize(QRhiCommandBuffer *cb) {
     // Create the renderer based on the build configuration and runtime API
     // This needs to happen both for initial creation and after reparenting
     if (!d_ptr->m_initialized) {
-#if defined(MLN_RENDER_BACKEND_OPENGL)
+#ifdef MLN_RENDER_BACKEND_OPENGL
 #ifdef MLN_RENDERER_DEBUGGING
         qDebug() << "MapWidget::initialize() - Creating OpenGL renderer for"
                  << (isReinitializing ? "reinitialization" : "initial setup");
