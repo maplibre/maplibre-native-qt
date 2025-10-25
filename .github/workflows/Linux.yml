@@ -20,6 +20,7 @@ on:
       - ".github/workflows/iOS.yml"
       - ".github/workflows/macOS.yml"
       - ".github/workflows/source-tarball.yml"
+      - ".github/workflows/WASM.yml"
       - ".github/workflows/Windows.yml"
 
   pull_request:
@@ -38,6 +39,7 @@ on:
       - ".github/workflows/iOS.yml"
       - ".github/workflows/macOS.yml"
       - ".github/workflows/source-tarball.yml"
+      - ".github/workflows/WASM.yml"
       - ".github/workflows/Windows.yml"
 
 concurrency:
@@ -47,46 +49,75 @@ concurrency:
 
 jobs:
   build-and-test:
-    name: Build (Qt${{ matrix.qt_version }}, ${{ matrix.renderer }}, ${{ matrix.compiler }})
-    runs-on: ubuntu-24.04
+    name: Build (Qt${{ matrix.qt_version }}, ${{ matrix.host }} ${{ matrix.renderer }}, ${{ matrix.compiler }})
+    runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
         include:
-          - qt_series: 6
-            qt_version: 6.9.3
+          - qt_version: 6.9.3
             qt_modules: qtlocation qtpositioning
+            host: linux
+            runner: ubuntu-24.04
             preset: Linux-OpenGL-ccache-CI
             renderer: OpenGL
             compiler: default
-          # Needs investigation: Vulkan headers not found in the CI
-          # - qt_series: 6
-          #   qt_version: 6.9.3
-          #   qt_modules: qtlocation qtpositioning
-          #   preset: Linux-Vulkan-ccache-CI
-          #   renderer: Vulkan
-          #   compiler: default
-          # Needs newer base container
-          # - qt_series: 6
-          #   qt_version: 6.10.0
-          #   qt_modules: qtlocation qtpositioning
-          #   preset: Linux-OpenGL-ccache-CI
-          #   renderer: OpenGL
-          #   compiler: default
-          # Needs newer base container
-          # - qt_series: 6
-          #   qt_version: 6.10.0
-          #   qt_modules: qtlocation qtpositioning
-          #   preset: Linux-Vulkan-ccache-CI
-          #   renderer: Vulkan
-          #   compiler: default
-          # Needs investigation
-          # - qt_series: 6
-          #   qt_version: 6.10.0
-          #   qt_modules: qtlocation qtpositioning
-          #   preset: Linux-OpenGL-coverage
-          #   renderer: OpenGL
-          #   compiler: gcc-14
-          #   gcov: gcov-14
+          - qt_version: 6.9.3
+            qt_modules: qtlocation qtpositioning
+            host: linux_arm64
+            runner: ubuntu-24.04-arm
+            preset: Linux-OpenGL-ccache-CI
+            renderer: OpenGL
+            compiler: gcc
+          - qt_version: 6.9.3
+            qt_modules: qtlocation qtpositioning
+            host: linux
+            runner: ubuntu-24.04
+            preset: Linux-Vulkan-ccache-CI
+            renderer: Vulkan
+            compiler: default
+          - qt_version: 6.9.3
+            qt_modules: qtlocation qtpositioning
+            host: linux_arm64
+            runner: ubuntu-24.04-arm
+            preset: Linux-Vulkan-ccache-CI
+            renderer: Vulkan
+            compiler: gcc
+          - qt_version: 6.10.0
+            qt_modules: qtlocation qtpositioning
+            host: linux
+            runner: ubuntu-24.04
+            preset: Linux-OpenGL-ccache-CI
+            renderer: OpenGL
+            compiler: default
+          - qt_version: 6.10.0
+            qt_modules: qtlocation qtpositioning
+            host: linux_arm64
+            runner: ubuntu-24.04-arm
+            preset: Linux-OpenGL-ccache-CI
+            renderer: OpenGL
+            compiler: gcc
+          - qt_version: 6.10.0
+            qt_modules: qtlocation qtpositioning
+            host: linux
+            runner: ubuntu-24.04
+            preset: Linux-Vulkan-ccache-CI
+            renderer: Vulkan
+            compiler: default
+          - qt_version: 6.10.0
+            qt_modules: qtlocation qtpositioning
+            host: linux_arm64
+            runner: ubuntu-24.04-arm
+            preset: Linux-Vulkan-ccache-CI
+            renderer: Vulkan
+            compiler: gcc
+          - qt_version: 6.10.0
+            qt_modules: qtlocation qtpositioning
+            host: linux
+            runner: ubuntu-24.04
+            preset: Linux-OpenGL-coverage
+            renderer: OpenGL
+            compiler: gcc-14
+            gcov: gcov-14
 
     env:
       PRESET: ${{ matrix.preset }}
@@ -140,7 +171,7 @@ jobs:
             libtiff6 \
             libwebp7
 
-          git clone https://github.com/linux-test-project/lcov.git -b v2.0
+          git clone https://github.com/linux-test-project/lcov.git -b v2.3.2
           pushd lcov
           sudo make -j$(nproc) install
           popd
@@ -149,17 +180,12 @@ jobs:
       - name: Download Qt
         uses: jurplel/install-qt-action@v4
         with:
-          aqtversion: ==3.1.*
+          aqtversion: ==3.3.*
           version: ${{ matrix.qt_version }}
           dir: ${{ github.workspace }}
+          host: ${{ matrix.host }}
           target: desktop
           modules: ${{ matrix.qt_modules }}
-
-      - name: Setup CMake
-        if: matrix.compiler != 'default'
-        uses: jwlawson/actions-setup-cmake@v2
-        with:
-          cmake-version: 3.30.x
 
       - name: Setup ninja
         if: matrix.compiler != 'default'
@@ -171,15 +197,22 @@ jobs:
           key: Linux_${{ matrix.qt_version }}_${{ matrix.renderer }}_${{ matrix.compiler }}
           max-size: 200M
 
-      - name: Build (Qt6, GCC11)
-        if: matrix.qt_series == 6 && matrix.compiler == 'default'
+      - name: Build (Qt6, CentOS 8, GCC11)
+        if: matrix.compiler == 'default' && matrix.qt_version == '6.9.3'
+        uses: ./source/.github/actions/qt6-build-legacy
+        with:
+          preset: ${{ matrix.preset }}
+          renderer: ${{ matrix.renderer }}
+
+      - name: Build (Qt6, CentOS 9, GCC11)
+        if: matrix.compiler == 'default' && matrix.qt_version == '6.10.0'
         uses: ./source/.github/actions/qt6-build
         with:
           preset: ${{ matrix.preset }}
           renderer: ${{ matrix.renderer }}
 
       - name: Build (Qt6, custom compiler)
-        if: matrix.qt_series == 6 && matrix.compiler != 'default'
+        if: matrix.compiler != 'default'
         env:
           CC: ${{ steps.install_compiler.outputs.cc }}
           CXX: ${{ steps.install_compiler.outputs.cxx }}
@@ -191,42 +224,42 @@ jobs:
           cmake --workflow --preset ${PRESET}
 
       - name: Run tests
-        if: matrix.qt_series == 6 && matrix.compiler != 'default'
+        if: matrix.compiler != 'default' && !(matrix.host == 'linux_arm64' && matrix.renderer == 'Vulkan')
         uses: coactions/setup-xvfb@v1
         with:
           run: ctest --output-on-failure
-          working-directory: build/qt6-Linux
+          working-directory: build/qt6-Linux-${{ matrix.renderer }}
 
       - name: Run code coverage
-        if: matrix.qt_series == 6 && matrix.compiler != 'default'
+        if: matrix.compiler != 'default' && matrix.preset == 'Linux-OpenGL-coverage'
         uses: coactions/setup-xvfb@v1
         with:
           run: ninja coverage
-          working-directory: build/qt6-Linux
+          working-directory: build/qt6-Linux-${{ matrix.renderer }}
 
       - name: Install
-        if: matrix.qt_series == 6 && matrix.compiler != 'default'
+        if: matrix.compiler != 'default' && matrix.preset != 'Linux-OpenGL-coverage'
         run: |
           mkdir install && cd install
-          tar xf ../build/qt${{ matrix.qt_series }}-Linux/maplibre-native-qt_*.tar.bz2
+          tar xf ../build/qt6-Linux-${{ matrix.renderer }}/maplibre-native-qt_*.tar.bz2
           mv maplibre-native-qt_* maplibre-native-qt
 
       - name: Build QtQuick Example
-        if: matrix.qt_series == 6 && matrix.compiler != 'default'
+        if: matrix.compiler != 'default' && matrix.preset != 'Linux-OpenGL-coverage'
         working-directory: source/examples/quick
         run: |
           export QMapLibre_DIR="$GITHUB_WORKSPACE/install/maplibre-native-qt"
           cmake --workflow --preset default
 
       - name: Build QtQuick Standalone Example
-        if: matrix.qt_series == 6 && matrix.compiler != 'default'
+        if: matrix.compiler != 'default' && matrix.preset != 'Linux-OpenGL-coverage'
         working-directory: source/examples/quick-standalone
         run: |
           export QMapLibre_DIR="$GITHUB_WORKSPACE/install/maplibre-native-qt"
           cmake --workflow --preset default
 
       - name: Build QtWidgets Example
-        if: matrix.qt_series == 6 && matrix.compiler != 'default'
+        if: matrix.compiler != 'default' && matrix.preset != 'Linux-OpenGL-coverage'
         working-directory: source/examples/widgets
         run: |
           export QMapLibre_DIR="$GITHUB_WORKSPACE/install/maplibre-native-qt"
@@ -236,14 +269,14 @@ jobs:
         if: matrix.compiler == 'default'
         uses: actions/upload-artifact@v5
         with:
-          name: Linux_${{ matrix.qt_version }}_${{ matrix.renderer }}
-          path: build/qt${{ matrix.qt_series }}-Linux-${{ matrix.renderer }}/maplibre-native-qt_*.tar.bz2
+          name: ${{ matrix.host }}_${{ matrix.qt_version }}_${{ matrix.renderer }}
+          path: build/qt6-Linux-${{ matrix.renderer }}/maplibre-native-qt_*.tar.bz2
 
       - name: Upload coverage reports to Codecov
-        if: matrix.qt_series == 6 && matrix.compiler != 'default'
+        if: matrix.compiler != 'default' && matrix.preset == 'Linux-OpenGL-coverage'
         uses: codecov/codecov-action@v5
         with:
-          files: build/qt${{ matrix.qt_series }}-Linux-${{ matrix.renderer }}/coverage.info
+          files: build/qt6-Linux-${{ matrix.renderer }}/coverage.info
           verbose: true
 
   release:
@@ -257,16 +290,17 @@ jobs:
       matrix:
         qt_version: [6.9.3, 6.10.0]
         renderer: [OpenGL, Vulkan]
+        host: [linux, linux_arm64]
 
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v6
         with:
-          name: Linux_${{ matrix.qt_version }}_${{ matrix.renderer }}
+          name: ${{ matrix.host }}_${{ matrix.qt_version }}_${{ matrix.renderer }}
 
       - name: Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: maplibre-native-qt_${{ github.ref_name }}_Qt${{ matrix.qt_version }}_Linux_${{ matrix.renderer }}.tar.bz2
+          artifacts: maplibre-native-qt_${{ github.ref_name }}_Qt${{ matrix.qt_version }}_${{ matrix.host }}_${{ matrix.renderer }}.tar.bz2
           allowUpdates: true
           draft: true
