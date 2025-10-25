@@ -109,7 +109,7 @@ jobs:
           cmake --workflow --preset ${PRESET}
 
       - name: Upload installation
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: iOS_${{ matrix.qt_version }}
           path: build/qt6-iOS/maplibre-native-qt_*_iOS_Metal.tar.bz2
@@ -127,7 +127,7 @@ jobs:
 
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: iOS_${{ matrix.qt_version }}
 

@@ -175,14 +175,14 @@ jobs:
 
       - name: Upload installation
         if: matrix.compiler == 'default' || matrix.compiler == 'static'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: macOS_${{ matrix.qt_version }}_${{ matrix.compiler }}
           path: build/qt${{ matrix.qt_series }}-macOS/maplibre-native-qt_*.tar.bz2
 
       - name: Upload examples
         if: matrix.qt_series == 6 && matrix.compiler == 'default'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: macOS_${{ matrix.qt_version }}_examples
           path: build/qt${{ matrix.qt_series }}-example-*/*.tar.bz2
@@ -209,7 +209,7 @@ jobs:
 
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: macOS_${{ matrix.qt_version }}_${{ matrix.compiler }}
 

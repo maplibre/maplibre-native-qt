@@ -234,7 +234,7 @@ jobs:
 
       - name: Upload installation
         if: matrix.compiler == 'default'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: Linux_${{ matrix.qt_version }}_${{ matrix.renderer }}
           path: build/qt${{ matrix.qt_series }}-Linux-${{ matrix.renderer }}/maplibre-native-qt_*.tar.bz2
@@ -260,7 +260,7 @@ jobs:
 
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: Linux_${{ matrix.qt_version }}_${{ matrix.renderer }}
 
