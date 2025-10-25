@@ -22,6 +22,7 @@ on:
       - ".github/workflows/Linux.yml"
       - ".github/workflows/source-tarball.yml"
       - ".github/workflows/Windows.yml"
+      - ".github/workflows/WASM.yml"
 
   pull_request:
     branches:
@@ -41,6 +42,7 @@ on:
       - ".github/workflows/Linux.yml"
       - ".github/workflows/source-tarball.yml"
       - ".github/workflows/Windows.yml"
+      - ".github/workflows/WASM.yml"
 
 concurrency:
   # cancel jobs on PRs only
@@ -54,29 +56,25 @@ jobs:
     strategy:
       matrix:
         include:
-          - qt_series: 6
-            qt_version: 6.9.3
+          - qt_version: 6.9.3
             qt_modules: qtlocation qtpositioning
             preset: macOS-ccache
             compiler: default
             runs_on: macos-15
-          - qt_series: 6
-            qt_version: 6.10.0
+          - qt_version: 6.10.0
             qt_modules: qtlocation qtpositioning
             preset: macOS-ccache
             compiler: default
             runs_on: macos-15
-          - qt_series: 6
-            qt_version: 6.10.0
+          - qt_version: 6.10.0
             preset: macOS-ccache
             compiler: static
             runs_on: macos-15
-          # - qt_series: 6
-          #   qt_version: 6.10.0
-          #   qt_modules: qtlocation qtpositioning
-          #   preset: macOS-clang-tidy
-          #   compiler: llvm
-          #   runs_on: macos-15
+          - qt_version: 6.10.0
+            qt_modules: qtlocation qtpositioning
+            preset: macOS-clang-tidy
+            compiler: llvm
+            runs_on: macos-15
 
     env:
       COMPILER: ${{ matrix.compiler }}
@@ -95,18 +93,6 @@ jobs:
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: latest-stable
-
-      - name: Setup compiler (macOS)
-        if: matrix.compiler != 'default' && matrix.compiler != 'static'
-        run: |
-          brew install "$COMPILER"
-          echo "/opt/homebrew/opt/${COMPILER}/bin" >> "$GITHUB_PATH"
-          {
-            echo "CC=/opt/homebrew/opt/${COMPILER}/bin/clang"
-            echo "CXX=/opt/homebrew/opt/${COMPILER}/bin/clang++"
-            echo "LDFLAGS=\"-L/opt/homebrew/opt/${COMPILER}/lib\""
-            echo "CPPFLAGS=\"-I/opt/homebrew/opt/${COMPILER}/include\""
-          } >> "$GITHUB_ENV"
 
       - name: Download Qt
         if: matrix.compiler != 'static'
@@ -135,6 +121,18 @@ jobs:
       - name: Setup ninja
         uses: seanmiddleditch/gha-setup-ninja@v6
 
+      - name: Setup compiler
+        if: matrix.compiler != 'default' && matrix.compiler != 'static'
+        run: |
+          brew install "$COMPILER"
+          echo "/opt/homebrew/opt/${COMPILER}/bin" >> "$GITHUB_PATH"
+          {
+            echo "CC=/opt/homebrew/opt/${COMPILER}/bin/clang"
+            echo "CXX=/opt/homebrew/opt/${COMPILER}/bin/clang++"
+            echo "LDFLAGS=-L/opt/homebrew/opt/${COMPILER}/lib -L/opt/homebrew/opt/llvm/lib/c++ -L/opt/homebrew/opt/llvm/lib/unwind -lunwind"
+            echo "CPPFLAGS=-I/opt/homebrew/opt/${COMPILER}/include"
+          } >> "$GITHUB_ENV"
+
       - name: Set up ccache
         uses: hendrikmuhs/ccache-action@v1
         with:
@@ -147,27 +145,28 @@ jobs:
           cmake --workflow --preset ${PRESET}
 
       - name: Install
+        if: matrix.compiler == 'default'
         run: |
           mkdir install && cd install
-          tar xf ../build/qt${{ matrix.qt_series }}-macOS/maplibre-native-qt_*.tar.bz2
+          tar xf ../build/qt6-macOS/maplibre-native-qt_*.tar.bz2
           mv maplibre-native-qt_* maplibre-native-qt
 
       - name: Build QtQuick Example
-        if: matrix.qt_series == 6 && matrix.compiler == 'default'
+        if: matrix.compiler == 'default'
         working-directory: source/examples/quick
         run: |
           export QMapLibre_DIR="$GITHUB_WORKSPACE/install/maplibre-native-qt"
           cmake --workflow --preset default
 
       - name: Build QtQuick Standalone Example
-        if: matrix.qt_series == 6 && matrix.compiler == 'default'
+        if: matrix.compiler == 'default'
         working-directory: source/examples/quick-standalone
         run: |
           export QMapLibre_DIR="$GITHUB_WORKSPACE/install/maplibre-native-qt"
           cmake --workflow --preset default
 
       - name: Build QtWidgets Example
-        if: matrix.qt_series == 6 && matrix.compiler == 'default'
+        if: matrix.compiler == 'default'
         working-directory: source/examples/widgets
         run: |
           export QMapLibre_DIR="$GITHUB_WORKSPACE/install/maplibre-native-qt"
@@ -178,14 +177,14 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: macOS_${{ matrix.qt_version }}_${{ matrix.compiler }}
-          path: build/qt${{ matrix.qt_series }}-macOS/maplibre-native-qt_*.tar.bz2
+          path: build/qt6-macOS/maplibre-native-qt_*.tar.bz2
 
       - name: Upload examples
-        if: matrix.qt_series == 6 && matrix.compiler == 'default'
+        if: matrix.compiler == 'default'
         uses: actions/upload-artifact@v5
         with:
           name: macOS_${{ matrix.qt_version }}_examples
-          path: build/qt${{ matrix.qt_series }}-example-*/*.tar.bz2
+          path: build/qt6-example-*/*.tar.bz2
 
   release:
     name: Release
