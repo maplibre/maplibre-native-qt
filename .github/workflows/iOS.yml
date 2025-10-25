@@ -21,6 +21,7 @@ on:
       - ".github/workflows/Linux.yml"
       - ".github/workflows/macOS.yml"
       - ".github/workflows/source-tarball.yml"
+      - ".github/workflows/WASM.yml"
       - ".github/workflows/Windows.yml"
 
   pull_request:
@@ -40,6 +41,7 @@ on:
       - ".github/workflows/Linux.yml"
       - ".github/workflows/macOS.yml"
       - ".github/workflows/source-tarball.yml"
+      - ".github/workflows/WASM.yml"
       - ".github/workflows/Windows.yml"
 
 concurrency:
@@ -94,7 +96,7 @@ jobs:
       - name: Download Qt
         uses: jurplel/install-qt-action@v4
         with:
-          aqtversion: ==3.1.*
+          aqtversion: ==3.3.*
           version: ${{ matrix.qt_version }}
           target: ios
           modules: qtlocation qtpositioning

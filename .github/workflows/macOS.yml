@@ -98,7 +98,7 @@ jobs:
         if: matrix.compiler != 'static'
         uses: jurplel/install-qt-action@v4
         with:
-          aqtversion: ==3.1.*
+          aqtversion: ==3.3.*
           version: ${{ matrix.qt_version }}
           target: desktop
           modules: ${{ matrix.qt_modules }}
