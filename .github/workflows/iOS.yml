@@ -23,6 +23,11 @@ on:
       - ".github/workflows/source-tarball.yml"
       - ".github/workflows/WASM.yml"
       - ".github/workflows/Windows.yml"
+      - "cmake/presets/Android.json"
+      - "cmake/presets/Linux.json"
+      - "cmake/presets/macOS.json"
+      - "cmake/presets/WASM.json"
+      - "cmake/presets/Windows.json"
 
   pull_request:
     branches:
@@ -43,6 +48,11 @@ on:
       - ".github/workflows/source-tarball.yml"
       - ".github/workflows/WASM.yml"
       - ".github/workflows/Windows.yml"
+      - "cmake/presets/Android.json"
+      - "cmake/presets/Linux.json"
+      - "cmake/presets/macOS.json"
+      - "cmake/presets/WASM.json"
+      - "cmake/presets/Windows.json"
 
 concurrency:
   # cancel jobs on PRs only
@@ -57,21 +67,14 @@ jobs:
       matrix:
         include:
           - qt_version: 6.9.3
-            preset: iOS
+            preset: iOS-ccache
           - qt_version: 6.10.0
-            preset: iOS
+            preset: iOS-ccache
 
     env:
       PRESET: ${{ matrix.preset }}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-        with:
-          path: source
-          submodules: recursive
-          fetch-depth: 0
-
       - name: Recover disk space
         run: |
           df -h
@@ -103,6 +106,19 @@ jobs:
 
       - name: Setup ninja
         uses: seanmiddleditch/gha-setup-ninja@v6
+
+      - name: Set up ccache
+        uses: hendrikmuhs/ccache-action@v1
+        with:
+          key: iOS_${{ matrix.qt_version }}
+          max-size: 2500MB
+
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          path: source
+          submodules: recursive
+          fetch-depth: 0
 
       - name: Build
         working-directory: source

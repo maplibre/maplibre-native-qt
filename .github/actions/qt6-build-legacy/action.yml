@@ -5,7 +5,7 @@ inputs:
   preset:
     description: "CMake Preset to use"
     required: true
-    default: "Linux-OpenGL-ccache-CI"
+    default: "Linux-OpenGL-sccache-CI"
   renderer:
     description: "Renderer to use"
     required: true

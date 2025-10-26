@@ -13,7 +13,7 @@ on:
       - "docs/**"
       # ignore CI for other platforms
       - ".github/FUNDING.yml"
-      - ".github/actions/**"
+      - ".github/actions/qt6-build**"
       - ".github/workflows/CI-cache-cleanup.yml"
       - ".github/workflows/docs-test.yml"
       - ".github/workflows/gh-pages-docs.yml"
@@ -33,7 +33,7 @@ on:
       - "docs/**"
       # ignore CI for other platforms
       - ".github/FUNDING.yml"
-      - ".github/actions/**"
+      - ".github/actions/qt6-build**"
       - ".github/workflows/CI-cache-cleanup.yml"
       - ".github/workflows/docs-test.yml"
       - ".github/workflows/gh-pages-docs.yml"
@@ -48,6 +48,9 @@ concurrency:
   # cancel jobs on PRs only
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  id-token: write # needed for AWS
 
 jobs:
   build:
@@ -122,12 +125,36 @@ jobs:
             renderer: Vulkan
 
     steps:
+      - name: Configure AWS Credentials
+        if: vars.OIDC_AWS_ROLE_TO_ASSUME
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-west-2
+          role-to-assume: ${{ vars.OIDC_AWS_ROLE_TO_ASSUME }}
+          role-session-name: ${{ github.run_id }}
+
       - name: Checkout
         uses: actions/checkout@v5
         with:
           path: source
           submodules: recursive
           fetch-depth: 0
+
+      - name: Install sccache
+        uses: ./source/.github/actions/install-sccache
+        with:
+          arch: linux
+
+      - name: Configure sccache
+        run: |
+          {
+            echo "SCCACHE_BUCKET=maplibre-native-sccache"
+            echo "SCCACHE_REGION=eu-central-1"
+          } >> "$GITHUB_ENV"
+          if [ -z "${AWS_SECRET_ACCESS_KEY}" ]; then
+            echo "AWS_SECRET_ACCESS_KEY not set; not uploading sccache cache to S3"
+            echo "SCCACHE_S3_NO_CREDENTIALS=1" >> "$GITHUB_ENV"
+          fi
 
       - name: Download Qt
         id: qt-android
@@ -159,12 +186,6 @@ jobs:
       - name: Setup ninja
         uses: seanmiddleditch/gha-setup-ninja@v6
 
-      - name: Set up ccache
-        uses: hendrikmuhs/ccache-action@v1
-        with:
-          key: Android_${{ matrix.qt_version }}_${{ matrix.abi }}
-          max-size: 200M
-
       - name: Build
         env:
           ANDROID_ABI: ${{ matrix.abi }}
@@ -172,7 +193,10 @@ jobs:
         working-directory: source
         run: |
           export QT_HOST_PATH="$(readlink -f "$QT_ROOT_DIR/../gcc_64")"
-          cmake --workflow --preset Android-${RENDERER}-ccache
+          cmake --workflow --preset Android-${RENDERER}-sccache
+
+      - name: Show sccache stats
+        run: sccache --show-stats
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v5

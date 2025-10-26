@@ -1,0 +1,23 @@
+name: install-sccache
+description: "Install sccache"
+inputs:
+  arch:
+    description: "Architecture to use"
+    required: true
+    default: "x86_64"
+runs:
+  using: "composite"
+  steps:
+    - name: Install sccache
+      shell: bash
+      env:
+        INPUT_ARCH: ${{ inputs.arch }}
+      run: |
+        if [[ "${INPUT_ARCH}" = "x86_64" || "${INPUT_ARCH}" = "linux" ]]; then
+          bash ${{ github.action_path }}/install-sccache
+        elif [[ "${INPUT_ARCH}" = "arm64" || "${INPUT_ARCH}" = "aarch64" || "${INPUT_ARCH}" = "linux_arm64" ]]; then
+          bash ${{ github.action_path }}/install-sccache_arm64
+        else
+          echo "Unsupported architecture: ${INPUT_ARCH}"
+          exit 1
+        fi

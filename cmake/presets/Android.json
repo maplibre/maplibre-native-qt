@@ -37,6 +37,16 @@
       "name": "Android-Vulkan-ccache",
       "displayName": "Android configuration using Qt6, Vulkan and ccache",
       "inherits": ["dev", "ccache", "Android-Vulkan"]
+    },
+    {
+      "name": "Android-OpenGL-sccache",
+      "displayName": "Android configuration using Qt6, OpenGL and sccache",
+      "inherits": ["dev", "sccache", "Android-OpenGL"]
+    },
+    {
+      "name": "Android-Vulkan-sccache",
+      "displayName": "Android configuration using Qt6, Vulkan and sccache",
+      "inherits": ["dev", "sccache", "Android-Vulkan"]
     }
   ],
   "buildPresets": [
@@ -59,6 +69,16 @@
       "name": "Android-Vulkan-ccache",
       "displayName": "Android build using Qt6, Vulkan and ccache",
       "configurePreset": "Android-Vulkan-ccache"
+    },
+    {
+      "name": "Android-OpenGL-sccache",
+      "displayName": "Android build using Qt6, OpenGL and sccache",
+      "configurePreset": "Android-OpenGL-sccache"
+    },
+    {
+      "name": "Android-Vulkan-sccache",
+      "displayName": "Android build using Qt6, Vulkan and sccache",
+      "configurePreset": "Android-Vulkan-sccache"
     }
   ],
   "packagePresets": [
@@ -81,9 +101,55 @@
       "name": "Android-Vulkan-ccache",
       "displayName": "Android package using Qt6, Vulkan and ccache",
       "configurePreset": "Android-Vulkan-ccache"
+    },
+    {
+      "name": "Android-OpenGL-sccache",
+      "displayName": "Android package using Qt6, OpenGL and sccache",
+      "configurePreset": "Android-OpenGL-sccache"
+    },
+    {
+      "name": "Android-Vulkan-sccache",
+      "displayName": "Android package using Qt6, Vulkan and sccache",
+      "configurePreset": "Android-Vulkan-sccache"
     }
   ],
   "workflowPresets": [
+    {
+      "name": "Android-OpenGL",
+      "displayName": "Android workflow using Qt6 and OpenGL",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "Android-OpenGL"
+        },
+        {
+          "type": "build",
+          "name": "Android-OpenGL"
+        },
+        {
+          "type": "package",
+          "name": "Android-OpenGL"
+        }
+      ]
+    },
+    {
+      "name": "Android-Vulkan",
+      "displayName": "Android workflow using Qt6 and Vulkan",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "Android-Vulkan"
+        },
+        {
+          "type": "build",
+          "name": "Android-Vulkan"
+        },
+        {
+          "type": "package",
+          "name": "Android-Vulkan"
+        }
+      ]
+    },
     {
       "name": "Android-OpenGL-ccache",
       "displayName": "Android workflow using Qt6, OpenGL and ccache",
@@ -117,6 +183,42 @@
         {
           "type": "package",
           "name": "Android-Vulkan-ccache"
+        }
+      ]
+    },
+    {
+      "name": "Android-OpenGL-sccache",
+      "displayName": "Android workflow using Qt6, OpenGL and sccache",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "Android-OpenGL-sccache"
+        },
+        {
+          "type": "build",
+          "name": "Android-OpenGL-sccache"
+        },
+        {
+          "type": "package",
+          "name": "Android-OpenGL-sccache"
+        }
+      ]
+    },
+    {
+      "name": "Android-Vulkan-sccache",
+      "displayName": "Android workflow using Qt6, Vulkan and sccache",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "Android-Vulkan-sccache"
+        },
+        {
+          "type": "build",
+          "name": "Android-Vulkan-sccache"
+        },
+        {
+          "type": "package",
+          "name": "Android-Vulkan-sccache"
         }
       ]
     }
