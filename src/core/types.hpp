@@ -171,10 +171,10 @@ struct Q_MAPLIBRE_CORE_EXPORT CameraOptions {
 };
 
 struct Q_MAPLIBRE_CORE_EXPORT AnimationOptions {
-    QVariant duration;    // std::chrono::milliseconds as qint64
-    QVariant velocity;    // double
-    QVariant minZoom;     // double
-    
+    QVariant duration; // std::chrono::milliseconds as qint64
+    QVariant velocity; // double
+    QVariant minZoom;  // double
+
     // Constructor with defaults
     explicit AnimationOptions(qint64 duration_ = 300)
         : duration(duration_) {}

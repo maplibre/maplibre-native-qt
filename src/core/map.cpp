@@ -738,7 +738,7 @@ void Map::easeTo(const CameraOptions &camera, const AnimationOptions &animation)
         mbglCamera.pitch = camera.pitch.value<double>();
     }
     mbglCamera.padding = d_ptr->margins;
-    
+
     mbgl::AnimationOptions mbglAnimation;
     if (animation.duration.isValid()) {
         mbglAnimation.duration = std::chrono::milliseconds(animation.duration.value<qint64>());
@@ -749,7 +749,7 @@ void Map::easeTo(const CameraOptions &camera, const AnimationOptions &animation)
     if (animation.minZoom.isValid()) {
         mbglAnimation.minZoom = animation.minZoom.value<double>();
     }
-    
+
     d_ptr->mapObj->easeTo(mbglCamera, mbglAnimation);
 }
 
@@ -778,7 +778,7 @@ void Map::flyTo(const CameraOptions &camera, const AnimationOptions &animation) 
         mbglCamera.pitch = camera.pitch.value<double>();
     }
     mbglCamera.padding = d_ptr->margins;
-    
+
     mbgl::AnimationOptions mbglAnimation;
     if (animation.duration.isValid()) {
         mbglAnimation.duration = std::chrono::milliseconds(animation.duration.value<qint64>());
@@ -789,7 +789,7 @@ void Map::flyTo(const CameraOptions &camera, const AnimationOptions &animation) 
     if (animation.minZoom.isValid()) {
         mbglAnimation.minZoom = animation.minZoom.value<double>();
     }
-    
+
     d_ptr->mapObj->flyTo(mbglCamera, mbglAnimation);
 }
 
