@@ -143,6 +143,92 @@ void MapQuickItem::scale(double scale, const QPointF &center) {
     emit zoomLevelChanged();
 }
 
+void MapQuickItem::easeTo(const QVariantMap &camera, const QVariantMap &animation) {
+    if (m_map == nullptr) {
+        return;
+    }
+
+    CameraOptions cameraOptions;
+    if (camera.contains("center")) {
+        const auto center = camera["center"].toList();
+        if (center.size() == 2) {
+            cameraOptions.center = QVariant::fromValue(Coordinate{center[0].toDouble(), center[1].toDouble()});
+        }
+    }
+    if (camera.contains("zoom")) {
+        cameraOptions.zoom = camera["zoom"].toDouble();
+    }
+    if (camera.contains("bearing")) {
+        cameraOptions.bearing = camera["bearing"].toDouble();
+    }
+    if (camera.contains("pitch")) {
+        cameraOptions.pitch = camera["pitch"].toDouble();
+    }
+
+    AnimationOptions animationOptions;
+    if (animation.contains("duration")) {
+        animationOptions.duration = animation["duration"].toLongLong();
+    }
+    if (animation.contains("velocity")) {
+        animationOptions.velocity = animation["velocity"].toDouble();
+    }
+    if (animation.contains("minZoom")) {
+        animationOptions.minZoom = animation["minZoom"].toDouble();
+    }
+
+    m_map->easeTo(cameraOptions, animationOptions);
+    
+    const Coordinate coordinate = m_map->coordinate();
+    m_coordinate = {coordinate.first, coordinate.second};
+    m_zoomLevel = m_map->zoom();
+    update();
+    emit coordinateChanged();
+    emit zoomLevelChanged();
+}
+
+void MapQuickItem::flyTo(const QVariantMap &camera, const QVariantMap &animation) {
+    if (m_map == nullptr) {
+        return;
+    }
+
+    CameraOptions cameraOptions;
+    if (camera.contains("center")) {
+        const auto center = camera["center"].toList();
+        if (center.size() == 2) {
+            cameraOptions.center = QVariant::fromValue(Coordinate{center[0].toDouble(), center[1].toDouble()});
+        }
+    }
+    if (camera.contains("zoom")) {
+        cameraOptions.zoom = camera["zoom"].toDouble();
+    }
+    if (camera.contains("bearing")) {
+        cameraOptions.bearing = camera["bearing"].toDouble();
+    }
+    if (camera.contains("pitch")) {
+        cameraOptions.pitch = camera["pitch"].toDouble();
+    }
+
+    AnimationOptions animationOptions;
+    if (animation.contains("duration")) {
+        animationOptions.duration = animation["duration"].toLongLong();
+    }
+    if (animation.contains("velocity")) {
+        animationOptions.velocity = animation["velocity"].toDouble();
+    }
+    if (animation.contains("minZoom")) {
+        animationOptions.minZoom = animation["minZoom"].toDouble();
+    }
+
+    m_map->flyTo(cameraOptions, animationOptions);
+    
+    const Coordinate coordinate = m_map->coordinate();
+    m_coordinate = {coordinate.first, coordinate.second};
+    m_zoomLevel = m_map->zoom();
+    update();
+    emit coordinateChanged();
+    emit zoomLevelChanged();
+}
+
 void MapQuickItem::componentComplete() {
     QQuickItem::componentComplete();
 
