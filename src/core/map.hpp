@@ -122,6 +122,8 @@ public:
     void setCoordinateZoom(const Coordinate &coordinate, double zoom);
 
     void jumpTo(const CameraOptions &);
+    void easeTo(const CameraOptions &camera, const AnimationOptions &animation);
+    void flyTo(const CameraOptions &camera, const AnimationOptions &animation);
 
     void setGestureInProgress(bool inProgress);
 

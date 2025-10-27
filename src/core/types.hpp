@@ -170,6 +170,16 @@ struct Q_MAPLIBRE_CORE_EXPORT CameraOptions {
     QVariant pitch;   // double
 };
 
+struct Q_MAPLIBRE_CORE_EXPORT AnimationOptions {
+    QVariant duration;    // std::chrono::milliseconds as qint64
+    QVariant velocity;    // double
+    QVariant minZoom;     // double
+    
+    // Constructor with defaults
+    explicit AnimationOptions(qint64 duration_ = 300)
+        : duration(duration_) {}
+};
+
 // This struct is a 1:1 copy of mbgl::CustomLayerRenderParameters.
 struct Q_MAPLIBRE_CORE_EXPORT CustomLayerRenderParameters {
     double width;
