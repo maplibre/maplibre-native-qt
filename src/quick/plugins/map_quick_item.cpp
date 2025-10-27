@@ -177,7 +177,7 @@ void MapQuickItem::easeTo(const QVariantMap &camera, const QVariantMap &animatio
     }
 
     m_map->easeTo(cameraOptions, animationOptions);
-    
+
     const Coordinate coordinate = m_map->coordinate();
     m_coordinate = {coordinate.first, coordinate.second};
     m_zoomLevel = m_map->zoom();
@@ -220,7 +220,7 @@ void MapQuickItem::flyTo(const QVariantMap &camera, const QVariantMap &animation
     }
 
     m_map->flyTo(cameraOptions, animationOptions);
-    
+
     const Coordinate coordinate = m_map->coordinate();
     m_coordinate = {coordinate.first, coordinate.second};
     m_zoomLevel = m_map->zoom();
