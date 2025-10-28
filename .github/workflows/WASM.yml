@@ -1,0 +1,191 @@
+name: WASM CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    tags:
+      - "**"
+    paths-ignore:
+      - ".gitignore"
+      - "README.md"
+      - "docs/**"
+      # ignore CI for other platforms
+      - ".github/actions/qt6-build**"
+      - ".github/FUNDING.yml"
+      - ".github/workflows/Android.yml"
+      - ".github/workflows/CI-cache-cleanup.yml"
+      - ".github/workflows/docs-test.yml"
+      - ".github/workflows/gh-pages-docs.yml"
+      - ".github/workflows/iOS.yml"
+      - ".github/workflows/Linux.yml"
+      - ".github/workflows/macOS.yml"
+      - ".github/workflows/source-tarball.yml"
+      - ".github/workflows/Windows.yml"
+      - "cmake/presets/Android.json"
+      - "cmake/presets/iOS.json"
+      - "cmake/presets/Linux.json"
+      - "cmake/presets/macOS.json"
+      - "cmake/presets/Windows.json"
+
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - ".gitignore"
+      - "README.md"
+      - "docs/**"
+      # ignore CI for other platforms
+      - ".github/actions/qt6-build**"
+      - ".github/FUNDING.yml"
+      - ".github/workflows/Android.yml"
+      - ".github/workflows/CI-cache-cleanup.yml"
+      - ".github/workflows/docs-test.yml"
+      - ".github/workflows/gh-pages-docs.yml"
+      - ".github/workflows/iOS.yml"
+      - ".github/workflows/Linux.yml"
+      - ".github/workflows/macOS.yml"
+      - ".github/workflows/source-tarball.yml"
+      - ".github/workflows/Windows.yml"
+      - "cmake/presets/Android.json"
+      - "cmake/presets/iOS.json"
+      - "cmake/presets/Linux.json"
+      - "cmake/presets/macOS.json"
+      - "cmake/presets/Windows.json"
+
+concurrency:
+  # cancel jobs on PRs only
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  id-token: write # needed for AWS
+
+jobs:
+  build-and-test:
+    name: Build (Qt${{ matrix.qt_version }})
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        include:
+          - qt_version: 6.9.3
+            emsdk_version: 3.1.70
+            preset: WASM-sccache
+          - qt_version: 6.10.0
+            emsdk_version: 4.0.7
+            preset: WASM-sccache
+
+    env:
+      PRESET: ${{ matrix.preset }}
+
+    steps:
+      - name: Configure AWS Credentials
+        if: vars.OIDC_AWS_ROLE_TO_ASSUME
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-west-2
+          role-to-assume: ${{ vars.OIDC_AWS_ROLE_TO_ASSUME }}
+          role-session-name: ${{ github.run_id }}
+
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          path: source
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Install sccache
+        uses: ./source/.github/actions/install-sccache
+        with:
+          arch: linux
+
+      - name: Configure sccache
+        run: |
+          {
+            echo "SCCACHE_BUCKET=maplibre-native-sccache"
+            echo "SCCACHE_REGION=eu-central-1"
+          } >> "$GITHUB_ENV"
+          if [ -z "${AWS_SECRET_ACCESS_KEY}" ]; then
+            echo "AWS_SECRET_ACCESS_KEY not set; not uploading sccache cache to S3"
+            echo "SCCACHE_S3_NO_CREDENTIALS=1" >> "$GITHUB_ENV"
+          fi
+
+      - name: Setup emsdk
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: ${{ matrix.emsdk_version }}
+
+      - name: Download Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          aqtversion: ==3.3.*
+          version: ${{ matrix.qt_version }}
+          dir: ${{ github.workspace }}
+          host: all_os
+          target: wasm
+          arch: wasm_multithread
+
+      - name: Setup CMake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: 3.30.x
+
+      - name: Setup ninja
+        uses: seanmiddleditch/gha-setup-ninja@v6
+
+      - name: Build
+        working-directory: source
+        run: |
+          cmake --workflow --preset ${PRESET}
+
+      - name: Install
+        run: |
+          mkdir install && cd install
+          tar xf ../build/qt6-WASM/maplibre-native-qt_*.tar.bz2
+          mv maplibre-native-qt_* maplibre-native-qt
+
+      - name: Build QtQuick Standalone Example
+        working-directory: source/examples/quick-standalone
+        run: |
+          export QMapLibre_DIR="$GITHUB_WORKSPACE/install/maplibre-native-qt"
+          cmake --workflow --preset default
+
+      - name: Show sccache stats
+        run: sccache --show-stats
+
+      - name: Upload installation
+        uses: actions/upload-artifact@v5
+        with:
+          name: WASM_${{ matrix.qt_version }}
+          path: build/qt6-WASM/maplibre-native-qt_*.tar.bz2
+
+      - name: Upload examples
+        uses: actions/upload-artifact@v5
+        with:
+          name: WASM_${{ matrix.qt_version }}_examples
+          path: build/qt6-example-*/*.tar.bz2
+
+  release:
+    name: Release
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-24.04
+    needs: build-and-test
+    permissions:
+      contents: write
+    strategy:
+      matrix:
+        qt_version: [6.9.3, 6.10.0]
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v6
+        with:
+          name: WASM_${{ matrix.qt_version }}
+
+      - name: Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: maplibre-native-qt_${{ github.ref_name }}_Qt${{ matrix.qt_version }}_WASM_OpenGL.tar.bz2
+          allowUpdates: true
+          draft: true
