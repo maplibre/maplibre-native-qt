@@ -376,8 +376,7 @@ VulkanRendererBackend::VulkanRendererBackend(QWindow *window)
     : mbgl::vulkan::RendererBackend(mbgl::gfx::ContextMode::Shared),
       mbgl::vulkan::Renderable(
           mbgl::Size{DefaultSize, DefaultSize},
-          std::make_unique<QtVulkanRenderableResource>(*this, mbgl::Size{DefaultSize, DefaultSize})),
-      m_window(window) {
+          std::make_unique<QtVulkanRenderableResource>(*this, mbgl::Size{DefaultSize, DefaultSize})) {
     QVulkanInstance *qtInstance{};
     if (window != nullptr) {
         qtInstance = window->vulkanInstance();
@@ -410,7 +409,6 @@ VulkanRendererBackend::VulkanRendererBackend(QWindow *window,
       mbgl::vulkan::Renderable(
           mbgl::Size{DefaultSize, DefaultSize},
           std::make_unique<QtVulkanRenderableResource>(*this, mbgl::Size{DefaultSize, DefaultSize})),
-      m_window(window),
       m_qtPhysicalDevice(qtPhysicalDevice),
       m_qtDevice(qtDevice),
       m_qtGraphicsQueueIndex(qtGraphicsQueueIndex),
@@ -447,7 +445,7 @@ void VulkanRendererBackend::init() {
     }
 
     // Initialize dispatcher with Qt's function resolution
-    QVulkanFunctions *f = m_qtInstance->functions();
+    const QVulkanFunctions *f = m_qtInstance->functions();
     if (f != nullptr) {
         auto vkGetInstanceProcAddr = m_qtInstance->getInstanceProcAddr("vkGetInstanceProcAddr");
         if (vkGetInstanceProcAddr != nullptr) {
@@ -557,7 +555,7 @@ mbgl::vulkan::Texture2D *VulkanRendererBackend::getOffscreenTexture() const {
 
 void VulkanRendererBackend::setExternalDrawable(void *image, const mbgl::Size &size_) {
     // Pass the external image to our custom renderable resource
-    vk::Image vkImage(reinterpret_cast<VkImage>(image));
+    const vk::Image vkImage(reinterpret_cast<VkImage>(image));
     getResource<QtVulkanRenderableResource>().setExternalImage(vkImage, size_);
 }
 

@@ -2,6 +2,7 @@
 
 // SPDX-License-Identifier: BSD-2-Clause
 
+#include <QtGui/qopenglcontext.h>
 #include "texture_node_opengl_p.hpp"
 
 #include <QtGui/QOpenGLContext>
@@ -17,8 +18,8 @@ namespace QMapLibre {
 TextureNodeOpenGL::~TextureNodeOpenGL() {
     // Clean up framebuffer
     if (m_fbo != 0) {
-        if (QOpenGLContext *context = QOpenGLContext::currentContext()) {
-            QOpenGLFunctions *gl = context->functions();
+        if (const QOpenGLContext *glContext = QOpenGLContext::currentContext()) {
+            QOpenGLFunctions *gl = glContext->functions();
             gl->glDeleteFramebuffers(1, &m_fbo);
         }
     }
@@ -41,8 +42,8 @@ void TextureNodeOpenGL::render(QQuickWindow *window) {
         return;
     }
 
-    auto *context = QOpenGLContext::currentContext();
-    if (context == nullptr) {
+    const QOpenGLContext *glContext = QOpenGLContext::currentContext();
+    if (glContext == nullptr) {
         return;
     }
 
@@ -56,7 +57,7 @@ void TextureNodeOpenGL::render(QQuickWindow *window) {
     m_map->resize(m_size, m_pixelRatio);
 
     // CRITICAL: Set up framebuffer for texture sharing before rendering
-    QOpenGLFunctions *gl = context->functions();
+    QOpenGLFunctions *gl = glContext->functions();
     if (m_fbo == 0) {
         gl->glGenFramebuffers(1, &m_fbo);
     }

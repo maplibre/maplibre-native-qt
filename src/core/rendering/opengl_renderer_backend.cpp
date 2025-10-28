@@ -28,9 +28,9 @@ public:
         backend.setViewport(0, 0, backend.getSize());
 
         // Clear to prevent artifacts - scissor disable needed to ensure full clear
-        QOpenGLContext *context = QOpenGLContext::currentContext();
-        if (context != nullptr) {
-            QOpenGLFunctions *gl = context->functions();
+        const QOpenGLContext *glContext = QOpenGLContext::currentContext();
+        if (glContext != nullptr) {
+            QOpenGLFunctions *gl = glContext->functions();
 
             // Disable scissor test to ensure full framebuffer is cleared
             gl->glDisable(GL_SCISSOR_TEST);
@@ -50,7 +50,7 @@ OpenGLRendererBackend::OpenGLRendererBackend(const mbgl::gfx::ContextMode mode)
       mbgl::gfx::Renderable({0, 0}, std::make_unique<QtOpenGLRenderableResource>(*this)) {}
 
 OpenGLRendererBackend::~OpenGLRendererBackend() {
-    QOpenGLContext *glContext = QOpenGLContext::currentContext();
+    const QOpenGLContext *glContext = QOpenGLContext::currentContext();
     if (glContext != nullptr) {
         // Don't delete textures we don't own (e.g., from QRhiWidget)
         // We only own textures if we created them ourselves
@@ -82,7 +82,7 @@ void OpenGLRendererBackend::updateAssumedState() {
 
 void OpenGLRendererBackend::restoreFramebufferBinding() {
     // Check if we have a valid context before trying to bind
-    QOpenGLContext *glContext = QOpenGLContext::currentContext();
+    const QOpenGLContext *glContext = QOpenGLContext::currentContext();
     if (glContext == nullptr) {
         // No context, can't bind
         return;
@@ -111,7 +111,7 @@ void OpenGLRendererBackend::updateRenderer(const mbgl::Size &newSize, uint32_t f
     m_fbo = fbo;
 
     // Create or recreate the color texture for the framebuffer
-    QOpenGLContext *glContext = QOpenGLContext::currentContext();
+    const QOpenGLContext *glContext = QOpenGLContext::currentContext();
     if (glContext != nullptr && newSize.width > 0 && newSize.height > 0) {
         QOpenGLFunctions *gl = glContext->functions();
 
@@ -218,8 +218,8 @@ void OpenGLRendererBackend::updateRenderer(const mbgl::Size &newSize, uint32_t f
 }
 
 mbgl::gl::ProcAddress OpenGLRendererBackend::getExtensionFunctionPointer(const char *name) {
-    QOpenGLContext *thisContext = QOpenGLContext::currentContext();
-    return thisContext->getProcAddress(name);
+    const QOpenGLContext *glContext = QOpenGLContext::currentContext();
+    return glContext->getProcAddress(name);
 }
 
 unsigned int OpenGLRendererBackend::getFramebufferTextureId() const {
@@ -231,7 +231,7 @@ unsigned int OpenGLRendererBackend::getFramebufferTextureId() const {
              << "m_colorTexture:" << m_colorTexture;
 
     // Check if texture is still valid
-    QOpenGLContext *glContext = QOpenGLContext::currentContext();
+    const QOpenGLContext *glContext = QOpenGLContext::currentContext();
     if (glContext != nullptr && m_colorTexture != 0) {
         QOpenGLFunctions *gl = glContext->functions();
         GLboolean isTexture = gl->glIsTexture(m_colorTexture);
@@ -247,7 +247,7 @@ unsigned int OpenGLRendererBackend::getFramebufferTextureId() const {
 void OpenGLRendererBackend::setExternalDrawable(unsigned int textureId, const mbgl::Size &textureSize) {
     // Handle reset case (textureId == 0 means reset to default)
     if (textureId == 0) {
-        QOpenGLContext *glContext = QOpenGLContext::currentContext();
+        const QOpenGLContext *glContext = QOpenGLContext::currentContext();
         if (glContext != nullptr && m_fbo != 0) {
             QOpenGLFunctions *gl = glContext->functions();
             gl->glDeleteFramebuffers(1, &m_fbo);
@@ -263,7 +263,7 @@ void OpenGLRendererBackend::setExternalDrawable(unsigned int textureId, const mb
         return;
     }
 
-    QOpenGLContext *glContext = QOpenGLContext::currentContext();
+    const QOpenGLContext *glContext = QOpenGLContext::currentContext();
     if (glContext == nullptr) {
         qWarning() << "OpenGLRendererBackend::setOpenGLRenderTarget() - No OpenGL context";
         return;
