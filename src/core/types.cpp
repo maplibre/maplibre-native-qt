@@ -334,7 +334,7 @@ namespace QMapLibre {
     \struct AnimationOptions
     \brief Animation options helper type.
     \ingroup QMapLibre
-    
+
     \headerfile types.hpp <QMapLibre/Types>
 
     AnimationOptions provides animation options to the renderer for camera transitions.
