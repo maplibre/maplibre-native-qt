@@ -23,6 +23,11 @@ on:
       - ".github/workflows/source-tarball.yml"
       - ".github/workflows/WASM.yml"
       - ".github/workflows/Windows.yml"
+      - "cmake/presets/iOS.json"
+      - "cmake/presets/Linux.json"
+      - "cmake/presets/macOS.json"
+      - "cmake/presets/WASM.json"
+      - "cmake/presets/Windows.json"
 
   pull_request:
     branches:
@@ -43,6 +48,11 @@ on:
       - ".github/workflows/source-tarball.yml"
       - ".github/workflows/WASM.yml"
       - ".github/workflows/Windows.yml"
+      - "cmake/presets/iOS.json"
+      - "cmake/presets/Linux.json"
+      - "cmake/presets/macOS.json"
+      - "cmake/presets/WASM.json"
+      - "cmake/presets/Windows.json"
 
 concurrency:
   # cancel jobs on PRs only
@@ -127,7 +137,7 @@ jobs:
     steps:
       - name: Configure AWS Credentials
         if: vars.OIDC_AWS_ROLE_TO_ASSUME
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           aws-region: us-west-2
           role-to-assume: ${{ vars.OIDC_AWS_ROLE_TO_ASSUME }}

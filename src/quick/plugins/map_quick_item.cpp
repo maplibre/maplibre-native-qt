@@ -287,8 +287,8 @@ QSGNode *MapQuickItem::updateMapNode(QSGNode *node) {
 
 #ifdef MLN_RENDER_BACKEND_OPENGL
         // OpenGL context check
-        QOpenGLContext *currentCtx = QOpenGLContext::currentContext();
-        if (currentCtx == nullptr) {
+        const QOpenGLContext *glContext = QOpenGLContext::currentContext();
+        if (glContext == nullptr) {
             qWarning("QOpenGLContext is NULL!");
             // qWarning() << "You are running on QSG backend " << QSGContext::backend();
             qWarning("The MapLibre plugin works with both Desktop and ES 2.0+ OpenGL versions.");
