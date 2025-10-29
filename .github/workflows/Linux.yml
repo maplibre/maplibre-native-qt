@@ -68,69 +68,72 @@ jobs:
       matrix:
         include:
           - qt_version: 6.9.3
-            qt_modules: qtlocation qtpositioning
             host: linux
             runner: ubuntu-24.04
             preset: Linux-OpenGL-sccache-CI
             renderer: OpenGL
             compiler: default
           - qt_version: 6.9.3
-            qt_modules: qtlocation qtpositioning
             host: linux_arm64
             runner: ubuntu-24.04-arm
             preset: Linux-OpenGL-sccache-CI
             renderer: OpenGL
             compiler: gcc
           - qt_version: 6.9.3
-            qt_modules: qtlocation qtpositioning
             host: linux
             runner: ubuntu-24.04
             preset: Linux-Vulkan-sccache-CI
             renderer: Vulkan
             compiler: default
           - qt_version: 6.9.3
-            qt_modules: qtlocation qtpositioning
             host: linux_arm64
             runner: ubuntu-24.04-arm
             preset: Linux-Vulkan-sccache-CI
             renderer: Vulkan
             compiler: gcc
           - qt_version: 6.10.0
-            qt_modules: qtlocation qtpositioning
             host: linux
             runner: ubuntu-24.04
             preset: Linux-OpenGL-sccache-CI
             renderer: OpenGL
             compiler: default
           - qt_version: 6.10.0
-            qt_modules: qtlocation qtpositioning
             host: linux_arm64
             runner: ubuntu-24.04-arm
             preset: Linux-OpenGL-sccache-CI
             renderer: OpenGL
             compiler: gcc
           - qt_version: 6.10.0
-            qt_modules: qtlocation qtpositioning
             host: linux
             runner: ubuntu-24.04
             preset: Linux-Vulkan-sccache-CI
             renderer: Vulkan
             compiler: default
           - qt_version: 6.10.0
-            qt_modules: qtlocation qtpositioning
             host: linux_arm64
             runner: ubuntu-24.04-arm
             preset: Linux-Vulkan-sccache-CI
             renderer: Vulkan
             compiler: gcc
           - qt_version: 6.10.0
-            qt_modules: qtlocation qtpositioning
             host: linux
             runner: ubuntu-24.04
             preset: Linux-OpenGL-coverage
             renderer: OpenGL
             compiler: gcc-14
             gcov: gcov-14
+          - qt_version: 6.10.0
+            host: linux
+            runner: ubuntu-24.04
+            preset: Linux-OpenGL-clang-tidy
+            renderer: OpenGL
+            compiler: llvm
+          - qt_version: 6.10.0
+            host: linux
+            runner: ubuntu-24.04
+            preset: Linux-Vulkan-clang-tidy
+            renderer: Vulkan
+            compiler: llvm
 
     env:
       PRESET: ${{ matrix.preset }}
@@ -185,13 +188,31 @@ jobs:
 
       - name: Install compiler
         id: install_compiler
-        if: matrix.compiler != 'default'
+        if: matrix.compiler != 'default' && matrix.compiler != 'llvm'
         uses: rlalik/setup-cpp-compiler@master
         with:
           compiler: ${{ matrix.compiler }}
 
+      - name: Install LLVM
+        id: install_llvm
+        if: matrix.compiler == 'llvm'
+        run: |
+          llvm_version="21"
+          tmpdir="$(mktemp -d)"
+          cd "$tmpdir"
+          curl -fsSL https://apt.llvm.org/llvm.sh -o llvm.sh
+          chmod +x llvm.sh
+          # Set DPKG_FORCE to overwrite because the packages may conflict with the
+          # pre-installed ones from the GitHub Actions runner image.
+          sudo env DPKG_FORCE=overwrite ./llvm.sh "$llvm_version" all
+          rm -rf -- "$tmpdir"
+
+          echo "CLANG_TIDY_PATH=/usr/lib/llvm-${llvm_version}/bin" >> "$GITHUB_ENV"
+          echo "cc=clang-${llvm_version}" >> "$GITHUB_OUTPUT"
+          echo "cxx=clang++-${llvm_version}" >> "$GITHUB_OUTPUT"
+
       - name: Install lcov
-        if: matrix.compiler != 'default'
+        if: matrix.compiler != 'default' && matrix.compiler != 'llvm'
         run: |
           sudo apt-get update
           sudo apt-get install \
@@ -222,7 +243,7 @@ jobs:
           dir: ${{ github.workspace }}
           host: ${{ matrix.host }}
           target: desktop
-          modules: ${{ matrix.qt_modules }}
+          modules: qtlocation qtpositioning
 
       - name: Setup ninja
         if: matrix.compiler != 'default'
@@ -245,8 +266,8 @@ jobs:
       - name: Build (Qt6, custom compiler)
         if: matrix.compiler != 'default'
         env:
-          CC: ${{ steps.install_compiler.outputs.cc }}
-          CXX: ${{ steps.install_compiler.outputs.cxx }}
+          CC: ${{ steps.install_compiler.outputs.cc || steps.install_llvm.outputs.cc }}
+          CXX: ${{ steps.install_compiler.outputs.cxx || steps.install_llvm.outputs.cxx }}
           GCOV: ${{ matrix.gcov }}
         working-directory: source
         run: |
@@ -255,7 +276,7 @@ jobs:
           cmake --workflow --preset ${PRESET}
 
       - name: Run tests
-        if: matrix.compiler != 'default' && !(matrix.host == 'linux_arm64' && matrix.renderer == 'Vulkan')
+        if: matrix.compiler != 'default' && !(matrix.host == 'linux_arm64' && matrix.renderer == 'Vulkan') && !(matrix.compiler == 'llvm' && matrix.renderer == 'Vulkan')
         uses: coactions/setup-xvfb@v1
         with:
           run: ctest --output-on-failure

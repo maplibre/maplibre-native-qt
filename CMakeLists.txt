@@ -87,7 +87,10 @@ message(STATUS "Using Qt${QT_VERSION_MAJOR} (${QT_VERSION})")
 
 # clang-tidy
 if(MLN_QT_WITH_CLANG_TIDY)
-    find_program(CLANG_TIDY_COMMAND NAMES clang-tidy)
+    find_program(CLANG_TIDY_COMMAND
+        NAMES clang-tidy
+        HINTS ENV CLANG_TIDY_PATH
+    )
     if(NOT CLANG_TIDY_COMMAND)
         message(FATAL_ERROR "ENABLE_CLANG_TIDY is ON but clang-tidy is not found!")
     else()

@@ -72,7 +72,6 @@ private:
     mbgl::gfx::Texture2D *m_currentDrawable{nullptr};
     QVulkanInstance *m_qtInstance{nullptr};
     std::unique_ptr<QVulkanInstance> m_ownedInstance; // Instance we created and own
-    QWindow *m_window{nullptr};                       // Qt Quick window
 
     // Qt device info
     vk::PhysicalDevice m_qtPhysicalDevice{nullptr};

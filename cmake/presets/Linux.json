@@ -201,6 +201,16 @@
       "name": "Linux-Vulkan-sccache",
       "displayName": "Linux package using Qt6, Vulkan and sccache",
       "configurePreset": "Linux-Vulkan-sccache"
+    },
+    {
+      "name": "Linux-OpenGL-clang-tidy",
+      "displayName": "Linux package using Qt6, OpenGL, sccache and clang-tidy",
+      "configurePreset": "Linux-OpenGL-clang-tidy"
+    },
+    {
+      "name": "Linux-Vulkan-clang-tidy",
+      "displayName": "Linux package using Qt6, Vulkan, sccache and clang-tidy",
+      "configurePreset": "Linux-Vulkan-clang-tidy"
     }
   ],
   "workflowPresets": [
@@ -397,6 +407,10 @@
         {
           "type": "build",
           "name": "Linux-OpenGL-clang-tidy"
+        },
+        {
+          "type": "package",
+          "name": "Linux-OpenGL-clang-tidy"
         }
       ]
     },
@@ -410,6 +424,10 @@
         },
         {
           "type": "build",
+          "name": "Linux-Vulkan-clang-tidy"
+        },
+        {
+          "type": "package",
           "name": "Linux-Vulkan-clang-tidy"
         }
       ]
