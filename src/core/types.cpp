@@ -331,6 +331,25 @@ namespace QMapLibre {
 */
 
 /*!
+    \struct AnimationOptions
+    \brief Animation options helper type.
+    \ingroup QMapLibre
+    
+    \headerfile types.hpp <QMapLibre/Types>
+
+    AnimationOptions provides animation options to the renderer for camera transitions.
+
+    \var AnimationOptions::duration
+    \brief animation duration in milliseconds (\c qint64)
+
+    \var AnimationOptions::velocity
+    \brief animation velocity (\c double)
+
+    \var AnimationOptions::minZoom
+    \brief minimum zoom level during animation (\c double)
+*/
+
+/*!
     \struct CustomLayerRenderParameters
     \ingroup QMapLibre
 
