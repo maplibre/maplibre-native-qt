@@ -2,7 +2,7 @@ import QtQuick 2.15
 import QtLocation 6.5
 import QtPositioning 6.5
 
-import MapLibre.Location 3.0
+import MapLibre.Location 4.0
 
 Item {
     width: 512
