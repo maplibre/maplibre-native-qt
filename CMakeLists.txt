@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.19...3.25)
 # Version
 file(READ "VERSION.txt" MLN_QT_VERSION)
 string(STRIP "${MLN_QT_VERSION}" MLN_QT_VERSION) # get rid of the whitespace
-set(MLN_QT_VERSION_COMPATIBILITY 3.0.0)
+set(MLN_QT_VERSION_COMPATIBILITY 4.0.0)
 message(STATUS "Version ${MLN_QT_VERSION}")
 
 # Project definition

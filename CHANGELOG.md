@@ -1,5 +1,11 @@
 # Changelog
 
+## v4.0.0 (unreleased)
+
+### ✨ New features
+
+- Full renderer backend support for Vulkan, Metal and OpenGL.
+
 ## v3.0.0
 
 ### ✨ New features

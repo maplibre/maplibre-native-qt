@@ -4,7 +4,7 @@
 
 import QtQuick 2.15
 
-import MapLibre 3.0
+import MapLibre 4.0
 
 import QtTest 1.0
 

@@ -5,8 +5,9 @@
 MapLibre Native Qt bindings and Qt Location MapLibre Plugin
 
 **Important notice:** the repository and code have been reorganised for Qt 6.5 support.
-Version 3.0 is a major release that includes a lot of build-related changes
-and improvements and is not backwards compatible.
+Version 4.0 is a major release that includes major rendering backend changes.
+Thus it does not maintain backward compatibility with version 3.x.
+It is still in active development and API may change before the stable release.
 
 ## Qt support
 

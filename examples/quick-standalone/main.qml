@@ -2,7 +2,7 @@
 
 import QtQuick 6.5
 
-import MapLibre 3.0
+import MapLibre 4.0
 
 Window {
     id: window

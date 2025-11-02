@@ -30,7 +30,7 @@ MapLibre.style: Style {
 
 //! [Adding a parameter to a style]
 let layerParam = Qt.createQmlObject(`
-    import MapLibre.Location 3.0
+    import MapLibre.Location 4.0
 
     LayerParameter {
         styleId: "tileLayer"
