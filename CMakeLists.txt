@@ -53,6 +53,20 @@ if(MLN_QT_WITH_LTO)
     endif()
 endif()
 
+# Try to use ECM (extra-cmake-modules) to query directories used by Qt
+find_package(ECM 6.0.0 NO_MODULE)
+if(ECM_FOUND)
+    set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
+    include(KDEInstallDirs)
+    set(MLN_QT_PLUGIN_DIR ${KDE_INSTALL_QTPLUGINDIR})
+    set(MLN_QML_MODULE_DIR ${KDE_INSTALL_QMLDIR})
+else()
+    message(STATUS "Can not query plugin directories used by Qt installation because extra-cmake-modules is not available. Using defaults.")
+    include(GNUInstallDirs)
+    set(MLN_QT_PLUGIN_DIR ${KDE_INSTALL_QTPLUGINDIR} "${CMAKE_INSTALL_LIBDIR}/plugins/")
+    set(MLN_QML_MODULE_DIR ${KDE_INSTALL_QMLDIR} "${CMAKE_INSTALL_LIBDIR}/qml")
+endif()
+
 # Find Qt
 if("${QT_VERSION_MAJOR}" STREQUAL "")
     find_package(QT NAMES Qt6 COMPONENTS Core REQUIRED)
