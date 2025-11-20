@@ -144,7 +144,7 @@ jobs:
           role-session-name: ${{ github.run_id }}
 
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           path: source
           submodules: recursive
