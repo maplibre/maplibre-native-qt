@@ -114,7 +114,7 @@ jobs:
           max-size: 2500MB
 
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           path: source
           submodules: recursive
