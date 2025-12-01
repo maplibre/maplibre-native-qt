@@ -55,6 +55,7 @@ endif()
 
 # Try to use ECM (extra-cmake-modules) to query directories used by Qt
 find_package(ECM 6.0.0 NO_MODULE)
+cmake_policy(SET CMP0177 NEW)
 if(ECM_FOUND)
     set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
     include(KDEInstallDirs)
