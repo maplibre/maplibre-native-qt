@@ -83,18 +83,18 @@ install(
 install(
     TARGETS ${MLN_QT_QML_PLUGIN} ${QmlPluginOutputTargets}
     EXPORT ${MLN_QT_NAME}QuickPluginQmlTargets
-    ARCHIVE DESTINATION "qml/MapLibre"
-    LIBRARY DESTINATION "qml/MapLibre"
-    OBJECTS DESTINATION "qml/MapLibre"
-    RUNTIME DESTINATION "qml/MapLibre"
+    ARCHIVE DESTINATION "${QT6_INSTALL_QML}/MapLibre"
+    LIBRARY DESTINATION "${QT6_INSTALL_QML}/MapLibre"
+    OBJECTS DESTINATION "${QT6_INSTALL_QML}/MapLibre"
+    RUNTIME DESTINATION "${QT6_INSTALL_QML}/MapLibre"
 )
 install(
     FILES
         "${CMAKE_CURRENT_BINARY_DIR}/MapLibre/qmldir"
-    DESTINATION "qml/MapLibre"
+    DESTINATION "${QT6_INSTALL_QML}/MapLibre"
 )
 install(
     FILES
         "${CMAKE_CURRENT_BINARY_DIR}/MapLibre/${MLN_QT_QML_PLUGIN}.qmltypes"
-    DESTINATION "qml/MapLibre"
+    DESTINATION "${QT6_INSTALL_QML}/MapLibre"
 )
