@@ -125,7 +125,7 @@ MapRenderer::~MapRenderer() {
     // If the global shared context is null, we shouldn't attempt cleanup that requires it.
     // The crash happens in mbgl::gl::Context destructor trying to call glUseProgram.
     if (!QOpenGLContext::currentContext()) {
-        // We could try to make the context current if we had a handle to it, 
+        // We could try to make the context current if we had a handle to it,
         // but here we are primarily trying to survive the shutdown sequence.
         // Sadly, we can't easily prevent the member destructors from running.
     }
