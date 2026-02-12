@@ -6,6 +6,10 @@
 
 - Full renderer backend support for Vulkan, Metal and OpenGL.
 
+### 🐞 Bug fixes
+
+- Declare C++ dependencies in the qmldir files for the Maplibre and MapLibre.Location modules (#278)
+
 ## v3.0.0
 
 ### ✨ New features
