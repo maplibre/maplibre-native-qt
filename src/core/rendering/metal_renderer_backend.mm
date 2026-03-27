@@ -55,7 +55,7 @@ public:
 #endif
         size = size_;
         if (layer != nullptr) {
-            layer->setDrawableSize({static_cast<CGFloat>(size.width), static_cast<CGFloat>(size.height)});
+            layer->setDrawableSize({.width=static_cast<CGFloat>(size.width), .height=static_cast<CGFloat>(size.height)});
         }
         buffersInvalid = true;
     }

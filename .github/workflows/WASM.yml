@@ -72,7 +72,10 @@ jobs:
           - qt_version: 6.9.3
             emsdk_version: 3.1.70
             preset: WASM-sccache
-          - qt_version: 6.10.0
+          - qt_version: 6.10.2
+            emsdk_version: 4.0.7
+            preset: WASM-sccache
+          - qt_version: 6.11.0
             emsdk_version: 4.0.7
             preset: WASM-sccache
 
@@ -175,7 +178,7 @@ jobs:
       contents: write
     strategy:
       matrix:
-        qt_version: [6.9.3, 6.10.0]
+        qt_version: [6.9.3, 6.10.2, 6.11.0]
 
     steps:
       - name: Download artifacts
