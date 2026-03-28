@@ -69,72 +69,64 @@ jobs:
     strategy:
       matrix:
         include:
-          - qt_version: 6.9.3
+          - qt_version: 6.10.2
             qt_arch: win64_msvc2022_64
-            qt_modules: qtlocation qtpositioning
             runner: windows-2025
             arch: msvc2022_64
             compiler: x64
             vsversion: 2022
             preset: Windows-OpenGL-sccache
             renderer: OpenGL
-          # - qt_version: 6.9.3
+          # - qt_version: 6.10.2
           #   qt_arch: win64_msvc2022_arm64
-          #   qt_modules: qtlocation qtpositioning
           #   runner: windows-11-arm
           #   arch: msvc2022_arm64
           #   compiler: arm64
           #   vsversion: 2022
           #   preset: Windows-OpenGL-sccache
           #   renderer: OpenGL
-          - qt_version: 6.9.3
+          - qt_version: 6.10.2
             qt_arch: win64_msvc2022_64
-            qt_modules: qtlocation qtpositioning
             runner: windows-2025
             arch: msvc2022_64
             compiler: x64
             vsversion: 2022
             preset: Windows-Vulkan-sccache
             renderer: Vulkan
-          # - qt_version: 6.9.3
+          # - qt_version: 6.10.2
           #   qt_arch: win64_msvc2022_arm64
-          #   qt_modules: qtlocation qtpositioning
           #   runner: windows-11-arm
           #   arch: msvc2022_arm64
           #   compiler: arm64
           #   vsversion: 2022
           #   preset: Windows-Vulkan-sccache
           #   renderer: Vulkan
-          - qt_version: 6.10.0
+          - qt_version: 6.11.0
             qt_arch: win64_msvc2022_64
-            qt_modules: qtlocation qtpositioning
             runner: windows-2025
             arch: msvc2022_64
             compiler: x64
             vsversion: 2022
             preset: Windows-OpenGL-sccache
             renderer: OpenGL
-          # - qt_version: 6.10.0
+          # - qt_version: 6.11.0
           #   qt_arch: win64_msvc2022_arm64
-          #   qt_modules: qtlocation qtpositioning
           #   runner: windows-11-arm
           #   arch: msvc2022_arm64
           #   compiler: arm64
           #   vsversion: 2022
           #   preset: Windows-OpenGL-sccache
           #   renderer: OpenGL
-          - qt_version: 6.10.0
+          - qt_version: 6.11.0
             qt_arch: win64_msvc2022_64
-            qt_modules: qtlocation qtpositioning
             runner: windows-2025
             arch: msvc2022_64
             compiler: x64
             vsversion: 2022
             preset: Windows-Vulkan-sccache
             renderer: Vulkan
-          # - qt_version: 6.10.0
+          # - qt_version: 6.11.0
           #   qt_arch: win64_msvc2022_arm64
-          #   qt_modules: qtlocation qtpositioning
           #   runner: windows-11-arm
           #   arch: msvc2022_arm64
           #   compiler: arm64
@@ -192,10 +184,11 @@ jobs:
         uses: jurplel/install-qt-action@v4
         with:
           aqtversion: ==3.3.*
+          aqtsource: git+https://github.com/miurahr/aqtinstall.git
           version: ${{ matrix.qt_version }}
           target: desktop
           arch: ${{ matrix.qt_arch }}
-          modules: ${{ matrix.qt_modules }}
+          modules: qtlocation qtpositioning
 
       - name: Setup CMake
         uses: jwlawson/actions-setup-cmake@v2
@@ -269,7 +262,7 @@ jobs:
       contents: write
     strategy:
       matrix:
-        qt_version: [6.9.3, 6.10.0]
+        qt_version: [6.10.2, 6.11.0]
         arch: [msvc2022_64, msvc2022_arm64]
         renderer: [OpenGL, Vulkan]
 

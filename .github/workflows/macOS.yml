@@ -69,24 +69,21 @@ jobs:
     strategy:
       matrix:
         include:
-          - qt_version: 6.9.3
-            qt_modules: qtlocation qtpositioning
+          - qt_version: 6.10.2
             preset: macOS-sccache
             compiler: default
             runs_on: macos-15
-          - qt_version: 6.10.0
-            qt_modules: qtlocation qtpositioning
+          - qt_version: 6.11.0
             preset: macOS-sccache
             compiler: default
             runs_on: macos-15
-          - qt_version: 6.10.0
+          - qt_version: 6.11.0
             preset: macOS-sccache
             compiler: static
             runs_on: macos-15
-          - qt_version: 6.10.0
-            qt_modules: qtlocation qtpositioning
+          - qt_version: 6.11.0
             preset: macOS-clang-tidy
-            compiler: llvm
+            compiler: llvm@22
             runs_on: macos-15
 
     env:
@@ -131,7 +128,7 @@ jobs:
           aqtversion: ==3.3.*
           version: ${{ matrix.qt_version }}
           target: desktop
-          modules: ${{ matrix.qt_modules }}
+          modules: qtlocation qtpositioning
 
       - name: Download Static Qt
         if: matrix.compiler == 'static'
@@ -159,7 +156,7 @@ jobs:
           {
             echo "CC=/opt/homebrew/opt/${COMPILER}/bin/clang"
             echo "CXX=/opt/homebrew/opt/${COMPILER}/bin/clang++"
-            echo "LDFLAGS=-L/opt/homebrew/opt/${COMPILER}/lib -L/opt/homebrew/opt/llvm/lib/c++ -L/opt/homebrew/opt/llvm/lib/unwind -lunwind"
+            echo "LDFLAGS=-L/opt/homebrew/opt/${COMPILER}/lib -L/opt/homebrew/opt/${COMPILER}/lib/c++ -L/opt/homebrew/opt/${COMPILER}/lib/unwind -lunwind"
             echo "CPPFLAGS=-I/opt/homebrew/opt/${COMPILER}/include"
           } >> "$GITHUB_ENV"
 
@@ -230,13 +227,13 @@ jobs:
     strategy:
       matrix:
         include:
-          - qt_version: 6.9.3
+          - qt_version: 6.10.2
             compiler: default
             suffix: Metal
-          - qt_version: 6.10.0
+          - qt_version: 6.11.0
             compiler: default
             suffix: Metal
-          - qt_version: 6.10.0
+          - qt_version: 6.11.0
             compiler: static
             suffix: Metal_static
 

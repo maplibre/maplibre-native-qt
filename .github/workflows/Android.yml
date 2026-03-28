@@ -69,67 +69,67 @@ jobs:
     strategy:
       matrix:
         include:
-          - qt_version: 6.9.3
+          - qt_version: 6.10.2
             abi: x86
             arch: android_x86
             renderer: OpenGL
-          - qt_version: 6.9.3
+          - qt_version: 6.10.2
             abi: x86_64
             arch: android_x86_64
             renderer: OpenGL
-          - qt_version: 6.9.3
+          - qt_version: 6.10.2
             abi: armeabi-v7a
             arch: android_armv7
             renderer: OpenGL
-          - qt_version: 6.9.3
+          - qt_version: 6.10.2
             abi: arm64-v8a
             arch: android_arm64_v8a
             renderer: OpenGL
-          - qt_version: 6.9.3
+          - qt_version: 6.10.2
             abi: x86
             arch: android_x86
             renderer: Vulkan
-          - qt_version: 6.9.3
+          - qt_version: 6.10.2
             abi: x86_64
             arch: android_x86_64
             renderer: Vulkan
-          - qt_version: 6.9.3
+          - qt_version: 6.10.2
             abi: armeabi-v7a
             arch: android_armv7
             renderer: Vulkan
-          - qt_version: 6.9.3
+          - qt_version: 6.10.2
             abi: arm64-v8a
             arch: android_arm64_v8a
             renderer: Vulkan
-          - qt_version: 6.10.0
+          - qt_version: 6.11.0
             abi: x86
             arch: android_x86
             renderer: OpenGL
-          - qt_version: 6.10.0
+          - qt_version: 6.11.0
             abi: x86_64
             arch: android_x86_64
             renderer: OpenGL
-          - qt_version: 6.10.0
+          - qt_version: 6.11.0
             abi: armeabi-v7a
             arch: android_armv7
             renderer: OpenGL
-          - qt_version: 6.10.0
+          - qt_version: 6.11.0
             abi: arm64-v8a
             arch: android_arm64_v8a
             renderer: OpenGL
-          - qt_version: 6.10.0
+          - qt_version: 6.11.0
             abi: x86
             arch: android_x86
             renderer: Vulkan
-          - qt_version: 6.10.0
+          - qt_version: 6.11.0
             abi: x86_64
             arch: android_x86_64
             renderer: Vulkan
-          - qt_version: 6.10.0
+          - qt_version: 6.11.0
             abi: armeabi-v7a
             arch: android_armv7
             renderer: Vulkan
-          - qt_version: 6.10.0
+          - qt_version: 6.11.0
             abi: arm64-v8a
             arch: android_arm64_v8a
             renderer: Vulkan
@@ -177,7 +177,7 @@ jobs:
           modules: qtlocation qtpositioning
 
       - name: Fix Qt release
-        if: ${{ matrix.abi }} == 'armeabi-v7a'
+        if: ${{ matrix.abi == 'armeabi-v7a' }}
         run: |
           chmod +x "$QT_ROOT_DIR/bin/qt-cmake"
           sed -i "s/C:\/Qt\/Qt-${QT_VERSION}/\/usr\/local\/Qt-${QT_VERSION}/g" "$QT_ROOT_DIR/lib/cmake/Qt6BuildInternals/QtBuildInternalsExtra.cmake"
@@ -220,7 +220,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        qt_version: [6.9.3, 6.10.0]
+        qt_version: [6.10.2, 6.11.0]
         renderer: [OpenGL, Vulkan]
 
     steps:
@@ -296,7 +296,7 @@ jobs:
       contents: write
     strategy:
       matrix:
-        qt_version: [6.9.3, 6.10.0]
+        qt_version: [6.10.2, 6.11.0]
         renderer: [OpenGL, Vulkan]
 
     steps:

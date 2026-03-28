@@ -59,8 +59,8 @@ jobs:
       - name: Download Qt
         uses: jurplel/install-qt-action@v4
         with:
-          aqtversion: ==3.1.*
-          version: 6.8.1
+          aqtversion: ==3.3.*
+          version: 6.11.0
           dir: ${{ github.workspace }}
           target: desktop
           modules: qtlocation qtpositioning
