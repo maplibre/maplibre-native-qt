@@ -323,7 +323,7 @@ jobs:
 
       - name: Upload coverage reports to Codecov
         if: matrix.compiler != 'default' && matrix.preset == 'Linux-OpenGL-coverage'
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           files: build/qt6-Linux-${{ matrix.renderer }}/coverage.info
           verbose: true
