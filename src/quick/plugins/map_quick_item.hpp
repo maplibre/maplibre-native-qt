@@ -40,6 +40,8 @@ public:
 
     Q_INVOKABLE void pan(const QPointF &offset);
     Q_INVOKABLE void scale(double scale, const QPointF &center);
+    Q_INVOKABLE void easeTo(const QVariantMap &camera, const QVariantMap &animation = QVariantMap());
+    Q_INVOKABLE void flyTo(const QVariantMap &camera, const QVariantMap &animation = QVariantMap());
 
     enum SyncState : int {
         NoSync = 0,
