@@ -158,13 +158,13 @@ jobs:
         run: sccache --show-stats
 
       - name: Upload installation
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: WASM_${{ matrix.qt_version }}
           path: build/qt6-WASM/maplibre-native-qt_*.tar.bz2
 
       - name: Upload examples
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: WASM_${{ matrix.qt_version }}_examples
           path: build/qt6-example-*/*.tar.bz2
@@ -182,7 +182,7 @@ jobs:
 
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: WASM_${{ matrix.qt_version }}
 
