@@ -72,7 +72,10 @@ jobs:
           - qt_version: 6.9.3
             emsdk_version: 3.1.70
             preset: WASM-sccache
-          - qt_version: 6.10.0
+          - qt_version: 6.10.2
+            emsdk_version: 4.0.7
+            preset: WASM-sccache
+          - qt_version: 6.11.0
             emsdk_version: 4.0.7
             preset: WASM-sccache
 
@@ -82,14 +85,14 @@ jobs:
     steps:
       - name: Configure AWS Credentials
         if: vars.OIDC_AWS_ROLE_TO_ASSUME
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-region: us-west-2
           role-to-assume: ${{ vars.OIDC_AWS_ROLE_TO_ASSUME }}
           role-session-name: ${{ github.run_id }}
 
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           path: source
           submodules: recursive
@@ -155,13 +158,13 @@ jobs:
         run: sccache --show-stats
 
       - name: Upload installation
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: WASM_${{ matrix.qt_version }}
           path: build/qt6-WASM/maplibre-native-qt_*.tar.bz2
 
       - name: Upload examples
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: WASM_${{ matrix.qt_version }}_examples
           path: build/qt6-example-*/*.tar.bz2
@@ -175,11 +178,11 @@ jobs:
       contents: write
     strategy:
       matrix:
-        qt_version: [6.9.3, 6.10.0]
+        qt_version: [6.9.3, 6.10.2, 6.11.0]
 
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: WASM_${{ matrix.qt_version }}
 
