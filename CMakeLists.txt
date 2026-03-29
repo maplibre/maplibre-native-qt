@@ -85,6 +85,14 @@ endif()
 
 message(STATUS "Using Qt${QT_VERSION_MAJOR} (${QT_VERSION})")
 
+# Use Qt6 install paths if available, otherwise fall back to defaults
+if(NOT DEFINED QT6_INSTALL_QML)
+    set(QT6_INSTALL_QML "qml")
+endif()
+if(NOT DEFINED QT6_INSTALL_PLUGINS)
+    set(QT6_INSTALL_PLUGINS "plugins")
+endif()
+
 # clang-tidy
 if(MLN_QT_WITH_CLANG_TIDY)
     find_program(CLANG_TIDY_COMMAND
