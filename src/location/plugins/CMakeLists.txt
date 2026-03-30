@@ -70,10 +70,10 @@ install(
 install(
     TARGETS ${MLN_QT_GEOSERVICES_PLUGIN} ${GeoServicesPluginOutputTargets}
     EXPORT ${MLN_QT_NAME}LocationPluginGeoServicesTargets
-    ARCHIVE DESTINATION "plugins/geoservices"
-    LIBRARY DESTINATION "plugins/geoservices"
-    OBJECTS DESTINATION "plugins/geoservices"
-    RUNTIME DESTINATION "plugins/geoservices"
+    ARCHIVE DESTINATION "${MLN_QT_PLUGIN_DIR}/geoservices"
+    LIBRARY DESTINATION "${MLN_QT_PLUGIN_DIR}/geoservices"
+    OBJECTS DESTINATION "${MLN_QT_PLUGIN_DIR}/geoservices"
+    RUNTIME DESTINATION "${MLN_QT_PLUGIN_DIR}/geoservices"
 )
 
 # QtLocation QML extension plugin
@@ -165,18 +165,18 @@ install(
 install(
     TARGETS ${MLN_QT_QML_PLUGIN_LOCATION} ${QmlLocationPluginOutputTargets}
     EXPORT ${MLN_QT_NAME}LocationPluginQmlTargets
-    ARCHIVE DESTINATION "qml/MapLibre/Location"
-    LIBRARY DESTINATION "qml/MapLibre/Location"
-    OBJECTS DESTINATION "qml/MapLibre/Location"
-    RUNTIME DESTINATION "qml/MapLibre/Location"
+    ARCHIVE DESTINATION "${MLN_QML_MODULE_DIR}/MapLibre/Location"
+    LIBRARY DESTINATION "${MLN_QML_MODULE_DIR}/MapLibre/Location"
+    OBJECTS DESTINATION "${MLN_QML_MODULE_DIR}/MapLibre/Location"
+    RUNTIME DESTINATION "${MLN_QML_MODULE_DIR}/MapLibre/Location"
 )
 install(
     FILES
         "${CMAKE_CURRENT_BINARY_DIR}/MapLibre/Location/qmldir"
-    DESTINATION "qml/MapLibre/Location"
+    DESTINATION "${MLN_QML_MODULE_DIR}/MapLibre/Location"
 )
 install(
     FILES
         "${CMAKE_CURRENT_BINARY_DIR}/MapLibre/Location/${MLN_QT_QML_PLUGIN_LOCATION}.qmltypes"
-    DESTINATION "qml/MapLibre/Location"
+    DESTINATION "${MLN_QML_MODULE_DIR}/MapLibre/Location"
 )
