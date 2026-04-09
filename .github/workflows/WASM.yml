@@ -115,7 +115,7 @@ jobs:
           fi
 
       - name: Setup emsdk
-        uses: mymindstorm/setup-emsdk@v14
+        uses: mymindstorm/setup-emsdk@v16
         with:
           version: ${{ matrix.emsdk_version }}
 
