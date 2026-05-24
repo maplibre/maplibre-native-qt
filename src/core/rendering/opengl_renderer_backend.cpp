@@ -77,7 +77,14 @@ void OpenGLRendererBackend::deactivate() {
 
 void OpenGLRendererBackend::updateAssumedState() {
     assumeFramebufferBinding(ImplicitFramebufferBinding);
-    assumeViewport(1, 1, size); // Use 1,1 to avoid zero-size viewport issues
+    if (const QOpenGLContext *glContext = QOpenGLContext::currentContext()) {
+        QOpenGLFunctions *gl = glContext->functions();
+        GLint viewport[4];
+        gl->glGetIntegerv(GL_VIEWPORT, viewport);
+        assumeViewport(viewport[0], viewport[1], { static_cast<uint32_t>(viewport[2]), static_cast<uint32_t>(viewport[3]) });
+    } else {
+        assumeViewport(0, 0, size);
+    }
 }
 
 void OpenGLRendererBackend::restoreFramebufferBinding() {

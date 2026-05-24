@@ -43,6 +43,20 @@ MapQuickItem::MapQuickItem(QQuickItem *parent)
     m_settings.setCacheDatabasePath(QStringLiteral(":memory:"));
 }
 
+MapQuickItem::~MapQuickItem() {
+#if defined(Q_OS_ANDROID) && defined(MLN_RENDER_BACKEND_OPENGL)
+    if (m_map && QOpenGLContext::currentContext() == nullptr) {
+        // MapLibre Native may touch QOpenGLContext while tearing down the map.
+        // On Android shutdown the Qt scene graph can already have released it;
+        // leaking the final shared_ptr is preferable to a native SIGSEGV.
+        auto *leakedMap = new std::shared_ptr<Map>(std::move(m_map));
+        Q_UNUSED(leakedMap);
+        return;
+    }
+#endif
+    m_map.reset();
+}
+
 void MapQuickItem::initialize() {
     if (m_map != nullptr) {
         return;
@@ -70,6 +84,10 @@ void MapQuickItem::setStyle(const QString &style) {
         return;
     }
     m_style = style;
+    if (m_map != nullptr) {
+        m_map->setStyleUrl(m_style);
+        update();
+    }
 }
 
 void MapQuickItem::setZoomLevel(double zoomLevel) {
@@ -115,6 +133,15 @@ void MapQuickItem::setCoordinateFromPixel(const QPointF &pixel) {
 
     const Coordinate coordinate = m_map->coordinateForPixel(pixel);
     setCoordinate({coordinate.first, coordinate.second});
+}
+
+QVariantList MapQuickItem::coordinateForPixel(const QPointF &pixel) const {
+    if (m_map == nullptr) {
+        return {};
+    }
+
+    const Coordinate coordinate = m_map->coordinateForPixel(pixel);
+    return {coordinate.first, coordinate.second};
 }
 
 void MapQuickItem::pan(const QPointF &offset) {

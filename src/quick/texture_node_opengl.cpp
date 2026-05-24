@@ -74,9 +74,8 @@ void TextureNodeOpenGL::render(QQuickWindow *window) {
 
     // QQuickWindow modifies the OpenGL state (including the viewport) during its rendering phase.
     // MapLibre caches the OpenGL state and assumes it hasn't changed behind its back.
-    // We must reset the actual OpenGL viewport to what MapLibre expects to avoid assertion failures.
-    gl->glViewport(0, 0, m_size.width() * m_pixelRatio, m_size.height() * m_pixelRatio);
-
+    // We synchronize the cache in updateAssumedState, and MapLibre's render() will set the proper viewport.
+    
     m_map->render();
 
     // Ensure we flush the OpenGL commands
