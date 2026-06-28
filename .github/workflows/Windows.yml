@@ -147,7 +147,7 @@ jobs:
           role-session-name: ${{ github.run_id }}
 
       - name: Install sccache
-        uses: MinoruSekine/setup-scoop@v4
+        uses: MinoruSekine/setup-scoop@v5
         with:
           buckets: extras
           apps: sccache
