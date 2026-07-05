@@ -714,6 +714,86 @@ void Map::jumpTo(const CameraOptions &camera) {
 }
 
 /*!
+    \brief Animate to the camera options with easing.
+    \param camera The camera options.
+    \param animation The animation options.
+*/
+void Map::easeTo(const CameraOptions &camera, const AnimationOptions &animation) {
+    mbgl::CameraOptions mbglCamera;
+    if (camera.center.isValid()) {
+        const auto center = camera.center.value<Coordinate>();
+        mbglCamera.center = mbgl::LatLng{center.first, center.second};
+    }
+    if (camera.anchor.isValid()) {
+        const auto anchor = camera.anchor.value<QPointF>();
+        mbglCamera.anchor = mbgl::ScreenCoordinate{anchor.x(), anchor.y()};
+    }
+    if (camera.zoom.isValid()) {
+        mbglCamera.zoom = camera.zoom.value<double>();
+    }
+    if (camera.bearing.isValid()) {
+        mbglCamera.bearing = camera.bearing.value<double>();
+    }
+    if (camera.pitch.isValid()) {
+        mbglCamera.pitch = camera.pitch.value<double>();
+    }
+    mbglCamera.padding = d_ptr->margins;
+
+    mbgl::AnimationOptions mbglAnimation;
+    if (animation.duration.isValid()) {
+        mbglAnimation.duration = std::chrono::milliseconds(animation.duration.value<qint64>());
+    }
+    if (animation.velocity.isValid()) {
+        mbglAnimation.velocity = animation.velocity.value<double>();
+    }
+    if (animation.minZoom.isValid()) {
+        mbglAnimation.minZoom = animation.minZoom.value<double>();
+    }
+
+    d_ptr->mapObj->easeTo(mbglCamera, mbglAnimation);
+}
+
+/*!
+    \brief Animate to the camera options with a flight path.
+    \param camera The camera options.
+    \param animation The animation options.
+*/
+void Map::flyTo(const CameraOptions &camera, const AnimationOptions &animation) {
+    mbgl::CameraOptions mbglCamera;
+    if (camera.center.isValid()) {
+        const auto center = camera.center.value<Coordinate>();
+        mbglCamera.center = mbgl::LatLng{center.first, center.second};
+    }
+    if (camera.anchor.isValid()) {
+        const auto anchor = camera.anchor.value<QPointF>();
+        mbglCamera.anchor = mbgl::ScreenCoordinate{anchor.x(), anchor.y()};
+    }
+    if (camera.zoom.isValid()) {
+        mbglCamera.zoom = camera.zoom.value<double>();
+    }
+    if (camera.bearing.isValid()) {
+        mbglCamera.bearing = camera.bearing.value<double>();
+    }
+    if (camera.pitch.isValid()) {
+        mbglCamera.pitch = camera.pitch.value<double>();
+    }
+    mbglCamera.padding = d_ptr->margins;
+
+    mbgl::AnimationOptions mbglAnimation;
+    if (animation.duration.isValid()) {
+        mbglAnimation.duration = std::chrono::milliseconds(animation.duration.value<qint64>());
+    }
+    if (animation.velocity.isValid()) {
+        mbglAnimation.velocity = animation.velocity.value<double>();
+    }
+    if (animation.minZoom.isValid()) {
+        mbglAnimation.minZoom = animation.minZoom.value<double>();
+    }
+
+    d_ptr->mapObj->flyTo(mbglCamera, mbglAnimation);
+}
+
+/*!
     \property Map::bearing
     \brief the map bearing in degrees.
     \sa bearing()

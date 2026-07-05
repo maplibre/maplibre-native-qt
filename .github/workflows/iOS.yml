@@ -66,9 +66,9 @@ jobs:
     strategy:
       matrix:
         include:
-          - qt_version: 6.9.3
+          - qt_version: 6.10.2
             preset: iOS-ccache
-          - qt_version: 6.10.0
+          - qt_version: 6.11.0
             preset: iOS-ccache
 
     env:
@@ -114,7 +114,7 @@ jobs:
           max-size: 2500MB
 
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           path: source
           submodules: recursive
@@ -127,7 +127,7 @@ jobs:
           cmake --workflow --preset ${PRESET}
 
       - name: Upload installation
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: iOS_${{ matrix.qt_version }}
           path: build/qt6-iOS/maplibre-native-qt_*_iOS_Metal.tar.bz2
@@ -141,11 +141,11 @@ jobs:
       contents: write
     strategy:
       matrix:
-        qt_version: [6.9.3, 6.10.0]
+        qt_version: [6.10.2, 6.11.0]
 
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: iOS_${{ matrix.qt_version }}
 

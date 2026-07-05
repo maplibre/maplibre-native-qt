@@ -50,7 +50,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           path: source
           submodules: recursive
@@ -59,8 +59,8 @@ jobs:
       - name: Download Qt
         uses: jurplel/install-qt-action@v4
         with:
-          aqtversion: ==3.1.*
-          version: 6.8.1
+          aqtversion: ==3.3.*
+          version: 6.11.0
           dir: ${{ github.workspace }}
           target: desktop
           modules: qtlocation qtpositioning
@@ -77,7 +77,7 @@ jobs:
           cmake --build . --target package_source
 
       - name: Upload tarball
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: Source
           path: build/maplibre-native-qt_*.tar.bz2
@@ -92,7 +92,7 @@ jobs:
 
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: Source
 

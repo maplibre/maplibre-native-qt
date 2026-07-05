@@ -4,3 +4,4 @@ plugin @MLN_QT_QML_PLUGIN@
 classname MapLibreQmlModule
 typeinfo @MLN_QT_QML_PLUGIN@.qmltypes
 prefer :/MapLibre/
+depends QtQuick

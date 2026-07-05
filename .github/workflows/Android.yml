@@ -69,67 +69,67 @@ jobs:
     strategy:
       matrix:
         include:
-          - qt_version: 6.9.3
+          - qt_version: 6.10.2
             abi: x86
             arch: android_x86
             renderer: OpenGL
-          - qt_version: 6.9.3
+          - qt_version: 6.10.2
             abi: x86_64
             arch: android_x86_64
             renderer: OpenGL
-          - qt_version: 6.9.3
+          - qt_version: 6.10.2
             abi: armeabi-v7a
             arch: android_armv7
             renderer: OpenGL
-          - qt_version: 6.9.3
+          - qt_version: 6.10.2
             abi: arm64-v8a
             arch: android_arm64_v8a
             renderer: OpenGL
-          - qt_version: 6.9.3
+          - qt_version: 6.10.2
             abi: x86
             arch: android_x86
             renderer: Vulkan
-          - qt_version: 6.9.3
+          - qt_version: 6.10.2
             abi: x86_64
             arch: android_x86_64
             renderer: Vulkan
-          - qt_version: 6.9.3
+          - qt_version: 6.10.2
             abi: armeabi-v7a
             arch: android_armv7
             renderer: Vulkan
-          - qt_version: 6.9.3
+          - qt_version: 6.10.2
             abi: arm64-v8a
             arch: android_arm64_v8a
             renderer: Vulkan
-          - qt_version: 6.10.0
+          - qt_version: 6.11.0
             abi: x86
             arch: android_x86
             renderer: OpenGL
-          - qt_version: 6.10.0
+          - qt_version: 6.11.0
             abi: x86_64
             arch: android_x86_64
             renderer: OpenGL
-          - qt_version: 6.10.0
+          - qt_version: 6.11.0
             abi: armeabi-v7a
             arch: android_armv7
             renderer: OpenGL
-          - qt_version: 6.10.0
+          - qt_version: 6.11.0
             abi: arm64-v8a
             arch: android_arm64_v8a
             renderer: OpenGL
-          - qt_version: 6.10.0
+          - qt_version: 6.11.0
             abi: x86
             arch: android_x86
             renderer: Vulkan
-          - qt_version: 6.10.0
+          - qt_version: 6.11.0
             abi: x86_64
             arch: android_x86_64
             renderer: Vulkan
-          - qt_version: 6.10.0
+          - qt_version: 6.11.0
             abi: armeabi-v7a
             arch: android_armv7
             renderer: Vulkan
-          - qt_version: 6.10.0
+          - qt_version: 6.11.0
             abi: arm64-v8a
             arch: android_arm64_v8a
             renderer: Vulkan
@@ -137,14 +137,14 @@ jobs:
     steps:
       - name: Configure AWS Credentials
         if: vars.OIDC_AWS_ROLE_TO_ASSUME
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-region: us-west-2
           role-to-assume: ${{ vars.OIDC_AWS_ROLE_TO_ASSUME }}
           role-session-name: ${{ github.run_id }}
 
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           path: source
           submodules: recursive
@@ -177,7 +177,7 @@ jobs:
           modules: qtlocation qtpositioning
 
       - name: Fix Qt release
-        if: ${{ matrix.abi }} == 'armeabi-v7a'
+        if: ${{ matrix.abi == 'armeabi-v7a' }}
         run: |
           chmod +x "$QT_ROOT_DIR/bin/qt-cmake"
           sed -i "s/C:\/Qt\/Qt-${QT_VERSION}/\/usr\/local\/Qt-${QT_VERSION}/g" "$QT_ROOT_DIR/lib/cmake/Qt6BuildInternals/QtBuildInternalsExtra.cmake"
@@ -209,7 +209,7 @@ jobs:
         run: sccache --show-stats
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: Android_${{ matrix.qt_version }}_${{ matrix.renderer }}_${{ matrix.abi }}
           path: build/qt6-Android-${{ matrix.renderer }}/maplibre-native-qt_*_Android_${{ matrix.renderer }}.tar.bz2
@@ -220,30 +220,30 @@ jobs:
     needs: build
     strategy:
       matrix:
-        qt_version: [6.9.3, 6.10.0]
+        qt_version: [6.10.2, 6.11.0]
         renderer: [OpenGL, Vulkan]
 
     steps:
       - name: Download artifacts for x86
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: Android_${{ matrix.qt_version}}_${{ matrix.renderer }}_x86
           path: install/x86
 
       - name: Download artifacts for x86_64
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: Android_${{ matrix.qt_version}}_${{ matrix.renderer }}_x86_64
           path: install/x86_64
 
       - name: Download artifacts for armeabi-v7a
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: Android_${{ matrix.qt_version}}_${{ matrix.renderer }}_armeabi-v7a
           path: install/armeabi-v7a
 
       - name: Download artifacts for arm64-v8a
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: Android_${{ matrix.qt_version}}_${{ matrix.renderer }}_arm64-v8a
           path: install/arm64-v8a
@@ -282,7 +282,7 @@ jobs:
           popd
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: Android_${{ matrix.qt_version }}_${{ matrix.renderer }}
           path: maplibre-native-qt_Android_${{ matrix.renderer }}.tar.bz2
@@ -296,12 +296,12 @@ jobs:
       contents: write
     strategy:
       matrix:
-        qt_version: [6.9.3, 6.10.0]
+        qt_version: [6.10.2, 6.11.0]
         renderer: [OpenGL, Vulkan]
 
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: Android_${{ matrix.qt_version }}_${{ matrix.renderer }}
 

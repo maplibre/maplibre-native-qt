@@ -4,3 +4,5 @@ plugin @MLN_QT_QML_PLUGIN_LOCATION@
 classname MapLibreQmlLocationModule
 typeinfo @MLN_QT_QML_PLUGIN_LOCATION@.qmltypes
 prefer :/MapLibre/Location/
+depends QtQuick
+depends QtLocation
