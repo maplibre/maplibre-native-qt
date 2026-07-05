@@ -74,7 +74,6 @@ jobs:
             runner: windows-2025
             arch: msvc2022_64
             compiler: x64
-            vsversion: 2022
             preset: Windows-OpenGL-sccache
             renderer: OpenGL
           # - qt_version: 6.10.2
@@ -82,7 +81,6 @@ jobs:
           #   runner: windows-11-arm
           #   arch: msvc2022_arm64
           #   compiler: arm64
-          #   vsversion: 2022
           #   preset: Windows-OpenGL-sccache
           #   renderer: OpenGL
           - qt_version: 6.10.2
@@ -90,7 +88,6 @@ jobs:
             runner: windows-2025
             arch: msvc2022_64
             compiler: x64
-            vsversion: 2022
             preset: Windows-Vulkan-sccache
             renderer: Vulkan
           # - qt_version: 6.10.2
@@ -98,7 +95,6 @@ jobs:
           #   runner: windows-11-arm
           #   arch: msvc2022_arm64
           #   compiler: arm64
-          #   vsversion: 2022
           #   preset: Windows-Vulkan-sccache
           #   renderer: Vulkan
           - qt_version: 6.11.1
@@ -106,7 +102,6 @@ jobs:
             runner: windows-2025
             arch: msvc2022_64
             compiler: x64
-            vsversion: 2022
             preset: Windows-OpenGL-sccache
             renderer: OpenGL
           # - qt_version: 6.11.1
@@ -114,7 +109,6 @@ jobs:
           #   runner: windows-11-arm
           #   arch: msvc2022_arm64
           #   compiler: arm64
-          #   vsversion: 2022
           #   preset: Windows-OpenGL-sccache
           #   renderer: OpenGL
           - qt_version: 6.11.1
@@ -122,7 +116,6 @@ jobs:
             runner: windows-2025
             arch: msvc2022_64
             compiler: x64
-            vsversion: 2022
             preset: Windows-Vulkan-sccache
             renderer: Vulkan
           # - qt_version: 6.11.1
@@ -130,7 +123,6 @@ jobs:
           #   runner: windows-11-arm
           #   arch: msvc2022_arm64
           #   compiler: arm64
-          #   vsversion: 2022
           #   preset: Windows-Vulkan-sccache
           #   renderer: Vulkan
 
@@ -197,10 +189,10 @@ jobs:
         uses: seanmiddleditch/gha-setup-ninja@v6
 
       - name: Setup MSVC
-        uses: ilammy/msvc-dev-cmd@v1
+        uses: TheMrMilchmann/setup-msvc-dev@v4
         with:
           arch: ${{ matrix.compiler }}
-          vsversion: ${{ matrix.vsversion }}
+          toolset: 14.44
 
       - name: Build
         shell: bash
