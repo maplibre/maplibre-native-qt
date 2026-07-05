@@ -91,44 +91,44 @@ jobs:
             preset: Linux-Vulkan-sccache-CI
             renderer: Vulkan
             compiler: gcc
-          - qt_version: 6.11.0
+          - qt_version: 6.11.1
             host: linux
             runner: ubuntu-24.04
             preset: Linux-OpenGL-sccache-CI
             renderer: OpenGL
             compiler: default
-          - qt_version: 6.11.0
+          - qt_version: 6.11.1
             host: linux_arm64
             runner: ubuntu-24.04-arm
             preset: Linux-OpenGL-sccache-CI
             renderer: OpenGL
             compiler: gcc
-          - qt_version: 6.11.0
+          - qt_version: 6.11.1
             host: linux
             runner: ubuntu-24.04
             preset: Linux-Vulkan-sccache-CI
             renderer: Vulkan
             compiler: default
-          - qt_version: 6.11.0
+          - qt_version: 6.11.1
             host: linux_arm64
             runner: ubuntu-24.04-arm
             preset: Linux-Vulkan-sccache-CI
             renderer: Vulkan
             compiler: gcc
-          - qt_version: 6.11.0
+          - qt_version: 6.11.1
             host: linux
             runner: ubuntu-24.04
             preset: Linux-OpenGL-coverage
             renderer: OpenGL
             compiler: gcc-14
             gcov: gcov-14
-          - qt_version: 6.11.0
+          - qt_version: 6.11.1
             host: linux
             runner: ubuntu-24.04
             preset: Linux-OpenGL-clang-tidy
             renderer: OpenGL
             compiler: llvm
-          - qt_version: 6.11.0
+          - qt_version: 6.11.1
             host: linux
             runner: ubuntu-24.04
             preset: Linux-Vulkan-clang-tidy
@@ -148,7 +148,7 @@ jobs:
           role-session-name: ${{ github.run_id }}
 
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           path: source
           submodules: recursive
@@ -323,7 +323,7 @@ jobs:
 
       - name: Upload coverage reports to Codecov
         if: matrix.compiler != 'default' && matrix.preset == 'Linux-OpenGL-coverage'
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@v7
         with:
           files: build/qt6-Linux-${{ matrix.renderer }}/coverage.info
           verbose: true
@@ -337,7 +337,7 @@ jobs:
       contents: write
     strategy:
       matrix:
-        qt_version: [6.10.2, 6.11.0]
+        qt_version: [6.10.2, 6.11.1]
         renderer: [OpenGL, Vulkan]
         host: [linux, linux_arm64]
 

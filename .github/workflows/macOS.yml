@@ -73,15 +73,15 @@ jobs:
             preset: macOS-sccache
             compiler: default
             runs_on: macos-15
-          - qt_version: 6.11.0
+          - qt_version: 6.11.1
             preset: macOS-sccache
             compiler: default
             runs_on: macos-15
-          - qt_version: 6.11.0
+          - qt_version: 6.11.1
             preset: macOS-sccache
             compiler: static
             runs_on: macos-15
-          - qt_version: 6.11.0
+          - qt_version: 6.11.1
             preset: macOS-clang-tidy
             compiler: llvm@22
             runs_on: macos-15
@@ -161,7 +161,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           path: source
           submodules: recursive
@@ -230,10 +230,10 @@ jobs:
           - qt_version: 6.10.2
             compiler: default
             suffix: Metal
-          - qt_version: 6.11.0
+          - qt_version: 6.11.1
             compiler: default
             suffix: Metal
-          - qt_version: 6.11.0
+          - qt_version: 6.11.1
             compiler: static
             suffix: Metal_static
 
