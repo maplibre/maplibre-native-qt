@@ -101,7 +101,7 @@ jobs:
           #   vsversion: 2022
           #   preset: Windows-Vulkan-sccache
           #   renderer: Vulkan
-          - qt_version: 6.11.0
+          - qt_version: 6.11.1
             qt_arch: win64_msvc2022_64
             runner: windows-2025
             arch: msvc2022_64
@@ -109,7 +109,7 @@ jobs:
             vsversion: 2022
             preset: Windows-OpenGL-sccache
             renderer: OpenGL
-          # - qt_version: 6.11.0
+          # - qt_version: 6.11.1
           #   qt_arch: win64_msvc2022_arm64
           #   runner: windows-11-arm
           #   arch: msvc2022_arm64
@@ -117,7 +117,7 @@ jobs:
           #   vsversion: 2022
           #   preset: Windows-OpenGL-sccache
           #   renderer: OpenGL
-          - qt_version: 6.11.0
+          - qt_version: 6.11.1
             qt_arch: win64_msvc2022_64
             runner: windows-2025
             arch: msvc2022_64
@@ -125,7 +125,7 @@ jobs:
             vsversion: 2022
             preset: Windows-Vulkan-sccache
             renderer: Vulkan
-          # - qt_version: 6.11.0
+          # - qt_version: 6.11.1
           #   qt_arch: win64_msvc2022_arm64
           #   runner: windows-11-arm
           #   arch: msvc2022_arm64
@@ -147,7 +147,7 @@ jobs:
           role-session-name: ${{ github.run_id }}
 
       - name: Install sccache
-        uses: MinoruSekine/setup-scoop@v4
+        uses: MinoruSekine/setup-scoop@v5
         with:
           buckets: extras
           apps: sccache
@@ -166,19 +166,17 @@ jobs:
             echo "SCCACHE_S3_NO_CREDENTIALS=1" >> "$GITHUB_ENV"
           fi
 
+      - name: Enable git long paths
+        shell: pwsh
+        run: |
+          git config --global core.longpaths true
+
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           path: source
+          submodules: recursive
           fetch-depth: 0
-
-      - name: Setup submodules
-        shell: bash
-        run: |
-          cd source
-          auth_header="$(git config --local --get http.https://github.com/.extraheader)"
-          git submodule sync --recursive
-          git -c "http.extraheader=$auth_header" -c protocol.version=2 submodule update --init --force --recursive --depth=1 || true
 
       - name: Download Qt
         uses: jurplel/install-qt-action@v4
@@ -262,7 +260,7 @@ jobs:
       contents: write
     strategy:
       matrix:
-        qt_version: [6.10.2, 6.11.0]
+        qt_version: [6.10.2, 6.11.1]
         arch: [msvc2022_64, msvc2022_arm64]
         renderer: [OpenGL, Vulkan]
 

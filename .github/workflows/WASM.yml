@@ -75,7 +75,7 @@ jobs:
           - qt_version: 6.10.2
             emsdk_version: 4.0.7
             preset: WASM-sccache
-          - qt_version: 6.11.0
+          - qt_version: 6.11.1
             emsdk_version: 4.0.7
             preset: WASM-sccache
 
@@ -92,7 +92,7 @@ jobs:
           role-session-name: ${{ github.run_id }}
 
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           path: source
           submodules: recursive
@@ -115,7 +115,7 @@ jobs:
           fi
 
       - name: Setup emsdk
-        uses: mymindstorm/setup-emsdk@v14
+        uses: mymindstorm/setup-emsdk@v16
         with:
           version: ${{ matrix.emsdk_version }}
 
@@ -178,7 +178,7 @@ jobs:
       contents: write
     strategy:
       matrix:
-        qt_version: [6.9.3, 6.10.2, 6.11.0]
+        qt_version: [6.9.3, 6.10.2, 6.11.1]
 
     steps:
       - name: Download artifacts
