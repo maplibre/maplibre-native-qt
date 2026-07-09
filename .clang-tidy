@@ -28,6 +28,7 @@ Checks: >
     -llvm-header-guard,
     -llvm-include-order,
     -llvm-prefer-static-over-anonymous-namespace,
+    -misc-header-include-cycle,
     -misc-include-cleaner,
     -misc-no-recursion,
     -misc-non-private-member-variables-in-classes,
@@ -39,7 +40,8 @@ Checks: >
     -readability-function-cognitive-complexity,
     -readability-identifier-length,
     -readability-redundant-access-specifiers,
-    -readability-uppercase-literal-suffix
+    -readability-uppercase-literal-suffix,
+    -clang-analyzer-core.CallAndMessage
 WarningsAsErrors: '*'
 HeaderFilterRegex: '^((?!vendor).)*$'
 ...

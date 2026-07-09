@@ -29,6 +29,31 @@ namespace {
 
 constexpr uint32_t DefaultSize{256};
 
+// Subpass dependencies matching mbgl::vulkan::SurfaceRenderableResource::initRenderPass()
+std::array<vk::SubpassDependency, 2> makeSubpassDependencies() {
+    return {
+        vk::SubpassDependency()
+            .setSrcSubpass(VK_SUBPASS_EXTERNAL)
+            .setDstSubpass(0)
+            .setSrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
+            .setDstStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
+            .setSrcAccessMask(vk::AccessFlagBits::eColorAttachmentWrite)
+            .setDstAccessMask(vk::AccessFlagBits::eColorAttachmentWrite)
+            .setDependencyFlags(vk::DependencyFlagBits::eByRegion),
+
+        vk::SubpassDependency()
+            .setSrcSubpass(VK_SUBPASS_EXTERNAL)
+            .setDstSubpass(0)
+            .setSrcStageMask(vk::PipelineStageFlagBits::eEarlyFragmentTests |
+                             vk::PipelineStageFlagBits::eLateFragmentTests)
+            .setDstStageMask(vk::PipelineStageFlagBits::eEarlyFragmentTests |
+                             vk::PipelineStageFlagBits::eLateFragmentTests)
+            .setSrcAccessMask(vk::AccessFlagBits::eDepthStencilAttachmentWrite)
+            .setDstAccessMask(vk::AccessFlagBits::eDepthStencilAttachmentWrite)
+            .setDependencyFlags(vk::DependencyFlagBits::eByRegion),
+    };
+}
+
 // Custom renderable resource for Qt integration supporting zero-copy GPU rendering
 class QtVulkanRenderableResource final : public mbgl::vulkan::SurfaceRenderableResource {
 public:
@@ -58,6 +83,10 @@ public:
     void setBackendSize(mbgl::Size size_) {
         // If we have an external image, don't override its size
         if (externalImage) {
+            return;
+        }
+
+        if (size == size_) {
             return;
         }
 
@@ -162,10 +191,14 @@ public:
 
     [[nodiscard]] const vk::UniqueFramebuffer &getFramebuffer() const override { return framebuffer; }
 
+    // No surface needed for offscreen rendering
+    void createPlatformSurface() override {}
+
     // Note: getRenderPass() is inherited from RenderableResource and returns the renderPass member
     // which should be set by createRenderPassForExternalImage() or createRenderPass()
     // We can't override it because the base class method isn't virtual
 
+protected:
     void swap() override {
         // For offscreen rendering, we need to ensure commands are submitted
         // but we don't present to a swapchain
@@ -245,7 +278,9 @@ private:
                                  .setColorAttachments(colorAttachmentRef)
                                  .setPDepthStencilAttachment(&depthAttachmentRef);
 
-        const auto renderPassCreateInfo = vk::RenderPassCreateInfo().setAttachments(attachments).setSubpasses(subpass);
+        const auto dependencies = makeSubpassDependencies();
+        const auto renderPassCreateInfo =
+            vk::RenderPassCreateInfo().setAttachments(attachments).setSubpasses(subpass).setDependencies(dependencies);
 
         renderPass = backend.getDevice()->createRenderPassUnique(
             renderPassCreateInfo, nullptr, backend.getDispatcher());
@@ -272,10 +307,6 @@ private:
     }
 
     // Override from SurfaceRenderableResource
-    void createPlatformSurface() override {
-        // No surface needed for offscreen rendering
-    }
-
     void createRenderPassForExternalImage() {
         if (!externalImage) {
             return;
@@ -335,7 +366,9 @@ private:
                                  .setColorAttachments(colorAttachmentRef)
                                  .setPDepthStencilAttachment(&depthAttachmentRef);
 
-        const auto renderPassCreateInfo = vk::RenderPassCreateInfo().setAttachments(attachments).setSubpasses(subpass);
+        const auto dependencies = makeSubpassDependencies();
+        const auto renderPassCreateInfo =
+            vk::RenderPassCreateInfo().setAttachments(attachments).setSubpasses(subpass).setDependencies(dependencies);
 
         renderPass = backend.getDevice()->createRenderPassUnique(
             renderPassCreateInfo, nullptr, backend.getDispatcher());
@@ -373,7 +406,7 @@ namespace QMapLibre {
 /*! \cond PRIVATE */
 
 VulkanRendererBackend::VulkanRendererBackend(QWindow *window)
-    : mbgl::vulkan::RendererBackend(mbgl::gfx::ContextMode::Shared),
+    : mbgl::vulkan::RendererBackend(mbgl::gfx::ContextMode::Unique),
       mbgl::vulkan::Renderable(
           mbgl::Size{DefaultSize, DefaultSize},
           std::make_unique<QtVulkanRenderableResource>(*this, mbgl::Size{DefaultSize, DefaultSize})) {
@@ -405,7 +438,7 @@ VulkanRendererBackend::VulkanRendererBackend(QWindow *window,
                                              vk::PhysicalDevice qtPhysicalDevice,
                                              vk::Device qtDevice,
                                              uint32_t qtGraphicsQueueIndex)
-    : mbgl::vulkan::RendererBackend(mbgl::gfx::ContextMode::Shared),
+    : mbgl::vulkan::RendererBackend(mbgl::gfx::ContextMode::Unique),
       mbgl::vulkan::Renderable(
           mbgl::Size{DefaultSize, DefaultSize},
           std::make_unique<QtVulkanRenderableResource>(*this, mbgl::Size{DefaultSize, DefaultSize})),
@@ -453,7 +486,7 @@ void VulkanRendererBackend::init() {
             dispatcher.init(reinterpret_cast<PFN_vkGetInstanceProcAddr>(vkGetInstanceProcAddr));
         }
     } else {
-        dynamicLoader = vk::DynamicLoader();
+        dynamicLoader = vk::detail::DynamicLoader();
         dispatcher.init(dynamicLoader);
     }
 
@@ -479,8 +512,9 @@ void VulkanRendererBackend::initInstance() {
         throw std::runtime_error("Qt Vulkan instance is null");
     }
 
-    instance = vk::UniqueInstance(vulkanInstance,
-                                  vk::ObjectDestroy<vk::NoParent, vk::DispatchLoaderDynamic>(nullptr, dispatcher));
+    instance = vk::UniqueInstance(
+        vulkanInstance,
+        vk::detail::ObjectDestroy<vk::detail::NoParent, vk::detail::DispatchLoaderDynamic>(nullptr, dispatcher));
 
     // Check if debug utils extension is available
     const auto &extensions = m_qtInstance->supportedExtensions();
@@ -507,8 +541,9 @@ void VulkanRendererBackend::initDevice() {
         // Reuse Qt's existing Vulkan device for zero-copy texture sharing
         physicalDevice = m_qtPhysicalDevice;
 
-        device = vk::UniqueDevice(m_qtDevice,
-                                  vk::ObjectDestroy<vk::NoParent, vk::DispatchLoaderDynamic>(nullptr, dispatcher));
+        device = vk::UniqueDevice(
+            m_qtDevice,
+            vk::detail::ObjectDestroy<vk::detail::NoParent, vk::detail::DispatchLoaderDynamic>(nullptr, dispatcher));
 
         graphicsQueueIndex = static_cast<int32_t>(m_qtGraphicsQueueIndex);
         presentQueueIndex = static_cast<int32_t>(m_qtGraphicsQueueIndex);
@@ -554,6 +589,8 @@ mbgl::vulkan::Texture2D *VulkanRendererBackend::getOffscreenTexture() const {
 }
 
 void VulkanRendererBackend::setExternalDrawable(void *image, const mbgl::Size &size_) {
+    mbgl::vulkan::Renderable::setSize(size_);
+
     // Pass the external image to our custom renderable resource
     const vk::Image vkImage(reinterpret_cast<VkImage>(image));
     getResource<QtVulkanRenderableResource>().setExternalImage(vkImage, size_);

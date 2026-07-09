@@ -1366,7 +1366,7 @@ void Map::addCustomLayer(const QString &id, std::unique_ptr<CustomLayerHostInter
         explicit HostWrapper(std::unique_ptr<CustomLayerHostInterface> p)
             : ptr(std::move(p)) {}
 
-        void initialize() final { ptr->initialize(); }
+        void initialize(const mbgl::style::CustomLayerInitParameters & /*params*/) final { ptr->initialize(); }
 
         void render(const mbgl::style::CustomLayerRenderParameters &params) final {
             CustomLayerRenderParameters renderParams{};
