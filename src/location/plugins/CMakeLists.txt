@@ -80,11 +80,16 @@ install(
 set(Plugin_Sources
     qml_types.hpp
     declarative_style.cpp declarative_style.hpp
-    declarative_style_parameter.hpp
-    declarative_filter_parameter.cpp declarative_filter_parameter.hpp
-    declarative_image_parameter.cpp declarative_image_parameter.hpp
-    declarative_layer_parameter.cpp declarative_layer_parameter.hpp
-    declarative_source_parameter.cpp declarative_source_parameter.hpp
+
+    ${CMAKE_SOURCE_DIR}/src/quick/common/declarative_style_parameter.hpp
+    ${CMAKE_SOURCE_DIR}/src/quick/common/declarative_filter_parameter.cpp
+    ${CMAKE_SOURCE_DIR}/src/quick/common/declarative_filter_parameter.hpp
+    ${CMAKE_SOURCE_DIR}/src/quick/common/declarative_image_parameter.cpp
+    ${CMAKE_SOURCE_DIR}/src/quick/common/declarative_image_parameter.hpp
+    ${CMAKE_SOURCE_DIR}/src/quick/common/declarative_layer_parameter.cpp
+    ${CMAKE_SOURCE_DIR}/src/quick/common/declarative_layer_parameter.hpp
+    ${CMAKE_SOURCE_DIR}/src/quick/common/declarative_source_parameter.cpp
+    ${CMAKE_SOURCE_DIR}/src/quick/common/declarative_source_parameter.hpp
 
     $<$<PLATFORM_ID:Windows>:${CMAKE_BINARY_DIR}/version_info.rc>
 )
@@ -138,6 +143,7 @@ target_include_directories(
     PRIVATE
         ${CMAKE_SOURCE_DIR}/src/core
         ${CMAKE_SOURCE_DIR}/src/core/style
+        ${CMAKE_SOURCE_DIR}/src/quick/common
         ${CMAKE_BINARY_DIR}/src/core/include
 )
 

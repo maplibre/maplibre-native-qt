@@ -4,32 +4,23 @@
 
 #pragma once
 
-#include "../qgeomap.hpp"
-
 #include <QMapLibre/StyleParameter>
 
 #include <QtQml/QQmlEngine>
 #include <QtQuick/QQuickItem>
 
-QT_BEGIN_NAMESPACE
-
-class QDeclarativeGeoMap;
-
-QT_END_NAMESPACE
-
 namespace QMapLibre {
 
-class DeclarativeStyle : public QQuickItem {
+class MapQuickItem;
+
+class MapQuickStyle : public QQuickItem {
     Q_OBJECT
     QML_NAMED_ELEMENT(Style)
-    QML_ADDED_IN_VERSION(3, 0)
+    QML_ADDED_IN_VERSION(4, 0)
 
 public:
-    explicit DeclarativeStyle(QQuickItem *parent = nullptr);
-    ~DeclarativeStyle() override = default;
-
-    void setDeclarativeMap(QDeclarativeGeoMap *declarativeGeoMap);
-    void setMap(QGeoMapMapLibre *map);
+    explicit MapQuickStyle(QQuickItem *parent = nullptr);
+    ~MapQuickStyle() override = default;
 
     Q_INVOKABLE void addParameter(StyleParameter *parameter);
     Q_INVOKABLE void removeParameter(StyleParameter *parameter);
@@ -39,14 +30,17 @@ public:
 protected:
     void componentComplete() override;
 
+private slots:
+    void onParentChanged(QQuickItem *parent);
+
 private:
     void populateParameters();
 
-    QGeoMapMapLibre *m_map{};
+    MapQuickItem *m_map{};
 
     QList<StyleParameter *> m_parameters;
 };
 
 } // namespace QMapLibre
 
-QML_DECLARE_TYPE(QMapLibre::DeclarativeStyle)
+QML_DECLARE_TYPE(QMapLibre::MapQuickStyle)
