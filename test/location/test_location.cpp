@@ -3,4 +3,4 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <QtQuickTest>
-QUICK_TEST_MAIN(qml)
+QUICK_TEST_MAIN(location)
