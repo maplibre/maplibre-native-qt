@@ -6,6 +6,7 @@
 #include "style_parameter.hpp"
 
 #include <QtLocation/private/qdeclarativegeomap_p.h>
+#include <QtCore/QPointer>
 
 namespace QMapLibre {
 
@@ -13,12 +14,23 @@ DeclarativeStyle::DeclarativeStyle(QQuickItem *parent)
     : QQuickItem(parent) {}
 
 void DeclarativeStyle::setDeclarativeMap(QDeclarativeGeoMap *declarativeGeoMap) {
-    const auto bindMap = [this, declarativeGeoMap]() {
-        if (declarativeGeoMap == nullptr || declarativeGeoMap->map() == nullptr) {
+    if (declarativeGeoMap == nullptr) {
+        return;
+    }
+
+    const QPointer<QDeclarativeGeoMap> guardedMap{declarativeGeoMap};
+
+    const auto bindMap = [this, guardedMap]() {
+        if (guardedMap == nullptr) {
             return;
         }
 
-        setMap(qobject_cast<QGeoMapMapLibre *>(declarativeGeoMap->map()));
+        auto *map = guardedMap->map();
+        if (map == nullptr) {
+            return;
+        }
+
+        setMap(qobject_cast<QGeoMapMapLibre *>(map));
     };
 
     connect(declarativeGeoMap, &QDeclarativeGeoMap::mapReadyChanged, this, bindMap);
