@@ -16,11 +16,7 @@ QVariant DeclarativeSourceParameter::parsedProperty(const char *propertyName) co
         return StyleParameter::parsedProperty(propertyName);
     }
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     if (property(propertyName).typeId() < QMetaType::User) {
-#else
-    if (property(propertyName).type() < QVariant::UserType) {
-#endif
         return StyleParameter::parsedProperty(propertyName);
     }
 

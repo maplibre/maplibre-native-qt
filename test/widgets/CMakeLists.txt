@@ -4,11 +4,7 @@ set(test_sources
     map_window.cpp map_window.hpp
     test_widgets.cpp
 )
-if(COMMAND qt_add_executable)
-    qt_add_executable(test_mln_widgets ${test_sources})
-else()
-    add_executable(test_mln_widgets ${test_sources})
-endif()
+qt_add_executable(test_mln_widgets ${test_sources})
 
 target_include_directories(
     test_mln_widgets
