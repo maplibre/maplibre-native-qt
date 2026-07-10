@@ -116,11 +116,7 @@ Feature featureFromMapPolygon(QDeclarativePolygonMapItem *item) {
     const bool crossesDateline = geoRectangleCrossesDateLine(polygon->boundingGeoRectangle());
     CoordinatesCollections geometry;
     CoordinatesCollection poly;
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     Coordinates coordinates = qgeocoordinate2mapboxcoordinate(polygon->perimeter(), crossesDateline, true);
-#else
-    Coordinates coordinates = qgeocoordinate2mapboxcoordinate(polygon->path(), crossesDateline, true);
-#endif
     poly.push_back(coordinates);
     for (int i = 0; i < polygon->holesCount(); ++i) {
         coordinates = qgeocoordinate2mapboxcoordinate(polygon->holePath(i), crossesDateline, true);

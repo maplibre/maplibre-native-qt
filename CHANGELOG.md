@@ -5,6 +5,7 @@
 ### ✨ New features
 
 - Full renderer backend support for Vulkan, Metal and OpenGL.
+- No support for Qt 5 anymore.
 
 ### 🐞 Bug fixes
 

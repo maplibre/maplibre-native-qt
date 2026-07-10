@@ -1,8 +1,4 @@
-if(COMMAND qt_add_executable)
-    qt_add_executable(test_mln_quick test_quick.cpp)
-else()
-    add_executable(test_mln_quick test_quick.cpp)
-endif()
+qt_add_executable(test_mln_quick test_quick.cpp)
 
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS QuickTest REQUIRED)
 target_link_libraries(

@@ -5,8 +5,7 @@
 ## Qt prerequisites
 
 This library fully supports Qt 6.5 and newer.
-Qt 5.15 is fully supported only on desktop platforms,
-previous Qt 5 versions down to 5.6 only support widgets but not Qt Location.
+Qt 5 is no longer supported.
 
 ## Build basics
 
@@ -334,7 +333,7 @@ If you encounter issues with Vulkan:
 
 Release binaries contain debug symbols.
 Additionally both Intel and ARM versions are supported and included.
-OS deployment target version is set to 12.0 for Qt 6 and 10.13 for Qt 5.
+OS deployment target version is set to 12.0.
 
 #### Building with Metal support
 

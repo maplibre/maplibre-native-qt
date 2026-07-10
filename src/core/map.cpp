@@ -141,13 +141,8 @@ mbgl::Size sanitizeSize(const QSize &size) {
 std::unique_ptr<mbgl::style::Image> toStyleImage(const QString &id, const QImage &sprite) {
     const QImage swapped = sprite.rgbSwapped().convertToFormat(QImage::Format_ARGB32_Premultiplied);
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
     auto img = std::make_unique<uint8_t[]>(swapped.sizeInBytes());
     memcpy(img.get(), swapped.constBits(), swapped.sizeInBytes());
-#else
-    auto img = std::make_unique<uint8_t[]>(swapped.byteCount());
-    memcpy(img.get(), swapped.constBits(), swapped.byteCount());
-#endif
 
     return std::make_unique<mbgl::style::Image>(
         id.toStdString(),
@@ -1993,11 +1988,7 @@ bool MapPrivate::setProperty(const PropertySetter &setter,
 
     std::optional<mbgl::style::conversion::Error> result;
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     if (value.typeId() == QMetaType::QString) {
-#else
-    if (value.type() == QVariant::String) {
-#endif
         mbgl::JSDocument document;
         document.Parse<0>(value.toString().toStdString());
         if (!document.HasParseError()) {
