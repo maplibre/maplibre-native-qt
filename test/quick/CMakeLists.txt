@@ -1,5 +1,11 @@
 qt_add_executable(test_mln_quick test_quick.cpp)
 
+qt_add_resources(test_mln_quick test_fixtures
+    PREFIX "/"
+    BASE "../../vendor/maplibre-native/metrics/integration/sprites"
+    FILES "../../vendor/maplibre-native/metrics/integration/sprites/1x.png"
+)
+
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS QuickTest REQUIRED)
 target_link_libraries(
     test_mln_quick

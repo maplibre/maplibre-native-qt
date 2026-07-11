@@ -2,56 +2,39 @@
 
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "declarative_style.hpp"
-#include "style_parameter.hpp"
+#include "map_quick_style.hpp"
 
-#include <QtLocation/private/qdeclarativegeomap_p.h>
-#include <QtCore/QPointer>
+#include "map_quick_item.hpp"
+
+#include <QMapLibre/StyleParameter>
 
 namespace QMapLibre {
 
-DeclarativeStyle::DeclarativeStyle(QQuickItem *parent)
-    : QQuickItem(parent) {}
-
-void DeclarativeStyle::setDeclarativeMap(QDeclarativeGeoMap *declarativeGeoMap) {
-    if (declarativeGeoMap == nullptr) {
-        return;
-    }
-
-    const QPointer<QDeclarativeGeoMap> guardedMap{declarativeGeoMap};
-
-    const auto bindMap = [this, guardedMap]() {
-        if (guardedMap == nullptr) {
-            return;
-        }
-
-        auto *map = guardedMap->map();
-        if (map == nullptr) {
-            return;
-        }
-
-        setMap(qobject_cast<QGeoMapMapLibre *>(map));
-    };
-
-    connect(declarativeGeoMap, &QDeclarativeGeoMap::mapReadyChanged, this, bindMap);
-    QMetaObject::invokeMethod(this, bindMap, Qt::QueuedConnection);
+MapQuickStyle::MapQuickStyle(QQuickItem *parent)
+    : QQuickItem(parent) {
+    connect(this, &QQuickItem::parentChanged, this, &MapQuickStyle::onParentChanged);
 }
 
-void DeclarativeStyle::setMap(QGeoMapMapLibre *map) {
-    if (map == nullptr || m_map != nullptr) {
+void MapQuickStyle::onParentChanged(QQuickItem *parent) {
+    if (parent == nullptr) {
         return;
     }
 
-    m_map = map;
+    auto *mapItem = qobject_cast<MapQuickItem *>(parent);
+    if (mapItem == nullptr) {
+        return;
+    }
+
+    m_map = mapItem;
 
     for (StyleParameter *p : m_parameters) {
         m_map->addStyleParameter(p);
     }
 }
 
-void DeclarativeStyle::addParameter(StyleParameter *parameter) {
+void MapQuickStyle::addParameter(StyleParameter *parameter) {
     if (!parameter->isReady()) {
-        connect(parameter, &StyleParameter::ready, this, &DeclarativeStyle::addParameter);
+        connect(parameter, &StyleParameter::ready, this, &MapQuickStyle::addParameter);
         return;
     }
 
@@ -67,7 +50,7 @@ void DeclarativeStyle::addParameter(StyleParameter *parameter) {
     }
 }
 
-void DeclarativeStyle::removeParameter(StyleParameter *parameter) {
+void MapQuickStyle::removeParameter(StyleParameter *parameter) {
     if (!m_parameters.contains(parameter)) {
         return;
     }
@@ -79,7 +62,7 @@ void DeclarativeStyle::removeParameter(StyleParameter *parameter) {
     m_parameters.removeOne(parameter);
 }
 
-void DeclarativeStyle::clearParameters() {
+void MapQuickStyle::clearParameters() {
     if (m_map != nullptr) {
         m_map->clearStyleParameters();
     }
@@ -87,7 +70,7 @@ void DeclarativeStyle::clearParameters() {
     m_parameters.clear();
 }
 
-QList<QObject *> DeclarativeStyle::parameters() {
+QList<QObject *> MapQuickStyle::parameters() {
     QList<QObject *> list;
     for (StyleParameter *p : std::as_const(m_parameters)) {
         list << p;
@@ -95,7 +78,7 @@ QList<QObject *> DeclarativeStyle::parameters() {
     return list;
 }
 
-void DeclarativeStyle::populateParameters() {
+void MapQuickStyle::populateParameters() {
     QObjectList kids = children();
     const QList<QQuickItem *> quickKids = childItems();
     for (int i = 0; i < quickKids.count(); ++i) {
@@ -109,7 +92,7 @@ void DeclarativeStyle::populateParameters() {
     }
 }
 
-void DeclarativeStyle::componentComplete() {
+void MapQuickStyle::componentComplete() {
     populateParameters();
     QQuickItem::componentComplete();
 }

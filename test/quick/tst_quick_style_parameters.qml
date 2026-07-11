@@ -3,10 +3,8 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 import QtQuick 2.15
-import QtLocation 6.5
-import QtPositioning 6.5
 
-import MapLibre.Location 4.0
+import MapLibre 4.0
 
 import QtTest 1.0
 
@@ -14,25 +12,15 @@ Item {
     width: 512
     height: 512
 
-    Plugin {
-        id: mapPlugin
-        name: "maplibre"
-
-        PluginParameter {
-            name: "maplibre.map.styles"
-            value: "https://demotiles.maplibre.org/style.json"
-        }
-    }
-
-    MapView {
-        id: mapView
+    MapLibre {
+        id: map
         anchors.fill: parent
-        map.plugin: mapPlugin
 
-        map.zoomLevel: 5
-        map.center: QtPositioning.coordinate(41.874, -75.789)
+        style: "https://demotiles.maplibre.org/style.json"
+        zoomLevel: 4
+        coordinate: [41.874, -75.789]
 
-        MapLibre.style: Style {
+        Style {
             id: style
 
             SourceParameter {
@@ -73,8 +61,7 @@ Item {
         when: windowShown
 
         function test_init() {
-            compare(mapView.map.supportedMapTypes.length, 1)
-            wait(500)
+            wait(1000)
             compare(radarSourceParam.url, "https://maplibre.org/maplibre-gl-js/docs/assets/radar1.gif")
         }
 
@@ -154,7 +141,7 @@ Item {
             let url = "https://tiles.maps.eox.at/wms?service=wms&bbox={bbox-epsg-3857}&format=image/png&service=WMS&version=1.1.1&request=GetMap&srs=EPSG:900913&width=256&height=256&layers=s2cloudless-2021_3857"
 
             let sourceParam = Qt.createQmlObject(`
-                import MapLibre.Location 4.0
+                import MapLibre 4.0
 
                 SourceParameter {
                     styleId: "tileSource"
@@ -169,7 +156,7 @@ Item {
             style.addParameter(sourceParam)
 
             let layerParam = Qt.createQmlObject(`
-                import MapLibre.Location 4.0
+                import MapLibre 4.0
 
                 LayerParameter {
                     styleId: "tileLayer"
@@ -190,7 +177,7 @@ Item {
 
         function test_style_8_image() {
             let imageParam = Qt.createQmlObject(`
-                import MapLibre.Location 4.0
+                import MapLibre 4.0
 
                 ImageParameter {
                     styleId: "locationImage"
@@ -202,7 +189,7 @@ Item {
             style.addParameter(imageParam)
 
             let sourceParam = Qt.createQmlObject(`
-                import MapLibre.Location 4.0
+                import MapLibre 4.0
 
                 SourceParameter {
                     styleId: "pointSource"
@@ -227,7 +214,7 @@ Item {
             style.addParameter(sourceParam)
 
             let layerParam = Qt.createQmlObject(`
-                import MapLibre.Location 4.0
+                import MapLibre 4.0
 
                 LayerParameter {
                     styleId: "pointLayer"
