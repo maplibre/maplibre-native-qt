@@ -12,18 +12,21 @@ namespace QMapLibre {
 DeclarativeStyle::DeclarativeStyle(QQuickItem *parent)
     : QQuickItem(parent) {}
 
-void DeclarativeStyle::setDeclarativeMap(QDeclarativeGeoMap *map) {
-    if (map->map() == nullptr) {
-        connect(map, &QDeclarativeGeoMap::mapReadyChanged, this, [this, map]() {
-            setMap(qobject_cast<QGeoMapMapLibre *>(map->map()));
-        });
-    } else {
-        setMap(qobject_cast<QGeoMapMapLibre *>(map->map()));
-    }
+void DeclarativeStyle::setDeclarativeMap(QDeclarativeGeoMap *declarativeGeoMap) {
+    const auto bindMap = [this, declarativeGeoMap]() {
+        if (declarativeGeoMap == nullptr || declarativeGeoMap->map() == nullptr) {
+            return;
+        }
+
+        setMap(qobject_cast<QGeoMapMapLibre *>(declarativeGeoMap->map()));
+    };
+
+    connect(declarativeGeoMap, &QDeclarativeGeoMap::mapReadyChanged, this, bindMap);
+    QMetaObject::invokeMethod(this, bindMap, Qt::QueuedConnection);
 }
 
 void DeclarativeStyle::setMap(QGeoMapMapLibre *map) {
-    if (map == nullptr) {
+    if (map == nullptr || m_map != nullptr) {
         return;
     }
 

@@ -29,7 +29,7 @@ public:
     explicit DeclarativeStyle(QQuickItem *parent = nullptr);
     ~DeclarativeStyle() override = default;
 
-    void setDeclarativeMap(QDeclarativeGeoMap *map);
+    void setDeclarativeMap(QDeclarativeGeoMap *declarativeGeoMap);
     void setMap(QGeoMapMapLibre *map);
 
     Q_INVOKABLE void addParameter(StyleParameter *parameter);
