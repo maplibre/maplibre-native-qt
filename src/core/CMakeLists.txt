@@ -13,6 +13,16 @@ add_subdirectory(
     MapLibreCore      # Binary directory
     EXCLUDE_FROM_ALL
 )
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 15)
+    target_compile_options(mbgl-core PRIVATE -Wno-sfinae-incomplete)
+endif()
+
+# glslang (pulled in only when MLN_WITH_VULKAN is enabled) calls option(BUILD_SHARED_LIBS)
+# with no default, which forces the cache to OFF. That would make qt_add_library() below build
+# our Qt libraries as static. Clear it again so qt_add_library() keeps autodetecting the
+# library type from how Qt itself was built.
+unset(BUILD_SHARED_LIBS CACHE)
+unset(BUILD_SHARED_LIBS)
 
 # Public headers
 string(TOLOWER ${MLN_QT_NAME} MLN_QT_NAME_LOWERCASE)

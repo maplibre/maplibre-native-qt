@@ -196,7 +196,7 @@ public:
     [[nodiscard]] const mbgl::mtl::MTLCommandBufferPtr &getCommandBuffer() const override { return commandBuffer; }
 
     [[nodiscard]] mbgl::mtl::MTLBlitPassDescriptorPtr getUploadPassDescriptor() const override {
-        return NS::RetainPtr(MTL::BlitPassDescriptor::alloc()->init());
+        return NS::TransferPtr(MTL::BlitPassDescriptor::alloc()->init());
     }
 
     [[nodiscard]] const mbgl::mtl::MTLRenderPassDescriptorPtr &getRenderPassDescriptor() const override {
@@ -230,6 +230,9 @@ MetalRendererBackend::MetalRendererBackend(CA::MetalLayer *layer)
 MetalRendererBackend::~MetalRendererBackend() = default;
 
 void MetalRendererBackend::setSize(mbgl::Size size_) {
+    // Propagate size to the Renderable base class
+    mbgl::gfx::Renderable::size = size_;
+
     getResource<QtMetalRenderableResource>().setBackendSize(size_);
 }
 
