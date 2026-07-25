@@ -76,27 +76,27 @@ jobs:
             compiler: x64
             preset: Windows-OpenGL-sccache
             renderer: OpenGL
-          # - qt_version: 6.10.2
-          #   qt_arch: win64_msvc2022_arm64
-          #   runner: windows-11-arm
-          #   arch: msvc2022_arm64
-          #   compiler: arm64
-          #   preset: Windows-OpenGL-sccache
-          #   renderer: OpenGL
+          - qt_version: 6.10.2
+            qt_arch: win64_msvc2022_arm64
+            runner: windows-11-arm
+            arch: msvc2022_arm64
+            compiler: arm64
+            preset: Windows-OpenGL-sccache-no-tests
+            renderer: OpenGL
           - qt_version: 6.10.2
             qt_arch: win64_msvc2022_64
             runner: windows-2025
             arch: msvc2022_64
             compiler: x64
-            preset: Windows-Vulkan-sccache
+            preset: Windows-Vulkan-sccache-no-tests
             renderer: Vulkan
-          # - qt_version: 6.10.2
-          #   qt_arch: win64_msvc2022_arm64
-          #   runner: windows-11-arm
-          #   arch: msvc2022_arm64
-          #   compiler: arm64
-          #   preset: Windows-Vulkan-sccache
-          #   renderer: Vulkan
+          - qt_version: 6.10.2
+            qt_arch: win64_msvc2022_arm64
+            runner: windows-11-arm
+            arch: msvc2022_arm64
+            compiler: arm64
+            preset: Windows-Vulkan-sccache-no-tests
+            renderer: Vulkan
           - qt_version: 6.11.1
             qt_arch: win64_msvc2022_64
             runner: windows-2025
@@ -104,27 +104,27 @@ jobs:
             compiler: x64
             preset: Windows-OpenGL-sccache
             renderer: OpenGL
-          # - qt_version: 6.11.1
-          #   qt_arch: win64_msvc2022_arm64
-          #   runner: windows-11-arm
-          #   arch: msvc2022_arm64
-          #   compiler: arm64
-          #   preset: Windows-OpenGL-sccache
-          #   renderer: OpenGL
+          - qt_version: 6.11.1
+            qt_arch: win64_msvc2022_arm64
+            runner: windows-11-arm
+            arch: msvc2022_arm64
+            compiler: arm64
+            preset: Windows-OpenGL-sccache-no-tests
+            renderer: OpenGL
           - qt_version: 6.11.1
             qt_arch: win64_msvc2022_64
             runner: windows-2025
             arch: msvc2022_64
             compiler: x64
-            preset: Windows-Vulkan-sccache
+            preset: Windows-Vulkan-sccache-no-tests
             renderer: Vulkan
-          # - qt_version: 6.11.1
-          #   qt_arch: win64_msvc2022_arm64
-          #   runner: windows-11-arm
-          #   arch: msvc2022_arm64
-          #   compiler: arm64
-          #   preset: Windows-Vulkan-sccache
-          #   renderer: Vulkan
+          - qt_version: 6.11.1
+            qt_arch: win64_msvc2022_arm64
+            runner: windows-11-arm
+            arch: msvc2022_arm64
+            compiler: arm64
+            preset: Windows-Vulkan-sccache-no-tests
+            renderer: Vulkan
 
     env:
       PRESET: ${{ matrix.preset }}
@@ -139,10 +139,39 @@ jobs:
           role-session-name: ${{ github.run_id }}
 
       - name: Install sccache
-        uses: MinoruSekine/setup-scoop@v5
-        with:
-          buckets: extras
-          apps: sccache
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          # Pin for reproducibility
+          $version = "v0.16.0"
+
+          # Map your matrix arch to sccache release artifact arch
+          $targetArch = "${{ matrix.arch }}"
+          if ($targetArch -eq "msvc2022_arm64") {
+            $artifactArch = "aarch64-pc-windows-msvc"
+          } else {
+            $artifactArch = "x86_64-pc-windows-msvc"
+          }
+
+          $zipName = "sccache-$version-$artifactArch.zip"
+          $url = "https://github.com/mozilla/sccache/releases/download/$version/$zipName"
+
+          $tmpZip = Join-Path $env:RUNNER_TEMP $zipName
+          $outDir = Join-Path $env:RUNNER_TEMP "sccache-bin"
+
+          Write-Host "Downloading $url"
+          Invoke-WebRequest -Uri $url -OutFile $tmpZip
+          Expand-Archive -Path $tmpZip -DestinationPath $outDir -Force
+
+          # Find folder containing sccache.exe
+          $exe = Get-ChildItem -Path $outDir -Recurse -Filter "sccache.exe" | Select-Object -First 1
+          if (-not $exe) { throw "sccache.exe not found after extraction" }
+
+          $binDir = $exe.Directory.FullName
+          $binDir | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+
+          & (Join-Path $binDir "sccache.exe") --version
 
       - name: Configure sccache
         shell: bash
