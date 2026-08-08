@@ -220,7 +220,7 @@ jobs:
   release:
     name: Release
     if: github.ref_type == 'tag'
-    runs-on: macos-15
+    runs-on: macos-26
     needs: build-and-test
     permissions:
       contents: write
