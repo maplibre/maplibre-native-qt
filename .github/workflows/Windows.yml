@@ -69,56 +69,28 @@ jobs:
     strategy:
       matrix:
         include:
-          - qt_version: 6.10.2
+          - qt_version: 6.11.2
             qt_arch: win64_msvc2022_64
             runner: windows-2025
             arch: msvc2022_64
             compiler: x64
             preset: Windows-OpenGL-sccache
             renderer: OpenGL
-          - qt_version: 6.10.2
+          - qt_version: 6.11.2
             qt_arch: win64_msvc2022_arm64
             runner: windows-11-arm
             arch: msvc2022_arm64
             compiler: arm64
             preset: Windows-OpenGL-sccache-no-tests
             renderer: OpenGL
-          - qt_version: 6.10.2
+          - qt_version: 6.11.2
             qt_arch: win64_msvc2022_64
             runner: windows-2025
             arch: msvc2022_64
             compiler: x64
             preset: Windows-Vulkan-sccache-no-tests
             renderer: Vulkan
-          - qt_version: 6.10.2
-            qt_arch: win64_msvc2022_arm64
-            runner: windows-11-arm
-            arch: msvc2022_arm64
-            compiler: arm64
-            preset: Windows-Vulkan-sccache-no-tests
-            renderer: Vulkan
-          - qt_version: 6.11.1
-            qt_arch: win64_msvc2022_64
-            runner: windows-2025
-            arch: msvc2022_64
-            compiler: x64
-            preset: Windows-OpenGL-sccache
-            renderer: OpenGL
-          - qt_version: 6.11.1
-            qt_arch: win64_msvc2022_arm64
-            runner: windows-11-arm
-            arch: msvc2022_arm64
-            compiler: arm64
-            preset: Windows-OpenGL-sccache-no-tests
-            renderer: OpenGL
-          - qt_version: 6.11.1
-            qt_arch: win64_msvc2022_64
-            runner: windows-2025
-            arch: msvc2022_64
-            compiler: x64
-            preset: Windows-Vulkan-sccache-no-tests
-            renderer: Vulkan
-          - qt_version: 6.11.1
+          - qt_version: 6.11.2
             qt_arch: win64_msvc2022_arm64
             runner: windows-11-arm
             arch: msvc2022_arm64
@@ -281,7 +253,7 @@ jobs:
       contents: write
     strategy:
       matrix:
-        qt_version: [6.10.2, 6.11.1]
+        qt_version: [6.11.2]
         arch: [msvc2022_64, msvc2022_arm64]
         renderer: [OpenGL, Vulkan]
 

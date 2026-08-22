@@ -67,68 +67,44 @@ jobs:
     strategy:
       matrix:
         include:
-          - qt_version: 6.10.2
+          - qt_version: 6.11.2
             host: linux
             runner: ubuntu-24.04
             preset: Linux-OpenGL-sccache-CI
             renderer: OpenGL
             compiler: default
-          - qt_version: 6.10.2
+          - qt_version: 6.11.2
             host: linux_arm64
             runner: ubuntu-24.04-arm
             preset: Linux-OpenGL-sccache-CI
             renderer: OpenGL
             compiler: gcc
-          - qt_version: 6.10.2
+          - qt_version: 6.11.2
             host: linux
             runner: ubuntu-24.04
             preset: Linux-Vulkan-sccache-CI
             renderer: Vulkan
             compiler: default
-          - qt_version: 6.10.2
+          - qt_version: 6.11.2
             host: linux_arm64
             runner: ubuntu-24.04-arm
             preset: Linux-Vulkan-sccache-CI
             renderer: Vulkan
             compiler: gcc
-          - qt_version: 6.11.1
-            host: linux
-            runner: ubuntu-24.04
-            preset: Linux-OpenGL-sccache-CI
-            renderer: OpenGL
-            compiler: default
-          - qt_version: 6.11.1
-            host: linux_arm64
-            runner: ubuntu-24.04-arm
-            preset: Linux-OpenGL-sccache-CI
-            renderer: OpenGL
-            compiler: gcc
-          - qt_version: 6.11.1
-            host: linux
-            runner: ubuntu-24.04
-            preset: Linux-Vulkan-sccache-CI
-            renderer: Vulkan
-            compiler: default
-          - qt_version: 6.11.1
-            host: linux_arm64
-            runner: ubuntu-24.04-arm
-            preset: Linux-Vulkan-sccache-CI
-            renderer: Vulkan
-            compiler: gcc
-          - qt_version: 6.11.1
+          - qt_version: 6.11.2
             host: linux
             runner: ubuntu-24.04
             preset: Linux-OpenGL-coverage
             renderer: OpenGL
             compiler: gcc-14
             gcov: gcov-14
-          - qt_version: 6.11.1
+          - qt_version: 6.11.2
             host: linux
             runner: ubuntu-24.04
             preset: Linux-OpenGL-clang-tidy
             renderer: OpenGL
             compiler: llvm
-          - qt_version: 6.11.1
+          - qt_version: 6.11.2
             host: linux
             runner: ubuntu-24.04
             preset: Linux-Vulkan-clang-tidy
@@ -235,9 +211,15 @@ jobs:
           popd
           rm -rf lcov
 
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+
       - name: Download Qt
         uses: jurplel/install-qt-action@v4
         with:
+          setup-python: false # use python 3.14 for more reliable downloads
           aqtversion: ==3.3.*
           version: ${{ matrix.qt_version }}
           dir: ${{ github.workspace }}
@@ -337,7 +319,7 @@ jobs:
       contents: write
     strategy:
       matrix:
-        qt_version: [6.10.2, 6.11.1]
+        qt_version: [6.11.2]
         renderer: [OpenGL, Vulkan]
         host: [linux, linux_arm64]
 
