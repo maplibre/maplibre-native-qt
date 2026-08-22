@@ -26,6 +26,11 @@ class MapQuickItem : public QQuickItem {
     Q_PROPERTY(QString style READ style WRITE setStyle)
     Q_PROPERTY(QVariantList coordinate READ coordinate WRITE setCoordinate NOTIFY coordinateChanged)
     Q_PROPERTY(double zoomLevel READ zoomLevel WRITE setZoomLevel NOTIFY zoomLevelChanged)
+    // CFID addition: exposes the native style-load state so QML can gate
+    // addStyleParameter() calls on it directly, instead of an indirect
+    // proxy (e.g. a "GPU ready" heuristic) that can race ahead of the
+    // actual native style-load completion - see onMapChanged().
+    Q_PROPERTY(bool styleLoaded READ styleLoaded NOTIFY styleLoadedChanged)
 
 public:
     enum SyncState : int {
@@ -48,6 +53,8 @@ public:
     void setCoordinate(const QVariantList &coordinate);
     Q_INVOKABLE void setCoordinateFromPixel(const QPointF &pixel);
 
+    [[nodiscard]] bool styleLoaded() const;
+
     Q_INVOKABLE void pan(const QPointF &offset);
     Q_INVOKABLE void scale(double scale, const QPointF &center);
     Q_INVOKABLE void easeTo(const QVariantMap &camera, const QVariantMap &animation = QVariantMap());
@@ -60,6 +67,7 @@ public:
 signals:
     void coordinateChanged();
     void zoomLevelChanged();
+    void styleLoadedChanged();
 
 protected:
     void componentComplete() override;

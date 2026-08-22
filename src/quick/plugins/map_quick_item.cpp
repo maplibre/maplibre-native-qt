@@ -72,6 +72,12 @@ double MapQuickItem::zoomLevel() const {
     return d->m_zoomLevel;
 }
 
+bool MapQuickItem::styleLoaded() const {
+    Q_D(const MapQuickItem);
+
+    return d->m_styleLoaded;
+}
+
 void MapQuickItem::setZoomLevel(double zoomLevel) {
     Q_D(MapQuickItem);
 
@@ -392,9 +398,15 @@ void MapQuickItem::onMapChanged(Map::MapChange change) {
     Q_D(MapQuickItem);
 
     if (change == Map::MapChangeDidFinishLoadingStyle || change == Map::MapChangeDidFailLoadingMap) {
-        d->m_styleLoaded = true;
+        if (!d->m_styleLoaded) {
+            d->m_styleLoaded = true;
+            emit styleLoadedChanged();
+        }
     } else if (change == Map::MapChangeWillStartLoadingMap) {
-        d->m_styleLoaded = false;
+        if (d->m_styleLoaded) {
+            d->m_styleLoaded = false;
+            emit styleLoadedChanged();
+        }
         d->m_styleChanges.clear();
 
         for (const StyleParameter *parameter : d->m_mapParameters) {
