@@ -69,19 +69,15 @@ jobs:
     strategy:
       matrix:
         include:
-          - qt_version: 6.10.2
+          - qt_version: 6.11.2
             preset: macOS-sccache
             compiler: default
             runs_on: macos-15
-          - qt_version: 6.11.1
-            preset: macOS-sccache
-            compiler: default
-            runs_on: macos-15
-          - qt_version: 6.11.1
+          - qt_version: 6.11.2
             preset: macOS-sccache
             compiler: static
             runs_on: macos-15
-          - qt_version: 6.11.1
+          - qt_version: 6.11.2
             preset: macOS-clang-tidy
             compiler: llvm@22
             runs_on: macos-15
@@ -227,13 +223,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - qt_version: 6.10.2
+          - qt_version: 6.11.2
             compiler: default
             suffix: Metal
-          - qt_version: 6.11.1
-            compiler: default
-            suffix: Metal
-          - qt_version: 6.11.1
+          - qt_version: 6.11.2
             compiler: static
             suffix: Metal_static
 
