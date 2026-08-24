@@ -215,7 +215,7 @@ install(
 )
 
 install(
-    DIRECTORY ${CMAKE_SOURCE_DIR}/vendor/maplibre-native/include/mbgl
+    DIRECTORY ${MLN_CORE_PATH}/include/mbgl
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
 )
 

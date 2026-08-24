@@ -3,15 +3,15 @@ set(Plugin_Sources
     map_quick_item.cpp map_quick_item.cpp
     map_quick_style.cpp map_quick_style.hpp
 
-    ${CMAKE_SOURCE_DIR}/src/quick/common/declarative_style_parameter.hpp
-    ${CMAKE_SOURCE_DIR}/src/quick/common/declarative_filter_parameter.cpp
-    ${CMAKE_SOURCE_DIR}/src/quick/common/declarative_filter_parameter.hpp
-    ${CMAKE_SOURCE_DIR}/src/quick/common/declarative_image_parameter.cpp
-    ${CMAKE_SOURCE_DIR}/src/quick/common/declarative_image_parameter.hpp
-    ${CMAKE_SOURCE_DIR}/src/quick/common/declarative_layer_parameter.cpp
-    ${CMAKE_SOURCE_DIR}/src/quick/common/declarative_layer_parameter.hpp
-    ${CMAKE_SOURCE_DIR}/src/quick/common/declarative_source_parameter.cpp
-    ${CMAKE_SOURCE_DIR}/src/quick/common/declarative_source_parameter.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../common/declarative_style_parameter.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../common/declarative_filter_parameter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../common/declarative_filter_parameter.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../common/declarative_image_parameter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../common/declarative_image_parameter.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../common/declarative_layer_parameter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../common/declarative_layer_parameter.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../common/declarative_source_parameter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../common/declarative_source_parameter.hpp
 
     $<$<PLATFORM_ID:Windows>:${CMAKE_BINARY_DIR}/version_info.rc>
 )
@@ -63,10 +63,10 @@ set_property(TARGET ${MLN_QT_QML_PLUGIN} PROPERTY EXPORT_NAME PluginQml)
 target_include_directories(
     ${MLN_QT_QML_PLUGIN}
     PRIVATE
-        ${CMAKE_SOURCE_DIR}/src/core
-        ${CMAKE_SOURCE_DIR}/src/core/style
-        ${CMAKE_SOURCE_DIR}/src/quick
-        ${CMAKE_SOURCE_DIR}/src/quick/common
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../core
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../core/style
+        ${CMAKE_CURRENT_SOURCE_DIR}/..
+        ${CMAKE_CURRENT_SOURCE_DIR}/../common
         ${CMAKE_BINARY_DIR}/src/core/include
         $<$<BOOL:${MLN_WITH_VULKAN}>:${MLN_CORE_PATH}/vendor/Vulkan-Headers/include>
         $<$<BOOL:${MLN_WITH_VULKAN}>:${MLN_CORE_PATH}/vendor/VulkanMemoryAllocator/include>

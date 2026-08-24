@@ -51,7 +51,7 @@ function(setup_target_for_coverage _targetname _testrunner _outputname)
             --gcov-tool ${GCOV_PATH}
         COMMAND
             ${GENHTML_PATH} -t "${PROJECT_NAME}" -o ${_outputname}
-            ${_outputname}.info -p "${CMAKE_SOURCE_DIR}"
+            ${_outputname}.info -p "${PROJECT_SOURCE_DIR}"
             --ignore-errors inconsistent,inconsistent
         COMMAND
             ${LCOV_PATH} --summary ${_outputname}.info --ignore-errors inconsistent,inconsistent > ${_outputname}.summary
