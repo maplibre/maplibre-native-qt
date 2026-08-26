@@ -9,11 +9,11 @@ qt_add_executable(test_mln_widgets ${test_sources})
 target_include_directories(
     test_mln_widgets
     PRIVATE
-        ${CMAKE_SOURCE_DIR}/src/core
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../src/core
         ${CMAKE_BINARY_DIR}/src/core/include
-        ${CMAKE_SOURCE_DIR}/src/widgets
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../src/widgets
         ${CMAKE_BINARY_DIR}/src/widgets/include
-        ${CMAKE_SOURCE_DIR}/test/common
+        ${CMAKE_CURRENT_SOURCE_DIR}/../common
 )
 
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Test REQUIRED)
