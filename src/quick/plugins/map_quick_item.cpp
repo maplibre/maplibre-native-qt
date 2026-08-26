@@ -355,8 +355,6 @@ QSGNode *MapQuickItem::updateMapNode(QSGNode *node) {
         std::unique_ptr<TextureNodeBase> mbglNode = std::make_unique<TextureNodeVulkan>(
             d->m_map, viewportSize, window()->devicePixelRatio());
 #endif
-        QObject::connect(d->m_map.get(), &Map::needsRendering, this, &QQuickItem::update);
-        QObject::connect(d->m_map.get(), &Map::mapChanged, this, &MapQuickItem::onMapChanged);
 
         d->m_syncState = ViewportSync | CameraOptionsSync;
 
@@ -445,6 +443,12 @@ void MapQuickItemPrivate::initialize() {
     const qreal pixelRatio = q->window() != nullptr ? q->window()->devicePixelRatio() : 1.0;
     m_map = std::make_unique<Map>(nullptr, m_settings, viewportSize, pixelRatio);
     m_map->setConnectionEstablished();
+
+    // Connect before the style load is started below. Connecting later (e.g. when the scene graph
+    // node is first created) races the load: a style that resolves quickly, such as one already in
+    // the cache, emits MapChangeDidFinishLoadingStyle with nothing listening and the event is lost.
+    QObject::connect(m_map.get(), &Map::needsRendering, q, &QQuickItem::update);
+    QObject::connect(m_map.get(), &Map::mapChanged, q, &MapQuickItem::onMapChanged);
 
     // Set default style
     if (!m_style.isEmpty()) {
