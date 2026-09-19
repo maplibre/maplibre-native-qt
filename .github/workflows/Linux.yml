@@ -117,14 +117,14 @@ jobs:
     steps:
       - name: Configure AWS Credentials
         if: vars.OIDC_AWS_ROLE_TO_ASSUME
-        uses: aws-actions/configure-aws-credentials@v6
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
         with:
           aws-region: us-west-2
           role-to-assume: ${{ vars.OIDC_AWS_ROLE_TO_ASSUME }}
           role-session-name: ${{ github.run_id }}
 
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: source
           submodules: recursive
@@ -165,7 +165,7 @@ jobs:
       - name: Install compiler
         id: install_compiler
         if: matrix.compiler != 'default' && matrix.compiler != 'llvm'
-        uses: rlalik/setup-cpp-compiler@master
+        uses: rlalik/setup-cpp-compiler@3dbf473b4e7d87af3e7f329ca64bca40b2bae127 # v2
         with:
           compiler: ${{ matrix.compiler }}
 
@@ -212,15 +212,15 @@ jobs:
           rm -rf lcov
 
       - name: Setup Python
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.14"
 
       - name: Download Qt
-        uses: jurplel/install-qt-action@v4
+        uses: jurplel/install-qt-action@bcb88e3bed2e992f5f9e24c0f9e364a231d278eb # v4.4.0
         with:
           setup-python: false # use python 3.14 for more reliable downloads
-          aqtversion: ==3.3.*
+          aqtsource: git+https://github.com/miurahr/aqtinstall.git@076e1659807d0b362a3ed684d54c2e9c775eb9c7
           version: ${{ matrix.qt_version }}
           dir: ${{ github.workspace }}
           host: ${{ matrix.host }}
@@ -229,7 +229,7 @@ jobs:
 
       - name: Setup ninja
         if: matrix.compiler != 'default'
-        uses: seanmiddleditch/gha-setup-ninja@v6
+        uses: seanmiddleditch/gha-setup-ninja@3b1f8f94a2f8254bd26914c4ab9474d4f0015f67 # v6
 
       - name: Build (Qt6, CentOS 9, GCC11)
         if: matrix.compiler == 'default'
@@ -252,14 +252,14 @@ jobs:
 
       - name: Run tests
         if: matrix.compiler != 'default' && !(matrix.host == 'linux_arm64' && matrix.renderer == 'Vulkan') && !(matrix.compiler == 'llvm' && matrix.renderer == 'Vulkan')
-        uses: coactions/setup-xvfb@v1
+        uses: coactions/setup-xvfb@b6b4fcfb9f5a895edadc3bc76318fae0ac17c8b3 # v1.0.1
         with:
           run: ctest --output-on-failure
           working-directory: build/qt6-Linux-${{ matrix.renderer }}
 
       - name: Run code coverage
         if: matrix.compiler != 'default' && matrix.preset == 'Linux-OpenGL-coverage'
-        uses: coactions/setup-xvfb@v1
+        uses: coactions/setup-xvfb@b6b4fcfb9f5a895edadc3bc76318fae0ac17c8b3 # v1.0.1
         with:
           run: ninja coverage
           working-directory: build/qt6-Linux-${{ matrix.renderer }}
@@ -297,15 +297,15 @@ jobs:
         run: sccache --show-stats
 
       - name: Upload installation
-        if: matrix.compiler == 'default'
-        uses: actions/upload-artifact@v7
+        if: matrix.compiler == 'default' || matrix.compiler == 'gcc'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ matrix.host }}_${{ matrix.qt_version }}_${{ matrix.renderer }}
           path: build/qt6-Linux-${{ matrix.renderer }}/maplibre-native-qt_*.tar.bz2
 
       - name: Upload coverage reports to Codecov
         if: matrix.compiler != 'default' && matrix.preset == 'Linux-OpenGL-coverage'
-        uses: codecov/codecov-action@v7
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           files: build/qt6-Linux-${{ matrix.renderer }}/coverage.info
           verbose: true
@@ -325,12 +325,12 @@ jobs:
 
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: ${{ matrix.host }}_${{ matrix.qt_version }}_${{ matrix.renderer }}
 
       - name: Release
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           artifacts: maplibre-native-qt_${{ github.ref_name }}_Qt${{ matrix.qt_version }}_${{ matrix.host }}_${{ matrix.renderer }}.tar.bz2
           allowUpdates: true
