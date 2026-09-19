@@ -82,14 +82,14 @@ jobs:
     steps:
       - name: Configure AWS Credentials
         if: vars.OIDC_AWS_ROLE_TO_ASSUME
-        uses: aws-actions/configure-aws-credentials@v6
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
         with:
           aws-region: us-west-2
           role-to-assume: ${{ vars.OIDC_AWS_ROLE_TO_ASSUME }}
           role-session-name: ${{ github.run_id }}
 
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: source
           submodules: recursive
@@ -112,14 +112,14 @@ jobs:
           fi
 
       - name: Setup emsdk
-        uses: mymindstorm/setup-emsdk@v16
+        uses: mymindstorm/setup-emsdk@4528d102f7230f0e7b276855c01ea1159be0e984 # v16
         with:
           version: ${{ matrix.emsdk_version }}
 
       - name: Download Qt
-        uses: jurplel/install-qt-action@v4
+        uses: jurplel/install-qt-action@bcb88e3bed2e992f5f9e24c0f9e364a231d278eb # v4.4.0
         with:
-          aqtversion: ==3.3.*
+          aqtsource: git+https://github.com/miurahr/aqtinstall.git@076e1659807d0b362a3ed684d54c2e9c775eb9c7
           version: ${{ matrix.qt_version }}
           dir: ${{ github.workspace }}
           host: all_os
@@ -127,12 +127,12 @@ jobs:
           arch: wasm_multithread
 
       - name: Setup CMake
-        uses: jwlawson/actions-setup-cmake@v2
+        uses: jwlawson/actions-setup-cmake@0d6a7d60b009d01c9e7523be22153ff8f19460d3 # v2.2.0
         with:
           cmake-version: 3.30.x
 
       - name: Setup ninja
-        uses: seanmiddleditch/gha-setup-ninja@v6
+        uses: seanmiddleditch/gha-setup-ninja@3b1f8f94a2f8254bd26914c4ab9474d4f0015f67 # v6
 
       - name: Build
         working-directory: source
@@ -155,13 +155,13 @@ jobs:
         run: sccache --show-stats
 
       - name: Upload installation
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: WASM_${{ matrix.qt_version }}
           path: build/qt6-WASM/maplibre-native-qt_*.tar.bz2
 
       - name: Upload examples
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: WASM_${{ matrix.qt_version }}_examples
           path: build/qt6-example-*/*.tar.bz2
@@ -179,12 +179,12 @@ jobs:
 
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: WASM_${{ matrix.qt_version }}
 
       - name: Release
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           artifacts: maplibre-native-qt_${{ github.ref_name }}_Qt${{ matrix.qt_version }}_WASM_OpenGL.tar.bz2
           allowUpdates: true

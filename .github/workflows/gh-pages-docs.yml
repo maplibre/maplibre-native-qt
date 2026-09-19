@@ -8,13 +8,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
           fetch-depth: 0
 
       - name: Install Doxygen
-        uses: ssciwr/doxygen-install@v2
+        uses: ssciwr/doxygen-install@fa3e94d34131d3990b6b8ba939ab982964aa3758 # v2.0.3
         with:
           version: "1.12.0"
 
@@ -26,7 +26,7 @@ jobs:
         run: doxygen
 
       - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@v4.9.0
+        uses: JamesIves/github-pages-deploy-action@fa24774553152dd7873cd16ebd8d959b010c5445 # v4.9.0
         with:
           branch: gh-pages
           folder: docs/output/html

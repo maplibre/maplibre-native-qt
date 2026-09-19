@@ -105,14 +105,14 @@ jobs:
     steps:
       - name: Configure AWS Credentials
         if: vars.OIDC_AWS_ROLE_TO_ASSUME
-        uses: aws-actions/configure-aws-credentials@v6
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
         with:
           aws-region: us-west-2
           role-to-assume: ${{ vars.OIDC_AWS_ROLE_TO_ASSUME }}
           role-session-name: ${{ github.run_id }}
 
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: source
           submodules: recursive
@@ -136,10 +136,11 @@ jobs:
 
       - name: Download Qt
         id: qt-android
-        uses: jurplel/install-qt-action@v4
+        uses: jurplel/install-qt-action@bcb88e3bed2e992f5f9e24c0f9e364a231d278eb # v4.4.0
         with:
-          aqtversion: ==3.3.*
+          aqtsource: git+https://github.com/miurahr/aqtinstall.git@076e1659807d0b362a3ed684d54c2e9c775eb9c7
           version: ${{ matrix.qt_version }}
+          host: all_os
           target: android
           arch: ${{ matrix.arch }}
           modules: qtlocation qtpositioning
@@ -151,18 +152,18 @@ jobs:
           sed -i "s/C:\/Qt\/Qt-${QT_VERSION}/\/usr\/local\/Qt-${QT_VERSION}/g" "$QT_ROOT_DIR/lib/cmake/Qt6BuildInternals/QtBuildInternalsExtra.cmake"
 
       - name: Setup CMake
-        uses: jwlawson/actions-setup-cmake@v2
+        uses: jwlawson/actions-setup-cmake@0d6a7d60b009d01c9e7523be22153ff8f19460d3 # v2.2.0
         with:
           cmake-version: 3.30.x
 
       - name: Set up OpenJDK 17
-        uses: actions/setup-java@v6
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
         with:
           distribution: temurin
           java-version: 17
 
       - name: Setup ninja
-        uses: seanmiddleditch/gha-setup-ninja@v6
+        uses: seanmiddleditch/gha-setup-ninja@3b1f8f94a2f8254bd26914c4ab9474d4f0015f67 # v6
 
       - name: Build
         env:
@@ -177,7 +178,7 @@ jobs:
         run: sccache --show-stats
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Android_${{ matrix.qt_version }}_${{ matrix.renderer }}_${{ matrix.abi }}
           path: build/qt6-Android-${{ matrix.renderer }}/maplibre-native-qt_*_Android_${{ matrix.renderer }}.tar.bz2
@@ -193,25 +194,25 @@ jobs:
 
     steps:
       - name: Download artifacts for x86
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: Android_${{ matrix.qt_version}}_${{ matrix.renderer }}_x86
           path: install/x86
 
       - name: Download artifacts for x86_64
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: Android_${{ matrix.qt_version}}_${{ matrix.renderer }}_x86_64
           path: install/x86_64
 
       - name: Download artifacts for armeabi-v7a
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: Android_${{ matrix.qt_version}}_${{ matrix.renderer }}_armeabi-v7a
           path: install/armeabi-v7a
 
       - name: Download artifacts for arm64-v8a
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: Android_${{ matrix.qt_version}}_${{ matrix.renderer }}_arm64-v8a
           path: install/arm64-v8a
@@ -250,7 +251,7 @@ jobs:
           popd
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Android_${{ matrix.qt_version }}_${{ matrix.renderer }}
           path: maplibre-native-qt_Android_${{ matrix.renderer }}.tar.bz2
@@ -269,7 +270,7 @@ jobs:
 
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: Android_${{ matrix.qt_version }}_${{ matrix.renderer }}
 
@@ -282,7 +283,7 @@ jobs:
           mv maplibre-native-qt_Android_${RENDERER}.tar.bz2 maplibre-native-qt_${TAG_NAME}_Qt${QT_VERSION}_Android_${RENDERER}.tar.bz2
 
       - name: Release
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           artifacts: maplibre-native-qt_${{ github.ref_name }}_Qt${{ matrix.qt_version }}_Android_${{ matrix.renderer }}.tar.bz2
           allowUpdates: true
