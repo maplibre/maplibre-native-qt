@@ -122,7 +122,6 @@ jobs:
           aqtsource: git+https://github.com/miurahr/aqtinstall.git@076e1659807d0b362a3ed684d54c2e9c775eb9c7
           version: ${{ matrix.qt_version }}
           dir: ${{ github.workspace }}
-          host: all_os
           target: wasm
           arch: wasm_multithread
 
