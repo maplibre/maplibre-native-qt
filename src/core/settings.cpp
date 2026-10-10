@@ -28,15 +28,12 @@ static_assert(mln::underlying_type(QMapLibre::Settings::SharedGLContext) ==
               "error");
 
 // mln::MapMode
-static_assert(mln::underlying_type(QMapLibre::Settings::Continuous) ==
-                  mln::underlying_type(mln::MapMode::Continuous),
+static_assert(mln::underlying_type(QMapLibre::Settings::Continuous) == mln::underlying_type(mln::MapMode::Continuous),
               "error");
-static_assert(mln::underlying_type(QMapLibre::Settings::Static) == mln::underlying_type(mln::MapMode::Static),
-              "error");
+static_assert(mln::underlying_type(QMapLibre::Settings::Static) == mln::underlying_type(mln::MapMode::Static), "error");
 
 // mln::ConstrainMode
-static_assert(mln::underlying_type(QMapLibre::Settings::NoConstrain) ==
-                  mln::underlying_type(mln::ConstrainMode::None),
+static_assert(mln::underlying_type(QMapLibre::Settings::NoConstrain) == mln::underlying_type(mln::ConstrainMode::None),
               "error");
 static_assert(mln::underlying_type(QMapLibre::Settings::ConstrainHeightOnly) ==
                   mln::underlying_type(mln::ConstrainMode::HeightOnly),

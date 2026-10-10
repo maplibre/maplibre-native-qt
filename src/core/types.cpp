@@ -14,8 +14,7 @@ static_assert(mln::underlying_type(QMapLibre::Feature::PointType) == mln::underl
 static_assert(mln::underlying_type(QMapLibre::Feature::LineStringType) ==
                   mln::underlying_type(mln::FeatureType::LineString),
               "error");
-static_assert(mln::underlying_type(QMapLibre::Feature::PolygonType) ==
-                  mln::underlying_type(mln::FeatureType::Polygon),
+static_assert(mln::underlying_type(QMapLibre::Feature::PolygonType) == mln::underlying_type(mln::FeatureType::Polygon),
               "error");
 
 namespace QMapLibre {

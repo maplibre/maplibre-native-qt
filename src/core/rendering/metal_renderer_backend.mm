@@ -117,11 +117,11 @@ public:
         if (externalTex != nullptr) {
             // If texture is available, use its size
             texSize = mln::Size{static_cast<uint32_t>(externalTex->width()),
-                                 static_cast<uint32_t>(externalTex->height())};
+                                static_cast<uint32_t>(externalTex->height())};
         } else if (layer != nullptr) {
             // Only use layer size when the texture is not available
             texSize = mln::Size{static_cast<uint32_t>(layer->drawableSize().width),
-                                 static_cast<uint32_t>(layer->drawableSize().height)};
+                                static_cast<uint32_t>(layer->drawableSize().height)};
         }
 
         commandBuffer = NS::RetainPtr(commandQueue->commandBuffer());
@@ -223,9 +223,9 @@ namespace QMapLibre {
 MetalRendererBackend::MetalRendererBackend(CA::MetalLayer *layer)
     : mln::mtl::RendererBackend(mln::gfx::ContextMode::Unique),
       mln::gfx::Renderable(layer != nullptr ? mln::Size{static_cast<uint32_t>(layer->drawableSize().width),
-                                                          static_cast<uint32_t>(layer->drawableSize().height)}
-                                             : mln::Size{defaultOffscreenWidth, defaultOffscreenHeight},
-                            std::make_unique<QtMetalRenderableResource>(*this, layer)) {}
+                                                        static_cast<uint32_t>(layer->drawableSize().height)}
+                                            : mln::Size{defaultOffscreenWidth, defaultOffscreenHeight},
+                           std::make_unique<QtMetalRenderableResource>(*this, layer)) {}
 
 MetalRendererBackend::~MetalRendererBackend() = default;
 

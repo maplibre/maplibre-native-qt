@@ -439,9 +439,8 @@ VulkanRendererBackend::VulkanRendererBackend(QWindow *window,
                                              vk::Device qtDevice,
                                              uint32_t qtGraphicsQueueIndex)
     : mln::vulkan::RendererBackend(mln::gfx::ContextMode::Unique),
-      mln::vulkan::Renderable(
-          mln::Size{DefaultSize, DefaultSize},
-          std::make_unique<QtVulkanRenderableResource>(*this, mln::Size{DefaultSize, DefaultSize})),
+      mln::vulkan::Renderable(mln::Size{DefaultSize, DefaultSize},
+                              std::make_unique<QtVulkanRenderableResource>(*this, mln::Size{DefaultSize, DefaultSize})),
       m_qtPhysicalDevice(qtPhysicalDevice),
       m_qtDevice(qtDevice),
       m_qtGraphicsQueueIndex(qtGraphicsQueueIndex),

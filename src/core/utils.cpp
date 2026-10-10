@@ -96,8 +96,7 @@ double metersPerPixelAtLatitude(double latitude, double zoom) {
     Returns the projected meters for a given \a coordinate object.
 */
 ProjectedMeters projectedMetersForCoordinate(const Coordinate &coordinate) {
-    auto projectedMeters = mln::Projection::projectedMetersForLatLng(
-        mln::LatLng{coordinate.first, coordinate.second});
+    auto projectedMeters = mln::Projection::projectedMetersForLatLng(mln::LatLng{coordinate.first, coordinate.second});
     return {projectedMeters.northing(), projectedMeters.easting()};
 }
 

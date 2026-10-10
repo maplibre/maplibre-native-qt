@@ -134,7 +134,7 @@ void MapRenderer::updateRenderer(const mln::Size &size, qreal pixelRatio, quint3
 
     // Compute actual renderer size based on pixel ratio
     const mln::Size actualSize{static_cast<uint32_t>(size.width * pixelRatio),
-                                static_cast<uint32_t>(size.height * pixelRatio)};
+                               static_cast<uint32_t>(size.height * pixelRatio)};
 
     m_backend.updateRenderer(actualSize, fbo);
 }

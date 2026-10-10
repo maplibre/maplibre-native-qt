@@ -147,7 +147,7 @@ std::unique_ptr<mln::style::Image> toStyleImage(const QString &id, const QImage 
     return std::make_unique<mln::style::Image>(
         id.toStdString(),
         mln::PremultipliedImage({static_cast<uint32_t>(swapped.width()), static_cast<uint32_t>(swapped.height())},
-                                 std::move(img)),
+                                std::move(img)),
         1.0);
 }
 
@@ -656,9 +656,8 @@ Coordinate Map::coordinate() const {
     \sa setMargins()
 */
 void Map::setCoordinate(const Coordinate &coordinate) {
-    d_ptr->mapObj->jumpTo(mln::CameraOptions()
-                              .withCenter(mln::LatLng{coordinate.first, coordinate.second})
-                              .withPadding(d_ptr->margins));
+    d_ptr->mapObj->jumpTo(
+        mln::CameraOptions().withCenter(mln::LatLng{coordinate.first, coordinate.second}).withPadding(d_ptr->margins));
 }
 
 /*!
@@ -1113,8 +1112,7 @@ void Map::scaleBy(double scale, const QPointF &center) {
     at the current frame.
 */
 void Map::rotateBy(const QPointF &first, const QPointF &second) {
-    d_ptr->mapObj->rotateBy(mln::ScreenCoordinate{first.x(), first.y()},
-                            mln::ScreenCoordinate{second.x(), second.y()});
+    d_ptr->mapObj->rotateBy(mln::ScreenCoordinate{first.x(), first.y()}, mln::ScreenCoordinate{second.x(), second.y()});
 }
 
 /*!
@@ -1153,8 +1151,7 @@ void Map::resize(const QSize &size, qreal pixelRatio) {
     \note The return value is affected by the current zoom level, bearing and pitch.
 */
 QPointF Map::pixelForCoordinate(const Coordinate &coordinate) const {
-    const mln::ScreenCoordinate pixel = d_ptr->mapObj->pixelForLatLng(
-        mln::LatLng{coordinate.first, coordinate.second});
+    const mln::ScreenCoordinate pixel = d_ptr->mapObj->pixelForLatLng(mln::LatLng{coordinate.first, coordinate.second});
 
     return {pixel.x, pixel.y};
 }
@@ -1267,8 +1264,7 @@ void Map::setMargins(const QMargins &margins) {
 void Map::addSource(const QString &id, const QVariantMap &params) {
     mln::style::conversion::Error error;
     std::optional<std::unique_ptr<mln::style::Source>> source =
-        mln::style::conversion::convert<std::unique_ptr<mln::style::Source>>(
-            QVariant(params), error, id.toStdString());
+        mln::style::conversion::convert<std::unique_ptr<mln::style::Source>>(QVariant(params), error, id.toStdString());
     if (!source) {
         qWarning() << "Unable to add source with id" << id << ":" << error.message.c_str();
         return;
@@ -1810,10 +1806,10 @@ MapPrivate::MapPrivate(Map *map, const Settings &settings, const QSize &size, qr
 
     // Setup the Map object.
     mapObj = std::make_unique<mln::Map>(*this,
-                                         *m_mapObserver,
-                                         mapOptionsFromSettings(settings, size, m_pixelRatio),
-                                         resourceOptions,
-                                         clientOptionsFromSettings(settings));
+                                        *m_mapObserver,
+                                        mapOptionsFromSettings(settings, size, m_pixelRatio),
+                                        resourceOptions,
+                                        clientOptionsFromSettings(settings));
 
     if (settings.resourceTransform()) {
         m_resourceTransform = std::make_unique<mln::Actor<mln::ResourceTransform::TransformCallback>>(
@@ -1824,12 +1820,12 @@ MapPrivate::MapPrivate(Map *map, const Settings &settings, const QSize &size, qr
                 onFinished(callback(url_));
             });
 
-        mln::ResourceTransform transform{[actorRef = m_resourceTransform->self()](
-                                              mln::Resource::Kind kind,
-                                              const std::string &url,
-                                              mln::ResourceTransform::FinishedCallback onFinished) {
-            actorRef.invoke(&mln::ResourceTransform::TransformCallback::operator(), kind, url, std::move(onFinished));
-        }};
+        mln::ResourceTransform transform{
+            [actorRef = m_resourceTransform->self()](
+                mln::Resource::Kind kind, const std::string &url, mln::ResourceTransform::FinishedCallback onFinished) {
+                actorRef.invoke(
+                    &mln::ResourceTransform::TransformCallback::operator(), kind, url, std::move(onFinished));
+            }};
         const std::shared_ptr<mln::FileSource> fs = mln::FileSourceManager::get()->getFileSource(
             mln::FileSourceType::Network, resourceOptions, clientOptions);
         fs->setResourceTransform(std::move(transform));
