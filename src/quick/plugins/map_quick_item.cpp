@@ -45,6 +45,10 @@ MapQuickItem::MapQuickItem(QQuickItem *parent)
     Q_D(MapQuickItem);
 
     setFlag(ItemHasContents, true);
+    // QQuickItem accepts only the left mouse button by default, so a
+    // right-button press is never delivered to this item and therefore never
+    // reaches pointer handlers declared on it (e.g. a right-drag gesture).
+    setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
     // TODO: make configurable
     d->m_settings.setCacheDatabasePath(QStringLiteral(":memory:"));
 }
