@@ -8,7 +8,7 @@
 #include "settings.hpp"
 #include "types.hpp"
 
-#include <mbgl/util/tile_server_options.hpp>
+#include <mln/util/tile_server_options.hpp>
 
 #include <QtCore/QString>
 #include <QtCore/QVector>
@@ -16,9 +16,9 @@
 #include <functional>
 #include <memory>
 
-namespace mbgl {
+namespace mln {
 class TileServerOptions;
-} // namespace mbgl
+} // namespace mln
 
 namespace QMapLibre {
 
@@ -51,7 +51,7 @@ public:
     std::function<std::string(const std::string &)> m_resourceTransform;
 
     bool m_customTileServerOptions{};
-    mbgl::TileServerOptions m_tileServerOptions{};
+    mln::TileServerOptions m_tileServerOptions{};
 };
 
 } // namespace QMapLibre

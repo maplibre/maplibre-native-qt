@@ -28,7 +28,7 @@ TextureNodeOpenGL::~TextureNodeOpenGL() {
 void TextureNodeOpenGL::resize(const QSize &size, qreal pixelRatio, QQuickWindow * /* window */) {
     m_size = size.expandedTo(QSize(DefaultSize, DefaultSize));
     m_pixelRatio = pixelRatio;
-    // Pass logical size; mbgl::Map handles DPI scaling internally via pixelRatio passed at construction
+    // Pass logical size; mln::Map handles DPI scaling internally via pixelRatio passed at construction
     m_map->resize(m_size, m_pixelRatio);
 }
 
@@ -53,7 +53,7 @@ void TextureNodeOpenGL::render(QQuickWindow *window) {
         m_rendererBound = true;
     }
 
-    // Update map size if needed - pass logical size, mbgl::Map handles DPI internally
+    // Update map size if needed - pass logical size, mln::Map handles DPI internally
     m_map->resize(m_size, m_pixelRatio);
 
     // CRITICAL: Set up framebuffer for texture sharing before rendering

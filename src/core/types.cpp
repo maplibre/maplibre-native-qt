@@ -5,17 +5,17 @@
 
 #include "types.hpp"
 
-#include "mbgl/util/geometry.hpp"
-#include "mbgl/util/traits.hpp"
+#include "mln/util/geometry.hpp"
+#include "mln/util/traits.hpp"
 
-// mbgl::FeatureType
-static_assert(mbgl::underlying_type(QMapLibre::Feature::PointType) == mbgl::underlying_type(mbgl::FeatureType::Point),
+// mln::FeatureType
+static_assert(mln::underlying_type(QMapLibre::Feature::PointType) == mln::underlying_type(mln::FeatureType::Point),
               "error");
-static_assert(mbgl::underlying_type(QMapLibre::Feature::LineStringType) ==
-                  mbgl::underlying_type(mbgl::FeatureType::LineString),
+static_assert(mln::underlying_type(QMapLibre::Feature::LineStringType) ==
+                  mln::underlying_type(mln::FeatureType::LineString),
               "error");
-static_assert(mbgl::underlying_type(QMapLibre::Feature::PolygonType) ==
-                  mbgl::underlying_type(mbgl::FeatureType::Polygon),
+static_assert(mln::underlying_type(QMapLibre::Feature::PolygonType) ==
+                  mln::underlying_type(mln::FeatureType::Polygon),
               "error");
 
 namespace QMapLibre {

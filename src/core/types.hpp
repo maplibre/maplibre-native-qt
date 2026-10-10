@@ -174,7 +174,7 @@ struct Q_MAPLIBRE_CORE_EXPORT AnimationOptions {
         : duration(duration_) {}
 };
 
-// This struct is a 1:1 copy of mbgl::CustomLayerRenderParameters.
+// This struct is a 1:1 copy of mln::CustomLayerRenderParameters.
 struct Q_MAPLIBRE_CORE_EXPORT CustomLayerRenderParameters {
     double width;
     double height;

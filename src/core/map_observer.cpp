@@ -7,7 +7,7 @@
 
 #include "map_p.hpp"
 
-#include <mbgl/util/exception.hpp>
+#include <mln/util/exception.hpp>
 
 #include <exception>
 
@@ -20,8 +20,8 @@ MapObserver::MapObserver(MapPrivate *ptr)
 
 MapObserver::~MapObserver() = default;
 
-void MapObserver::onCameraWillChange(mbgl::MapObserver::CameraChangeMode mode) {
-    if (mode == mbgl::MapObserver::CameraChangeMode::Immediate) {
+void MapObserver::onCameraWillChange(mln::MapObserver::CameraChangeMode mode) {
+    if (mode == mln::MapObserver::CameraChangeMode::Immediate) {
         emit mapChanged(Map::MapChangeRegionWillChange);
     } else {
         emit mapChanged(Map::MapChangeRegionWillChangeAnimated);
@@ -32,8 +32,8 @@ void MapObserver::onCameraIsChanging() {
     emit mapChanged(Map::MapChangeRegionIsChanging);
 }
 
-void MapObserver::onCameraDidChange(mbgl::MapObserver::CameraChangeMode mode) {
-    if (mode == mbgl::MapObserver::CameraChangeMode::Immediate) {
+void MapObserver::onCameraDidChange(mln::MapObserver::CameraChangeMode mode) {
+    if (mode == mln::MapObserver::CameraChangeMode::Immediate) {
         emit mapChanged(Map::MapChangeRegionDidChange);
     } else {
         emit mapChanged(Map::MapChangeRegionDidChangeAnimated);
@@ -48,20 +48,20 @@ void MapObserver::onDidFinishLoadingMap() {
     emit mapChanged(Map::MapChangeDidFinishLoadingMap);
 }
 
-void MapObserver::onDidFailLoadingMap(mbgl::MapLoadError error, const std::string &what) {
+void MapObserver::onDidFailLoadingMap(mln::MapLoadError error, const std::string &what) {
     emit mapChanged(Map::MapChangeDidFailLoadingMap);
 
     Map::MapLoadingFailure type = Map::MapLoadingFailure::UnknownFailure;
     const QString description(what.c_str());
 
     switch (error) {
-        case mbgl::MapLoadError::StyleParseError:
+        case mln::MapLoadError::StyleParseError:
             type = Map::MapLoadingFailure::StyleParseFailure;
             break;
-        case mbgl::MapLoadError::StyleLoadError:
+        case mln::MapLoadError::StyleLoadError:
             type = Map::MapLoadingFailure::StyleLoadFailure;
             break;
-        case mbgl::MapLoadError::NotFoundError:
+        case mln::MapLoadError::NotFoundError:
             type = Map::MapLoadingFailure::NotFoundFailure;
             break;
         default:
@@ -75,8 +75,8 @@ void MapObserver::onWillStartRenderingFrame() {
     emit mapChanged(Map::MapChangeWillStartRenderingFrame);
 }
 
-void MapObserver::onDidFinishRenderingFrame(const mbgl::MapObserver::RenderFrameStatus &status) {
-    if (status.mode == mbgl::MapObserver::RenderMode::Partial) {
+void MapObserver::onDidFinishRenderingFrame(const mln::MapObserver::RenderFrameStatus &status) {
+    if (status.mode == mln::MapObserver::RenderMode::Partial) {
         emit mapChanged(Map::MapChangeDidFinishRenderingFrame);
     } else {
         emit mapChanged(Map::MapChangeDidFinishRenderingFrameFullyRendered);
@@ -87,8 +87,8 @@ void MapObserver::onWillStartRenderingMap() {
     emit mapChanged(Map::MapChangeWillStartRenderingMap);
 }
 
-void MapObserver::onDidFinishRenderingMap(mbgl::MapObserver::RenderMode mode) {
-    if (mode == mbgl::MapObserver::RenderMode::Partial) {
+void MapObserver::onDidFinishRenderingMap(mln::MapObserver::RenderMode mode) {
+    if (mode == mln::MapObserver::RenderMode::Partial) {
         emit mapChanged(Map::MapChangeDidFinishRenderingMap);
     } else {
         emit mapChanged(Map::MapChangeDidFinishRenderingMapFullyRendered);
@@ -99,7 +99,7 @@ void MapObserver::onDidFinishLoadingStyle() {
     emit mapChanged(Map::MapChangeDidFinishLoadingStyle);
 }
 
-void MapObserver::onSourceChanged(mbgl::style::Source & /* source */) {
+void MapObserver::onSourceChanged(mln::style::Source & /* source */) {
     std::string attribution;
     for (const auto &source : d_ptrRef->mapObj->getStyle().getSources()) {
         // Avoid duplicates by using the most complete attribution HTML snippet.

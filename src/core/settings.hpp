@@ -16,9 +16,9 @@
 #include <memory>
 
 // TODO: this will be wrapped at some point
-namespace mbgl {
+namespace mln {
 class TileServerOptions;
-} // namespace mbgl
+} // namespace mln
 
 namespace QMapLibre {
 
@@ -114,7 +114,7 @@ public:
     void setDefaultZoom(double zoom);
 
     [[nodiscard]] bool customTileServerOptions() const;
-    [[nodiscard]] const mbgl::TileServerOptions &tileServerOptions() const;
+    [[nodiscard]] const mln::TileServerOptions &tileServerOptions() const;
 
 private:
     std::unique_ptr<SettingsPrivate> d_ptr;

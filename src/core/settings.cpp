@@ -6,10 +6,10 @@
 #include "settings.hpp"
 #include "settings_p.hpp"
 
-#include <mbgl/gfx/renderer_backend.hpp>
-#include <mbgl/map/mode.hpp>
-#include <mbgl/util/constants.hpp>
-#include <mbgl/util/traits.hpp>
+#include <mln/gfx/renderer_backend.hpp>
+#include <mln/map/mode.hpp>
+#include <mln/util/constants.hpp>
+#include <mln/util/traits.hpp>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
@@ -19,38 +19,38 @@
 #pragma warning(disable : 4805)
 #endif
 
-// mbgl::GLContextMode
-static_assert(mbgl::underlying_type(QMapLibre::Settings::UniqueGLContext) ==
-                  mbgl::underlying_type(mbgl::gfx::ContextMode::Unique),
+// mln::GLContextMode
+static_assert(mln::underlying_type(QMapLibre::Settings::UniqueGLContext) ==
+                  mln::underlying_type(mln::gfx::ContextMode::Unique),
               "error");
-static_assert(mbgl::underlying_type(QMapLibre::Settings::SharedGLContext) ==
-                  mbgl::underlying_type(mbgl::gfx::ContextMode::Shared),
-              "error");
-
-// mbgl::MapMode
-static_assert(mbgl::underlying_type(QMapLibre::Settings::Continuous) ==
-                  mbgl::underlying_type(mbgl::MapMode::Continuous),
-              "error");
-static_assert(mbgl::underlying_type(QMapLibre::Settings::Static) == mbgl::underlying_type(mbgl::MapMode::Static),
+static_assert(mln::underlying_type(QMapLibre::Settings::SharedGLContext) ==
+                  mln::underlying_type(mln::gfx::ContextMode::Shared),
               "error");
 
-// mbgl::ConstrainMode
-static_assert(mbgl::underlying_type(QMapLibre::Settings::NoConstrain) ==
-                  mbgl::underlying_type(mbgl::ConstrainMode::None),
+// mln::MapMode
+static_assert(mln::underlying_type(QMapLibre::Settings::Continuous) ==
+                  mln::underlying_type(mln::MapMode::Continuous),
               "error");
-static_assert(mbgl::underlying_type(QMapLibre::Settings::ConstrainHeightOnly) ==
-                  mbgl::underlying_type(mbgl::ConstrainMode::HeightOnly),
-              "error");
-static_assert(mbgl::underlying_type(QMapLibre::Settings::ConstrainWidthAndHeight) ==
-                  mbgl::underlying_type(mbgl::ConstrainMode::WidthAndHeight),
+static_assert(mln::underlying_type(QMapLibre::Settings::Static) == mln::underlying_type(mln::MapMode::Static),
               "error");
 
-// mbgl::ViewportMode
-static_assert(mbgl::underlying_type(QMapLibre::Settings::DefaultViewport) ==
-                  mbgl::underlying_type(mbgl::ViewportMode::Default),
+// mln::ConstrainMode
+static_assert(mln::underlying_type(QMapLibre::Settings::NoConstrain) ==
+                  mln::underlying_type(mln::ConstrainMode::None),
               "error");
-static_assert(mbgl::underlying_type(QMapLibre::Settings::FlippedYViewport) ==
-                  mbgl::underlying_type(mbgl::ViewportMode::FlippedY),
+static_assert(mln::underlying_type(QMapLibre::Settings::ConstrainHeightOnly) ==
+                  mln::underlying_type(mln::ConstrainMode::HeightOnly),
+              "error");
+static_assert(mln::underlying_type(QMapLibre::Settings::ConstrainWidthAndHeight) ==
+                  mln::underlying_type(mln::ConstrainMode::WidthAndHeight),
+              "error");
+
+// mln::ViewportMode
+static_assert(mln::underlying_type(QMapLibre::Settings::DefaultViewport) ==
+                  mln::underlying_type(mln::ViewportMode::Default),
+              "error");
+static_assert(mln::underlying_type(QMapLibre::Settings::FlippedYViewport) ==
+                  mln::underlying_type(mln::ViewportMode::FlippedY),
               "error");
 
 #ifdef _MSC_VER
@@ -633,7 +633,7 @@ bool Settings::customTileServerOptions() const {
 
     \warning Mainly for internal use.
 */
-const mbgl::TileServerOptions &Settings::tileServerOptions() const {
+const mln::TileServerOptions &Settings::tileServerOptions() const {
     return d_ptr->m_tileServerOptions;
 }
 
@@ -641,7 +641,7 @@ const mbgl::TileServerOptions &Settings::tileServerOptions() const {
 
 // Private implementation
 SettingsPrivate::SettingsPrivate()
-    : m_cacheMaximumSize(mbgl::util::DEFAULT_MAX_CACHE_SIZE),
+    : m_cacheMaximumSize(mln::util::DEFAULT_MAX_CACHE_SIZE),
       m_cacheDatabasePath(":memory:"),
       m_assetPath(QCoreApplication::applicationDirPath()),
       m_apiKey(qgetenv("MLN_API_KEY")) {}
@@ -650,16 +650,16 @@ void SettingsPrivate::setProviderTemplate(Settings::ProviderTemplate providerTem
     m_providerTemplate = providerTemplate;
 
     if (providerTemplate == Settings::MapLibreProvider) {
-        m_tileServerOptions = mbgl::TileServerOptions::MapLibreConfiguration();
+        m_tileServerOptions = mln::TileServerOptions::MapLibreConfiguration();
         m_customTileServerOptions = true;
     } else if (providerTemplate == Settings::MapTilerProvider) {
-        m_tileServerOptions = mbgl::TileServerOptions::MapTilerConfiguration();
+        m_tileServerOptions = mln::TileServerOptions::MapTilerConfiguration();
         m_customTileServerOptions = true;
     } else if (providerTemplate == Settings::MapboxProvider) {
-        m_tileServerOptions = mbgl::TileServerOptions::MapboxConfiguration();
+        m_tileServerOptions = mln::TileServerOptions::MapboxConfiguration();
         m_customTileServerOptions = true;
     } else {
-        m_tileServerOptions = mbgl::TileServerOptions();
+        m_tileServerOptions = mln::TileServerOptions();
         m_customTileServerOptions = false;
     }
 }

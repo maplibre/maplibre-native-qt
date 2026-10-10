@@ -9,12 +9,12 @@
 
 namespace QMapLibre::GeoJSON {
 
-mbgl::Point<double> asPoint(const Coordinate &coordinate) {
-    return mbgl::Point<double>{coordinate.second, coordinate.first};
+mln::Point<double> asPoint(const Coordinate &coordinate) {
+    return mln::Point<double>{coordinate.second, coordinate.first};
 }
 
-mbgl::MultiPoint<double> asMultiPoint(const Coordinates &multiPoint) {
-    mbgl::MultiPoint<double> mbglMultiPoint;
+mln::MultiPoint<double> asMultiPoint(const Coordinates &multiPoint) {
+    mln::MultiPoint<double> mbglMultiPoint;
     mbglMultiPoint.reserve(multiPoint.size());
     for (const auto &point : multiPoint) {
         mbglMultiPoint.emplace_back(asPoint(point));
@@ -22,8 +22,8 @@ mbgl::MultiPoint<double> asMultiPoint(const Coordinates &multiPoint) {
     return mbglMultiPoint;
 };
 
-mbgl::LineString<double> asLineString(const Coordinates &lineString) {
-    mbgl::LineString<double> mbglLineString;
+mln::LineString<double> asLineString(const Coordinates &lineString) {
+    mln::LineString<double> mbglLineString;
     mbglLineString.reserve(lineString.size());
     for (const auto &coordinate : lineString) {
         mbglLineString.emplace_back(asPoint(coordinate));
@@ -31,20 +31,20 @@ mbgl::LineString<double> asLineString(const Coordinates &lineString) {
     return mbglLineString;
 };
 
-mbgl::MultiLineString<double> asMultiLineString(const CoordinatesCollection &multiLineString) {
-    mbgl::MultiLineString<double> mbglMultiLineString;
+mln::MultiLineString<double> asMultiLineString(const CoordinatesCollection &multiLineString) {
+    mln::MultiLineString<double> mbglMultiLineString;
     mbglMultiLineString.reserve(multiLineString.size());
     for (const auto &lineString : multiLineString) {
-        mbglMultiLineString.emplace_back(std::forward<mbgl::LineString<double>>(asLineString(lineString)));
+        mbglMultiLineString.emplace_back(std::forward<mln::LineString<double>>(asLineString(lineString)));
     }
     return mbglMultiLineString;
 };
 
-mbgl::Polygon<double> asPolygon(const CoordinatesCollection &polygon) {
-    mbgl::Polygon<double> mbglPolygon;
+mln::Polygon<double> asPolygon(const CoordinatesCollection &polygon) {
+    mln::Polygon<double> mbglPolygon;
     mbglPolygon.reserve(polygon.size());
     for (const auto &linearRing : polygon) {
-        mbgl::LinearRing<double> mbglLinearRing;
+        mln::LinearRing<double> mbglLinearRing;
         mbglLinearRing.reserve(linearRing.size());
         for (const auto &coordinate : linearRing) {
             mbglLinearRing.emplace_back(asPoint(coordinate));
@@ -54,18 +54,18 @@ mbgl::Polygon<double> asPolygon(const CoordinatesCollection &polygon) {
     return mbglPolygon;
 };
 
-mbgl::MultiPolygon<double> asMultiPolygon(const CoordinatesCollections &multiPolygon) {
-    mbgl::MultiPolygon<double> mbglMultiPolygon;
+mln::MultiPolygon<double> asMultiPolygon(const CoordinatesCollections &multiPolygon) {
+    mln::MultiPolygon<double> mbglMultiPolygon;
     mbglMultiPolygon.reserve(multiPolygon.size());
     for (const auto &polygon : multiPolygon) {
-        mbglMultiPolygon.emplace_back(std::forward<mbgl::Polygon<double>>(asPolygon(polygon)));
+        mbglMultiPolygon.emplace_back(std::forward<mln::Polygon<double>>(asPolygon(polygon)));
     }
     return mbglMultiPolygon;
 };
 
-mbgl::Value asPropertyValue(const QVariant &value) {
+mln::Value asPropertyValue(const QVariant &value) {
     auto valueList = [](const QVariantList &list) {
-        std::vector<mbgl::Value> mbglList;
+        std::vector<mln::Value> mbglList;
         mbglList.reserve(list.size());
         for (const auto &listValue : list) {
             mbglList.emplace_back(asPropertyValue(listValue));
@@ -74,7 +74,7 @@ mbgl::Value asPropertyValue(const QVariant &value) {
     };
 
     auto valueMap = [](const QVariantMap &map) {
-        std::unordered_map<std::string, mbgl::Value> mbglMap;
+        std::unordered_map<std::string, mln::Value> mbglMap;
         mbglMap.reserve(map.size());
         for (auto it = map.constBegin(); it != map.constEnd(); ++it) {
             mbglMap.emplace(it.key().toStdString(), asPropertyValue(it.value()));
@@ -84,7 +84,7 @@ mbgl::Value asPropertyValue(const QVariant &value) {
 
     switch (value.typeId()) {
         case QMetaType::UnknownType:
-            return mbgl::NullValue{};
+            return mln::NullValue{};
         case QMetaType::Bool:
             return {value.toBool()};
         case QMetaType::ULongLong:
@@ -105,7 +105,7 @@ mbgl::Value asPropertyValue(const QVariant &value) {
     }
 }
 
-mbgl::FeatureIdentifier asFeatureIdentifier(const QVariant &id) {
+mln::FeatureIdentifier asFeatureIdentifier(const QVariant &id) {
     switch (id.typeId()) {
         case QMetaType::UnknownType:
             return {};
@@ -123,14 +123,14 @@ mbgl::FeatureIdentifier asFeatureIdentifier(const QVariant &id) {
     }
 }
 
-mbgl::GeoJSONFeature asFeature(const Feature &feature) {
-    mbgl::PropertyMap properties;
+mln::GeoJSONFeature asFeature(const Feature &feature) {
+    mln::PropertyMap properties;
     properties.reserve(feature.properties.size());
     for (auto it = feature.properties.constBegin(); it != feature.properties.constEnd(); ++it) {
         properties.emplace(std::make_pair(it.key().toStdString(), asPropertyValue(it.value())));
     }
 
-    mbgl::FeatureIdentifier id = asFeatureIdentifier(feature.id);
+    mln::FeatureIdentifier id = asFeatureIdentifier(feature.id);
 
     if (feature.type == Feature::PointType) {
         const Coordinates &points = feature.geometry.first().first();
