@@ -47,6 +47,9 @@ configure_file(
     @ONLY
 )
 set_property(TARGET ${MLN_QT_QML_PLUGIN} PROPERTY EXPORT_NAME PluginQml)
+if(NOT TARGET QMapLibre::PluginQml)
+    add_library(QMapLibre::PluginQml ALIAS ${MLN_QT_QML_PLUGIN})
+endif()
 
 # QtQuick QML extension plugin include directories
 target_include_directories(
@@ -75,6 +78,7 @@ if(MLN_QT_WITH_CLANG_TIDY)
 endif()
 
 # QtQuick QML extension plugin installation
+if(NOT CMAKE_GENERATOR MATCHES "Xcode" AND NOT IOS)
 install(
     EXPORT ${MLN_QT_NAME}QuickPluginQmlTargets
     NAMESPACE ${MLN_QT_NAMESPACE}
@@ -98,3 +102,4 @@ install(
         "${CMAKE_CURRENT_BINARY_DIR}/MapLibre/${MLN_QT_QML_PLUGIN}.qmltypes"
     DESTINATION "qml/MapLibre"
 )
+endif()

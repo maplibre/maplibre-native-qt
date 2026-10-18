@@ -18,6 +18,7 @@
 #include <QMapLibre/Map>
 
 #include <QtCore/QTimer>
+#include <QtCore/QByteArray>
 #include <QtQuick/QQuickWindow>
 #include <QtQuick/QSGRectangleNode>
 #ifdef MLN_RENDER_BACKEND_OPENGL
@@ -366,10 +367,91 @@ QSGNode *MapQuickItem::updateMapNode(QSGNode *node) {
 }
 
 void MapQuickItem::onMapChanged(Map::MapChange change) {
+    if (change == Map::MapChangeDidFinishLoadingStyle) {
+        emit styleLoaded();
+    }
     if (change == Map::MapChangeDidFinishLoadingMap) {
         // TODO: make it more elegant
         QTimer::singleShot(intervalTime, this, &QQuickItem::update);
     }
+}
+
+namespace {
+QVariantMap normalizeSourceParams(QVariantMap params)
+{
+    if (!params.contains(QStringLiteral("data"))) {
+        return params;
+    }
+    const QVariant data = params.value(QStringLiteral("data"));
+    if (data.typeId() == QMetaType::QString) {
+        const QString text = data.toString().trimmed();
+        if (text.startsWith(QLatin1Char('{')) || text.startsWith(QLatin1Char('['))) {
+            params.insert(QStringLiteral("data"), QVariant(text.toUtf8()));
+        }
+    }
+    return params;
+}
+} // namespace
+
+void MapQuickItem::addSource(const QString &id, const QVariantMap &params)
+{
+    if (m_map == nullptr) {
+        return;
+    }
+    m_map->addSource(id, normalizeSourceParams(params));
+    update();
+}
+
+void MapQuickItem::updateSource(const QString &id, const QVariantMap &params)
+{
+    if (m_map == nullptr) {
+        return;
+    }
+    m_map->updateSource(id, normalizeSourceParams(params));
+    update();
+}
+
+void MapQuickItem::removeSource(const QString &id)
+{
+    if (m_map == nullptr) {
+        return;
+    }
+    m_map->removeSource(id);
+    update();
+}
+
+bool MapQuickItem::sourceExists(const QString &id)
+{
+    if (m_map == nullptr) {
+        return false;
+    }
+    return m_map->sourceExists(id);
+}
+
+void MapQuickItem::addLayer(const QString &id, const QVariantMap &params, const QString &before)
+{
+    if (m_map == nullptr) {
+        return;
+    }
+    m_map->addLayer(id, params, before);
+    update();
+}
+
+void MapQuickItem::removeLayer(const QString &id)
+{
+    if (m_map == nullptr) {
+        return;
+    }
+    m_map->removeLayer(id);
+    update();
+}
+
+bool MapQuickItem::layerExists(const QString &id)
+{
+    if (m_map == nullptr) {
+        return false;
+    }
+    return m_map->layerExists(id);
 }
 
 } // namespace QMapLibre

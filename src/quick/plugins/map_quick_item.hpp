@@ -45,6 +45,15 @@ public:
     Q_INVOKABLE void easeTo(const QVariantMap &camera, const QVariantMap &animation = QVariantMap());
     Q_INVOKABLE void flyTo(const QVariantMap &camera, const QVariantMap &animation = QVariantMap());
 
+    // Runtime GeoJSON/style mutations (used by i2map trail overlay).
+    Q_INVOKABLE void addSource(const QString &id, const QVariantMap &params);
+    Q_INVOKABLE void updateSource(const QString &id, const QVariantMap &params);
+    Q_INVOKABLE void removeSource(const QString &id);
+    Q_INVOKABLE bool sourceExists(const QString &id);
+    Q_INVOKABLE void addLayer(const QString &id, const QVariantMap &params, const QString &before = QString());
+    Q_INVOKABLE void removeLayer(const QString &id);
+    Q_INVOKABLE bool layerExists(const QString &id);
+
     enum SyncState : int {
         NoSync = 0,
         ViewportSync = 1 << 0,
@@ -55,6 +64,7 @@ public:
 signals:
     void coordinateChanged();
     void zoomLevelChanged();
+    void styleLoaded();
 
 protected:
     void componentComplete() override;
