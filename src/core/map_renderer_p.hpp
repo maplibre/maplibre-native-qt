@@ -9,22 +9,22 @@
 
 #include "rendering/renderer_backend_p.hpp" // provides RendererBackend alias
 
-#include <mbgl/renderer/renderer.hpp>
-#include <mbgl/renderer/renderer_observer.hpp>
-#include <mbgl/util/util.hpp>
+#include <mln/renderer/renderer.hpp>
+#include <mln/renderer/renderer_observer.hpp>
+#include <mln/util/util.hpp>
 
 #include <QtCore/QObject>
 
 #include <memory>
 #include <mutex>
 
-namespace mbgl {
+namespace mln {
 class Renderer;
 class UpdateParameters;
 namespace vulkan {
 class Texture2D;
 } // namespace vulkan
-} // namespace mbgl
+} // namespace mln
 
 namespace QMapLibre {
 
@@ -52,26 +52,26 @@ public:
     ~MapRenderer() override;
 
     void render();
-    void updateRenderer(const mbgl::Size &size, qreal pixelRatio, quint32 fbo = 0);
-    void setObserver(mbgl::RendererObserver *observer);
+    void updateRenderer(const mln::Size &size, qreal pixelRatio, quint32 fbo = 0);
+    void setObserver(mln::RendererObserver *observer);
 
     // Thread-safe, called by the Frontend
-    void updateParameters(std::shared_ptr<mbgl::UpdateParameters> parameters);
+    void updateParameters(std::shared_ptr<mln::UpdateParameters> parameters);
 
     // Backend-specific helpers
 #if defined(MLN_RENDER_BACKEND_METAL) || defined(MLN_RENDER_BACKEND_VULKAN)
     [[nodiscard]] void *currentDrawableTexture() const { return m_backend.currentDrawable(); }
     void setCurrentDrawable(void *tex) { m_backend.setCurrentDrawable(tex); }
-    void setExternalDrawable(void *tex, const mbgl::Size &size) { m_backend.setExternalDrawable(tex, size); }
+    void setExternalDrawable(void *tex, const mln::Size &size) { m_backend.setExternalDrawable(tex, size); }
 #endif
 #if defined(MLN_RENDER_BACKEND_VULKAN)
     // Helper method to get the texture object for pixel data extraction
-    [[nodiscard]] mbgl::vulkan::Texture2D *getVulkanTexture() const { return m_backend.getOffscreenTexture(); }
+    [[nodiscard]] mln::vulkan::Texture2D *getVulkanTexture() const { return m_backend.getOffscreenTexture(); }
 #endif
 #if defined(MLN_RENDER_BACKEND_OPENGL)
     [[nodiscard]] void *currentDrawableTexture() const { return nullptr; }
     void setCurrentDrawable(void * /* tex */) { /* OpenGL doesn't use drawable textures */ }
-    void setExternalDrawable(void *tex, const mbgl::Size &size) {
+    void setExternalDrawable(void *tex, const mln::Size &size) {
         m_backend.setExternalDrawable(*static_cast<unsigned int *>(tex), size);
     }
 
@@ -88,10 +88,10 @@ private:
     Q_DISABLE_COPY(MapRenderer)
 
     std::mutex m_updateMutex;
-    std::shared_ptr<mbgl::UpdateParameters> m_updateParameters;
+    std::shared_ptr<mln::UpdateParameters> m_updateParameters;
 
     RendererBackend m_backend;
-    std::unique_ptr<mbgl::Renderer> m_renderer;
+    std::unique_ptr<mln::Renderer> m_renderer;
 
     bool m_forceScheduler{};
 };

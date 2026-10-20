@@ -12,28 +12,27 @@
 
 #import <QuartzCore/CAMetalLayer.hpp>
 
-#include <mbgl/gfx/context.hpp>
-#include <mbgl/gfx/renderable.hpp>
-#include <mbgl/mtl/renderer_backend.hpp>
+#include <mln/gfx/context.hpp>
+#include <mln/gfx/renderable.hpp>
+#include <mln/mtl/renderer_backend.hpp>
 
 namespace QMapLibre {
 
-class MetalRendererBackend final : public mbgl::mtl::RendererBackend, public mbgl::gfx::Renderable {
+class MetalRendererBackend final : public mln::mtl::RendererBackend, public mln::gfx::Renderable {
 public:
     explicit MetalRendererBackend(CA::MetalLayer *layer);
     MetalRendererBackend(const MetalRendererBackend &) = delete;
     MetalRendererBackend &operator=(const MetalRendererBackend &) = delete;
     ~MetalRendererBackend() override;
 
-    // mbgl::gfx::RendererBackend ------------------------------------------------
-    mbgl::gfx::Renderable &getDefaultRenderable() override { return static_cast<mbgl::gfx::Renderable &>(*this); }
+    // mln::gfx::RendererBackend ------------------------------------------------
+    mln::gfx::Renderable &getDefaultRenderable() override { return static_cast<mln::gfx::Renderable &>(*this); }
     void activate() override {}
     void deactivate() override {}
-    void updateAssumedState() override {}
 
     // Qt-specific --------------------------------------------------------------
-    void setSize(mbgl::Size size_);
-    [[nodiscard]] mbgl::Size getSize() const;
+    void setSize(mln::Size size_);
+    [[nodiscard]] mln::Size getSize() const;
 
     // Returns the color texture of the drawable rendered in the last frame.
     [[nodiscard]] void *currentDrawable() const { return m_currentDrawable; }
@@ -41,9 +40,9 @@ public:
 
     // Set an external Metal texture to render to (for QRhiWidget integration)
     [[nodiscard]] void *externalDrawable() const { return m_externalDrawable; }
-    void setExternalDrawable(void *tex, const mbgl::Size & /* size */) { m_externalDrawable = tex; }
+    void setExternalDrawable(void *tex, const mln::Size & /* size */) { m_externalDrawable = tex; }
 
-    void updateRenderer(const mbgl::Size &size, uint32_t /* fbo */) { setSize(size); };
+    void updateRenderer(const mln::Size &size, uint32_t /* fbo */) { setSize(size); };
 
 private:
     void *m_currentDrawable{nullptr};  // id<MTLTexture>

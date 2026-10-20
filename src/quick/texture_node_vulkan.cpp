@@ -10,7 +10,7 @@
 #endif
 #include <vulkan/vulkan.hpp>
 
-#include <mbgl/vulkan/texture2d.hpp>
+#include <mln/vulkan/texture2d.hpp>
 
 #include <QtCore/QDebug>
 #include <QtCore/QPointer>
@@ -86,7 +86,7 @@ void TextureNodeVulkan::render(QQuickWindow *window) {
         m_rendererBound = true;
     }
 
-    // Update map size if needed - pass logical size, mbgl::Map handles DPI internally
+    // Update map size if needed - pass logical size, mln::Map handles DPI internally
     m_map->resize(m_size, m_pixelRatio);
 
     // Calculate physical size for texture

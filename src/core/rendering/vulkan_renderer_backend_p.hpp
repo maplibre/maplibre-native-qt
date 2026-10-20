@@ -4,10 +4,10 @@
 
 #pragma once
 
-#include <mbgl/gfx/context.hpp>
-#include <mbgl/gfx/texture2d.hpp>
-#include <mbgl/vulkan/renderable_resource.hpp>
-#include <mbgl/vulkan/renderer_backend.hpp>
+#include <mln/gfx/context.hpp>
+#include <mln/gfx/texture2d.hpp>
+#include <mln/vulkan/renderable_resource.hpp>
+#include <mln/vulkan/renderer_backend.hpp>
 
 #include <QtCore/QtGlobal>
 
@@ -17,13 +17,13 @@ class QVulkanInstance;
 class QVulkanWindow;
 class QWindow;
 
-namespace mbgl::vulkan {
+namespace mln::vulkan {
 class Texture2D;
-} // namespace mbgl::vulkan
+} // namespace mln::vulkan
 
 namespace QMapLibre {
 
-class VulkanRendererBackend final : public mbgl::vulkan::RendererBackend, public mbgl::vulkan::Renderable {
+class VulkanRendererBackend final : public mln::vulkan::RendererBackend, public mln::vulkan::Renderable {
 public:
     explicit VulkanRendererBackend(QWindow *window);
     explicit VulkanRendererBackend(QVulkanInstance *instance);
@@ -36,28 +36,28 @@ public:
     VulkanRendererBackend &operator=(const VulkanRendererBackend &) = delete;
     ~VulkanRendererBackend() override;
 
-    // mbgl::gfx::RendererBackend ------------------------------------------------
-    mbgl::gfx::Renderable &getDefaultRenderable() override { return static_cast<mbgl::gfx::Renderable &>(*this); }
+    // mln::gfx::RendererBackend ------------------------------------------------
+    mln::gfx::Renderable &getDefaultRenderable() override { return static_cast<mln::gfx::Renderable &>(*this); }
     void activate() override {}
     void deactivate() override {}
 
     // Qt-specific --------------------------------------------------------------
-    void setSize(mbgl::Size size_);
-    [[nodiscard]] mbgl::Size getSize() const;
+    void setSize(mln::Size size_);
+    [[nodiscard]] mln::Size getSize() const;
 
     // Returns the color texture of the drawable rendered in the last frame.
     [[nodiscard]] void *currentDrawable() const { return m_currentDrawable; }
-    void setCurrentDrawable(void *tex) { m_currentDrawable = static_cast<mbgl::gfx::Texture2D *>(tex); }
+    void setCurrentDrawable(void *tex) { m_currentDrawable = static_cast<mln::gfx::Texture2D *>(tex); }
 
     // Set external vk::Image to render to (for zero-copy with QRhiWidget)
-    void setExternalDrawable(void *image, const mbgl::Size &size_);
+    void setExternalDrawable(void *image, const mln::Size &size_);
 
     // Qt Widgets path still expects this hook even though Vulkan doesn't use an
     // OpenGL FBO. Update the size for Vulkan rendering.
-    void updateRenderer(const mbgl::Size &newSize, uint32_t /* fbo */) { setSize(newSize); }
+    void updateRenderer(const mln::Size &newSize, uint32_t /* fbo */) { setSize(newSize); }
 
     // Helper method to get the texture object for pixel data extraction
-    [[nodiscard]] mbgl::vulkan::Texture2D *getOffscreenTexture() const;
+    [[nodiscard]] mln::vulkan::Texture2D *getOffscreenTexture() const;
 
 protected:
     // Override base class methods to use external Vulkan resources
@@ -69,7 +69,7 @@ protected:
     std::vector<const char *> getDeviceExtensions() override;
 
 private:
-    mbgl::gfx::Texture2D *m_currentDrawable{nullptr};
+    mln::gfx::Texture2D *m_currentDrawable{nullptr};
     QVulkanInstance *m_qtInstance{nullptr};
     std::unique_ptr<QVulkanInstance> m_ownedInstance; // Instance we created and own
 

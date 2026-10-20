@@ -7,7 +7,7 @@
 
 #include "scheduler_p.hpp"
 
-#include <mbgl/gfx/backend_scope.hpp>
+#include <mln/gfx/backend_scope.hpp>
 
 #include <QtCore/QThreadStorage>
 
@@ -30,7 +30,7 @@ bool needsToForceScheduler() {
     static QThreadStorage<bool> force;
 
     if (!force.hasLocalData()) {
-        force.setLocalData(mbgl::Scheduler::GetCurrent() == nullptr);
+        force.setLocalData(mln::Scheduler::GetCurrent() == nullptr);
     }
 
     return force.localData();
@@ -61,9 +61,9 @@ MapRenderer::MapRenderer(qreal pixelRatio,
 #elif defined(MLN_RENDER_BACKEND_METAL)
     : m_backend(static_cast<CA::MetalLayer *>(nativeTargetPtr)),
 #else
-    : m_backend(static_cast<mbgl::gfx::ContextMode>(mode)),
+    : m_backend(static_cast<mln::gfx::ContextMode>(mode)),
 #endif
-      m_renderer(std::make_unique<mbgl::Renderer>(
+      m_renderer(std::make_unique<mln::Renderer>(
           m_backend,
           pixelRatio,
           localFontFamily.isEmpty() ? std::nullopt : std::optional<std::string>{localFontFamily.toStdString()})),
@@ -77,8 +77,8 @@ MapRenderer::MapRenderer(qreal pixelRatio,
     if (m_forceScheduler) {
         Scheduler *scheduler = getScheduler();
 
-        if (mbgl::Scheduler::GetCurrent() == nullptr) {
-            mbgl::Scheduler::SetCurrent(scheduler);
+        if (mln::Scheduler::GetCurrent() == nullptr) {
+            mln::Scheduler::SetCurrent(scheduler);
         }
 
         connect(scheduler, &Scheduler::needsProcessing, this, &MapRenderer::needsRendering);
@@ -98,7 +98,7 @@ MapRenderer::MapRenderer(qreal pixelRatio,
                 static_cast<VkPhysicalDevice>(physicalDevice),
                 static_cast<VkDevice>(device),
                 graphicsQueueIndex),
-      m_renderer(std::make_unique<mbgl::Renderer>(
+      m_renderer(std::make_unique<mln::Renderer>(
           m_backend,
           pixelRatio,
           localFontFamily.isEmpty() ? std::nullopt : std::optional<std::string>{localFontFamily.toStdString()})),
@@ -110,8 +110,8 @@ MapRenderer::MapRenderer(qreal pixelRatio,
     if (m_forceScheduler) {
         Scheduler *scheduler = getScheduler();
 
-        if (mbgl::Scheduler::GetCurrent() == nullptr) {
-            mbgl::Scheduler::SetCurrent(scheduler);
+        if (mln::Scheduler::GetCurrent() == nullptr) {
+            mln::Scheduler::SetCurrent(scheduler);
         }
 
         connect(scheduler, &Scheduler::needsProcessing, this, &MapRenderer::needsRendering);
@@ -124,17 +124,17 @@ MapRenderer::~MapRenderer() = default;
 // already shut down, so the thread identity might differ from creation
 // time. Skip the thread guard here to avoid false assertion failures.
 
-void MapRenderer::updateParameters(std::shared_ptr<mbgl::UpdateParameters> parameters) {
+void MapRenderer::updateParameters(std::shared_ptr<mln::UpdateParameters> parameters) {
     const std::scoped_lock lock(m_updateMutex);
     m_updateParameters = std::move(parameters);
 }
 
-void MapRenderer::updateRenderer(const mbgl::Size &size, qreal pixelRatio, quint32 fbo) {
+void MapRenderer::updateRenderer(const mln::Size &size, qreal pixelRatio, quint32 fbo) {
     MBGL_VERIFY_THREAD(tid);
 
     // Compute actual renderer size based on pixel ratio
-    const mbgl::Size actualSize{static_cast<uint32_t>(size.width * pixelRatio),
-                                static_cast<uint32_t>(size.height * pixelRatio)};
+    const mln::Size actualSize{static_cast<uint32_t>(size.width * pixelRatio),
+                               static_cast<uint32_t>(size.height * pixelRatio)};
 
     m_backend.updateRenderer(actualSize, fbo);
 }
@@ -142,7 +142,7 @@ void MapRenderer::updateRenderer(const mbgl::Size &size, qreal pixelRatio, quint
 void MapRenderer::render() {
     MBGL_VERIFY_THREAD(tid);
 
-    std::shared_ptr<mbgl::UpdateParameters> params;
+    std::shared_ptr<mln::UpdateParameters> params;
     {
         // Lock on the parameters
         const std::scoped_lock lock(m_updateMutex);
@@ -158,7 +158,7 @@ void MapRenderer::render() {
 
     // The OpenGL implementation automatically enables the OpenGL context for us.
     // For Vulkan, we need to ensure the backend is properly initialized
-    const mbgl::gfx::BackendScope scope(m_backend, mbgl::gfx::BackendScope::ScopeType::Implicit);
+    const mln::gfx::BackendScope scope(m_backend, mln::gfx::BackendScope::ScopeType::Implicit);
 
     m_renderer->render(params);
 
@@ -167,7 +167,7 @@ void MapRenderer::render() {
     }
 }
 
-void MapRenderer::setObserver(mbgl::RendererObserver *observer) {
+void MapRenderer::setObserver(mln::RendererObserver *observer) {
     m_renderer->setObserver(observer);
 }
 
