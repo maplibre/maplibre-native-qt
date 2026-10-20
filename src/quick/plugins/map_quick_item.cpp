@@ -64,18 +64,34 @@ void MapQuickItem::setStyle(const QString &style) {
         return;
     }
     d->m_style = style;
+    emit styleChanged();
 
     // Apply the style immediately when the map already exists; otherwise the
     // new style would only take effect on the next launch, because the map is
     // initialised from m_style.
-    if (d->m_map != nullptr) {
-        if (d->m_styleLoaded) {
-            d->m_styleLoaded = false;
-            emit styleLoadedChanged();
-        }
-        d->m_map->setStyleUrl(style);
-        update();
+    if (d->m_map == nullptr) {
+        return;
     }
+
+    // An empty style means "use the configured default", as in initialize().
+    QString styleUrl = style;
+    if (styleUrl.isEmpty()) {
+        if (!d->m_settings.styles().empty()) {
+            styleUrl = d->m_settings.styles().front().url;
+        } else if (!d->m_settings.providerStyles().empty()) {
+            styleUrl = d->m_settings.providerStyles().front().url;
+        }
+    }
+    if (styleUrl.isEmpty()) {
+        return;
+    }
+
+    if (d->m_styleLoaded) {
+        d->m_styleLoaded = false;
+        emit styleLoadedChanged();
+    }
+    d->m_map->setStyleUrl(styleUrl);
+    update();
 }
 
 double MapQuickItem::zoomLevel() const {
