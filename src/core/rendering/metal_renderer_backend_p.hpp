@@ -29,7 +29,6 @@ public:
     mln::gfx::Renderable &getDefaultRenderable() override { return static_cast<mln::gfx::Renderable &>(*this); }
     void activate() override {}
     void deactivate() override {}
-    void updateAssumedState() override {}
 
     // Qt-specific --------------------------------------------------------------
     void setSize(mln::Size size_);
