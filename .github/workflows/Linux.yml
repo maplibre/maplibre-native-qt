@@ -214,7 +214,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
-          python-version: "3.14"
+          python-version: "3.15"
 
       - name: Download Qt
         uses: jurplel/install-qt-action@b344308e4483fc892e0d27b3cd1b173ebdd95f06 # v4.5.0
