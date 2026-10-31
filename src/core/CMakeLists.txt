@@ -138,6 +138,8 @@ target_include_directories(
         ${CMAKE_CURRENT_BINARY_DIR}/include
         ${MLN_CORE_PATH}/src
         ${MLN_CORE_PATH}/platform/qt/src
+        $<$<BOOL:${MLN_WITH_VULKAN}>:${MLN_CORE_PATH}/vendor/Vulkan-Headers/include>
+        $<$<BOOL:${MLN_WITH_VULKAN}>:${MLN_CORE_PATH}/vendor/VulkanMemoryAllocator/include>
 )
 
 # Common link libraries
