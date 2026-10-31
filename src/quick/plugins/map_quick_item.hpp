@@ -23,7 +23,7 @@ class MapQuickItem : public QQuickItem {
     QML_NAMED_ELEMENT(MapLibre)
     QML_ADDED_IN_VERSION(3, 0)
 
-    Q_PROPERTY(QString style READ style WRITE setStyle)
+    Q_PROPERTY(QString style READ style WRITE setStyle NOTIFY styleChanged)
     Q_PROPERTY(QVariantList coordinate READ coordinate WRITE setCoordinate NOTIFY coordinateChanged)
     Q_PROPERTY(double zoomLevel READ zoomLevel WRITE setZoomLevel NOTIFY zoomLevelChanged)
     // CFID addition: exposes the native style-load state so QML can gate
@@ -65,6 +65,7 @@ public:
     Q_INVOKABLE void clearStyleParameters();
 
 signals:
+    void styleChanged();
     void coordinateChanged();
     void zoomLevelChanged();
     void styleLoadedChanged();
