@@ -7,12 +7,12 @@
 // Define storage for the global Vulkan dispatcher
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 
-#include <mbgl/gfx/backend_scope.hpp>
-#include <mbgl/gfx/context.hpp>
-#include <mbgl/gfx/offscreen_texture.hpp>
-#include <mbgl/vulkan/context.hpp>
-#include <mbgl/vulkan/renderable_resource.hpp>
-#include <mbgl/vulkan/texture2d.hpp>
+#include <mln/gfx/backend_scope.hpp>
+#include <mln/gfx/context.hpp>
+#include <mln/gfx/offscreen_texture.hpp>
+#include <mln/vulkan/context.hpp>
+#include <mln/vulkan/renderable_resource.hpp>
+#include <mln/vulkan/texture2d.hpp>
 
 #include <QtGui/QVulkanFunctions>
 #include <QtGui/QVulkanInstance>
@@ -29,7 +29,7 @@ namespace {
 
 constexpr uint32_t DefaultSize{256};
 
-// Subpass dependencies matching mbgl::vulkan::SurfaceRenderableResource::initRenderPass()
+// Subpass dependencies matching mln::vulkan::SurfaceRenderableResource::initRenderPass()
 std::array<vk::SubpassDependency, 2> makeSubpassDependencies() {
     return {
         vk::SubpassDependency()
@@ -55,17 +55,17 @@ std::array<vk::SubpassDependency, 2> makeSubpassDependencies() {
 }
 
 // Custom renderable resource for Qt integration supporting zero-copy GPU rendering
-class QtVulkanRenderableResource final : public mbgl::vulkan::SurfaceRenderableResource {
+class QtVulkanRenderableResource final : public mln::vulkan::SurfaceRenderableResource {
 public:
-    QtVulkanRenderableResource(QMapLibre::VulkanRendererBackend &backend_, mbgl::Size initialSize)
-        : mbgl::vulkan::SurfaceRenderableResource(backend_),
+    QtVulkanRenderableResource(QMapLibre::VulkanRendererBackend &backend_, mln::Size initialSize)
+        : mln::vulkan::SurfaceRenderableResource(backend_),
           backend(backend_),
           size(initialSize) {
         extent.width = size.width;
         extent.height = size.height;
     }
 
-    void setExternalImage(vk::Image image, mbgl::Size imageSize) {
+    void setExternalImage(vk::Image image, mln::Size imageSize) {
         // Only recreate if the image or size has changed
         if (externalImage != image || size.width != imageSize.width || size.height != imageSize.height) {
             externalImage = image;
@@ -80,7 +80,7 @@ public:
         }
     }
 
-    void setBackendSize(mbgl::Size size_) {
+    void setBackendSize(mln::Size size_) {
         // If we have an external image, don't override its size
         if (externalImage) {
             return;
@@ -105,7 +105,7 @@ public:
                 // Recreate offscreen texture with new size
                 offscreenTexture.reset();
                 offscreenTexture = backend.getContext().createOffscreenTexture(
-                    size, mbgl::gfx::TextureChannelDataType::UnsignedByte);
+                    size, mln::gfx::TextureChannelDataType::UnsignedByte);
 
                 // Set the current drawable to the new texture
                 if (offscreenTexture) {
@@ -124,9 +124,9 @@ public:
         }
     }
 
-    [[nodiscard]] mbgl::Size getSize() const { return size; }
-    [[nodiscard]] mbgl::Size getBackendSize() const {
-        return static_cast<const mbgl::gfx::Renderable &>(backend).getSize();
+    [[nodiscard]] mln::Size getSize() const { return size; }
+    [[nodiscard]] mln::Size getBackendSize() const {
+        return static_cast<const mln::gfx::Renderable &>(backend).getSize();
     }
 
     // Override bind to ensure we have an offscreen texture or external image
@@ -151,9 +151,9 @@ public:
 
         // Fallback to creating our own offscreen texture
         // Use a minimal size if the actual size is invalid
-        mbgl::Size textureSize = size;
+        mln::Size textureSize = size;
         if (size.isEmpty()) {
-            textureSize = mbgl::Size{DefaultSize, DefaultSize};
+            textureSize = mln::Size{DefaultSize, DefaultSize};
             // Mark that we need to recreate when valid size is available
             needsRecreation = true;
         }
@@ -169,7 +169,7 @@ public:
 
             // Create offscreen texture with proper format for zero-copy sharing
             offscreenTexture = backend.getContext().createOffscreenTexture(
-                textureSize, mbgl::gfx::TextureChannelDataType::UnsignedByte);
+                textureSize, mln::gfx::TextureChannelDataType::UnsignedByte);
 
             if (offscreenTexture) {
                 auto texture = offscreenTexture->getTexture();
@@ -205,7 +205,7 @@ protected:
 
         if (externalImage) {
             // Get rendering context
-            auto &context = static_cast<mbgl::vulkan::Context &>(backend.getContext());
+            auto &context = static_cast<mln::vulkan::Context &>(backend.getContext());
 
             // Submit the frame - this should contain all the MapLibre rendering commands
             context.submitFrame();
@@ -217,14 +217,14 @@ protected:
         }
 
         // Only call base class swap if we're not using an external image
-        mbgl::vulkan::SurfaceRenderableResource::swap();
+        mln::vulkan::SurfaceRenderableResource::swap();
 
         // Add barrier to transition image layout to shader read-only optimal
         if (offscreenTexture) {
             auto texture = offscreenTexture->getTexture();
             if (texture) {
                 // The barrier will be added by the texture itself when needed
-                (void)static_cast<mbgl::vulkan::Texture2D &>(*texture);
+                (void)static_cast<mln::vulkan::Texture2D &>(*texture);
             }
         }
 
@@ -242,7 +242,7 @@ private:
             return;
         }
 
-        auto &vulkanTexture = static_cast<mbgl::vulkan::Texture2D &>(*texture);
+        auto &vulkanTexture = static_cast<mln::vulkan::Texture2D &>(*texture);
 
         // Initialize depth/stencil resources if needed
         initDepthStencil();
@@ -389,9 +389,9 @@ private:
     }
 
     QMapLibre::VulkanRendererBackend &backend;
-    std::unique_ptr<mbgl::gfx::OffscreenTexture> offscreenTexture;
+    std::unique_ptr<mln::gfx::OffscreenTexture> offscreenTexture;
     vk::UniqueFramebuffer framebuffer;
-    mbgl::Size size{DefaultSize, DefaultSize};
+    mln::Size size{DefaultSize, DefaultSize};
     bool needsRecreation{false};
     vk::Image externalImage{nullptr};
     vk::UniqueImageView externalImageView{nullptr};
@@ -406,10 +406,10 @@ namespace QMapLibre {
 /*! \cond PRIVATE */
 
 VulkanRendererBackend::VulkanRendererBackend(QWindow *window)
-    : mbgl::vulkan::RendererBackend(mbgl::gfx::ContextMode::Unique),
-      mbgl::vulkan::Renderable(
-          mbgl::Size{DefaultSize, DefaultSize},
-          std::make_unique<QtVulkanRenderableResource>(*this, mbgl::Size{DefaultSize, DefaultSize})) {
+    : mln::vulkan::RendererBackend(mln::gfx::ContextMode::Unique),
+      mln::vulkan::Renderable(
+          mln::Size{DefaultSize, DefaultSize},
+          std::make_unique<QtVulkanRenderableResource>(*this, mln::Size{DefaultSize, DefaultSize})) {
     QVulkanInstance *qtInstance{};
     if (window != nullptr) {
         qtInstance = window->vulkanInstance();
@@ -425,10 +425,10 @@ VulkanRendererBackend::VulkanRendererBackend(QWindow *window)
 }
 
 VulkanRendererBackend::VulkanRendererBackend(QVulkanInstance *qtInstance)
-    : mbgl::vulkan::RendererBackend(mbgl::gfx::ContextMode::Unique),
-      mbgl::vulkan::Renderable(
-          mbgl::Size{DefaultSize, DefaultSize},
-          std::make_unique<QtVulkanRenderableResource>(*this, mbgl::Size{DefaultSize, DefaultSize})) {
+    : mln::vulkan::RendererBackend(mln::gfx::ContextMode::Unique),
+      mln::vulkan::Renderable(
+          mln::Size{DefaultSize, DefaultSize},
+          std::make_unique<QtVulkanRenderableResource>(*this, mln::Size{DefaultSize, DefaultSize})) {
     assert(qtInstance);
     initializeWithQtInstance(qtInstance);
 }
@@ -438,10 +438,9 @@ VulkanRendererBackend::VulkanRendererBackend(QWindow *window,
                                              vk::PhysicalDevice qtPhysicalDevice,
                                              vk::Device qtDevice,
                                              uint32_t qtGraphicsQueueIndex)
-    : mbgl::vulkan::RendererBackend(mbgl::gfx::ContextMode::Unique),
-      mbgl::vulkan::Renderable(
-          mbgl::Size{DefaultSize, DefaultSize},
-          std::make_unique<QtVulkanRenderableResource>(*this, mbgl::Size{DefaultSize, DefaultSize})),
+    : mln::vulkan::RendererBackend(mln::gfx::ContextMode::Unique),
+      mln::vulkan::Renderable(mln::Size{DefaultSize, DefaultSize},
+                              std::make_unique<QtVulkanRenderableResource>(*this, mln::Size{DefaultSize, DefaultSize})),
       m_qtPhysicalDevice(qtPhysicalDevice),
       m_qtDevice(qtDevice),
       m_qtGraphicsQueueIndex(qtGraphicsQueueIndex),
@@ -473,7 +472,7 @@ void VulkanRendererBackend::initializeWithQtInstance(QVulkanInstance *qtInstance
 
 void VulkanRendererBackend::init() {
     if (m_qtInstance == nullptr) {
-        mbgl::vulkan::RendererBackend::init();
+        mln::vulkan::RendererBackend::init();
         return;
     }
 
@@ -491,16 +490,16 @@ void VulkanRendererBackend::init() {
     }
 
     // Call base class init which handles most initialization
-    mbgl::vulkan::RendererBackend::init();
+    mln::vulkan::RendererBackend::init();
 
     // Only do Qt-specific initialization
     initSwapchain();
-    mbgl::vulkan::RendererBackend::initCommandPool();
+    mln::vulkan::RendererBackend::initCommandPool();
 }
 
 void VulkanRendererBackend::initInstance() {
     if (m_qtInstance == nullptr) {
-        mbgl::vulkan::RendererBackend::initInstance();
+        mln::vulkan::RendererBackend::initInstance();
         return;
     }
 
@@ -560,7 +559,7 @@ void VulkanRendererBackend::initDevice() {
     }
 
     // Use base class implementation for device creation
-    mbgl::vulkan::RendererBackend::initDevice();
+    mln::vulkan::RendererBackend::initDevice();
 }
 
 void VulkanRendererBackend::initSwapchain() {
@@ -568,28 +567,28 @@ void VulkanRendererBackend::initSwapchain() {
     maxFrames = 1;
 }
 
-void VulkanRendererBackend::setSize(mbgl::Size size_) {
+void VulkanRendererBackend::setSize(mln::Size size_) {
     // Propagate size to the Renderable base class
-    mbgl::vulkan::Renderable::setSize(size_);
+    mln::vulkan::Renderable::setSize(size_);
 
     // Also update our custom resource
     getResource<QtVulkanRenderableResource>().setBackendSize(size_);
 }
 
-mbgl::Size VulkanRendererBackend::getSize() const {
+mln::Size VulkanRendererBackend::getSize() const {
     return getResource<QtVulkanRenderableResource>().getSize();
 }
 
-mbgl::vulkan::Texture2D *VulkanRendererBackend::getOffscreenTexture() const {
+mln::vulkan::Texture2D *VulkanRendererBackend::getOffscreenTexture() const {
     // Try to return the current drawable if it's a Texture2D
     if (m_currentDrawable != nullptr) {
-        return static_cast<mbgl::vulkan::Texture2D *>(m_currentDrawable);
+        return static_cast<mln::vulkan::Texture2D *>(m_currentDrawable);
     }
     return nullptr;
 }
 
-void VulkanRendererBackend::setExternalDrawable(void *image, const mbgl::Size &size_) {
-    mbgl::vulkan::Renderable::setSize(size_);
+void VulkanRendererBackend::setExternalDrawable(void *image, const mln::Size &size_) {
+    mln::vulkan::Renderable::setSize(size_);
 
     // Pass the external image to our custom renderable resource
     const vk::Image vkImage(reinterpret_cast<VkImage>(image));

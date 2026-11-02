@@ -16,50 +16,50 @@
 #undef GetObject
 #endif
 
-#include <mbgl/actor/scheduler.hpp>
-#include <mbgl/annotation/annotation.hpp>
-#include <mbgl/map/camera.hpp>
-#include <mbgl/map/map.hpp>
-#include <mbgl/map/map_options.hpp>
-#include <mbgl/math/log2.hpp>
-#include <mbgl/math/minmax.hpp>
-#include <mbgl/renderer/renderer.hpp>
-#include <mbgl/storage/file_source_manager.hpp>
-#include <mbgl/storage/network_status.hpp>
-#include <mbgl/storage/online_file_source.hpp>
-#include <mbgl/storage/resource_options.hpp>
-#include <mbgl/style/conversion/coordinate.hpp>
-#include <mbgl/style/conversion/filter.hpp>
-#include <mbgl/style/conversion/geojson.hpp>
-#include <mbgl/style/conversion/layer.hpp>
-#include <mbgl/style/conversion/source.hpp>
-#include <mbgl/style/conversion_impl.hpp>
-#include <mbgl/style/filter.hpp>
-#include <mbgl/style/image.hpp>
-#include <mbgl/style/layers/background_layer.hpp>
-#include <mbgl/style/layers/circle_layer.hpp>
-#include <mbgl/style/layers/fill_extrusion_layer.hpp>
-#include <mbgl/style/layers/fill_layer.hpp>
-#include <mbgl/style/layers/line_layer.hpp>
-#include <mbgl/style/layers/raster_layer.hpp>
-#include <mbgl/style/layers/symbol_layer.hpp>
-#include <mbgl/style/rapidjson_conversion.hpp>
-#include <mbgl/style/sources/geojson_source.hpp>
-#include <mbgl/style/sources/image_source.hpp>
-#include <mbgl/style/style.hpp>
-#include <mbgl/style/transition_options.hpp>
-#include <mbgl/util/color.hpp>
-#include <mbgl/util/constants.hpp>
-#include <mbgl/util/geo.hpp>
-#include <mbgl/util/geometry.hpp>
-#include <mbgl/util/image.hpp>
-#include <mbgl/util/projection.hpp>
-#include <mbgl/util/rapidjson.hpp>
-#include <mbgl/util/run_loop.hpp>
-#include <mbgl/util/tile_server_options.hpp>
-#include <mbgl/util/traits.hpp>
+#include <mln/actor/scheduler.hpp>
+#include <mln/annotation/annotation.hpp>
+#include <mln/map/camera.hpp>
+#include <mln/map/map.hpp>
+#include <mln/map/map_options.hpp>
+#include <mln/math/log2.hpp>
+#include <mln/math/minmax.hpp>
+#include <mln/renderer/renderer.hpp>
+#include <mln/storage/file_source_manager.hpp>
+#include <mln/storage/network_status.hpp>
+#include <mln/storage/online_file_source.hpp>
+#include <mln/storage/resource_options.hpp>
+#include <mln/style/conversion/coordinate.hpp>
+#include <mln/style/conversion/filter.hpp>
+#include <mln/style/conversion/geojson.hpp>
+#include <mln/style/conversion/layer.hpp>
+#include <mln/style/conversion/source.hpp>
+#include <mln/style/conversion_impl.hpp>
+#include <mln/style/filter.hpp>
+#include <mln/style/image.hpp>
+#include <mln/style/layers/background_layer.hpp>
+#include <mln/style/layers/circle_layer.hpp>
+#include <mln/style/layers/fill_extrusion_layer.hpp>
+#include <mln/style/layers/fill_layer.hpp>
+#include <mln/style/layers/line_layer.hpp>
+#include <mln/style/layers/raster_layer.hpp>
+#include <mln/style/layers/symbol_layer.hpp>
+#include <mln/style/rapidjson_conversion.hpp>
+#include <mln/style/sources/geojson_source.hpp>
+#include <mln/style/sources/image_source.hpp>
+#include <mln/style/style.hpp>
+#include <mln/style/transition_options.hpp>
+#include <mln/util/color.hpp>
+#include <mln/util/constants.hpp>
+#include <mln/util/geo.hpp>
+#include <mln/util/geometry.hpp>
+#include <mln/util/image.hpp>
+#include <mln/util/projection.hpp>
+#include <mln/util/rapidjson.hpp>
+#include <mln/util/run_loop.hpp>
+#include <mln/util/tile_server_options.hpp>
+#include <mln/util/traits.hpp>
 
-#include <mbgl/style/layers/custom_layer.hpp>
+#include <mln/style/layers/custom_layer.hpp>
 
 #include <QtCore/QDebug>
 #include <QtCore/QThreadStorage>
@@ -76,18 +76,18 @@
 #pragma warning(disable : 4805)
 #endif
 
-// mbgl::NorthOrientation
-static_assert(mbgl::underlying_type(QMapLibre::Map::NorthUpwards) ==
-                  mbgl::underlying_type(mbgl::NorthOrientation::Upwards),
+// mln::NorthOrientation
+static_assert(mln::underlying_type(QMapLibre::Map::NorthUpwards) ==
+                  mln::underlying_type(mln::NorthOrientation::Upwards),
               "error");
-static_assert(mbgl::underlying_type(QMapLibre::Map::NorthRightwards) ==
-                  mbgl::underlying_type(mbgl::NorthOrientation::Rightwards),
+static_assert(mln::underlying_type(QMapLibre::Map::NorthRightwards) ==
+                  mln::underlying_type(mln::NorthOrientation::Rightwards),
               "error");
-static_assert(mbgl::underlying_type(QMapLibre::Map::NorthDownwards) ==
-                  mbgl::underlying_type(mbgl::NorthOrientation::Downwards),
+static_assert(mln::underlying_type(QMapLibre::Map::NorthDownwards) ==
+                  mln::underlying_type(mln::NorthOrientation::Downwards),
               "error");
-static_assert(mbgl::underlying_type(QMapLibre::Map::NorthLeftwards) ==
-                  mbgl::underlying_type(mbgl::NorthOrientation::Leftwards),
+static_assert(mln::underlying_type(QMapLibre::Map::NorthLeftwards) ==
+                  mln::underlying_type(mln::NorthOrientation::Leftwards),
               "error");
 
 #ifdef _MSC_VER
@@ -96,24 +96,24 @@ static_assert(mbgl::underlying_type(QMapLibre::Map::NorthLeftwards) ==
 
 namespace {
 
-QThreadStorage<std::shared_ptr<mbgl::util::RunLoop>> loop;
+QThreadStorage<std::shared_ptr<mln::util::RunLoop>> loop;
 
 // Conversion helper functions.
 
-QVariant variantFromValue(const mbgl::Value &value) {
-    return value.match([](const mbgl::NullValue) { return QVariant(); },
+QVariant variantFromValue(const mln::Value &value) {
+    return value.match([](const mln::NullValue) { return QVariant(); },
                        [](const bool value_) { return QVariant(value_); },
                        [](const float value_) { return QVariant(value_); },
                        [](const int64_t value_) { return QVariant(static_cast<qlonglong>(value_)); },
                        [](const double value_) { return QVariant(value_); },
                        [](const std::string &value_) { return QVariant(value_.c_str()); },
-                       [](const mbgl::Color &value_) {
+                       [](const mln::Color &value_) {
                            return QColor(static_cast<int>(value_.r),
                                          static_cast<int>(value_.g),
                                          static_cast<int>(value_.b),
                                          static_cast<int>(value_.a));
                        },
-                       [&](const std::vector<mbgl::Value> &vector) {
+                       [&](const std::vector<mln::Value> &vector) {
                            QVariantList list;
                            list.reserve(static_cast<int>(vector.size()));
                            for (const auto &value_ : vector) {
@@ -121,7 +121,7 @@ QVariant variantFromValue(const mbgl::Value &value) {
                            }
                            return list;
                        },
-                       [&](const std::unordered_map<std::string, mbgl::Value> &map) {
+                       [&](const std::unordered_map<std::string, mln::Value> &map) {
                            QVariantMap varMap;
                            for (const auto &item : map) {
                                varMap.insert(item.first.c_str(), variantFromValue(item.second));
@@ -131,44 +131,44 @@ QVariant variantFromValue(const mbgl::Value &value) {
                        [](const auto &) { return QVariant(); });
 }
 
-mbgl::Size sanitizeSize(const QSize &size) {
-    return mbgl::Size{
-        mbgl::util::max(0u, static_cast<uint32_t>(size.width())),
-        mbgl::util::max(0u, static_cast<uint32_t>(size.height())),
+mln::Size sanitizeSize(const QSize &size) {
+    return mln::Size{
+        mln::util::max(0u, static_cast<uint32_t>(size.width())),
+        mln::util::max(0u, static_cast<uint32_t>(size.height())),
     };
 };
 
-std::unique_ptr<mbgl::style::Image> toStyleImage(const QString &id, const QImage &sprite) {
+std::unique_ptr<mln::style::Image> toStyleImage(const QString &id, const QImage &sprite) {
     const QImage swapped = sprite.rgbSwapped().convertToFormat(QImage::Format_ARGB32_Premultiplied);
 
     auto img = std::make_unique<uint8_t[]>(swapped.sizeInBytes());
     memcpy(img.get(), swapped.constBits(), swapped.sizeInBytes());
 
-    return std::make_unique<mbgl::style::Image>(
+    return std::make_unique<mln::style::Image>(
         id.toStdString(),
-        mbgl::PremultipliedImage({static_cast<uint32_t>(swapped.width()), static_cast<uint32_t>(swapped.height())},
-                                 std::move(img)),
+        mln::PremultipliedImage({static_cast<uint32_t>(swapped.width()), static_cast<uint32_t>(swapped.height())},
+                                std::move(img)),
         1.0);
 }
 
-mbgl::MapOptions mapOptionsFromSettings(const QMapLibre::Settings &settings, const QSize &size, qreal pixelRatio) {
-    return std::move(mbgl::MapOptions()
+mln::MapOptions mapOptionsFromSettings(const QMapLibre::Settings &settings, const QSize &size, qreal pixelRatio) {
+    return std::move(mln::MapOptions()
                          .withSize(sanitizeSize(size))
                          .withPixelRatio(static_cast<float>(pixelRatio))
-                         .withMapMode(static_cast<mbgl::MapMode>(settings.mapMode()))
-                         .withConstrainMode(static_cast<mbgl::ConstrainMode>(settings.constrainMode()))
-                         .withViewportMode(static_cast<mbgl::ViewportMode>(settings.viewportMode())));
+                         .withMapMode(static_cast<mln::MapMode>(settings.mapMode()))
+                         .withConstrainMode(static_cast<mln::ConstrainMode>(settings.constrainMode()))
+                         .withViewportMode(static_cast<mln::ViewportMode>(settings.viewportMode())));
 }
 
-mbgl::ResourceOptions resourceOptionsFromSettings(const QMapLibre::Settings &settings) {
+mln::ResourceOptions resourceOptionsFromSettings(const QMapLibre::Settings &settings) {
     if (!settings.customTileServerOptions()) {
-        return std::move(mbgl::ResourceOptions()
+        return std::move(mln::ResourceOptions()
                              .withAssetPath(settings.assetPath().toStdString())
                              .withCachePath(settings.cacheDatabasePath().toStdString())
                              .withMaximumCacheSize(settings.cacheDatabaseMaximumSize()));
     }
 
-    return std::move(mbgl::ResourceOptions()
+    return std::move(mln::ResourceOptions()
                          .withApiKey(settings.apiKey().toStdString())
                          .withAssetPath(settings.assetPath().toStdString())
                          .withTileServerOptions(settings.tileServerOptions())
@@ -176,15 +176,15 @@ mbgl::ResourceOptions resourceOptionsFromSettings(const QMapLibre::Settings &set
                          .withMaximumCacheSize(settings.cacheDatabaseMaximumSize()));
 }
 
-mbgl::ClientOptions clientOptionsFromSettings(const QMapLibre::Settings &settings) {
-    return std::move(mbgl::ClientOptions()
+mln::ClientOptions clientOptionsFromSettings(const QMapLibre::Settings &settings) {
+    return std::move(mln::ClientOptions()
                          .withName(settings.clientName().toStdString())
                          .withVersion(settings.clientVersion().toStdString()));
 }
 
-std::optional<mbgl::Annotation> asAnnotation(const QMapLibre::Annotation &annotation) {
+std::optional<mln::Annotation> asAnnotation(const QMapLibre::Annotation &annotation) {
     auto asGeometry = [](const QMapLibre::ShapeAnnotationGeometry &geometry) {
-        mbgl::ShapeAnnotationGeometry result;
+        mln::ShapeAnnotationGeometry result;
         switch (geometry.type) {
             case QMapLibre::ShapeAnnotationGeometry::LineStringType:
                 result = QMapLibre::GeoJSON::asLineString(geometry.geometry.first().first());
@@ -206,38 +206,38 @@ std::optional<mbgl::Annotation> asAnnotation(const QMapLibre::Annotation &annota
         const auto symbolAnnotation = annotation.value<QMapLibre::SymbolAnnotation>();
         const QMapLibre::Coordinate &pair = symbolAnnotation.geometry;
         return {
-            mbgl::SymbolAnnotation(mbgl::Point<double>{pair.second, pair.first}, symbolAnnotation.icon.toStdString())};
+            mln::SymbolAnnotation(mln::Point<double>{pair.second, pair.first}, symbolAnnotation.icon.toStdString())};
     }
 
     if (annotation.canConvert<QMapLibre::LineAnnotation>()) {
         const auto lineAnnotation = annotation.value<QMapLibre::LineAnnotation>();
-        auto color = mbgl::Color::parse(mbgl::style::conversion::convertColor(lineAnnotation.color));
+        auto color = mln::Color::parse(mln::style::conversion::convertColor(lineAnnotation.color));
         if (!color) {
             qWarning() << "Unable to convert annotation:" << annotation;
             return {};
         }
-        return {mbgl::LineAnnotation(
+        return {mln::LineAnnotation(
             asGeometry(lineAnnotation.geometry), lineAnnotation.opacity, lineAnnotation.width, {*color})};
     }
 
     if (annotation.canConvert<QMapLibre::FillAnnotation>()) {
         const auto fillAnnotation = annotation.value<QMapLibre::FillAnnotation>();
-        auto color = mbgl::Color::parse(mbgl::style::conversion::convertColor(fillAnnotation.color));
+        auto color = mln::Color::parse(mln::style::conversion::convertColor(fillAnnotation.color));
         if (!color) {
             qWarning() << "Unable to convert annotation:" << annotation;
             return {};
         }
         if (fillAnnotation.outlineColor.canConvert<QColor>()) {
-            auto outlineColor = mbgl::Color::parse(
-                mbgl::style::conversion::convertColor(fillAnnotation.outlineColor.value<QColor>()));
+            auto outlineColor = mln::Color::parse(
+                mln::style::conversion::convertColor(fillAnnotation.outlineColor.value<QColor>()));
             if (!outlineColor) {
                 qWarning() << "Unable to convert annotation:" << annotation;
                 return {};
             }
-            return {mbgl::FillAnnotation(
+            return {mln::FillAnnotation(
                 asGeometry(fillAnnotation.geometry), fillAnnotation.opacity, {*color}, {*outlineColor})};
         }
-        return {mbgl::FillAnnotation(asGeometry(fillAnnotation.geometry), fillAnnotation.opacity, {*color}, {})};
+        return {mln::FillAnnotation(asGeometry(fillAnnotation.geometry), fillAnnotation.opacity, {*color}, {})};
     }
 
     qWarning() << "Unable to convert annotation:" << annotation;
@@ -407,9 +407,9 @@ Map::Map(QObject *parent, const Settings &settings, const QSize &size, qreal pix
     assert(!size.isEmpty());
 
     // Multiple Map instances running on the same thread
-    // will share the same mbgl::util::RunLoop
+    // will share the same mln::util::RunLoop
     if (!loop.hasLocalData()) {
-        loop.setLocalData(std::make_shared<mbgl::util::RunLoop>());
+        loop.setLocalData(std::make_shared<mln::util::RunLoop>());
     }
 
     d_ptr = std::make_unique<MapPrivate>(this, settings, size, pixelRatio);
@@ -505,7 +505,7 @@ double Map::latitude() const {
 */
 void Map::setLatitude(double latitude) {
     d_ptr->mapObj->jumpTo(
-        mbgl::CameraOptions().withCenter(mbgl::LatLng{latitude, longitude()}).withPadding(d_ptr->margins));
+        mln::CameraOptions().withCenter(mln::LatLng{latitude, longitude()}).withPadding(d_ptr->margins));
 }
 
 /*!
@@ -534,7 +534,7 @@ double Map::longitude() const {
 */
 void Map::setLongitude(double longitude) {
     d_ptr->mapObj->jumpTo(
-        mbgl::CameraOptions().withCenter(mbgl::LatLng{latitude(), longitude}).withPadding(d_ptr->margins));
+        mln::CameraOptions().withCenter(mln::LatLng{latitude(), longitude}).withPadding(d_ptr->margins));
 }
 
 /*!
@@ -571,7 +571,7 @@ double Map::scale() const {
 */
 void Map::setScale(double scale, const QPointF &center) {
     d_ptr->mapObj->jumpTo(
-        mbgl::CameraOptions().withZoom(::log2(scale)).withAnchor(mbgl::ScreenCoordinate{center.x(), center.y()}));
+        mln::CameraOptions().withZoom(::log2(scale)).withAnchor(mln::ScreenCoordinate{center.x(), center.y()}));
 }
 
 /*!
@@ -603,7 +603,7 @@ double Map::zoom() const {
     \sa setZoom()
 */
 void Map::setZoom(double zoom) {
-    d_ptr->mapObj->jumpTo(mbgl::CameraOptions().withZoom(zoom).withPadding(d_ptr->margins));
+    d_ptr->mapObj->jumpTo(mln::CameraOptions().withZoom(zoom).withPadding(d_ptr->margins));
 }
 
 /*!
@@ -643,7 +643,7 @@ double Map::maximumZoom() const {
 */
 Coordinate Map::coordinate() const {
     // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
-    const mbgl::LatLng latLng = *d_ptr->mapObj->getCameraOptions(d_ptr->margins).center;
+    const mln::LatLng latLng = *d_ptr->mapObj->getCameraOptions(d_ptr->margins).center;
     return {latLng.latitude(), latLng.longitude()};
 }
 
@@ -656,9 +656,8 @@ Coordinate Map::coordinate() const {
     \sa setMargins()
 */
 void Map::setCoordinate(const Coordinate &coordinate) {
-    d_ptr->mapObj->jumpTo(mbgl::CameraOptions()
-                              .withCenter(mbgl::LatLng{coordinate.first, coordinate.second})
-                              .withPadding(d_ptr->margins));
+    d_ptr->mapObj->jumpTo(
+        mln::CameraOptions().withCenter(mln::LatLng{coordinate.first, coordinate.second}).withPadding(d_ptr->margins));
 }
 
 /*!
@@ -673,8 +672,8 @@ void Map::setCoordinate(const Coordinate &coordinate) {
     \sa coordinate()
 */
 void Map::setCoordinateZoom(const Coordinate &coordinate, double zoom) {
-    d_ptr->mapObj->jumpTo(mbgl::CameraOptions()
-                              .withCenter(mbgl::LatLng{coordinate.first, coordinate.second})
+    d_ptr->mapObj->jumpTo(mln::CameraOptions()
+                              .withCenter(mln::LatLng{coordinate.first, coordinate.second})
                               .withZoom(zoom)
                               .withPadding(d_ptr->margins));
 }
@@ -684,14 +683,14 @@ void Map::setCoordinateZoom(const Coordinate &coordinate, double zoom) {
     \param camera The camera options.
 */
 void Map::jumpTo(const CameraOptions &camera) {
-    mbgl::CameraOptions mbglCamera;
+    mln::CameraOptions mbglCamera;
     if (camera.center.isValid()) {
         const auto center = camera.center.value<Coordinate>();
-        mbglCamera.center = mbgl::LatLng{center.first, center.second};
+        mbglCamera.center = mln::LatLng{center.first, center.second};
     }
     if (camera.anchor.isValid()) {
         const auto anchor = camera.anchor.value<QPointF>();
-        mbglCamera.anchor = mbgl::ScreenCoordinate{anchor.x(), anchor.y()};
+        mbglCamera.anchor = mln::ScreenCoordinate{anchor.x(), anchor.y()};
     }
     if (camera.zoom.isValid()) {
         mbglCamera.zoom = camera.zoom.value<double>();
@@ -714,14 +713,14 @@ void Map::jumpTo(const CameraOptions &camera) {
     \param animation The animation options.
 */
 void Map::easeTo(const CameraOptions &camera, const AnimationOptions &animation) {
-    mbgl::CameraOptions mbglCamera;
+    mln::CameraOptions mbglCamera;
     if (camera.center.isValid()) {
         const auto center = camera.center.value<Coordinate>();
-        mbglCamera.center = mbgl::LatLng{center.first, center.second};
+        mbglCamera.center = mln::LatLng{center.first, center.second};
     }
     if (camera.anchor.isValid()) {
         const auto anchor = camera.anchor.value<QPointF>();
-        mbglCamera.anchor = mbgl::ScreenCoordinate{anchor.x(), anchor.y()};
+        mbglCamera.anchor = mln::ScreenCoordinate{anchor.x(), anchor.y()};
     }
     if (camera.zoom.isValid()) {
         mbglCamera.zoom = camera.zoom.value<double>();
@@ -734,7 +733,7 @@ void Map::easeTo(const CameraOptions &camera, const AnimationOptions &animation)
     }
     mbglCamera.padding = d_ptr->margins;
 
-    mbgl::AnimationOptions mbglAnimation;
+    mln::AnimationOptions mbglAnimation;
     if (animation.duration.isValid()) {
         mbglAnimation.duration = std::chrono::milliseconds(animation.duration.value<qint64>());
     }
@@ -754,14 +753,14 @@ void Map::easeTo(const CameraOptions &camera, const AnimationOptions &animation)
     \param animation The animation options.
 */
 void Map::flyTo(const CameraOptions &camera, const AnimationOptions &animation) {
-    mbgl::CameraOptions mbglCamera;
+    mln::CameraOptions mbglCamera;
     if (camera.center.isValid()) {
         const auto center = camera.center.value<Coordinate>();
-        mbglCamera.center = mbgl::LatLng{center.first, center.second};
+        mbglCamera.center = mln::LatLng{center.first, center.second};
     }
     if (camera.anchor.isValid()) {
         const auto anchor = camera.anchor.value<QPointF>();
-        mbglCamera.anchor = mbgl::ScreenCoordinate{anchor.x(), anchor.y()};
+        mbglCamera.anchor = mln::ScreenCoordinate{anchor.x(), anchor.y()};
     }
     if (camera.zoom.isValid()) {
         mbglCamera.zoom = camera.zoom.value<double>();
@@ -774,7 +773,7 @@ void Map::flyTo(const CameraOptions &camera, const AnimationOptions &animation) 
     }
     mbglCamera.padding = d_ptr->margins;
 
-    mbgl::AnimationOptions mbglAnimation;
+    mln::AnimationOptions mbglAnimation;
     if (animation.duration.isValid()) {
         mbglAnimation.duration = std::chrono::milliseconds(animation.duration.value<qint64>());
     }
@@ -816,7 +815,7 @@ double Map::bearing() const {
     \sa setMargins()
 */
 void Map::setBearing(double degrees) {
-    d_ptr->mapObj->jumpTo(mbgl::CameraOptions().withBearing(degrees).withPadding(d_ptr->margins));
+    d_ptr->mapObj->jumpTo(mln::CameraOptions().withBearing(degrees).withPadding(d_ptr->margins));
 }
 
 /*!
@@ -834,7 +833,7 @@ void Map::setBearing(double degrees) {
 */
 void Map::setBearing(double degrees, const QPointF &center) {
     d_ptr->mapObj->jumpTo(
-        mbgl::CameraOptions().withBearing(degrees).withAnchor(mbgl::ScreenCoordinate{center.x(), center.y()}));
+        mln::CameraOptions().withBearing(degrees).withAnchor(mln::ScreenCoordinate{center.x(), center.y()}));
 }
 
 /*!
@@ -866,7 +865,7 @@ double Map::pitch() const {
     \sa pitchBy()
 */
 void Map::setPitch(double pitch) {
-    d_ptr->mapObj->jumpTo(mbgl::CameraOptions().withPitch(pitch));
+    d_ptr->mapObj->jumpTo(mln::CameraOptions().withPitch(pitch));
 }
 
 /*!
@@ -892,7 +891,7 @@ Map::NorthOrientation Map::northOrientation() const {
     \param orientation The north orientation mode.
 */
 void Map::setNorthOrientation(NorthOrientation orientation) {
-    d_ptr->mapObj->setNorthOrientation(static_cast<mbgl::NorthOrientation>(orientation));
+    d_ptr->mapObj->setNorthOrientation(static_cast<mln::NorthOrientation>(orientation));
 }
 
 /*!
@@ -916,11 +915,11 @@ void Map::setGestureInProgress(bool progress) {
     they are updated.
 */
 void Map::setTransitionOptions(qint64 duration, qint64 delay) {
-    static auto convert = [](qint64 value) -> std::optional<mbgl::Duration> {
-        return std::chrono::duration_cast<mbgl::Duration>(mbgl::Milliseconds(value));
+    static auto convert = [](qint64 value) -> std::optional<mln::Duration> {
+        return std::chrono::duration_cast<mln::Duration>(mln::Milliseconds(value));
     };
 
-    d_ptr->mapObj->getStyle().setTransitionOptions(mbgl::style::TransitionOptions{convert(duration), convert(delay)});
+    d_ptr->mapObj->getStyle().setTransitionOptions(mln::style::TransitionOptions{convert(duration), convert(delay)});
 }
 
 /*!
@@ -952,7 +951,7 @@ void Map::addAnnotationIcon(const QString &name, const QImage &sprite) {
     \sa addAnnotationIcon()
 */
 AnnotationID Map::addAnnotation(const Annotation &annotation) {
-    std::optional<mbgl::Annotation> a = asAnnotation(annotation);
+    std::optional<mln::Annotation> a = asAnnotation(annotation);
     if (!a) {
         return 0;
     }
@@ -968,7 +967,7 @@ AnnotationID Map::addAnnotation(const Annotation &annotation) {
     \sa addAnnotationIcon()
 */
 void Map::updateAnnotation(AnnotationID id, const Annotation &annotation) {
-    std::optional<mbgl::Annotation> a = asAnnotation(annotation);
+    std::optional<mln::Annotation> a = asAnnotation(annotation);
     if (!a) {
         return;
     }
@@ -1017,7 +1016,7 @@ void Map::removeAnnotation(AnnotationID id) {
     Array                | \c QVariantList
 */
 bool Map::setLayoutProperty(const QString &layerId, const QString &propertyName, const QVariant &value) {
-    return d_ptr->setProperty(&mbgl::style::Layer::setProperty, layerId, propertyName, value);
+    return d_ptr->setProperty(&mln::style::Layer::setProperty, layerId, propertyName, value);
 }
 
 /*!
@@ -1067,7 +1066,7 @@ bool Map::setLayoutProperty(const QString &layerId, const QString &propertyName,
     \endcode
 */
 bool Map::setPaintProperty(const QString &layerId, const QString &propertyName, const QVariant &value) {
-    return d_ptr->setProperty(&mbgl::style::Layer::setProperty, layerId, propertyName, value);
+    return d_ptr->setProperty(&mln::style::Layer::setProperty, layerId, propertyName, value);
 }
 
 /*!
@@ -1087,7 +1086,7 @@ bool Map::isFullyLoaded() const {
     The pixel coordinate origin is located at the upper left corner of the map.
 */
 void Map::moveBy(const QPointF &offset) {
-    d_ptr->mapObj->moveBy(mbgl::ScreenCoordinate{offset.x(), offset.y()});
+    d_ptr->mapObj->moveBy(mln::ScreenCoordinate{offset.x(), offset.y()});
 }
 
 /*!
@@ -1099,7 +1098,7 @@ void Map::moveBy(const QPointF &offset) {
     This function can be used for implementing a pinch gesture.
 */
 void Map::scaleBy(double scale, const QPointF &center) {
-    d_ptr->mapObj->scaleBy(scale, mbgl::ScreenCoordinate{center.x(), center.y()});
+    d_ptr->mapObj->scaleBy(scale, mln::ScreenCoordinate{center.x(), center.y()});
 }
 
 /*!
@@ -1113,8 +1112,7 @@ void Map::scaleBy(double scale, const QPointF &center) {
     at the current frame.
 */
 void Map::rotateBy(const QPointF &first, const QPointF &second) {
-    d_ptr->mapObj->rotateBy(mbgl::ScreenCoordinate{first.x(), first.y()},
-                            mbgl::ScreenCoordinate{second.x(), second.y()});
+    d_ptr->mapObj->rotateBy(mln::ScreenCoordinate{first.x(), first.y()}, mln::ScreenCoordinate{second.x(), second.y()});
 }
 
 /*!
@@ -1153,8 +1151,7 @@ void Map::resize(const QSize &size, qreal pixelRatio) {
     \note The return value is affected by the current zoom level, bearing and pitch.
 */
 QPointF Map::pixelForCoordinate(const Coordinate &coordinate) const {
-    const mbgl::ScreenCoordinate pixel = d_ptr->mapObj->pixelForLatLng(
-        mbgl::LatLng{coordinate.first, coordinate.second});
+    const mln::ScreenCoordinate pixel = d_ptr->mapObj->pixelForLatLng(mln::LatLng{coordinate.first, coordinate.second});
 
     return {pixel.x, pixel.y};
 }
@@ -1167,7 +1164,7 @@ QPointF Map::pixelForCoordinate(const Coordinate &coordinate) const {
     Returns the geographic coordinate for the \a pixel coordinate.
 */
 Coordinate Map::coordinateForPixel(const QPointF &pixel) const {
-    const mbgl::LatLng latLng = d_ptr->mapObj->latLngForPixel(mbgl::ScreenCoordinate{pixel.x(), pixel.y()});
+    const mln::LatLng latLng = d_ptr->mapObj->latLngForPixel(mln::ScreenCoordinate{pixel.x(), pixel.y()});
 
     return {latLng.latitude(), latLng.longitude()};
 }
@@ -1182,8 +1179,8 @@ Coordinate Map::coordinateForPixel(const QPointF &pixel) const {
     bounding box \a sw and \a ne visible.
 */
 CoordinateZoom Map::coordinateZoomForBounds(const Coordinate &sw, const Coordinate &ne) const {
-    auto bounds = mbgl::LatLngBounds::hull(mbgl::LatLng{sw.first, sw.second}, mbgl::LatLng{ne.first, ne.second});
-    mbgl::CameraOptions camera = d_ptr->mapObj->cameraForLatLngBounds(bounds, d_ptr->margins);
+    auto bounds = mln::LatLngBounds::hull(mln::LatLng{sw.first, sw.second}, mln::LatLng{ne.first, ne.second});
+    mln::CameraOptions camera = d_ptr->mapObj->cameraForLatLngBounds(bounds, d_ptr->margins);
     // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     return {{(*camera.center).latitude(), (*camera.center).longitude()}, *camera.zoom};
 }
@@ -1205,8 +1202,8 @@ CoordinateZoom Map::coordinateZoomForBounds(const Coordinate &sw,
                                             double newPitch)
 
 {
-    auto bounds = mbgl::LatLngBounds::hull(mbgl::LatLng{sw.first, sw.second}, mbgl::LatLng{ne.first, ne.second});
-    mbgl::CameraOptions camera = d_ptr->mapObj->cameraForLatLngBounds(bounds, d_ptr->margins, newBearing, newPitch);
+    auto bounds = mln::LatLngBounds::hull(mln::LatLng{sw.first, sw.second}, mln::LatLng{ne.first, ne.second});
+    mln::CameraOptions camera = d_ptr->mapObj->cameraForLatLngBounds(bounds, d_ptr->margins, newBearing, newPitch);
     // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     return {{(*camera.center).latitude(), (*camera.center).longitude()}, *camera.zoom};
 }
@@ -1265,10 +1262,9 @@ void Map::setMargins(const QMargins &margins) {
     \endcode
 */
 void Map::addSource(const QString &id, const QVariantMap &params) {
-    mbgl::style::conversion::Error error;
-    std::optional<std::unique_ptr<mbgl::style::Source>> source =
-        mbgl::style::conversion::convert<std::unique_ptr<mbgl::style::Source>>(
-            QVariant(params), error, id.toStdString());
+    mln::style::conversion::Error error;
+    std::optional<std::unique_ptr<mln::style::Source>> source =
+        mln::style::conversion::convert<std::unique_ptr<mln::style::Source>>(QVariant(params), error, id.toStdString());
     if (!source) {
         qWarning() << "Unable to add source with id" << id << ":" << error.message.c_str();
         return;
@@ -1295,14 +1291,14 @@ bool Map::sourceExists(const QString &id) {
     image and GeoJSON sources can be updated.
 */
 void Map::updateSource(const QString &id, const QVariantMap &params) {
-    mbgl::style::Source *source = d_ptr->mapObj->getStyle().getSource(id.toStdString());
+    mln::style::Source *source = d_ptr->mapObj->getStyle().getSource(id.toStdString());
     if (source == nullptr) {
         addSource(id, params);
         return;
     }
 
-    auto *sourceGeoJSON = source->as<mbgl::style::GeoJSONSource>();
-    auto *sourceImage = source->as<mbgl::style::ImageSource>();
+    auto *sourceGeoJSON = source->as<mln::style::GeoJSONSource>();
+    auto *sourceImage = source->as<mln::style::ImageSource>();
     if (sourceGeoJSON == nullptr && sourceImage == nullptr) {
         qWarning() << "Unable to update source: only GeoJSON and Image sources are mutable.";
         return;
@@ -1313,10 +1309,10 @@ void Map::updateSource(const QString &id, const QVariantMap &params) {
             sourceImage->setURL(params["url"].toString().toStdString());
         }
         if (params.contains("coordinates") && params["coordinates"].toList().size() == 4) {
-            mbgl::style::conversion::Error error;
-            std::array<mbgl::LatLng, 4> coordinates;
+            mln::style::conversion::Error error;
+            std::array<mln::LatLng, 4> coordinates;
             for (std::size_t i = 0; i < 4; i++) {
-                auto latLng = mbgl::style::conversion::convert<mbgl::LatLng>(
+                auto latLng = mln::style::conversion::convert<mln::LatLng>(
                     params["coordinates"].toList()[static_cast<int>(i)], error);
                 if (latLng) {
                     coordinates[i] = *latLng; // NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
@@ -1325,8 +1321,8 @@ void Map::updateSource(const QString &id, const QVariantMap &params) {
             sourceImage->setCoordinates(coordinates);
         }
     } else if (sourceGeoJSON != nullptr && params.contains("data")) {
-        mbgl::style::conversion::Error error;
-        auto result = mbgl::style::conversion::convert<mbgl::GeoJSON>(params["data"], error);
+        mln::style::conversion::Error error;
+        auto result = mln::style::conversion::convert<mln::GeoJSON>(params["data"], error);
         if (result) {
             sourceGeoJSON->setGeoJSON(*result);
         }
@@ -1360,15 +1356,15 @@ void Map::removeSource(const QString &id) {
     this API and is not officially supported. Use at your own risk.
 */
 void Map::addCustomLayer(const QString &id, std::unique_ptr<CustomLayerHostInterface> host, const QString &before) {
-    class HostWrapper final : public mbgl::style::CustomLayerHost {
+    class HostWrapper final : public mln::style::CustomLayerHost {
     public:
         std::unique_ptr<CustomLayerHostInterface> ptr;
         explicit HostWrapper(std::unique_ptr<CustomLayerHostInterface> p)
             : ptr(std::move(p)) {}
 
-        void initialize(const mbgl::style::CustomLayerInitParameters & /*params*/) final { ptr->initialize(); }
+        void initialize(const mln::style::CustomLayerInitParameters & /*params*/) final { ptr->initialize(); }
 
-        void render(const mbgl::style::CustomLayerRenderParameters &params) final {
+        void render(const mln::style::CustomLayerRenderParameters &params) final {
             CustomLayerRenderParameters renderParams{};
             renderParams.width = params.width;
             renderParams.height = params.height;
@@ -1387,7 +1383,7 @@ void Map::addCustomLayer(const QString &id, std::unique_ptr<CustomLayerHostInter
     };
 
     d_ptr->mapObj->getStyle().addLayer(
-        std::make_unique<mbgl::style::CustomLayer>(id.toStdString(), std::make_unique<HostWrapper>(std::move(host))),
+        std::make_unique<mln::style::CustomLayer>(id.toStdString(), std::make_unique<HostWrapper>(std::move(host))),
         before.isEmpty() ? std::optional<std::string>() : std::optional<std::string>(before.toStdString()));
 }
 
@@ -1419,9 +1415,9 @@ void Map::addLayer(const QString &id, const QVariantMap &params, const QString &
     QVariantMap parameters = params;
     parameters["id"] = id;
 
-    mbgl::style::conversion::Error error;
-    std::optional<std::unique_ptr<mbgl::style::Layer>> layer =
-        mbgl::style::conversion::convert<std::unique_ptr<mbgl::style::Layer>>(QVariant(parameters), error);
+    mln::style::conversion::Error error;
+    std::optional<std::unique_ptr<mln::style::Layer>> layer =
+        mln::style::conversion::convert<std::unique_ptr<mln::style::Layer>>(QVariant(parameters), error);
     if (!layer) {
         qWarning() << "Unable to add layer with id" << id << ":" << error.message.c_str();
         return;
@@ -1461,7 +1457,7 @@ QVector<QString> Map::layerIds() const {
     QVector<QString> layerIds;
     layerIds.reserve(static_cast<int>(layers.size()));
 
-    for (const mbgl::style::Layer *layer : layers) {
+    for (const mln::style::Layer *layer : layers) {
         layerIds.append(QString::fromStdString(layer->getID()));
     }
 
@@ -1523,19 +1519,19 @@ void Map::removeImage(const QString &id) {
     \endcode
 */
 void Map::setFilter(const QString &layerId, const QVariant &filter) {
-    mbgl::style::Layer *layer = d_ptr->mapObj->getStyle().getLayer(layerId.toStdString());
+    mln::style::Layer *layer = d_ptr->mapObj->getStyle().getLayer(layerId.toStdString());
     if (layer == nullptr) {
         qWarning() << "Layer not found:" << layerId;
         return;
     }
 
     if (filter.isNull() || filter.toList().isEmpty()) {
-        layer->setFilter(mbgl::style::Filter());
+        layer->setFilter(mln::style::Filter());
         return;
     }
 
-    mbgl::style::conversion::Error error;
-    std::optional<mbgl::style::Filter> converted = mbgl::style::conversion::convert<mbgl::style::Filter>(filter, error);
+    mln::style::conversion::Error error;
+    std::optional<mln::style::Filter> converted = mln::style::conversion::convert<mln::style::Filter>(filter, error);
     if (!converted) {
         qWarning() << "Error parsing filter:" << error.message.c_str();
         return;
@@ -1556,7 +1552,7 @@ void Map::setFilter(const QString &layerId, const QVariant &filter) {
     <a href="https://maplibre.org/maplibre-style-spec/types/">MapLibre Style Spec</a>.
 */
 QVariant Map::getFilter(const QString &layerId) const {
-    const mbgl::style::Layer *layer = d_ptr->mapObj->getStyle().getLayer(layerId.toStdString());
+    const mln::style::Layer *layer = d_ptr->mapObj->getStyle().getLayer(layerId.toStdString());
     if (layer == nullptr) {
         qWarning() << "Layer not found:" << layerId;
         return {};
@@ -1676,7 +1672,7 @@ void Map::updateRenderer(const QSize &size, qreal pixelRatio, quint32 fbo) {
     all network requests that previously timed out to be retried immediately.
 */
 void Map::setConnectionEstablished() {
-    mbgl::NetworkStatus::Reachable();
+    mln::NetworkStatus::Reachable();
 }
 
 /*!
@@ -1726,7 +1722,7 @@ void Map::setExternalDrawable(void *texturePtr, const QSize &textureSize) {
 }
 
 #ifdef MLN_RENDER_BACKEND_VULKAN
-mbgl::vulkan::Texture2D *Map::getVulkanTexture() const {
+mln::vulkan::Texture2D *Map::getVulkanTexture() const {
     return d_ptr->getVulkanTexture();
 }
 #endif
@@ -1809,29 +1805,29 @@ MapPrivate::MapPrivate(Map *map, const Settings &settings, const QSize &size, qr
     auto clientOptions = clientOptionsFromSettings(settings);
 
     // Setup the Map object.
-    mapObj = std::make_unique<mbgl::Map>(*this,
-                                         *m_mapObserver,
-                                         mapOptionsFromSettings(settings, size, m_pixelRatio),
-                                         resourceOptions,
-                                         clientOptionsFromSettings(settings));
+    mapObj = std::make_unique<mln::Map>(*this,
+                                        *m_mapObserver,
+                                        mapOptionsFromSettings(settings, size, m_pixelRatio),
+                                        resourceOptions,
+                                        clientOptionsFromSettings(settings));
 
     if (settings.resourceTransform()) {
-        m_resourceTransform = std::make_unique<mbgl::Actor<mbgl::ResourceTransform::TransformCallback>>(
-            *mbgl::Scheduler::GetCurrent(),
-            [callback = settings.resourceTransform()](mbgl::Resource::Kind,
+        m_resourceTransform = std::make_unique<mln::Actor<mln::ResourceTransform::TransformCallback>>(
+            *mln::Scheduler::GetCurrent(),
+            [callback = settings.resourceTransform()](mln::Resource::Kind,
                                                       const std::string &url_,
-                                                      const mbgl::ResourceTransform::FinishedCallback &onFinished) {
+                                                      const mln::ResourceTransform::FinishedCallback &onFinished) {
                 onFinished(callback(url_));
             });
 
-        mbgl::ResourceTransform transform{[actorRef = m_resourceTransform->self()](
-                                              mbgl::Resource::Kind kind,
-                                              const std::string &url,
-                                              mbgl::ResourceTransform::FinishedCallback onFinished) {
-            actorRef.invoke(&mbgl::ResourceTransform::TransformCallback::operator(), kind, url, std::move(onFinished));
-        }};
-        const std::shared_ptr<mbgl::FileSource> fs = mbgl::FileSourceManager::get()->getFileSource(
-            mbgl::FileSourceType::Network, resourceOptions, clientOptions);
+        mln::ResourceTransform transform{
+            [actorRef = m_resourceTransform->self()](
+                mln::Resource::Kind kind, const std::string &url, mln::ResourceTransform::FinishedCallback onFinished) {
+                actorRef.invoke(
+                    &mln::ResourceTransform::TransformCallback::operator(), kind, url, std::move(onFinished));
+            }};
+        const std::shared_ptr<mln::FileSource> fs = mln::FileSourceManager::get()->getFileSource(
+            mln::FileSourceType::Network, resourceOptions, clientOptions);
         fs->setResourceTransform(std::move(transform));
     }
 
@@ -1841,7 +1837,7 @@ MapPrivate::MapPrivate(Map *map, const Settings &settings, const QSize &size, qr
 
 MapPrivate::~MapPrivate() = default;
 
-void MapPrivate::update(std::shared_ptr<mbgl::UpdateParameters> parameters) {
+void MapPrivate::update(std::shared_ptr<mln::UpdateParameters> parameters) {
     const std::scoped_lock lock(m_mapRendererMutex);
 
     m_updateParameters = std::move(parameters);
@@ -1855,8 +1851,8 @@ void MapPrivate::update(std::shared_ptr<mbgl::UpdateParameters> parameters) {
     requestRendering();
 }
 
-void MapPrivate::setObserver(mbgl::RendererObserver &observer) {
-    m_rendererObserver = std::make_unique<RendererObserver>(*mbgl::util::RunLoop::Get(), observer);
+void MapPrivate::setObserver(mln::RendererObserver &observer) {
+    m_rendererObserver = std::make_unique<RendererObserver>(*mln::util::RunLoop::Get(), observer);
 
     const std::scoped_lock lock(m_mapRendererMutex);
 
@@ -1978,7 +1974,7 @@ bool MapPrivate::setProperty(const PropertySetter &setter,
                              const QString &layerId,
                              const QString &name,
                              const QVariant &value) const {
-    mbgl::style::Layer *layer = mapObj->getStyle().getLayer(layerId.toStdString());
+    mln::style::Layer *layer = mapObj->getStyle().getLayer(layerId.toStdString());
     if (layer == nullptr) {
         qWarning() << "Layer not found:" << layerId;
         return false;
@@ -1986,14 +1982,14 @@ bool MapPrivate::setProperty(const PropertySetter &setter,
 
     const std::string &propertyString = name.toStdString();
 
-    std::optional<mbgl::style::conversion::Error> result;
+    std::optional<mln::style::conversion::Error> result;
 
     if (value.typeId() == QMetaType::QString) {
-        mbgl::JSDocument document;
+        mln::JSDocument document;
         document.Parse<0>(value.toString().toStdString());
         if (!document.HasParseError()) {
             // Treat value as a valid JSON.
-            const mbgl::JSValue *jsonValue = &document;
+            const mln::JSValue *jsonValue = &document;
             result = (layer->*setter)(propertyString, jsonValue);
         } else {
             result = (layer->*setter)(propertyString, value);
@@ -2026,13 +2022,13 @@ void MapPrivate::setCurrentDrawable(void *tex) {
 void MapPrivate::setExternalDrawable(void *tex, const QSize &size) {
     const std::scoped_lock lock(m_mapRendererMutex);
     if (m_mapRenderer) {
-        const mbgl::Size sanitizedSize = sanitizeSize(size);
+        const mln::Size sanitizedSize = sanitizeSize(size);
         m_mapRenderer->setExternalDrawable(tex, sanitizedSize);
     }
 }
 
 #ifdef MLN_RENDER_BACKEND_VULKAN
-mbgl::vulkan::Texture2D *MapPrivate::getVulkanTexture() const {
+mln::vulkan::Texture2D *MapPrivate::getVulkanTexture() const {
     const std::scoped_lock lock(m_mapRendererMutex);
     return m_mapRenderer ? m_mapRenderer->getVulkanTexture() : nullptr;
 }

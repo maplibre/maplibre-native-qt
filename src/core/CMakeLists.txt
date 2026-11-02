@@ -217,7 +217,7 @@ install(
 )
 
 install(
-    DIRECTORY ${MLN_CORE_PATH}/include/mbgl
+    DIRECTORY ${MLN_CORE_PATH}/include/mln
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
 )
 

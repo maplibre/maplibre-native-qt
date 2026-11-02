@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <mbgl/gfx/renderable.hpp>
+#include <mln/gfx/renderable.hpp>
 
 #if defined(MLN_RENDER_BACKEND_OPENGL)
 #include "opengl_renderer_backend_p.hpp"

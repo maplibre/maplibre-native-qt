@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <mbgl/actor/scheduler.hpp>
-#include <mbgl/util/util.hpp>
+#include <mln/actor/scheduler.hpp>
+#include <mln/util/util.hpp>
 
 #include <QObject>
 
@@ -15,20 +15,20 @@
 
 namespace QMapLibre {
 
-class Scheduler : public QObject, public mbgl::Scheduler {
+class Scheduler : public QObject, public mln::Scheduler {
     Q_OBJECT
 
 public:
     Scheduler();
     ~Scheduler() override;
 
-    // mbgl::Scheduler implementation.
-    void schedule(const mbgl::util::SimpleIdentity identity, std::function<void()> &&function) final;
+    // mln::Scheduler implementation.
+    void schedule(const mln::util::SimpleIdentity identity, std::function<void()> &&function) final;
     void schedule(std::function<void()> &&function) final;
 
-    void waitForEmpty(const mbgl::util::SimpleIdentity tag = mbgl::util::SimpleIdentity::Empty) override;
+    void waitForEmpty(const mln::util::SimpleIdentity tag = mln::util::SimpleIdentity::Empty) override;
 
-    mapbox::base::WeakPtr<mbgl::Scheduler> makeWeakPtr() override { return weakFactory.makeWeakPtr(); }
+    mapbox::base::WeakPtr<mln::Scheduler> makeWeakPtr() override { return weakFactory.makeWeakPtr(); }
 
     void processEvents();
 

@@ -8,15 +8,15 @@
 #include "geojson_p.hpp"
 #include "types.hpp"
 
-#include <mbgl/style/conversion/geojson.hpp>
-#include <mbgl/style/conversion_impl.hpp>
+#include <mln/style/conversion/geojson.hpp>
+#include <mln/style/conversion_impl.hpp>
 
 #include <QtCore/QVariant>
 #include <QtGui/QColor>
 
 #include <optional>
 
-namespace mbgl::style::conversion {
+namespace mln::style::conversion {
 
 std::string convertColor(const QColor &color);
 
@@ -185,4 +185,4 @@ inline std::string convertColor(const QColor &color) {
         .toStdString();
 }
 
-} // namespace mbgl::style::conversion
+} // namespace mln::style::conversion

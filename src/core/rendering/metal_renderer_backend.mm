@@ -8,10 +8,10 @@
 
 #include "metal_renderer_backend_p.hpp"
 
-#include <mbgl/gfx/backend_scope.hpp>
-#include <mbgl/gfx/context.hpp>
-#include <mbgl/mtl/renderable_resource.hpp>
-#include <mbgl/mtl/texture2d.hpp>
+#include <mln/gfx/backend_scope.hpp>
+#include <mln/gfx/context.hpp>
+#include <mln/mtl/renderable_resource.hpp>
+#include <mln/mtl/texture2d.hpp>
 
 #import <Metal/Metal.hpp>
 #import <QuartzCore/CAMetalLayer.hpp>
@@ -25,7 +25,7 @@ namespace {
 constexpr uint32_t defaultOffscreenWidth = 800;
 constexpr uint32_t defaultOffscreenHeight = 600;
 
-class QtMetalRenderableResource final : public mbgl::mtl::RenderableResource {
+class QtMetalRenderableResource final : public mln::mtl::RenderableResource {
 public:
     using LayerPtr = CA::MetalLayer *;
     QtMetalRenderableResource(QMapLibre::MetalRendererBackend &backend_, LayerPtr layer_)
@@ -45,7 +45,7 @@ public:
         }
     }
 
-    void setBackendSize(mbgl::Size size_) {
+    void setBackendSize(mln::Size size_) {
         if (size_.width == size.width && size_.height == size.height) {
             return; // No change in size, nothing to do.
         }
@@ -61,9 +61,9 @@ public:
         buffersInvalid = true;
     }
 
-    [[nodiscard]] mbgl::Size getSize() const { return size; }
+    [[nodiscard]] mln::Size getSize() const { return size; }
 
-    // — mbgl::mtl::RenderableResource -----------------------------------
+    // — mln::mtl::RenderableResource -----------------------------------
     void bind() override {
 #ifdef MLN_RENDERER_DEBUGGING
         qDebug() << "QtMetalRenderableResource::bind() - Binding renderable resource with size" << size.width << "x"
@@ -113,15 +113,15 @@ public:
         }
 
         // Get texture size from the actual texture
-        auto texSize = mbgl::Size{size.width, size.height};
+        auto texSize = mln::Size{size.width, size.height};
         if (externalTex != nullptr) {
             // If texture is available, use its size
-            texSize = mbgl::Size{static_cast<uint32_t>(externalTex->width()),
-                                 static_cast<uint32_t>(externalTex->height())};
+            texSize = mln::Size{static_cast<uint32_t>(externalTex->width()),
+                                static_cast<uint32_t>(externalTex->height())};
         } else if (layer != nullptr) {
             // Only use layer size when the texture is not available
-            texSize = mbgl::Size{static_cast<uint32_t>(layer->drawableSize().width),
-                                 static_cast<uint32_t>(layer->drawableSize().height)};
+            texSize = mln::Size{static_cast<uint32_t>(layer->drawableSize().width),
+                                static_cast<uint32_t>(layer->drawableSize().height)};
         }
 
         commandBuffer = NS::RetainPtr(commandQueue->commandBuffer());
@@ -136,21 +136,21 @@ public:
             buffersInvalid = false;
             depthTexture = backend.getContext().createTexture2D();
             depthTexture->setSize(texSize);
-            depthTexture->setFormat(mbgl::gfx::TexturePixelType::Depth, mbgl::gfx::TextureChannelDataType::Float);
-            depthTexture->setSamplerConfiguration({.filter = mbgl::gfx::TextureFilterType::Linear,
-                                                   .wrapU = mbgl::gfx::TextureWrapType::Clamp,
-                                                   .wrapV = mbgl::gfx::TextureWrapType::Clamp});
-            static_cast<mbgl::mtl::Texture2D *>(depthTexture.get())
+            depthTexture->setFormat(mln::gfx::TexturePixelType::Depth, mln::gfx::TextureChannelDataType::Float);
+            depthTexture->setSamplerConfiguration({.filter = mln::gfx::TextureFilterType::Linear,
+                                                   .wrapU = mln::gfx::TextureWrapType::Clamp,
+                                                   .wrapV = mln::gfx::TextureWrapType::Clamp});
+            static_cast<mln::mtl::Texture2D *>(depthTexture.get())
                 ->setUsage(MTL::TextureUsageShaderRead | MTL::TextureUsageShaderWrite | MTL::TextureUsageRenderTarget);
 
             stencilTexture = backend.getContext().createTexture2D();
             stencilTexture->setSize(texSize);
-            stencilTexture->setFormat(mbgl::gfx::TexturePixelType::Stencil,
-                                      mbgl::gfx::TextureChannelDataType::UnsignedByte);
-            stencilTexture->setSamplerConfiguration({.filter = mbgl::gfx::TextureFilterType::Linear,
-                                                     .wrapU = mbgl::gfx::TextureWrapType::Clamp,
-                                                     .wrapV = mbgl::gfx::TextureWrapType::Clamp});
-            static_cast<mbgl::mtl::Texture2D *>(stencilTexture.get())
+            stencilTexture->setFormat(mln::gfx::TexturePixelType::Stencil,
+                                      mln::gfx::TextureChannelDataType::UnsignedByte);
+            stencilTexture->setSamplerConfiguration({.filter = mln::gfx::TextureFilterType::Linear,
+                                                     .wrapU = mln::gfx::TextureWrapType::Clamp,
+                                                     .wrapV = mln::gfx::TextureWrapType::Clamp});
+            static_cast<mln::mtl::Texture2D *>(stencilTexture.get())
                 ->setUsage(MTL::TextureUsageShaderRead | MTL::TextureUsageShaderWrite | MTL::TextureUsageRenderTarget);
         }
 
@@ -158,14 +158,14 @@ public:
             depthTexture->create();
             // Using depth texture
             if (auto *depthTarget = renderPassDescriptor->depthAttachment()) {
-                depthTarget->setTexture(static_cast<mbgl::mtl::Texture2D *>(depthTexture.get())->getMetalTexture());
+                depthTarget->setTexture(static_cast<mln::mtl::Texture2D *>(depthTexture.get())->getMetalTexture());
             }
         }
         if (stencilTexture) {
             stencilTexture->create();
             // Using stencil texture
             if (auto *stencilTarget = renderPassDescriptor->stencilAttachment()) {
-                stencilTarget->setTexture(static_cast<mbgl::mtl::Texture2D *>(stencilTexture.get())->getMetalTexture());
+                stencilTarget->setTexture(static_cast<mln::mtl::Texture2D *>(stencilTexture.get())->getMetalTexture());
             }
         }
     }
@@ -191,28 +191,28 @@ public:
         renderPassDescriptor.reset();
     }
 
-    [[nodiscard]] const mbgl::mtl::RendererBackend &getBackend() const override { return backend; }
+    [[nodiscard]] const mln::mtl::RendererBackend &getBackend() const override { return backend; }
 
-    [[nodiscard]] const mbgl::mtl::MTLCommandBufferPtr &getCommandBuffer() const override { return commandBuffer; }
+    [[nodiscard]] const mln::mtl::MTLCommandBufferPtr &getCommandBuffer() const override { return commandBuffer; }
 
-    [[nodiscard]] mbgl::mtl::MTLBlitPassDescriptorPtr getUploadPassDescriptor() const override {
+    [[nodiscard]] mln::mtl::MTLBlitPassDescriptorPtr getUploadPassDescriptor() const override {
         return NS::TransferPtr(MTL::BlitPassDescriptor::alloc()->init());
     }
 
-    [[nodiscard]] const mbgl::mtl::MTLRenderPassDescriptorPtr &getRenderPassDescriptor() const override {
+    [[nodiscard]] const mln::mtl::MTLRenderPassDescriptorPtr &getRenderPassDescriptor() const override {
         return renderPassDescriptor;
     }
 
 private:
     QMapLibre::MetalRendererBackend &backend;
     LayerPtr layer;
-    mbgl::mtl::MTLCommandQueuePtr commandQueue;
-    mbgl::mtl::MTLCommandBufferPtr commandBuffer;
-    mbgl::mtl::MTLRenderPassDescriptorPtr renderPassDescriptor;
-    mbgl::mtl::CAMetalDrawablePtr surface;
-    mbgl::gfx::Texture2DPtr depthTexture;
-    mbgl::gfx::Texture2DPtr stencilTexture;
-    mbgl::Size size{0, 0};
+    mln::mtl::MTLCommandQueuePtr commandQueue;
+    mln::mtl::MTLCommandBufferPtr commandBuffer;
+    mln::mtl::MTLRenderPassDescriptorPtr renderPassDescriptor;
+    mln::mtl::CAMetalDrawablePtr surface;
+    mln::gfx::Texture2DPtr depthTexture;
+    mln::gfx::Texture2DPtr stencilTexture;
+    mln::Size size{0, 0};
     bool buffersInvalid{true};
 };
 
@@ -221,22 +221,22 @@ private:
 namespace QMapLibre {
 
 MetalRendererBackend::MetalRendererBackend(CA::MetalLayer *layer)
-    : mbgl::mtl::RendererBackend(mbgl::gfx::ContextMode::Unique),
-      mbgl::gfx::Renderable(layer != nullptr ? mbgl::Size{static_cast<uint32_t>(layer->drawableSize().width),
-                                                          static_cast<uint32_t>(layer->drawableSize().height)}
-                                             : mbgl::Size{defaultOffscreenWidth, defaultOffscreenHeight},
-                            std::make_unique<QtMetalRenderableResource>(*this, layer)) {}
+    : mln::mtl::RendererBackend(mln::gfx::ContextMode::Unique),
+      mln::gfx::Renderable(layer != nullptr ? mln::Size{static_cast<uint32_t>(layer->drawableSize().width),
+                                                        static_cast<uint32_t>(layer->drawableSize().height)}
+                                            : mln::Size{defaultOffscreenWidth, defaultOffscreenHeight},
+                           std::make_unique<QtMetalRenderableResource>(*this, layer)) {}
 
 MetalRendererBackend::~MetalRendererBackend() = default;
 
-void MetalRendererBackend::setSize(mbgl::Size size_) {
+void MetalRendererBackend::setSize(mln::Size size_) {
     // Propagate size to the Renderable base class
-    mbgl::gfx::Renderable::size = size_;
+    mln::gfx::Renderable::size = size_;
 
     getResource<QtMetalRenderableResource>().setBackendSize(size_);
 }
 
-mbgl::Size MetalRendererBackend::getSize() const {
+mln::Size MetalRendererBackend::getSize() const {
     return getResource<QtMetalRenderableResource>().getSize();
 }
 

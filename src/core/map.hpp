@@ -21,9 +21,9 @@
 #include <memory>
 
 #ifdef MLN_RENDER_BACKEND_VULKAN
-namespace mbgl::vulkan {
+namespace mln::vulkan {
 class Texture2D;
-} // namespace mbgl::vulkan
+} // namespace mln::vulkan
 #endif
 
 namespace QMapLibre {
@@ -195,10 +195,10 @@ public:
 
 #ifdef MLN_RENDER_BACKEND_VULKAN
     // Vulkan-specific: get the Vulkan texture object.
-    mbgl::vulkan::Texture2D *getVulkanTexture() const;
+    mln::vulkan::Texture2D *getVulkanTexture() const;
 
     // Vulkan-specific: read image data from the Vulkan texture.
-    // std::shared_ptr<mbgl::PremultipliedImage> readVulkanImageData() const;
+    // std::shared_ptr<mln::PremultipliedImage> readVulkanImageData() const;
 #endif
 
 #ifdef MLN_RENDER_BACKEND_OPENGL

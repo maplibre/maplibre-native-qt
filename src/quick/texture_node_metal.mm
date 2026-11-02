@@ -38,7 +38,7 @@ void TextureNodeMetal::resize(const QSize &size, qreal pixelRatio, QQuickWindow 
              << "physical size:" << (m_size * m_pixelRatio);
 #endif
 
-    // Pass logical size; mbgl::Map handles DPI scaling internally via pixelRatio passed at construction
+    // Pass logical size; mln::Map handles DPI scaling internally via pixelRatio passed at construction
     m_map->resize(m_size, m_pixelRatio);
 
     // Update Metal layer drawable size if we have one

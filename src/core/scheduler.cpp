@@ -4,8 +4,8 @@
 
 #include "scheduler_p.hpp"
 
-#include <mbgl/util/monotonic_timer.hpp>
-#include <mbgl/util/util.hpp>
+#include <mln/util/monotonic_timer.hpp>
+#include <mln/util/util.hpp>
 
 #include <cassert>
 
@@ -19,7 +19,7 @@ Scheduler::~Scheduler() {
     MBGL_VERIFY_THREAD(tid);
 }
 
-void Scheduler::schedule(const mbgl::util::SimpleIdentity /* identity */, std::function<void()> &&function) {
+void Scheduler::schedule(const mln::util::SimpleIdentity /* identity */, std::function<void()> &&function) {
     const std::scoped_lock lock(m_taskQueueMutex);
     m_taskQueue.push(std::move(function));
 
@@ -29,7 +29,7 @@ void Scheduler::schedule(const mbgl::util::SimpleIdentity /* identity */, std::f
 }
 
 void Scheduler::schedule(std::function<void()> &&function) {
-    schedule(mbgl::util::SimpleIdentity::Empty, std::move(function));
+    schedule(mln::util::SimpleIdentity::Empty, std::move(function));
 }
 
 void Scheduler::processEvents() {
@@ -52,7 +52,7 @@ void Scheduler::processEvents() {
     cvEmpty.notify_all();
 }
 
-void Scheduler::waitForEmpty(const mbgl::util::SimpleIdentity /* tag */) {
+void Scheduler::waitForEmpty(const mln::util::SimpleIdentity /* tag */) {
     MBGL_VERIFY_THREAD(tid);
 
     std::unique_lock<std::mutex> lock(m_taskQueueMutex);
