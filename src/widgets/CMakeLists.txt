@@ -14,18 +14,10 @@ endforeach()
 set(MLNQtWidgets_Headers ${MLN_QT_WIDGETS_LOWERCASE}.hpp ${MLNQtWidgets_Headers} ${MLNQtWidgets_Headers_Generated})
 
 # Make a Qt library
-if(COMMAND qt_add_library)
-    if(MLN_QT_STATIC)
-        qt_add_library(MLNQtWidgets STATIC)
-    else()
-        qt_add_library(MLNQtWidgets)
-    endif()
+if(MLN_QT_STATIC)
+    qt_add_library(MLNQtWidgets STATIC)
 else()
-    if(MLN_QT_STATIC)
-        add_library(MLNQtWidgets STATIC)
-    else()
-        add_library(MLNQtWidgets SHARED)
-    endif()
+    qt_add_library(MLNQtWidgets)
 endif()
 add_library(${MLN_QT_NAME}::Widgets ALIAS MLNQtWidgets)
 
@@ -71,7 +63,7 @@ target_include_directories(
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_BINARY_DIR}/include
-        ${CMAKE_SOURCE_DIR}/src/core
+        ${CMAKE_CURRENT_SOURCE_DIR}/../core
         ${CMAKE_BINARY_DIR}/src/core/include
         $<$<BOOL:${MLN_WITH_VULKAN}>:${MLN_CORE_PATH}/vendor/Vulkan-Headers/include>
         $<$<BOOL:${MLN_WITH_VULKAN}>:${MLN_CORE_PATH}/vendor/VulkanMemoryAllocator/include>

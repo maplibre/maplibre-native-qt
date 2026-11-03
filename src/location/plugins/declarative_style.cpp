@@ -6,24 +6,39 @@
 #include "style_parameter.hpp"
 
 #include <QtLocation/private/qdeclarativegeomap_p.h>
+#include <QtCore/QPointer>
 
 namespace QMapLibre {
 
 DeclarativeStyle::DeclarativeStyle(QQuickItem *parent)
     : QQuickItem(parent) {}
 
-void DeclarativeStyle::setDeclarativeMap(QDeclarativeGeoMap *map) {
-    if (map->map() == nullptr) {
-        connect(map, &QDeclarativeGeoMap::mapReadyChanged, this, [this, map]() {
-            setMap(qobject_cast<QGeoMapMapLibre *>(map->map()));
-        });
-    } else {
-        setMap(qobject_cast<QGeoMapMapLibre *>(map->map()));
+void DeclarativeStyle::setDeclarativeMap(QDeclarativeGeoMap *declarativeGeoMap) {
+    if (declarativeGeoMap == nullptr) {
+        return;
     }
+
+    const QPointer<QDeclarativeGeoMap> guardedMap{declarativeGeoMap};
+
+    const auto bindMap = [this, guardedMap]() {
+        if (guardedMap == nullptr) {
+            return;
+        }
+
+        auto *map = guardedMap->map();
+        if (map == nullptr) {
+            return;
+        }
+
+        setMap(qobject_cast<QGeoMapMapLibre *>(map));
+    };
+
+    connect(declarativeGeoMap, &QDeclarativeGeoMap::mapReadyChanged, this, bindMap);
+    QMetaObject::invokeMethod(this, bindMap, Qt::QueuedConnection);
 }
 
 void DeclarativeStyle::setMap(QGeoMapMapLibre *map) {
-    if (map == nullptr) {
+    if (map == nullptr || m_map != nullptr) {
         return;
     }
 

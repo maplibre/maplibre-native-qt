@@ -12,8 +12,7 @@ It is still in active development and API may change before the stable release.
 ## Qt support
 
 This library fully supports Qt 6.5 and newer.
-Qt 5.15 is fully supported only on desktop platforms, previous Qt 5 versions
-down to 5.6 only support widgets but not Qt Location.
+Qt 5 is no longer supported.
 
 ## Get and build
 

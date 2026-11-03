@@ -5,7 +5,6 @@
 #pragma once
 
 #include "../qgeomap.hpp"
-#include "style_parameter.hpp"
 
 #include <QMapLibre/StyleParameter>
 
@@ -23,15 +22,13 @@ namespace QMapLibre {
 class DeclarativeStyle : public QQuickItem {
     Q_OBJECT
     QML_NAMED_ELEMENT(Style)
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     QML_ADDED_IN_VERSION(3, 0)
-#endif
 
 public:
     explicit DeclarativeStyle(QQuickItem *parent = nullptr);
     ~DeclarativeStyle() override = default;
 
-    void setDeclarativeMap(QDeclarativeGeoMap *map);
+    void setDeclarativeMap(QDeclarativeGeoMap *declarativeGeoMap);
     void setMap(QGeoMapMapLibre *map);
 
     Q_INVOKABLE void addParameter(StyleParameter *parameter);

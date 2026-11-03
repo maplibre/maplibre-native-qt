@@ -5,11 +5,13 @@
 ### ✨ New features
 
 - Full renderer backend support for Vulkan, Metal and OpenGL.
+- No support for Qt 5 anymore.
 
 ### 🐞 Bug fixes
 
 - Declare C++ dependencies in the qmldir files for the Maplibre and MapLibre.Location modules (#278)
-
+- Connect Map signals before starting the style load in MapQuickItem, so a quickly resolved style no longer loses MapChangeDidFinishLoadingStyle (#306)
+- Fix source and include paths throughout the build so the project can be consumed with add_subdirectory() (#305)
 ## v3.0.0
 
 ### ✨ New features

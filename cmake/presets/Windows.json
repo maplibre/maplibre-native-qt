@@ -205,6 +205,28 @@
       ]
     },
     {
+      "name": "Windows-OpenGL-sccache-no-tests",
+      "displayName": "Windows workflow using Qt6, OpenGL and sccache, without tests",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "Windows-OpenGL-sccache"
+        },
+        {
+          "type": "build",
+          "name": "Windows-OpenGL-sccache"
+        },
+        {
+          "type": "build",
+          "name": "Windows-OpenGL-debug-sccache"
+        },
+        {
+          "type": "package",
+          "name": "Windows-OpenGL-sccache"
+        }
+      ]
+    },
+    {
       "name": "Windows-Vulkan",
       "displayName": "Windows workflow using Qt6 and Vulkan",
       "steps": [
@@ -221,6 +243,10 @@
           "name": "Windows-Vulkan-debug"
         },
         {
+          "type": "test",
+          "name": "Windows-Vulkan"
+        },
+        {
           "type": "package",
           "name": "Windows-Vulkan"
         }
@@ -229,6 +255,32 @@
     {
       "name": "Windows-Vulkan-sccache",
       "displayName": "Windows workflow using Qt6, Vulkan and sccache",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "Windows-Vulkan-sccache"
+        },
+        {
+          "type": "build",
+          "name": "Windows-Vulkan-sccache"
+        },
+        {
+          "type": "build",
+          "name": "Windows-Vulkan-debug-sccache"
+        },
+        {
+          "type": "test",
+          "name": "Windows-Vulkan-sccache"
+        },
+        {
+          "type": "package",
+          "name": "Windows-Vulkan-sccache"
+        }
+      ]
+    },
+    {
+      "name": "Windows-Vulkan-sccache-no-tests",
+      "displayName": "Windows workflow using Qt6, Vulkan and sccache, without tests",
       "steps": [
         {
           "type": "configure",

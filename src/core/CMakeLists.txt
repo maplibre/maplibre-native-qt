@@ -13,6 +13,16 @@ add_subdirectory(
     MapLibreCore      # Binary directory
     EXCLUDE_FROM_ALL
 )
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 15)
+    target_compile_options(mbgl-core PRIVATE -Wno-sfinae-incomplete)
+endif()
+
+# glslang (pulled in only when MLN_WITH_VULKAN is enabled) calls option(BUILD_SHARED_LIBS)
+# with no default, which forces the cache to OFF. That would make qt_add_library() below build
+# our Qt libraries as static. Clear it again so qt_add_library() keeps autodetecting the
+# library type from how Qt itself was built.
+unset(BUILD_SHARED_LIBS CACHE)
+unset(BUILD_SHARED_LIBS)
 
 # Public headers
 string(TOLOWER ${MLN_QT_NAME} MLN_QT_NAME_LOWERCASE)
@@ -39,18 +49,10 @@ endforeach()
 set(MLNQtCore_Headers ${MLN_QT_NAME_LOWERCASE}.hpp ${MLNQtCore_Headers} ${MLNQtCore_Headers_Generated})
 
 # Make a Qt library
-if(COMMAND qt_add_library)
-    if(MLN_QT_STATIC)
-        qt_add_library(MLNQtCore STATIC)
-    else()
-        qt_add_library(MLNQtCore)
-    endif()
+if(MLN_QT_STATIC)
+    qt_add_library(MLNQtCore STATIC)
 else()
-    if(MLN_QT_STATIC)
-        add_library(MLNQtCore STATIC)
-    else()
-        add_library(MLNQtCore SHARED)
-    endif()
+    qt_add_library(MLNQtCore)
 endif()
 add_library(${MLN_QT_NAME}::Core ALIAS MLNQtCore)
 
@@ -136,6 +138,8 @@ target_include_directories(
         ${CMAKE_CURRENT_BINARY_DIR}/include
         ${MLN_CORE_PATH}/src
         ${MLN_CORE_PATH}/platform/qt/src
+        $<$<BOOL:${MLN_WITH_VULKAN}>:${MLN_CORE_PATH}/vendor/Vulkan-Headers/include>
+        $<$<BOOL:${MLN_WITH_VULKAN}>:${MLN_CORE_PATH}/vendor/VulkanMemoryAllocator/include>
 )
 
 # Common link libraries
@@ -213,7 +217,7 @@ install(
 )
 
 install(
-    DIRECTORY ${CMAKE_SOURCE_DIR}/vendor/maplibre-native/include/mbgl
+    DIRECTORY ${MLN_CORE_PATH}/include/mbgl
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
 )
 

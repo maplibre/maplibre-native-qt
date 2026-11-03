@@ -38,8 +38,8 @@ set_target_properties(
 target_include_directories(
     ${MLN_QT_GEOSERVICES_PLUGIN}
     PRIVATE
-        ${CMAKE_SOURCE_DIR}/src/core
-        ${CMAKE_SOURCE_DIR}/src/core/style
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../core
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../core/style
         ${CMAKE_BINARY_DIR}/src/core/include
         $<$<BOOL:${MLN_WITH_VULKAN}>:${MLN_CORE_PATH}/vendor/Vulkan-Headers/include>
         $<$<BOOL:${MLN_WITH_VULKAN}>:${MLN_CORE_PATH}/vendor/VulkanMemoryAllocator/include>
@@ -80,11 +80,16 @@ install(
 set(Plugin_Sources
     qml_types.hpp
     declarative_style.cpp declarative_style.hpp
-    declarative_style_parameter.hpp
-    declarative_filter_parameter.cpp declarative_filter_parameter.hpp
-    declarative_image_parameter.cpp declarative_image_parameter.hpp
-    declarative_layer_parameter.cpp declarative_layer_parameter.hpp
-    declarative_source_parameter.cpp declarative_source_parameter.hpp
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../quick/common/declarative_style_parameter.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../quick/common/declarative_filter_parameter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../quick/common/declarative_filter_parameter.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../quick/common/declarative_image_parameter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../quick/common/declarative_image_parameter.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../quick/common/declarative_layer_parameter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../quick/common/declarative_layer_parameter.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../quick/common/declarative_source_parameter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../quick/common/declarative_source_parameter.hpp
 
     $<$<PLATFORM_ID:Windows>:${CMAKE_BINARY_DIR}/version_info.rc>
 )
@@ -136,8 +141,9 @@ set_property(TARGET ${MLN_QT_QML_PLUGIN_LOCATION} PROPERTY EXPORT_NAME PluginQml
 target_include_directories(
     ${MLN_QT_QML_PLUGIN_LOCATION}
     PRIVATE
-        ${CMAKE_SOURCE_DIR}/src/core
-        ${CMAKE_SOURCE_DIR}/src/core/style
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../core
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../core/style
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../quick/common
         ${CMAKE_BINARY_DIR}/src/core/include
 )
 

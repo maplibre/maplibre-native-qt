@@ -16,9 +16,7 @@ namespace QMapLibre {
 class DeclarativeSourceParameter : public SourceParameter, public QQmlParserStatus {
     Q_OBJECT
     QML_NAMED_ELEMENT(SourceParameter)
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     QML_ADDED_IN_VERSION(3, 0)
-#endif
     Q_INTERFACES(QQmlParserStatus)
     // from base class
     Q_PROPERTY(QString styleId READ styleId WRITE setStyleId)

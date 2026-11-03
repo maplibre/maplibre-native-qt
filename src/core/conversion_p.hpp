@@ -26,14 +26,10 @@ public:
     static bool isUndefined(const QVariant &value) { return value.isNull() || !value.isValid(); }
 
     static bool isArray(const QVariant &value) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         if (value.metaType() == QMetaType(QMetaType::QString)) {
             return false;
         }
         return QMetaType::canConvert(value.metaType(), QMetaType(QMetaType::QVariantList));
-#else
-        return value.canConvert(QVariant::List);
-#endif
     }
 
     static std::size_t arrayLength(const QVariant &value) { return value.toList().size(); }
@@ -41,13 +37,9 @@ public:
     static QVariant arrayMember(const QVariant &value, std::size_t i) { return value.toList()[static_cast<int>(i)]; }
 
     static bool isObject(const QVariant &value) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         return QMetaType::canConvert(value.metaType(), QMetaType(QMetaType::QVariantMap)) ||
-               value.typeId() == QMetaType::QByteArray
-#else
-        return value.canConvert(QVariant::Map) || value.type() == QVariant::ByteArray
-#endif
-               || QString(value.typeName()) == QStringLiteral("QMapLibre::Feature") ||
+               value.typeId() == QMetaType::QByteArray ||
+               QString(value.typeName()) == QStringLiteral("QMapLibre::Feature") ||
                value.userType() == qMetaTypeId<QVector<QMapLibre::Feature>>() ||
                value.userType() == qMetaTypeId<QList<QMapLibre::Feature>>() ||
                value.userType() == qMetaTypeId<std::list<QMapLibre::Feature>>();
@@ -82,11 +74,7 @@ public:
     }
 
     static std::optional<bool> toBool(const QVariant &value) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         if (value.typeId() == QMetaType::Bool) {
-#else
-        if (value.type() == QVariant::Bool) {
-#endif
             return value.toBool();
         }
 
@@ -94,14 +82,9 @@ public:
     }
 
     static std::optional<float> toNumber(const QVariant &value) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         if (value.typeId() == QMetaType::Int || value.typeId() == QMetaType::Double ||
             value.typeId() == QMetaType::Long || value.typeId() == QMetaType::LongLong ||
             value.typeId() == QMetaType::ULong || value.typeId() == QMetaType::ULongLong) {
-#else
-        if (value.type() == QVariant::Int || value.type() == QVariant::Double || value.type() == QVariant::LongLong ||
-            value.type() == QVariant::ULongLong) {
-#endif
             return value.toFloat();
         }
 
@@ -109,14 +92,9 @@ public:
     }
 
     static std::optional<double> toDouble(const QVariant &value) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         if (value.typeId() == QMetaType::Int || value.typeId() == QMetaType::Double ||
             value.typeId() == QMetaType::Long || value.typeId() == QMetaType::LongLong ||
             value.typeId() == QMetaType::ULong || value.typeId() == QMetaType::ULongLong) {
-#else
-        if (value.type() == QVariant::Int || value.type() == QVariant::Double || value.type() == QVariant::LongLong ||
-            value.type() == QVariant::ULongLong) {
-#endif
             return value.toDouble();
         }
 
@@ -124,7 +102,6 @@ public:
     }
 
     static std::optional<std::string> toString(const QVariant &value) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         if (value.typeId() == QMetaType::QString) {
             return value.toString().toStdString();
         }
@@ -132,20 +109,11 @@ public:
         if (value.typeId() == QMetaType::QColor) {
             return convertColor(value.value<QColor>());
         }
-#else
-        if (value.type() == QVariant::String) {
-            return value.toString().toStdString();
-        }
 
-        if (value.type() == QVariant::Color) {
-            return convertColor(value.value<QColor>());
-        }
-#endif
         return {};
     }
 
     static std::optional<Value> toValue(const QVariant &value) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         if (value.typeId() == QMetaType::Bool) {
             return {value.toBool()};
         }
@@ -165,27 +133,7 @@ public:
         if (QMetaType::canConvert(value.metaType(), QMetaType(QMetaType::Double))) {
             return {value.toDouble()};
         }
-#else
-        if (value.type() == QVariant::Bool) {
-            return {value.toBool()};
-        }
 
-        if (value.type() == QVariant::String) {
-            return {value.toString().toStdString()};
-        }
-
-        if (value.type() == QVariant::Color) {
-            return {convertColor(value.value<QColor>())};
-        }
-
-        if (value.type() == QVariant::Int) {
-            return {static_cast<int64_t>(value.toInt())};
-        }
-
-        if (value.canConvert(QVariant::Double)) {
-            return {value.toDouble()};
-        }
-#endif
         return {};
     }
 
@@ -206,11 +154,7 @@ public:
             return featureCollectionToGeoJSON(value.value<std::list<QMapLibre::Feature>>());
         }
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         if (value.typeId() != QMetaType::QByteArray) {
-#else
-        if (value.type() != QVariant::ByteArray) {
-#endif
             error = {"JSON data must be in QByteArray"};
             return {};
         }

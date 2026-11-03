@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "map_quick_item.hpp"
+#include "map_quick_item_p.hpp"
 
 #include "texture_node_base_p.hpp"
 #ifdef MLN_RENDER_BACKEND_OPENGL
@@ -14,6 +15,8 @@
 #ifdef MLN_RENDER_BACKEND_VULKAN
 #include "texture_node_vulkan_p.hpp"
 #endif
+
+#include "style_change_p.hpp"
 
 #include <QMapLibre/Map>
 
@@ -38,10 +41,17 @@ constexpr double maxZoomLevel{20.0};
 namespace QMapLibre {
 
 MapQuickItem::MapQuickItem(QQuickItem *parent)
-    : QQuickItem(parent) {
+    : QQuickItem(parent),
+      d_ptr(std::make_unique<MapQuickItemPrivate>(this)) {
+    Q_D(MapQuickItem);
+
     setFlag(ItemHasContents, true);
+    // QQuickItem accepts only the left mouse button by default, so a
+    // right-button press is never delivered to this item and therefore never
+    // reaches pointer handlers declared on it (e.g. a right-drag gesture).
+    setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
     // TODO: make configurable
-    m_settings.setCacheDatabasePath(QStringLiteral(":memory:"));
+    d->m_settings.setCacheDatabasePath(QStringLiteral(":memory:"));
 }
 
 MapQuickItem::~MapQuickItem() {
@@ -62,21 +72,34 @@ void MapQuickItem::initialize() {
     if (m_map != nullptr) {
         return;
     }
+    d->m_style = style;
+    emit styleChanged();
 
-    const QSize viewportSize{static_cast<int>(width()), static_cast<int>(height())};
-    const qreal pixelRatio = window() != nullptr ? window()->devicePixelRatio() : 1.0;
-    m_map = std::make_unique<Map>(nullptr, m_settings, viewportSize, pixelRatio);
-    m_map->setConnectionEstablished();
-
-    // Set default style
-    if (!m_style.isEmpty()) {
-        m_map->setStyleUrl(m_style);
-    } else if (!m_settings.styles().empty()) {
-        m_map->setStyleUrl(m_settings.styles().front().url);
-    } else if (!m_settings.providerStyles().empty()) {
-        m_map->setStyleUrl(m_settings.providerStyles().front().url);
+    // Apply the style immediately when the map already exists; otherwise the
+    // new style would only take effect on the next launch, because the map is
+    // initialised from m_style.
+    if (d->m_map == nullptr) {
+        return;
     }
 
+    // An empty style means "use the configured default", as in initialize().
+    QString styleUrl = style;
+    if (styleUrl.isEmpty()) {
+        if (!d->m_settings.styles().empty()) {
+            styleUrl = d->m_settings.styles().front().url;
+        } else if (!d->m_settings.providerStyles().empty()) {
+            styleUrl = d->m_settings.providerStyles().front().url;
+        }
+    }
+    if (styleUrl.isEmpty()) {
+        return;
+    }
+
+    if (d->m_styleLoaded) {
+        d->m_styleLoaded = false;
+        emit styleLoadedChanged();
+    }
+    d->m_map->setStyleUrl(styleUrl);
     update();
 }
 
@@ -92,35 +115,45 @@ void MapQuickItem::setStyle(const QString &style) {
 }
 
 void MapQuickItem::setZoomLevel(double zoomLevel) {
+    Q_D(MapQuickItem);
+
     if (zoomLevel < minZoomLevel) {
         zoomLevel = minZoomLevel;
     } else if (zoomLevel > maxZoomLevel) {
         zoomLevel = maxZoomLevel;
     }
 
-    if (m_zoomLevel == zoomLevel) {
+    if (d->m_zoomLevel == zoomLevel) {
         return;
     }
 
-    m_zoomLevel = zoomLevel;
+    d->m_zoomLevel = zoomLevel;
 
-    if (m_map != nullptr) {
-        m_syncState |= CameraOptionsSync;
+    if (d->m_map != nullptr) {
+        d->m_syncState |= CameraOptionsSync;
         update();
     }
 
     emit zoomLevelChanged();
 }
 
+QVariantList MapQuickItem::coordinate() const {
+    Q_D(const MapQuickItem);
+
+    return d->m_coordinate;
+}
+
 void MapQuickItem::setCoordinate(const QVariantList &coordinate) {
-    if (m_coordinate == coordinate || coordinate.size() != 2) {
+    Q_D(MapQuickItem);
+
+    if (d->m_coordinate == coordinate || coordinate.size() != 2) {
         return;
     }
 
-    m_coordinate = coordinate;
+    d->m_coordinate = coordinate;
 
-    if (m_map != nullptr) {
-        m_syncState |= CameraOptionsSync;
+    if (d->m_map != nullptr) {
+        d->m_syncState |= CameraOptionsSync;
         update();
     }
 
@@ -128,11 +161,13 @@ void MapQuickItem::setCoordinate(const QVariantList &coordinate) {
 }
 
 void MapQuickItem::setCoordinateFromPixel(const QPointF &pixel) {
-    if (m_map == nullptr) {
+    Q_D(MapQuickItem);
+
+    if (d->m_map == nullptr) {
         return;
     }
 
-    const Coordinate coordinate = m_map->coordinateForPixel(pixel);
+    const Coordinate coordinate = d->m_map->coordinateForPixel(pixel);
     setCoordinate({coordinate.first, coordinate.second});
 }
 
@@ -146,33 +181,39 @@ QVariantList MapQuickItem::coordinateForPixel(const QPointF &pixel) const {
 }
 
 void MapQuickItem::pan(const QPointF &offset) {
-    if (m_map == nullptr) {
+    Q_D(MapQuickItem);
+
+    if (d->m_map == nullptr) {
         return;
     }
 
-    m_map->moveBy(offset);
-    const Coordinate coordinate = m_map->coordinate();
-    m_coordinate = {coordinate.first, coordinate.second};
+    d->m_map->moveBy(offset);
+    const Coordinate coordinate = d->m_map->coordinate();
+    d->m_coordinate = {coordinate.first, coordinate.second};
     update();
     emit coordinateChanged();
 }
 
 void MapQuickItem::scale(double scale, const QPointF &center) {
-    if (m_map == nullptr) {
+    Q_D(MapQuickItem);
+
+    if (d->m_map == nullptr) {
         return;
     }
 
-    m_map->scaleBy(scale, center);
-    const Coordinate coordinate = m_map->coordinate();
-    m_coordinate = {coordinate.first, coordinate.second};
-    m_zoomLevel = m_map->zoom();
+    d->m_map->scaleBy(scale, center);
+    const Coordinate coordinate = d->m_map->coordinate();
+    d->m_coordinate = {coordinate.first, coordinate.second};
+    d->m_zoomLevel = d->m_map->zoom();
     update();
     emit coordinateChanged();
     emit zoomLevelChanged();
 }
 
 void MapQuickItem::easeTo(const QVariantMap &camera, const QVariantMap &animation) {
-    if (m_map == nullptr) {
+    Q_D(MapQuickItem);
+
+    if (d->m_map == nullptr) {
         return;
     }
 
@@ -204,18 +245,20 @@ void MapQuickItem::easeTo(const QVariantMap &camera, const QVariantMap &animatio
         animationOptions.minZoom = animation["minZoom"].toDouble();
     }
 
-    m_map->easeTo(cameraOptions, animationOptions);
+    d->m_map->easeTo(cameraOptions, animationOptions);
 
-    const Coordinate coordinate = m_map->coordinate();
-    m_coordinate = {coordinate.first, coordinate.second};
-    m_zoomLevel = m_map->zoom();
+    const Coordinate coordinate = d->m_map->coordinate();
+    d->m_coordinate = {coordinate.first, coordinate.second};
+    d->m_zoomLevel = d->m_map->zoom();
     update();
     emit coordinateChanged();
     emit zoomLevelChanged();
 }
 
 void MapQuickItem::flyTo(const QVariantMap &camera, const QVariantMap &animation) {
-    if (m_map == nullptr) {
+    Q_D(MapQuickItem);
+
+    if (d->m_map == nullptr) {
         return;
     }
 
@@ -247,14 +290,29 @@ void MapQuickItem::flyTo(const QVariantMap &camera, const QVariantMap &animation
         animationOptions.minZoom = animation["minZoom"].toDouble();
     }
 
-    m_map->flyTo(cameraOptions, animationOptions);
+    d->m_map->flyTo(cameraOptions, animationOptions);
 
-    const Coordinate coordinate = m_map->coordinate();
-    m_coordinate = {coordinate.first, coordinate.second};
-    m_zoomLevel = m_map->zoom();
+    const Coordinate coordinate = d->m_map->coordinate();
+    d->m_coordinate = {coordinate.first, coordinate.second};
+    d->m_zoomLevel = d->m_map->zoom();
     update();
     emit coordinateChanged();
     emit zoomLevelChanged();
+}
+
+void MapQuickItem::addStyleParameter(StyleParameter *parameter) {
+    Q_D(MapQuickItem);
+    d->addStyleParameter(parameter);
+}
+
+void MapQuickItem::removeStyleParameter(StyleParameter *parameter) {
+    Q_D(MapQuickItem);
+    d->removeStyleParameter(parameter);
+}
+
+void MapQuickItem::clearStyleParameters() {
+    Q_D(MapQuickItem);
+    d->clearStyleParameters();
 }
 
 void MapQuickItem::componentComplete() {
@@ -264,25 +322,28 @@ void MapQuickItem::componentComplete() {
 }
 
 void MapQuickItem::geometryChange(const QRectF &newGeometry, const QRectF &oldGeometry) {
+    Q_D(MapQuickItem);
+
     QQuickItem::geometryChange(newGeometry, oldGeometry);
 
-    if (m_map == nullptr) {
+    if (d->m_map == nullptr) {
         return;
     }
 
     if (newGeometry.size() != oldGeometry.size()) {
         const QSize viewportSize{static_cast<int>(newGeometry.width()), static_cast<int>(newGeometry.height())};
         const qreal pixelRatio = window() != nullptr ? window()->devicePixelRatio() : 1.0;
-        m_map->resize(viewportSize.expandedTo({minSize, minSize}), pixelRatio);
-        m_syncState |= ViewportSync;
+        d->m_map->resize(viewportSize.expandedTo({minSize, minSize}), pixelRatio);
+        d->m_syncState |= ViewportSync;
         update();
     }
 }
 
 QSGNode *MapQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *data) {
+    Q_D(MapQuickItem);
     Q_UNUSED(data);
 
-    if (!m_map) {
+    if (!d->m_map) {
         delete oldNode; // NOLINT(cppcoreguidelines-owning-memory)
         return nullptr;
     }
@@ -306,6 +367,8 @@ QSGNode *MapQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *da
 }
 
 QSGNode *MapQuickItem::updateMapNode(QSGNode *node) {
+    Q_D(MapQuickItem);
+
     const QSize viewportSize{static_cast<int>(width()), static_cast<int>(height())};
 
     if (node == nullptr) {
@@ -329,18 +392,16 @@ QSGNode *MapQuickItem::updateMapNode(QSGNode *node) {
         }
 
         std::unique_ptr<TextureNodeBase> mbglNode = std::make_unique<TextureNodeOpenGL>(
-            m_map, viewportSize, window()->devicePixelRatio());
+            d->m_map, viewportSize, window()->devicePixelRatio());
 #elif defined(MLN_RENDER_BACKEND_METAL)
         std::unique_ptr<TextureNodeBase> mbglNode = std::make_unique<TextureNodeMetal>(
-            m_map, viewportSize, window()->devicePixelRatio());
+            d->m_map, viewportSize, window()->devicePixelRatio());
 #elif defined(MLN_RENDER_BACKEND_VULKAN)
         std::unique_ptr<TextureNodeBase> mbglNode = std::make_unique<TextureNodeVulkan>(
-            m_map, viewportSize, window()->devicePixelRatio());
+            d->m_map, viewportSize, window()->devicePixelRatio());
 #endif
-        QObject::connect(m_map.get(), &Map::needsRendering, this, &QQuickItem::update);
-        QObject::connect(m_map.get(), &Map::mapChanged, this, &MapQuickItem::onMapChanged);
 
-        m_syncState = ViewportSync | CameraOptionsSync;
+        d->m_syncState = ViewportSync | CameraOptionsSync;
 
         node = mbglNode.release();
 
@@ -349,21 +410,31 @@ QSGNode *MapQuickItem::updateMapNode(QSGNode *node) {
 #endif
     }
 
-    if ((m_syncState & CameraOptionsSync) != 0) {
-        m_map->setCoordinateZoom({m_coordinate.size() == 2 ? m_coordinate[0].toDouble() : 0.0,
-                                  m_coordinate.size() == 2 ? m_coordinate[1].toDouble() : 0.0},
-                                 m_zoomLevel);
+    if ((d->m_syncState & CameraOptionsSync) != 0) {
+        d->m_map->setCoordinateZoom({d->m_coordinate.size() == 2 ? d->m_coordinate[0].toDouble() : 0.0,
+                                     d->m_coordinate.size() == 2 ? d->m_coordinate[1].toDouble() : 0.0},
+                                    d->m_zoomLevel);
     }
 
-    if ((m_syncState & ViewportSync) != 0) {
+    if ((d->m_syncState & ViewportSync) != 0) {
         static_cast<TextureNodeBase *>(node)->resize(viewportSize, window()->devicePixelRatio(), window());
+    }
+
+    if (d->m_styleLoaded) {
+        d->syncStyleChanges();
     }
 
     static_cast<TextureNodeBase *>(node)->render(window());
 
-    m_syncState = NoSync;
+    d->m_syncState = NoSync;
 
     return node;
+}
+
+void MapQuickItem::initialize() {
+    Q_D(MapQuickItem);
+
+    d->initialize();
 }
 
 void MapQuickItem::onMapChanged(Map::MapChange change) {

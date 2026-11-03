@@ -102,7 +102,6 @@ However, during development you may need to set some environment variables:
 - `DYLD_LIBRARY_PATH` to find libraries on macOS
 - `LD_LIBRARY_PATH` to find libraries on Linux
 - `QML_IMPORT_PATH=<installation-path>/qml` to find the QML types
-  (`QML2_IMPORT_PATH` for Qt 5)
 - `QT_PLUGIN_PATH=<installation-path>plugins` to find the plugins
 
 ## Platform specifics

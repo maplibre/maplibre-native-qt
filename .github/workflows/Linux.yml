@@ -67,68 +67,44 @@ jobs:
     strategy:
       matrix:
         include:
-          - qt_version: 6.10.2
+          - qt_version: 6.11.2
             host: linux
             runner: ubuntu-24.04
             preset: Linux-OpenGL-sccache-CI
             renderer: OpenGL
             compiler: default
-          - qt_version: 6.10.2
+          - qt_version: 6.11.2
             host: linux_arm64
             runner: ubuntu-24.04-arm
             preset: Linux-OpenGL-sccache-CI
             renderer: OpenGL
             compiler: gcc
-          - qt_version: 6.10.2
+          - qt_version: 6.11.2
             host: linux
             runner: ubuntu-24.04
             preset: Linux-Vulkan-sccache-CI
             renderer: Vulkan
             compiler: default
-          - qt_version: 6.10.2
+          - qt_version: 6.11.2
             host: linux_arm64
             runner: ubuntu-24.04-arm
             preset: Linux-Vulkan-sccache-CI
             renderer: Vulkan
             compiler: gcc
-          - qt_version: 6.11.0
-            host: linux
-            runner: ubuntu-24.04
-            preset: Linux-OpenGL-sccache-CI
-            renderer: OpenGL
-            compiler: default
-          - qt_version: 6.11.0
-            host: linux_arm64
-            runner: ubuntu-24.04-arm
-            preset: Linux-OpenGL-sccache-CI
-            renderer: OpenGL
-            compiler: gcc
-          - qt_version: 6.11.0
-            host: linux
-            runner: ubuntu-24.04
-            preset: Linux-Vulkan-sccache-CI
-            renderer: Vulkan
-            compiler: default
-          - qt_version: 6.11.0
-            host: linux_arm64
-            runner: ubuntu-24.04-arm
-            preset: Linux-Vulkan-sccache-CI
-            renderer: Vulkan
-            compiler: gcc
-          - qt_version: 6.11.0
+          - qt_version: 6.11.2
             host: linux
             runner: ubuntu-24.04
             preset: Linux-OpenGL-coverage
             renderer: OpenGL
             compiler: gcc-14
             gcov: gcov-14
-          - qt_version: 6.11.0
+          - qt_version: 6.11.2
             host: linux
             runner: ubuntu-24.04
             preset: Linux-OpenGL-clang-tidy
             renderer: OpenGL
             compiler: llvm
-          - qt_version: 6.11.0
+          - qt_version: 6.11.2
             host: linux
             runner: ubuntu-24.04
             preset: Linux-Vulkan-clang-tidy
@@ -141,14 +117,14 @@ jobs:
     steps:
       - name: Configure AWS Credentials
         if: vars.OIDC_AWS_ROLE_TO_ASSUME
-        uses: aws-actions/configure-aws-credentials@v6
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
         with:
           aws-region: us-west-2
           role-to-assume: ${{ vars.OIDC_AWS_ROLE_TO_ASSUME }}
           role-session-name: ${{ github.run_id }}
 
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: source
           submodules: recursive
@@ -189,7 +165,7 @@ jobs:
       - name: Install compiler
         id: install_compiler
         if: matrix.compiler != 'default' && matrix.compiler != 'llvm'
-        uses: rlalik/setup-cpp-compiler@master
+        uses: rlalik/setup-cpp-compiler@3dbf473b4e7d87af3e7f329ca64bca40b2bae127 # v2
         with:
           compiler: ${{ matrix.compiler }}
 
@@ -235,10 +211,16 @@ jobs:
           popd
           rm -rf lcov
 
-      - name: Download Qt
-        uses: jurplel/install-qt-action@v4
+      - name: Setup Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
-          aqtversion: ==3.3.*
+          python-version: "3.14"
+
+      - name: Download Qt
+        uses: jurplel/install-qt-action@b344308e4483fc892e0d27b3cd1b173ebdd95f06 # v4.5.0
+        with:
+          setup-python: false # use python 3.14 for more reliable downloads
+          aqtsource: git+https://github.com/miurahr/aqtinstall.git@076e1659807d0b362a3ed684d54c2e9c775eb9c7
           version: ${{ matrix.qt_version }}
           dir: ${{ github.workspace }}
           host: ${{ matrix.host }}
@@ -247,7 +229,7 @@ jobs:
 
       - name: Setup ninja
         if: matrix.compiler != 'default'
-        uses: seanmiddleditch/gha-setup-ninja@v6
+        uses: seanmiddleditch/gha-setup-ninja@3b1f8f94a2f8254bd26914c4ab9474d4f0015f67 # v6
 
       - name: Build (Qt6, CentOS 9, GCC11)
         if: matrix.compiler == 'default'
@@ -270,14 +252,14 @@ jobs:
 
       - name: Run tests
         if: matrix.compiler != 'default' && !(matrix.host == 'linux_arm64' && matrix.renderer == 'Vulkan') && !(matrix.compiler == 'llvm' && matrix.renderer == 'Vulkan')
-        uses: coactions/setup-xvfb@v1
+        uses: coactions/setup-xvfb@b6b4fcfb9f5a895edadc3bc76318fae0ac17c8b3 # v1.0.1
         with:
           run: ctest --output-on-failure
           working-directory: build/qt6-Linux-${{ matrix.renderer }}
 
       - name: Run code coverage
         if: matrix.compiler != 'default' && matrix.preset == 'Linux-OpenGL-coverage'
-        uses: coactions/setup-xvfb@v1
+        uses: coactions/setup-xvfb@b6b4fcfb9f5a895edadc3bc76318fae0ac17c8b3 # v1.0.1
         with:
           run: ninja coverage
           working-directory: build/qt6-Linux-${{ matrix.renderer }}
@@ -315,15 +297,15 @@ jobs:
         run: sccache --show-stats
 
       - name: Upload installation
-        if: matrix.compiler == 'default'
-        uses: actions/upload-artifact@v7
+        if: matrix.compiler == 'default' || matrix.compiler == 'gcc'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ${{ matrix.host }}_${{ matrix.qt_version }}_${{ matrix.renderer }}
           path: build/qt6-Linux-${{ matrix.renderer }}/maplibre-native-qt_*.tar.bz2
 
       - name: Upload coverage reports to Codecov
         if: matrix.compiler != 'default' && matrix.preset == 'Linux-OpenGL-coverage'
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           files: build/qt6-Linux-${{ matrix.renderer }}/coverage.info
           verbose: true
@@ -331,24 +313,24 @@ jobs:
   release:
     name: Release
     if: github.ref_type == 'tag'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: build-and-test
     permissions:
       contents: write
     strategy:
       matrix:
-        qt_version: [6.10.2, 6.11.0]
+        qt_version: [6.11.2]
         renderer: [OpenGL, Vulkan]
         host: [linux, linux_arm64]
 
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: ${{ matrix.host }}_${{ matrix.qt_version }}_${{ matrix.renderer }}
 
       - name: Release
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           artifacts: maplibre-native-qt_${{ github.ref_name }}_Qt${{ matrix.qt_version }}_${{ matrix.host }}_${{ matrix.renderer }}.tar.bz2
           allowUpdates: true
