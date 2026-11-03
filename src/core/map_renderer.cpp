@@ -9,6 +9,7 @@
 
 #include <mbgl/gfx/backend_scope.hpp>
 
+#include <QtCore/QThread>
 #include <QtCore/QThreadStorage>
 
 #ifdef __APPLE__
@@ -130,6 +131,19 @@ void MapRenderer::updateParameters(std::shared_ptr<mbgl::UpdateParameters> param
 }
 
 void MapRenderer::updateRenderer(const mbgl::Size &size, qreal pixelRatio, quint32 fbo) {
+    // Map::resize() runs on the GUI thread (QQuickItem::geometryChange) after the
+    // scene graph thread has already created this renderer. Debug builds assert
+    // that updateRenderer stays on the creation thread, which aborted the app
+    // when a map — including a geospatial PDF — was shown or resized.
+    if (QThread::currentThread() != thread()) {
+        const mbgl::Size sizeCopy = size;
+        QMetaObject::invokeMethod(
+            this,
+            [this, sizeCopy, pixelRatio, fbo]() { updateRenderer(sizeCopy, pixelRatio, fbo); },
+            Qt::QueuedConnection);
+        return;
+    }
+
     MBGL_VERIFY_THREAD(tid);
 
     // Compute actual renderer size based on pixel ratio
